@@ -1,0 +1,120 @@
+# version: "3.8"
+
+services:
+  # Backend Service (Go + Fiber)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: video_downloader_api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_PORT=8080
+      - APP_ENV=production
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY_HOUR=${JWT_EXPIRY_HOUR}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_USE_SSL=false
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - video_download_network
+
+  # Frontend Service (SvelteKit)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: video_downloader_web
+  #   restart: always
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - PUBLIC_API_URL=http://backend:8080
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - video_download_network
+
+  # Database Service (PostgreSQL)
+  postgres:
+    image: postgres:15-alpine
+    container_name: video_downloader_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: video_downloader
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - video_download_network
+
+  # Cache Service (Redis)
+  redis:
+    image: redis:7-alpine
+    container_name: video_downloader_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - video_download_network
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: video_downloader_worker
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+    depends_on:
+      - postgres
+      - redis
+    command: ["./worker"]
+    networks:
+      - video_download_network
+
+  setup:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: video_downloader_setup
+    restart: "no"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable
+    depends_on:
+      - postgres
+    command: >
+      /bin/sh -c "
+      echo 'Waiting for postgres...' &&
+      sleep 5 &&
+      migrate -path internal/repository/migrations -database 'postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable' up &&
+      ./seed
+      "
+    networks:
+      - video_download_network
+
+networks:
+  video_download_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

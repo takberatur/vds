@@ -1,0 +1,36 @@
+{
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"cSpell.enabled": false,
+	"editor.formatOnSave": true,
+	"editor.formatOnSaveMode": "file",
+	"[javascript][html][typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[svelte]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"svelte.enable-ts-plugin": true,
+	"prettier.documentSelectors": ["**/*.svelte"],
+	"editor.quickSuggestions": {
+		"strings": "on"
+	},
+	"svelte.plugin.svelte.compilerWarnings": {
+		"css-unused-selector": "ignore",
+		"missing-declaration": "ignore",
+		"a11y-click-events-have-key-events": "ignore",
+		"a11y-no-static-element-interactions": "ignore",
+		"state-referenced-locally": "ignore"
+	},
+	"css.lint.unknownAtRules": "ignore",
+	"editor.insertSpaces": false,
+	"editor.tabSize": 2,
+	"editor.detectIndentation": false,
+	"prettier.tabWidth": 2,
+	"prettier.useTabs": true,
+	"workbench.view.showQuietly": {
+		"workbench.panel.output": true
+	},
+	"html.autoClosingTags": false
+}

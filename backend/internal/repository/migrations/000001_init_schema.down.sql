@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS analytics_daily;
+DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS downloads;
+DROP TABLE IF EXISTS platforms;
+DROP TABLE IF EXISTS applications;
+DROP TABLE IF EXISTS oauth_providers;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
