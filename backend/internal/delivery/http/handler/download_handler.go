@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"net/url"
@@ -20,6 +21,7 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"github.com/user/video-downloader-backend/internal/infrastructure"
 	"github.com/user/video-downloader-backend/internal/middleware"
 	"github.com/user/video-downloader-backend/internal/model"
 	"github.com/user/video-downloader-backend/internal/service"
@@ -277,23 +279,33 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			// Always set a browser User-Agent.
 			// For Vimeo, this is crucial because the Docker container's yt-dlp fails to impersonate automatically.
 			"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+			// Set socket timeout to prevent hanging on connection issues
+			"--socket-timeout", "30",
 		}
 
 		var targetURL string
 
-		// Improved Vimeo Strategy: Always try to construct the Player URL from the ID
-		// This bypasses login requirements on the main page
+		// Improved Vimeo Strategy: Use FilePath from DB if available (contains hash), otherwise construct Player URL
 		if isVimeo {
-			// Regex to find the numeric ID
-			re := regexp.MustCompile(`vimeo\.com/(?:channels/(?:\w+/)?|groups/[^/]+/videos/|video/|)(\d+)`)
-			matches := re.FindStringSubmatch(pageURL)
-			if len(matches) > 1 {
-				vimeoID := matches[1]
-				targetURL = fmt.Sprintf("https://player.vimeo.com/video/%s", vimeoID)
-				log.Info().Str("vimeo_id", vimeoID).Msg("Constructed Vimeo Player URL for download")
+			// Priority 1: Use FilePath from DB if it's a Player URL (might contain access tokens/hashes like ?h=...)
+			if task.FilePath != nil && strings.Contains(*task.FilePath, "player.vimeo.com") {
+				targetURL = *task.FilePath
+				// Unescape HTML entities (e.g., &amp; -> &) which might have been saved from raw HTML
+				targetURL = html.UnescapeString(targetURL)
+				log.Info().Str("target_url", targetURL).Msg("Using Vimeo Player URL from DB Task")
 			} else {
-				// Fallback to pageURL if we can't parse ID
-				targetURL = pageURL
+				// Priority 2: Construct Player URL from ID
+				// Regex to find the numeric ID
+				re := regexp.MustCompile(`vimeo\.com/(?:channels/(?:\w+/)?|groups/[^/]+/videos/|video/|)(\d+)`)
+				matches := re.FindStringSubmatch(pageURL)
+				if len(matches) > 1 {
+					vimeoID := matches[1]
+					targetURL = fmt.Sprintf("https://player.vimeo.com/video/%s", vimeoID)
+					log.Info().Str("vimeo_id", vimeoID).Msg("Constructed Vimeo Player URL for download")
+				} else {
+					// Fallback to pageURL if we can't parse ID
+					targetURL = pageURL
+				}
 			}
 		} else {
 			targetURL = pageURL
@@ -385,6 +397,9 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 		} else {
 			if isTikTok {
 				args = append(args, "-f", "best[ext=mp4][vcodec=h264]/best[ext=mp4]")
+			} else if isVimeo {
+				// Vimeo often requires merging video+audio streams
+				args = append(args, "-f", "bestvideo+bestaudio/best")
 			} else {
 				args = append(args, "-f", "best[ext=mp4][vcodec=h264]/best[ext=mp4]/best")
 			}
@@ -448,6 +463,52 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 					goto ServeFile
 				} else {
 					log.Error().Err(err2).Str("stderr", stderr2.String()).Msg("yt-dlp fallback on OriginalURL failed")
+				}
+			}
+
+			// Fallback 3: Lux strategy for Vimeo
+			// If yt-dlp fails for Vimeo, try using lux as a last resort
+			if isVimeo {
+				log.Info().Str("url", pageURL).Msg("Falling back to Lux for Vimeo")
+
+				// Lux usage: lux -o <output_dir> -O <output_filename> <url>
+				// Note: lux doesn't support specifying exact filename with extension in -O, it appends extension automatically.
+				// But we can rename it later or find it.
+				luxFilenameBase := "lux-" + uuid.New().String()
+				luxArgs := []string{"-o", os.TempDir(), "-O", luxFilenameBase, pageURL}
+
+				luxCmd := exec.CommandContext(ctx, "lux", luxArgs...)
+				if luxErr := luxCmd.Run(); luxErr == nil {
+					log.Info().Msg("Lux fallback succeeded")
+
+					// Find the file. lux adds extension.
+					matches, err := filepath.Glob(filepath.Join(os.TempDir(), luxFilenameBase+".*"))
+					if err == nil && len(matches) > 0 {
+						tempFile = matches[0] // Update tempFile to point to the lux downloaded file
+						goto ServeFile
+					} else {
+						log.Error().Msg("Lux succeeded but file not found")
+					}
+				} else {
+					log.Error().Err(luxErr).Msg("Lux fallback failed")
+				}
+			}
+
+			// Fallback 4: Custom Vimeo Strategy (Golang implementation)
+			// This strategy parses the player page for the config object and extracts direct MP4 links
+			if isVimeo {
+				log.Info().Str("url", targetURL).Msg("Falling back to Custom Vimeo Strategy")
+				vimeoStrategy := infrastructure.NewVimeoStrategy()
+				vimeoFilename := "vimeo-custom-" + uuid.New().String() + ".mp4"
+				vimeoFilePath := filepath.Join(os.TempDir(), vimeoFilename)
+
+				// Use targetURL which is likely the player URL
+				if err := vimeoStrategy.Download(ctx, targetURL, vimeoFilePath); err == nil {
+					log.Info().Msg("Custom Vimeo Strategy succeeded")
+					tempFile = vimeoFilePath
+					goto ServeFile
+				} else {
+					log.Error().Err(err).Msg("Custom Vimeo Strategy failed")
 				}
 			}
 

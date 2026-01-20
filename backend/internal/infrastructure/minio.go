@@ -28,8 +28,16 @@ type minioClient struct {
 }
 
 func NewStorageClient(endpoint, accessKey, secretKey string, useSSL bool) (StorageClient, error) {
+	// Check for scheme in endpoint before parsing
+	if len(endpoint) >= 8 && endpoint[:8] == "https://" {
+		useSSL = true
+	}
+
 	parsedURL, err := url.Parse(endpoint)
 	if err == nil && parsedURL.Host != "" {
+		if parsedURL.Scheme == "https" {
+			useSSL = true
+		}
 		endpoint = parsedURL.Host
 	}
 
@@ -47,7 +55,7 @@ func NewStorageClient(endpoint, accessKey, secretKey string, useSSL bool) (Stora
 	minioClientObj, err := minio.New(endpoint, &minio.Options{
 		Creds:        credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure:       useSSL,
-		BucketLookup: minio.BucketLookupPath,
+		BucketLookup: minio.BucketLookupAuto,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create minio client: %w", err)

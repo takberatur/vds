@@ -132,7 +132,7 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 
 	if videoInfo == nil {
 		log.Info().Msg("JSON-LD failed, trying meta tags fallback")
-		videoInfo = extractFromMetaTags(doc, url)
+		videoInfo = extractFromMetaTags(doc)
 	}
 
 	if videoInfo != nil {
@@ -147,6 +147,32 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 	}
 
 	return nil, fmt.Errorf("failed to extract video info with chromedp")
+}
+
+func (s *ChromedpStrategy) IsVideoURL(url string) bool {
+	videoExtensions := []string{
+		".mp4", ".webm", ".mkv", ".flv", ".avi", ".mov",
+		".m3u8", ".mpd", ".ts", ".m4v",
+	}
+
+	for _, ext := range videoExtensions {
+		if strings.Contains(strings.ToLower(url), ext) {
+			return true
+		}
+	}
+
+	patterns := []string{
+		"/video/", "/videos/", "/stream/", "/videoplayback",
+		"googlevideo.com", "video.twimg.com",
+	}
+
+	for _, pattern := range patterns {
+		if strings.Contains(url, pattern) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func processJsonLD(data map[string]interface{}, info **VideoInfo) bool {
@@ -194,7 +220,7 @@ func processJsonLD(data map[string]interface{}, info **VideoInfo) bool {
 	return true
 }
 
-func extractFromMetaTags(doc *goquery.Document, url string) *VideoInfo {
+func extractFromMetaTags(doc *goquery.Document) *VideoInfo {
 	var info VideoInfo
 
 	// Try standard OpenGraph video
