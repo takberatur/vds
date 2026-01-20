@@ -69,9 +69,10 @@ func NewFallbackDownloader() *FallbackDownloader {
 	luxStrat := NewLuxStrategy()
 	rumbleStrat := NewRumbleStrategy()
 	chromedpStrat := NewChromedpStrategy()
+	vimeoStrat := NewVimeoStrategy()
 
 	return &FallbackDownloader{
-		strategies: []DownloaderStrategy{ytDlp, ytGo, luxStrat, rumbleStrat, chromedpStrat},
+		strategies: []DownloaderStrategy{ytDlp, ytGo, luxStrat, rumbleStrat, chromedpStrat, vimeoStrat},
 	}
 }
 
@@ -91,6 +92,9 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 	normalizedType := strings.ToLower(downloadType)
 	isYoutube := normalizedType == "youtube" || normalizedType == "youtube-to-mp3" || strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
 	isRumble := normalizedType == "rumble" || strings.Contains(url, "rumble.com")
+	isVimeo := normalizedType == "vimeo" || strings.Contains(url, "vimeo.com")
+	isTikTok := normalizedType == "tiktok" || strings.Contains(url, "tiktok.com")
+	isTwitter := normalizedType == "twitter" || normalizedType == "x" || strings.Contains(url, "twitter.com") || strings.Contains(url, "x.com")
 
 	var strategies []DownloaderStrategy
 
@@ -119,6 +123,35 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 			if name == "yt-dlp" || name == "lux" || name == "rumble-custom" || name == "chromedp" {
 				strategies = append(strategies, strategy)
 			}
+		}
+	} else if isVimeo {
+		// For Vimeo, prioritize vimeo-custom, then yt-dlp, then lux, then chromedp
+		var vimeoStrategy DownloaderStrategy
+		var others []DownloaderStrategy
+
+		for _, strategy := range f.strategies {
+			if strategy.Name() == "vimeo-custom" {
+				vimeoStrategy = strategy
+			} else if strategy.Name() == "yt-dlp" || strategy.Name() == "lux" || strategy.Name() == "chromedp" {
+				others = append(others, strategy)
+			}
+		}
+
+		if vimeoStrategy != nil {
+			strategies = append([]DownloaderStrategy{vimeoStrategy}, others...)
+		} else {
+			strategies = others
+		}
+	} else if isTikTok || isTwitter {
+		// For TikTok and Twitter, prioritize yt-dlp, then lux, then others
+		// We explicitly exclude strategies that might interfere or are irrelevant
+		for _, strategy := range f.strategies {
+			name := strategy.Name()
+			// Exclude platform specific strategies that don't match
+			if name == "kkdai/youtube" || name == "rumble-custom" || name == "vimeo-custom" {
+				continue
+			}
+			strategies = append(strategies, strategy)
 		}
 	} else {
 		// For non-YouTube URLs, exclude kkdai/youtube strategy

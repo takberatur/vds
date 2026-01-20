@@ -405,6 +405,40 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			}
 		}
 
+		// Optimization: Try to get direct stream URL for Vimeo using Custom Strategy FIRST
+		// This avoids yt-dlp's slow download-then-serve mechanism and ffmpeg merging
+		if isVimeo {
+			log.Info().Str("target_url", targetURL).Msg("Attempting Vimeo direct stream optimization")
+			vimeoStrategy := infrastructure.NewVimeoStrategy()
+			// Use targetURL which is the Player URL
+			if directURL, err := vimeoStrategy.GetDirectURL(ctx, targetURL); err == nil && directURL != "" {
+				log.Info().Str("direct_url", directURL).Msg("Vimeo direct stream found, proxying to client")
+
+				req, err := http.NewRequestWithContext(ctx, "GET", directURL, nil)
+				if err == nil {
+					req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+					// Use the strategy's client which has proper timeout configuration
+					resp, err := vimeoStrategy.Client.Do(req)
+					if err == nil && resp.StatusCode == http.StatusOK {
+						defer resp.Body.Close()
+
+						// Set headers for the client response
+						c.Set("Content-Type", "video/mp4")
+						if resp.ContentLength > 0 {
+							c.Set("Content-Length", fmt.Sprintf("%d", resp.ContentLength))
+						}
+						c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
+
+						// Stream the body directly
+						return c.Status(http.StatusOK).SendStream(resp.Body)
+					}
+				}
+			} else {
+				log.Warn().Err(err).Msg("Vimeo direct stream optimization failed, falling back to yt-dlp")
+			}
+		}
+
 		tempFile := filepath.Join(os.TempDir(), "download-"+uuid.New().String()+".mp4")
 
 		// Capture base args before appending output and targetURL for fallback

@@ -5,7 +5,7 @@
 .env.prod
 docker-compose.production.yml
 api.http
-docs
+docs.txt
 docs.db
 frontend/node_modules
 frontend/dist

@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -17,10 +18,21 @@ import (
 )
 
 type RumbleStrategy struct {
+	Client *http.Client
 }
 
 func NewRumbleStrategy() *RumbleStrategy {
-	return &RumbleStrategy{}
+	return &RumbleStrategy{
+		Client: &http.Client{
+			Timeout: 15 * time.Minute,
+			Transport: &http.Transport{
+				Proxy: http.ProxyFromEnvironment,
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+			},
+		},
+	}
 }
 
 func (s *RumbleStrategy) Name() string {
