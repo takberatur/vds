@@ -58,7 +58,7 @@ export const actions = {
 		if (error instanceof Error) {
 			return fail(500, {
 				form,
-				message: error.message || 'Failed to update settings.'
+				message: error.message || 'Failed to update ads.txt settings.'
 			});
 		}
 

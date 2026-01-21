@@ -19,7 +19,7 @@ export const POST = async ({ locals, request }) => {
 			}, { status: 400 });
 		}
 
-		const response = await deps.platformService.UploadThumbnail(parseInt(platformID), file);
+		const response = await deps.platformService.UploadThumbnail(platformID, file);
 		if (response instanceof Error) {
 			throw response;
 		}

@@ -18,7 +18,11 @@
 	import { cn } from '@/utils';
 	import * as i18n from '@/paraglide/messages.js';
 
-	let { user, setting }: { user?: User | null; setting?: SettingsValue | null } = $props();
+	let {
+		user,
+		setting,
+		lang = 'en'
+	}: { user?: User | null; setting?: SettingsValue | null; lang?: Locale } = $props();
 
 	let webSetting = $derived(setting?.WEBSITE);
 	let logo = $derived(
@@ -119,14 +123,14 @@
 			/>
 			{#if user}
 				<Button
+					href={localizeHref(`${user?.role?.name === 'admin' ? '/dashboard' : '/user'}`)}
 					variant="outline"
 					size="icon"
-					href={localizeHref(`${user?.role?.name === 'admin' ? '/dashboard' : '/user'}`)}
 				>
 					<Icon icon="material-symbols:account-circle" />
 				</Button>
 			{:else}
-				<Button variant="outline" size="icon" href={localizeHref('/login')}>
+				<Button href={localizeHref('/login')} variant="outline" size="icon">
 					<Icon icon="icon-park-outline:login" />
 				</Button>
 			{/if}

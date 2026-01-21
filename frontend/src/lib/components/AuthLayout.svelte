@@ -3,7 +3,11 @@
 	import { LightSwitch } from '@/components/ui-extras/light-switch';
 	import { localizeHref } from '@/paraglide/runtime';
 
-	let { children, webSetting }: { children?: Snippet; webSetting?: SettingWeb } = $props();
+	let {
+		children,
+		webSetting,
+		lang
+	}: { children?: Snippet; webSetting?: SettingWeb; lang: string } = $props();
 
 	let logo = $derived(webSetting?.site_logo || '/images/logo.png');
 </script>

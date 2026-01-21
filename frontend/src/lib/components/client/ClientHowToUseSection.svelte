@@ -81,27 +81,25 @@
 				</p>
 			</div>
 
-			<div class="mx-auto max-w-5xl">
-				<div class="grid gap-8 md:grid-cols-3">
-					{#each steps as step}
-						<div class="relative">
-							<div class="flex flex-col items-center text-center">
-								<div
-									class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-3xl font-bold text-white shadow-lg shadow-blue-500/30 dark:bg-linear-to-br dark:from-blue-500 dark:to-purple-500 dark:text-white dark:shadow-lg dark:shadow-blue-400/30"
-								>
-									{step.number}
-								</div>
-								<h3 class="mb-3 text-xl font-bold">{step.title}</h3>
-								<p class="text-muted-foreground">{step.description}</p>
+			<div class="grid gap-8 md:grid-cols-3">
+				{#each steps as step}
+					<div class="relative">
+						<div class="flex flex-col items-center text-center">
+							<div
+								class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-3xl font-bold text-white shadow-lg shadow-blue-500/30 dark:bg-linear-to-br dark:from-blue-500 dark:to-purple-500 dark:text-white dark:shadow-lg dark:shadow-blue-400/30"
+							>
+								{step.number}
 							</div>
-							{#if step.number !== '3'}
-								<ArrowRight
-									class="absolute top-10 right-0 hidden h-6 w-6 translate-x-1/2 -translate-y-1/2 text-blue-600 md:block lg:-right-8 dark:text-blue-500"
-								/>
-							{/if}
+							<h3 class="mb-3 text-xl font-bold">{step.title}</h3>
+							<p class="text-muted-foreground">{step.description}</p>
 						</div>
-					{/each}
-				</div>
+						{#if step.number !== '3'}
+							<ArrowRight
+								class="absolute top-10 right-0 hidden h-6 w-6 translate-x-1/2 -translate-y-1/2 text-blue-600 md:block lg:-right-8 dark:text-blue-500"
+							/>
+						{/if}
+					</div>
+				{/each}
 			</div>
 		</div>
 	</section>

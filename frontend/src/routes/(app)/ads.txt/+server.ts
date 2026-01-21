@@ -9,11 +9,15 @@ export const GET = async ({ url, request }) => {
 		const staticPath = join(process.cwd(), 'static', 'ads.txt');
 		let adsContent: string;
 
+		let origin = url.origin || request.headers.get('origin') || '';
+		if (origin.startsWith('http://')) {
+			origin = origin.replace('http://', 'https://');
+		}
 
 		if (existsSync(staticPath)) {
 			adsContent = readFileSync(staticPath, 'utf-8');
 		} else {
-			adsContent = generateDefaultAdsTxt();
+			adsContent = generateDefaultAdsTxt(origin);
 
 			writeFileSync(staticPath, adsContent, 'utf-8');
 		}
@@ -28,7 +32,7 @@ export const GET = async ({ url, request }) => {
 	} catch (error) {
 		console.error('Error handling ads.txt:', error);
 
-		const fallbackContent = generateDefaultAdsTxt();
+		const fallbackContent = generateDefaultAdsTxt(origin);
 
 		return text(fallbackContent, {
 			status: 500,
@@ -39,8 +43,8 @@ export const GET = async ({ url, request }) => {
 	}
 };
 
-function generateDefaultAdsTxt(): string {
-	return `# Default ads.txt for ${process.env.ORIGIN || 'your-domain.com'}
+function generateDefaultAdsTxt(origin: string = process.env.ORIGIN || 'your-domain.com'): string {
+	return `# Default ads.txt for ${origin}
 google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
 google.com, pub-0000000000000001, RESELLER
 # Add your own ad network entries here

@@ -21,3 +21,10 @@ android/app/build
 android/.gradle
 android/.idea
 example-link.txt
+backend/build
+backend/bin
+backend/temp
+backend/.env
+backend/.env.test
+backend/.env.prod
+backend/*.exe

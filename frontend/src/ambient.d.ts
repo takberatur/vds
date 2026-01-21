@@ -265,6 +265,7 @@ declare global {
 		maintenance_message?: string;
 		source_logo_favicon: 'local' | 'remote';
 		histats_tracking_code?: string;
+		google_analytics_code?: string;
 	};
 	type SettingMonetize = {
 		enable_monetize?: boolean;

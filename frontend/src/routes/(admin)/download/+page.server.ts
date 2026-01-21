@@ -27,7 +27,8 @@ export const load = async ({ locals, url, parent }) => {
 		queryParams.status = status
 	}
 
-	const download = await deps.downloadService.GetDownloads(queryParams);
+	const download = await deps.downloadService.GetDownloads(queryParams) as PaginatedResult<Download>;
+	console.log(JSON.stringify(download, null, 2));
 
 	return {
 		pageMetaTags,

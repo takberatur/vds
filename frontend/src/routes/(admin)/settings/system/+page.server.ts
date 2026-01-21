@@ -30,7 +30,8 @@ export const load = async ({ locals, url, parent }) => {
 			maintenance_mode: settings?.SYSTEM.maintenance_mode ?? false,
 			maintenance_message: settings?.SYSTEM.maintenance_message ?? '',
 			source_logo_favicon: settings?.SYSTEM.source_logo_favicon ?? 'local',
-			histats_tracking_code: settings?.SYSTEM.histats_tracking_code ?? ''
+			histats_tracking_code: settings?.SYSTEM.histats_tracking_code ?? '',
+			google_analytics_code: settings?.SYSTEM.google_analytics_code ?? ''
 		},
 		zod4(updateSettingSystem)
 	);

@@ -116,7 +116,7 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 			d.id, d.user_id, d.app_id, d.platform_id, d.original_url, d.file_path, d.thumbnail_url, 
 			d.title, d.duration, d.file_size, d.format, d.status, d.error_message, d.ip_address, d.created_at,
 			u.email as user_email,
-			p.name as platform_name, p.slug as platform_slug
+			p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium
 		FROM downloads d
 		LEFT JOIN users u ON d.user_id = u.id
 		LEFT JOIN platforms p ON d.platform_id = p.id
@@ -203,13 +203,14 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 	for rows.Next() {
 		var task model.DownloadTask
 		var userEmail *string
-		var platformName, platformSlug *string
+		var platformName, platformSlug, platformThumbnailURL, platformType *string
+		var platformIsActive, platformIsPremium *bool
 
 		err := rows.Scan(
 			&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.FilePath, &task.ThumbnailURL,
 			&task.Title, &task.Duration, &task.FileSize, &task.Format, &task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
 			&userEmail,
-			&platformName, &platformSlug,
+			&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
 		)
 		if err != nil {
 			return nil, model.Pagination{}, err
@@ -224,9 +225,13 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 
 		if task.PlatformID != nil && platformName != nil {
 			task.Platform = &model.Platform{
-				ID:   *task.PlatformID,
-				Name: *platformName,
-				Slug: *platformSlug,
+				ID:           *task.PlatformID,
+				Name:         *platformName,
+				Slug:         *platformSlug,
+				ThumbnailURL: *platformThumbnailURL,
+				Type:         *platformType,
+				IsActive:     *platformIsActive,
+				IsPremium:    *platformIsPremium,
 			}
 		}
 

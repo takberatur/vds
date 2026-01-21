@@ -156,6 +156,25 @@
 							</RadioGroup.Root>
 						</Field.Field>
 						<Field.Field>
+							<Field.Label for="google_analytics_code">Google Analytics Code</Field.Label>
+							<div class="relative">
+								<Icon icon="ic:round-analytics" class="absolute top-1/2 left-3 -translate-y-1/2" />
+								<Input
+									bind:value={$form.google_analytics_code}
+									name="google_analytics_code"
+									type="text"
+									class="ps-10"
+									placeholder="Enter google analytics code"
+									autocomplete="on"
+									aria-invalid={!!$errors.google_analytics_code}
+									disabled={$submitting}
+								/>
+							</div>
+							{#if $errors.google_analytics_code}
+								<Field.Error>{$errors.google_analytics_code}</Field.Error>
+							{/if}
+						</Field.Field>
+						<Field.Field>
 							<Field.Label for="histats_tracking_code">Histats Tracking Code</Field.Label>
 							<div class="relative">
 								<Icon

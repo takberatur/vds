@@ -10,6 +10,19 @@ export default defineConfig({
 	build: {
 		minify: true
 	},
+	server: {
+		allowedHosts: [
+			'client.giuadiario.info',
+		],
+		// hmr: {
+		// 	protocol: 'wss',
+		// 	port: process.env.NODE_ENV === "development" ? 5173 : undefined,
+		// 	host:
+		// 		process.env.NODE_ENV === "development"
+		// 			? process.env.ORIGIN
+		// 			: undefined,
+		// }
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit(),

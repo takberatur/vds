@@ -89,7 +89,8 @@ export const updateSettingSystem = z.object({
 	maintenance_mode: z.boolean().optional().default(false),
 	maintenance_message: z.string().optional().or(z.literal('')),
 	source_logo_favicon: z.enum(['local', 'remote']).optional().default('local'),
-	histats_tracking_code: z.string().optional().or(z.literal(''))
+	histats_tracking_code: z.string().optional().or(z.literal('')),
+	google_analytics_code: z.string().optional().or(z.literal(''))
 });
 export const updateSettingMonetization = z.object({
 	enable_monetize: z.boolean().optional().default(false),
@@ -104,6 +105,9 @@ export const updateSettingMonetization = z.object({
 	direct_link_ad_code: z.string().optional().or(z.literal(''))
 })
 export const updateSettingAdsTxt = z.object({
+	content: z.string().optional().or(z.literal(''))
+})
+export const updateSettingRobotTxt = z.object({
 	content: z.string().optional().or(z.literal(''))
 })
 
@@ -279,6 +283,7 @@ export type UpdateSettingWebSchema = z.infer<typeof updateSettingWeb>;
 export type UpdateSettingEmailSchema = z.infer<typeof updateSettingEmail>;
 export type UpdateSettingSystemSchema = z.infer<typeof updateSettingSystem>;
 export type UpdateSettingMonetizationSchema = z.infer<typeof updateSettingMonetization>;
+export type UpdateSettingRobotTxtSchema = z.infer<typeof updateSettingRobotTxt>;
 export type UpdateSettingAdsTxtSchema = z.infer<typeof updateSettingAdsTxt>;
 
 // Accounts

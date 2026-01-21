@@ -8,7 +8,7 @@ import { localizeHref } from '@/paraglide/runtime.js';
 import type { SingleResponse } from "@siamf/google-translate";
 import { capitalizeFirstLetter } from "@/utils/format.js";
 
-export async function load({ locals, url, params }) {
+export async function load({ locals, url, params, parent }) {
 	const { user, settings, deps, lang } = locals;
 
 	const { slug } = params;
@@ -21,7 +21,9 @@ export async function load({ locals, url, params }) {
 		throw redirect(302, localizeHref('/'))
 	}
 
-	const defaultOrigin = new URL(url.pathname, url.origin).href;
+	const defaultOrigin = await parent().then((data) => data.canonicalUrl || '');
+	const alternates = await parent().then((data) => data.alternates || []);
+
 	const title = await deps.languageHelper.singleTranslate(`Download ${platform.name} Video Without Watermark Full HD Free`, lang) as SingleResponse;
 	const siteName = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_name || '', lang) as SingleResponse;
 	const tagline = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_tagline || '', lang) as SingleResponse;
@@ -36,6 +38,7 @@ export async function load({ locals, url, params }) {
 		keywords: keywords.map((keyword: SingleResponse) => capitalizeFirstLetter(keyword.data.target.text || '')),
 		robots: 'index, follow',
 		canonical: defaultOrigin,
+		alternates,
 		graph_type: 'website'
 	});
 

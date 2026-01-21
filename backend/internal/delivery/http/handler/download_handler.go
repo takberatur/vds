@@ -163,7 +163,10 @@ func (h *DownloadHandler) GetDownloads(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch downloads", err.Error())
 	}
-	return response.Success(c, "Downloads fetched successfully", result)
+	return response.SuccessWithMeta(c, "Downloads fetched successfully",
+		result.Data,
+		result.Pagination,
+	)
 }
 
 func (h *DownloadHandler) UpdateDownload(c *fiber.Ctx) error {
@@ -227,6 +230,7 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 	taskIDStr := c.Query("task_id")
 	formatID := c.Query("format_id")
 	filename := c.Query("filename")
+	var tempFile string
 
 	// New flow: download based on task_id using yt-dlp streaming
 	if taskIDStr != "" {
@@ -270,17 +274,21 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 		isTikTok := strings.Contains(strings.ToLower(pageURL), "tiktok.com")
 		isRumble := strings.Contains(strings.ToLower(pageURL), "rumble.com")
 		isVimeo := strings.Contains(strings.ToLower(pageURL), "vimeo.com")
+		isDailymotion := strings.Contains(strings.ToLower(pageURL), "dailymotion.com") || strings.Contains(strings.ToLower(pageURL), "dai.ly")
 
 		args := []string{
 			"--js-runtimes", "node",
 			"--no-playlist",
 			"--merge-output-format", "mp4",
 			"--no-check-certificate",
-			// Always set a browser User-Agent.
-			// For Vimeo, this is crucial because the Docker container's yt-dlp fails to impersonate automatically.
-			"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
 			// Set socket timeout to prevent hanging on connection issues
 			"--socket-timeout", "30",
+		}
+
+		// Set User-Agent for most platforms, but skip for Dailymotion if it causes 403
+		// For Vimeo, this is crucial because the Docker container's yt-dlp fails to impersonate automatically.
+		if !isDailymotion {
+			args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36")
 		}
 
 		var targetURL string
@@ -338,7 +346,8 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 		}
 
 		// Check if we should use lux strategy
-		if task.FilePath != nil && strings.HasPrefix(*task.FilePath, "lux://") {
+		// Skip Lux for Dailymotion as it tends to download HTML files instead of video
+		if task.FilePath != nil && strings.HasPrefix(*task.FilePath, "lux://") && !isDailymotion {
 			targetURL = strings.TrimPrefix(*task.FilePath, "lux://")
 			tmpDir := os.TempDir()
 			filenameBase := task.ID.String()
@@ -348,19 +357,59 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			// lux -o tmpDir -O filenameBase targetURL
 			cmd := exec.CommandContext(ctx, "lux", "-o", tmpDir, "-O", filenameBase, targetURL)
 			if err := cmd.Run(); err != nil {
-				log.Error().Err(err).Msg("Lux download failed")
-				return response.Error(c, fiber.StatusInternalServerError, "Lux download failed", err.Error())
-			}
+				log.Warn().Err(err).Msg("Lux download failed, falling back to yt-dlp")
+				// Fall through to yt-dlp
+			} else {
+				// Find the file. lux might add extension.
+				matches, err := filepath.Glob(filepath.Join(tmpDir, filenameBase+".*"))
+				if err != nil || len(matches) == 0 {
+					log.Warn().Msg("Lux downloaded file not found, falling back to yt-dlp")
+					// Fall through
+				} else {
+					// Prioritize .mp4 or actual video files, avoid .m3u8 or .xml
+					foundVideo := false
+					var selectedFile string
+					for _, m := range matches {
+						ext := strings.ToLower(filepath.Ext(m))
+						if ext == ".mp4" || ext == ".mkv" || ext == ".webm" {
+							selectedFile = m
+							foundVideo = true
+							break
+						}
+					}
 
-			// Find the file. lux might add extension.
-			matches, err := filepath.Glob(filepath.Join(tmpDir, filenameBase+".*"))
-			if err != nil || len(matches) == 0 {
-				return response.Error(c, fiber.StatusInternalServerError, "Downloaded file not found", nil)
-			}
-			filePath := matches[0]
-			log.Info().Str("file_path", filePath).Msg("Lux download successful, serving file")
+					shouldServe := true
+					if !foundVideo {
+						// If no video extension found, check if the first match is NOT a text file
+						firstMatch := matches[0]
+						ext := strings.ToLower(filepath.Ext(firstMatch))
 
-			return c.SendFile(filePath)
+						if ext == ".m3u8" {
+							log.Warn().Str("file", firstMatch).Msg("Lux downloaded m3u8 playlist, falling back to yt-dlp for proper processing")
+							shouldServe = false
+						} else if ext == ".xml" || ext == ".txt" || ext == ".html" {
+							log.Warn().Str("file", firstMatch).Msg("Lux downloaded a non-video file, falling back to yt-dlp")
+							shouldServe = false
+						} else {
+							selectedFile = firstMatch
+						}
+					}
+
+					if shouldServe {
+						tempFile = selectedFile
+						log.Info().Str("file_path", tempFile).Msg("Lux download successful, serving file")
+
+						// Serve the file directly to avoid goto scope issues
+						if _, err := os.Stat(tempFile); err != nil {
+							log.Warn().Err(err).Msg("Lux downloaded file vanished, falling back to yt-dlp")
+						} else {
+							c.Set("Content-Type", "video/mp4")
+							c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
+							return c.SendFile(tempFile)
+						}
+					}
+				}
+			}
 		}
 
 		if isTikTok {
@@ -387,6 +436,15 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			args = append(args, "--add-header", "Sec-Fetch-Mode: navigate")
 		}
 
+		if isDailymotion {
+			// For Dailymotion, prefer using the actual video page URL as referer if available
+			if pageURL != "" {
+				args = append(args, "--referer", pageURL)
+			} else {
+				args = append(args, "--referer", "https://www.dailymotion.com/")
+			}
+		}
+
 		effectiveFormatID := strings.TrimSpace(formatID)
 		if effectiveFormatID == "" || strings.EqualFold(effectiveFormatID, "download") {
 			effectiveFormatID = ""
@@ -400,6 +458,8 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			} else if isVimeo {
 				// Vimeo often requires merging video+audio streams
 				args = append(args, "-f", "bestvideo+bestaudio/best")
+			} else if isDailymotion {
+				args = append(args, "-f", "best[ext=mp4]/best")
 			} else {
 				args = append(args, "-f", "best[ext=mp4][vcodec=h264]/best[ext=mp4]/best")
 			}
@@ -439,19 +499,113 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			}
 		}
 
-		tempFile := filepath.Join(os.TempDir(), "download-"+uuid.New().String()+".mp4")
+		{
+			// Capture base args before appending output and targetURL for fallback
+			baseArgs := make([]string, len(args))
+			copy(baseArgs, args)
 
-		// Capture base args before appending output and targetURL for fallback
-		baseArgs := make([]string, len(args))
-		copy(baseArgs, args)
+			if isDailymotion {
+				log.Info().Str("url", targetURL).Msg("Streaming Dailymotion video via yt-dlp to avoid timeout")
 
-		args = append(args, "-o", tempFile, targetURL)
+				// Fetch cookies using Chromedp to bypass 403 Forbidden
+				chromedpStrategy := infrastructure.NewChromedpStrategy()
+				cookies, err := chromedpStrategy.GetCookies(ctx, targetURL)
+				if err != nil {
+					log.Warn().Err(err).Msg("Failed to get cookies for Dailymotion, proceeding without them")
+				} else if cookies != "" {
+					log.Info().Msg("Successfully retrieved cookies for Dailymotion")
+					baseArgs = append(baseArgs, "--add-header", fmt.Sprintf("Cookie: %s", cookies))
+				}
 
-		cmd := exec.CommandContext(ctx, "yt-dlp", args...)
-		var stderr bytes.Buffer
-		cmd.Stderr = &stderr
+				// Strategy change: Use yt-dlp to get the stream URL, then use ffmpeg to stream it.
+				// This avoids yt-dlp buffering the entire file before outputting to stdout.
 
-		if err := cmd.Run(); err != nil {
+				// 1. Get the direct stream URL
+				getUrlArgs := append(baseArgs, "--get-url", targetURL)
+				// Remove "-o" and output template if present in baseArgs (though we created baseArgs before adding -o)
+
+				log.Info().Msg("Resolving Dailymotion stream URL...")
+				ytDlpGetUrlCmd := exec.CommandContext(ctx, "yt-dlp", getUrlArgs...)
+				var urlStdout, urlStderr bytes.Buffer
+				ytDlpGetUrlCmd.Stdout = &urlStdout
+				ytDlpGetUrlCmd.Stderr = &urlStderr
+
+				if err := ytDlpGetUrlCmd.Run(); err != nil {
+					log.Error().Err(err).Str("stderr", urlStderr.String()).Msg("Failed to resolve stream URL with yt-dlp")
+					return response.Error(c, fiber.StatusInternalServerError, "Failed to resolve video stream", err.Error())
+				}
+
+				streamUrl := strings.TrimSpace(urlStdout.String())
+				if streamUrl == "" {
+					log.Error().Msg("yt-dlp returned empty URL")
+					return response.Error(c, fiber.StatusInternalServerError, "Resolved stream URL is empty", nil)
+				}
+
+				log.Info().Str("stream_url", streamUrl).Msg("Starting ffmpeg streaming...")
+
+				// 2. Stream using ffmpeg
+				// ffmpeg -headers "Cookie: xxx" -i url -c copy -f mp4 -movflags frag_keyframe+empty_moov pipe:1
+				ffmpegArgs := []string{}
+
+				// Construct headers for ffmpeg
+				var headersBuilder strings.Builder
+				headersBuilder.WriteString("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\r\n")
+				if cookies != "" {
+					headersBuilder.WriteString(fmt.Sprintf("Cookie: %s\r\n", cookies))
+				}
+
+				ffmpegArgs = append(ffmpegArgs, "-headers", headersBuilder.String())
+				ffmpegArgs = append(ffmpegArgs, "-i", streamUrl)
+				// Use copy if possible, but for HLS to MP4 stream, we need appropriate movflags
+				// -c copy is fastest and preserves quality
+				ffmpegArgs = append(ffmpegArgs, "-c", "copy")
+				ffmpegArgs = append(ffmpegArgs, "-f", "mp4")
+				ffmpegArgs = append(ffmpegArgs, "-movflags", "frag_keyframe+empty_moov")
+				ffmpegArgs = append(ffmpegArgs, "pipe:1")
+
+				ffmpegCmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
+
+				ffmpegStdout, err := ffmpegCmd.StdoutPipe()
+				if err != nil {
+					log.Error().Err(err).Msg("Failed to create stdout pipe for ffmpeg")
+					return response.Error(c, fiber.StatusInternalServerError, "Streaming initialization failed", err.Error())
+				}
+
+				var ffmpegStderr bytes.Buffer
+				ffmpegCmd.Stderr = &ffmpegStderr
+
+				if err := ffmpegCmd.Start(); err != nil {
+					log.Error().Err(err).Str("stderr", ffmpegStderr.String()).Msg("Failed to start ffmpeg streaming")
+					return response.Error(c, fiber.StatusInternalServerError, "Streaming start failed", err.Error())
+				}
+
+				c.Set("Content-Type", "video/mp4")
+				c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
+
+				if err := c.SendStream(ffmpegStdout); err != nil {
+					log.Warn().Err(err).Msg("Error streaming to client")
+				}
+
+				if err := ffmpegCmd.Wait(); err != nil {
+					// Don't return error here as stream might have finished or client disconnected
+					log.Warn().Err(err).Str("stderr", ffmpegStderr.String()).Msg("ffmpeg streaming finished with warning/error")
+				}
+
+				return nil
+			}
+
+			tempFile = filepath.Join(os.TempDir(), "download-"+uuid.New().String()+".mp4")
+
+			args = append(args, "-o", tempFile, targetURL)
+
+			cmd := exec.CommandContext(ctx, "yt-dlp", args...)
+			var stderr bytes.Buffer
+			cmd.Stderr = &stderr
+
+			if err := cmd.Run(); err == nil {
+				goto ServeFile
+			}
+
 			log.Error().
 				Err(err).
 				Str("url", targetURL).
@@ -464,40 +618,39 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			// Fallback 2: If targetURL was NOT pageURL, try downloading from pageURL (OriginalURL)
 			// This handles cases where the direct link (targetURL) is expired (403 Forbidden)
 			// For Vimeo, this is critical as the player URL often fails with 403 or XML errors
-			if targetURL != pageURL {
-				log.Info().Str("url", pageURL).Msg("Falling back to yt-dlp on OriginalURL (pageURL)")
 
-				// Re-run yt-dlp with pageURL
-				// Ensure we include referer for Vimeo fallback
-				fallbackArgs := append(baseArgs, "-o", tempFile, pageURL)
+			log.Info().Str("url", pageURL).Msg("Falling back to yt-dlp on OriginalURL (pageURL)")
 
-				// Explicitly ensure referer is present for Vimeo fallback if not already in baseArgs
-				// (baseArgs should have it, but let's be safe for the fallback command)
-				if isVimeo {
-					// Check if referer is already in baseArgs (simple check)
-					hasReferer := false
-					for _, arg := range baseArgs {
-						if strings.Contains(arg, "vimeo.com") && strings.Contains(arg, "--referer") {
-							hasReferer = true
-							break
-						}
-					}
-					if !hasReferer {
-						fallbackArgs = append(fallbackArgs, "--referer", "https://vimeo.com/")
+			// Re-run yt-dlp with pageURL
+			// Ensure we include referer for Vimeo fallback
+			fallbackArgs := append(baseArgs, "-o", tempFile, pageURL)
+
+			// Explicitly ensure referer is present for Vimeo fallback if not already in baseArgs
+			// (baseArgs should have it, but let's be safe for the fallback command)
+			if isVimeo {
+				// Check if referer is already in baseArgs (simple check)
+				hasReferer := false
+				for _, arg := range baseArgs {
+					if strings.Contains(arg, "vimeo.com") && strings.Contains(arg, "--referer") {
+						hasReferer = true
+						break
 					}
 				}
-
-				cmd2 := exec.CommandContext(ctx, "yt-dlp", fallbackArgs...)
-				var stderr2 bytes.Buffer
-				cmd2.Stderr = &stderr2
-
-				if err2 := cmd2.Run(); err2 == nil {
-					// Success! Continue to serve file
-					log.Info().Msg("yt-dlp fallback on OriginalURL succeeded")
-					goto ServeFile
-				} else {
-					log.Error().Err(err2).Str("stderr", stderr2.String()).Msg("yt-dlp fallback on OriginalURL failed")
+				if !hasReferer {
+					fallbackArgs = append(fallbackArgs, "--referer", "https://vimeo.com/")
 				}
+			}
+
+			cmd2 := exec.CommandContext(ctx, "yt-dlp", fallbackArgs...)
+			var stderr2 bytes.Buffer
+			cmd2.Stderr = &stderr2
+
+			if err2 := cmd2.Run(); err2 == nil {
+				// Success! Continue to serve file
+				log.Info().Msg("yt-dlp fallback on OriginalURL succeeded")
+				goto ServeFile
+			} else {
+				log.Error().Err(err2).Str("stderr", stderr2.String()).Msg("yt-dlp fallback on OriginalURL failed")
 			}
 
 			// Fallback 3: Lux strategy for Vimeo
@@ -584,7 +737,22 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				}
 
 				// Success with direct stream
-				c.Set("Content-Type", resp.Header.Get("Content-Type"))
+				contentType := resp.Header.Get("Content-Type")
+				if contentType == "" || strings.HasPrefix(contentType, "text/") || strings.HasPrefix(contentType, "application/octet-stream") {
+					// For Dailymotion or others, if we get text/html or text/plain, it's likely an error page or m3u8
+					if strings.Contains(contentType, "text/html") || strings.Contains(contentType, "text/plain") {
+						// Check if it's really a video but mislabeled?
+						// Unlikely for text/html.
+						// But for application/octet-stream it might be a video.
+						// Let's be strict about text/html
+						if strings.Contains(contentType, "text/html") {
+							resp.Body.Close()
+							return response.Error(c, fiber.StatusBadGateway, "Remote server returned HTML instead of video", nil)
+						}
+					}
+					contentType = "video/mp4"
+				}
+				c.Set("Content-Type", contentType)
 				c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
 				if contentLength := resp.Header.Get("Content-Length"); contentLength != "" {
 					c.Set("Content-Length", contentLength)
@@ -595,32 +763,33 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				return c.SendStream(reader)
 			}
 
-			return response.Error(c, fiber.StatusBadGateway, "Failed to download video", err.Error())
+			return response.Error(c, fiber.StatusBadGateway, "Failed to download video", err)
 		}
 
 	ServeFile:
-		file, err := os.Open(tempFile)
-		if err != nil {
-			return response.Error(c, fiber.StatusInternalServerError, "Failed to open downloaded video", err.Error())
-		}
-		// Jangan hapus file di defer, biarkan sistem operasi yang membersihkan atau gunakan cron job
-		// defer func() {
-		// 	_ = file.Close()
-		// 	_ = os.Remove(tempFile)
-		// }()
-
-		if fi, err := file.Stat(); err == nil {
-			c.Set("Content-Length", strconv.FormatInt(fi.Size(), 10))
+		// Verify file exists
+		if _, err := os.Stat(tempFile); err != nil {
+			return response.Error(c, fiber.StatusInternalServerError, "Downloaded file not found", err.Error())
 		}
 
+		// Explicitly set Content-Type to video/mp4 to ensure browser handles it as video
 		c.Set("Content-Type", "video/mp4")
+		// Set Content-Disposition with UTF-8 support
 		c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
 
-		return c.SendStream(file)
+		defer os.Remove(tempFile)
+		return c.SendFile(tempFile)
 	}
 
 	// Fallback: simple HTTP proxy based on direct file URL (non-task based)
+	return h.proxyDirectURL(c)
+}
+
+// proxyDirectURL handles simple HTTP proxy based on direct file URL (non-task based)
+func (h *DownloadHandler) proxyDirectURL(c *fiber.Ctx) error {
+	ctx := middleware.HandlerContext(c)
 	urlStr := c.Query("url")
+	filename := c.Query("filename")
 
 	if urlStr == "" {
 		return response.Error(c, fiber.StatusBadRequest, "URL is required", nil)
@@ -652,8 +821,14 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 	c.Status(resp.StatusCode)
 	contentType := resp.Header.Get("Content-Type")
-	if contentType == "" {
-		contentType = "application/octet-stream"
+	// If Content-Type is text/plain or text/html, it might be misconfigured upstream or a text error
+	// Force it to video/mp4 if the user requested a file download and we are proxying
+	if contentType == "" || strings.HasPrefix(contentType, "text/") {
+		if strings.HasSuffix(filename, ".mp4") {
+			contentType = "video/mp4"
+		} else {
+			contentType = "application/octet-stream"
+		}
 	}
 	c.Set("Content-Type", contentType)
 	if ar := resp.Header.Get("Accept-Ranges"); ar != "" {

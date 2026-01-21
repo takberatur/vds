@@ -193,6 +193,8 @@ func mapSystemSetting(target *model.SettingSystem, s model.Setting) {
 		target.SourceLogoFavicon = s.Value
 	case "histats_tracking_code":
 		target.HistatsTrackingCode = s.Value
+	case "google_analytics_code":
+		target.GoogleAnalyticsCode = s.Value
 	}
 }
 

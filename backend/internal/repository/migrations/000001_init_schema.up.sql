@@ -209,6 +209,7 @@ INSERT INTO settings (key, value, description, group_name) VALUES
 ('maintenance_message', 'We are currently performing maintenance. Please check back later.', 'Maintenance Message', 'SYSTEM'),
 ('source_logo_favicon', 'local', 'Source of Logo/Favicon (local/remote)', 'SYSTEM'),
 ('histats_tracking_code', '', 'Histats Tracking Code', 'SYSTEM'),
+('google_analytics_code', '', 'Google Analytics Code', 'SYSTEM'),
 
 -- MONETIZE Group
 ('enable_monetize', 'false', 'Enable Monetization Features', 'MONETIZE'),

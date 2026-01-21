@@ -6,10 +6,12 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { SingleResponse } from "@siamf/google-translate";
 import { capitalizeFirstLetter } from "@/utils/format.js";
 
-export const load = async ({ locals, url }) => {
+export const load = async ({ locals, url, parent }) => {
 	const { user, settings, deps, lang } = locals;
 
-	const defaultOrigin = new URL(url.pathname, url.origin).href;
+	const defaultOrigin = await parent().then((data) => data.canonicalUrl || '');
+	const alternates = await parent().then((data) => data.alternates || []);
+
 	const title = await deps.languageHelper.singleTranslate('Forgot Password', lang) as SingleResponse;
 	const siteName = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_name || '', lang) as SingleResponse;
 	const tagline = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_tagline || '', lang) as SingleResponse;
@@ -24,6 +26,7 @@ export const load = async ({ locals, url }) => {
 		keywords: keywords.map((keyword: SingleResponse) => capitalizeFirstLetter(keyword.data.target.text || '')),
 		robots: 'index, follow',
 		canonical: defaultOrigin,
+		alternates,
 		graph_type: 'website'
 	});
 
@@ -33,7 +36,8 @@ export const load = async ({ locals, url }) => {
 		pageMetaTags,
 		form,
 		settings,
-		user
+		user,
+		lang
 	};
 };
 

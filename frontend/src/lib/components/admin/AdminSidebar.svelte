@@ -108,6 +108,11 @@
 						title: 'Ads.txt',
 						url: localizeHref('/settings/ads.txt'),
 						icon: 'lsicon:file-txt-filled'
+					},
+					{
+						title: 'Robot.txt',
+						url: localizeHref('/settings/robot.txt'),
+						icon: 'lsicon:file-txt-filled'
 					}
 				]
 			},

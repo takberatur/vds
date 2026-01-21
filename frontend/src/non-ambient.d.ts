@@ -14,6 +14,10 @@ declare global {
 		graph_type?: string;
 		use_tagline?: boolean;
 		language?: string;
+		alternates?: {
+			lang: string;
+			href: string;
+		}[];
 	}
 	interface CountryItem {
 		name: string;

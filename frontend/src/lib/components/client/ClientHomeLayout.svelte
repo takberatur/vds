@@ -26,13 +26,7 @@
 <ClientLayout {user} {setting} {platforms} {lang}>
 	{@render children?.()}
 	<ClientFeatureSection />
-
-	<!-- How To Section -->
 	<ClientHowToUseSection />
-
-	<!-- Supported Formats -->
 	<ClientSupportFormatSection />
-
-	<!-- CTA Section -->
 	<ClientCTASection />
 </ClientLayout>

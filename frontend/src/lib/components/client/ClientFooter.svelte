@@ -7,7 +7,7 @@
 	let {
 		setting,
 		platforms,
-		lang
+		lang = 'en'
 	}: {
 		setting?: SettingsValue | null;
 		platforms?: Platform[];
@@ -126,7 +126,12 @@
 						>
 					</li>
 					<li>
-						<a href="/sitemap.xml" data-sveltekit-preload-data="off" rel="sitemap">
+						<a
+							href="/sitemap.xml"
+							data-sveltekit-preload-data="off"
+							rel="sitemap"
+							class="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+						>
 							{i18n.text_footer_sitemap()}
 						</a>
 					</li>

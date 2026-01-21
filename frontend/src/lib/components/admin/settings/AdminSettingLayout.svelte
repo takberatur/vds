@@ -70,6 +70,13 @@
 			description: 'Ads.txt settings',
 			icon: 'lsicon:file-txt-filled',
 			to: localizeHref('/settings/ads.txt')
+		},
+		{
+			label: 'Robot.txt',
+			name: 'Robot.txt',
+			description: 'Robot.txt settings',
+			icon: 'lsicon:file-txt-filled',
+			to: localizeHref('/settings/robot.txt')
 		}
 	];
 </script>

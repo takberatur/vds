@@ -1,7 +1,7 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/state';
-	import { onMount, onDestroy, setContext } from 'svelte';
+	import { onMount, onDestroy, setContext, hydrate } from 'svelte';
 	import { browser } from '$app/environment';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
@@ -19,9 +19,12 @@
 		langStore,
 		createWebsocketStore
 	} from '$lib/stores';
-	import { locales, localizeHref } from '@/paraglide/runtime';
+	import { locales, localizeHref, setLocale, type Locale } from '@/paraglide/runtime';
 
 	let { data, children } = $props();
+
+	// svelte-ignore state_referenced_locally
+	setLocale(data.lang as Locale);
 
 	const trackedMethods = ['post', 'patch', 'put', 'delete'];
 	let originalFetch: typeof window.fetch;
@@ -286,6 +289,29 @@
 
 	setContext('websocket', wsStore);
 </script>
+
+<svelte:head>
+	{#if data.settings?.SYSTEM?.google_analytics_code}
+		<script
+			async
+			src="https://www.googletagmanager.com/gtag/js?id={data.settings?.SYSTEM
+				?.google_analytics_code}"
+		></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag('js', new Date());
+			gtag('config', data.settings?.SYSTEM?.google_analytics_code, {
+				custom_map: { dimension1: 'lang' }
+			});
+			gtag('event', 'page_view', {
+				lang: data.lang || 'en'
+			});
+		</script>
+	{/if}
+</svelte:head>
 
 <ModeWatcher defaultMode="system" />
 <ProgressBarIndicator />

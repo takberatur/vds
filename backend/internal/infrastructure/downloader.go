@@ -70,6 +70,10 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		args = append(args, "--add-header", "Accept-Language: en-US,en;q=0.9")
 	}
 
+	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
+		args = append(args, "--referer", "https://www.dailymotion.com/")
+	}
+
 	args = append(args, url)
 
 	cmd := exec.CommandContext(subCtx, c.executablePath, args...)

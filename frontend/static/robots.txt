@@ -1,3 +1,8 @@
-# allow crawling everything by default
+# Default robots.txt for https://client.giuadiario.info
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /private/
+Disallow: /tmp/
+Disallow: /uploads/
+# Add your own disallow entries here
+# Contact: admin@example.com

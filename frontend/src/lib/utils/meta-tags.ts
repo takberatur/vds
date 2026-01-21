@@ -26,7 +26,7 @@ export const defaultMetaTags = (
 		site: '@idtubexxi',
 		image:
 			setting?.SYSTEM.source_logo_favicon === 'remote'
-				? setting?.WEBSITE.site_logo || '/images/cover.png'
+				? (isValidUrl(setting?.WEBSITE.site_logo || '') ? setting?.WEBSITE.site_logo || '/images/cover.png' : '/images/cover.png')
 				: '/images/cover.png',
 		title: options?.title || setting?.WEBSITE.site_name || defaultSettings.WEBSITE.site_name
 	},
@@ -77,12 +77,22 @@ export const defaultMetaTags = (
 			href: options?.canonical || ''
 		},
 		{
+			rel: 'alternate',
+			hreflang: 'x-default',
+			href: options?.canonical || ''
+		},
+		...(options?.alternates || []).map((alt) => ({
+			rel: 'alternate',
+			hreflang: alt.lang,
+			href: alt.href
+		})),
+		{
 			rel: 'icon',
 			type: 'image/x-icon',
 			sizes: '96x96',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? setting?.WEBSITE.site_favicon || '/favicon.ico'
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon.ico' : '/favicon.ico')
 					: '/images/icon.png'
 		},
 		{
@@ -91,7 +101,7 @@ export const defaultMetaTags = (
 			sizes: '32x32',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? setting?.WEBSITE.site_favicon || '/favicon-32x32.png'
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon-32x32.png' : '/favicon-32x32.png')
 					: '/images/icon.png'
 		},
 		{
@@ -100,7 +110,7 @@ export const defaultMetaTags = (
 			sizes: '16x16',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? setting?.WEBSITE.site_favicon || '/favicon-16x16.png'
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon-16x16.png' : '/favicon-16x16.png')
 					: '/images/icon.png'
 		},
 		{
@@ -109,7 +119,7 @@ export const defaultMetaTags = (
 			sizes: '192x192',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? setting?.WEBSITE.site_favicon || '/favicon-192x192.png'
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon-192x192.png' : '/favicon-192x192.png')
 					: '/images/icon.png'
 		},
 		{
@@ -118,7 +128,7 @@ export const defaultMetaTags = (
 			sizes: '512x512',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? setting?.WEBSITE.site_favicon || '/favicon-512x512.png'
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon-512x512.png' : '/favicon-512x512.png')
 					: '/images/icon.png'
 		},
 		{
@@ -127,9 +137,9 @@ export const defaultMetaTags = (
 			sizes: '180x180',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? setting?.WEBSITE.site_favicon || '/apple-touch-icon.png'
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/apple-touch-icon.png' : '/apple-touch-icon.png')
 					: '/images/icon.png'
-		}
+		},
 	] as LinkTag[],
 	openGraph: {
 		type: options?.graph_type || 'website',
@@ -142,7 +152,7 @@ export const defaultMetaTags = (
 			{
 				url:
 					setting?.SYSTEM.source_logo_favicon === 'remote'
-						? setting?.WEBSITE.site_logo || '/images/icon.png'
+						? (isValidUrl(setting?.WEBSITE.site_logo || '') ? setting?.WEBSITE.site_logo || '/images/icon.png' : '/images/icon.png')
 						: '/images/icon.png',
 				width: 800,
 				height: 600,
@@ -152,7 +162,7 @@ export const defaultMetaTags = (
 			{
 				url:
 					setting?.SYSTEM.source_logo_favicon === 'remote'
-						? setting?.WEBSITE.site_favicon || '/favicon.ico'
+						? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon.ico' : '/favicon.ico')
 						: '/images/icon.png',
 				width: 512,
 				height: 512,
@@ -169,3 +179,11 @@ export const defaultMetaTags = (
 });
 
 
+function isValidUrl(url: string): boolean {
+	try {
+		new URL(url);
+		return true;
+	} catch (_) {
+		return false;
+	}
+}

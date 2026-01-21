@@ -88,6 +88,8 @@
 		onRowSelection?: (data: Download[]) => void;
 	} = $props();
 
+	// console.log(data?.data);
+
 	let rowSelection = $state<RowSelectionState>({});
 	let columnVisibility = $state<VisibilityState>({});
 	let columnFilters = $state<ColumnFiltersState>([]);
@@ -120,13 +122,13 @@
 			enableHiding: false
 		},
 		{
-			accessorKey: 'user',
+			accessorKey: 'title',
 			header: ({ column }) => {
-				return renderSnippet(ColumnHeader, { column, title: 'User' });
+				return renderSnippet(ColumnHeader, { column, title: 'Title' });
 			},
 			cell: ({ row }) => {
-				return renderSnippet(UserCell, {
-					value: row.original.user || ({} as User)
+				return renderSnippet(DownloadCell, {
+					value: row.original
 				});
 			},
 			filterFn: (row, id, value) => {
@@ -141,20 +143,6 @@
 			cell: ({ row }) => {
 				return renderSnippet(OriginalURLCell, {
 					value: row.original.original_url || 'N/A'
-				});
-			},
-			filterFn: (row, id, value) => {
-				return value.includes(row.getValue(id));
-			}
-		},
-		{
-			accessorKey: 'application',
-			header: ({ column }) => {
-				return renderSnippet(ColumnHeader, { column, title: 'Application' });
-			},
-			cell: ({ row }) => {
-				return renderSnippet(ApplicationCell, {
-					value: row.original.application || ({} as Application)
 				});
 			},
 			filterFn: (row, id, value) => {
@@ -334,18 +322,18 @@
 	];
 </script>
 
-{#snippet UserCell({ value }: { value: User })}
+{#snippet DownloadCell({ value }: { value: Download })}
 	<Tooltip.Provider>
 		<Tooltip.Root>
 			<Tooltip.Trigger class="flex items-center gap-2">
 				<Avatar.Root>
-					<Avatar.Image src={value.avatar_url} alt={value.full_name || 'N/A'} />
-					<Avatar.Fallback
-						>{value.full_name.split(' ')[0].slice(0, 2).toUpperCase() || ''}</Avatar.Fallback
-					>
+					<Avatar.Image src={value.thumbnail_url} alt={value.title || 'N/A'} />
+					<Avatar.Fallback>
+						{value.title ? value.title.split(' ')[0].slice(0, 2).toUpperCase() || '' : ''}
+					</Avatar.Fallback>
 				</Avatar.Root>
 				<span class="max-w-50 truncate font-medium capitalize">
-					{value.full_name || 'N/A'}
+					{value.title || 'N/A'}
 				</span>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
@@ -354,8 +342,8 @@
 						<div class="flex flex-col items-start gap-6 md:flex-row md:items-center">
 							<div class="relative">
 								<img
-									src={value?.avatar_url || '/images/avatar.jpg'}
-									alt={value?.full_name || 'N/A'}
+									src={value?.thumbnail_url || '/images/avatar.jpg'}
+									alt={value?.title || 'N/A'}
 									class="h-38 w-26 rounded-md object-cover shadow-lg"
 									onerror={() => '/default-cover.png'}
 								/>
@@ -363,26 +351,27 @@
 							<div class="flex-1 space-y-2">
 								<div class="flex flex-col gap-2 md:flex-row md:items-center">
 									<h1 class="text-2xl font-bold text-neutral-900 dark:text-white">
-										{value?.full_name || 'N/A'} ({new Date(
-											value?.created_at || ''
-										).toLocaleDateString('en-US', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric'
-										})})
+										{value?.title || 'N/A'} ({new Date(value?.created_at || '').toLocaleDateString(
+											'en-US',
+											{
+												year: 'numeric',
+												month: 'long',
+												day: 'numeric'
+											}
+										)})
 									</h1>
 								</div>
 								<div class="mt-1 flex items-center gap-2">
 									<Badge
-										variant={value?.is_active ? 'default' : 'destructive'}
-										class="px-4 text-xs font-semibold"
+										variant={value?.status === 'completed' ? 'default' : 'destructive'}
+										class="px-4 text-xs font-semibold uppercase"
 									>
-										{value?.is_active ? 'Active' : 'Inactive'}
+										{value?.status}
 									</Badge>
 								</div>
 								<div class="mt-1 flex items-center gap-2">
 									<Badge variant="default" class="px-4 text-xs font-semibold capitalize">
-										{value?.role?.name || 'N/A'}
+										{value?.platform?.name || 'N/A'}
 									</Badge>
 								</div>
 							</div>
@@ -395,7 +384,7 @@
 {/snippet}
 {#snippet OriginalURLCell({ value }: { value: string })}
 	<div class="flex">
-		<span class="max-w-125 truncate font-medium text-blue-600 hover:underline dark:text-blue-400">
+		<span class="max-w-60 truncate font-medium text-blue-600 hover:underline dark:text-blue-400">
 			<a href={value} target="_blank" rel="noopener noreferrer">
 				{value}
 			</a>
@@ -405,7 +394,7 @@
 {#snippet ApplicationCell({ value }: { value: Application })}
 	<div class="flex max-w-125 items-center gap-2">
 		<div class="h-38 w-26 rounded-md object-cover shadow-lg">
-			{value?.name.split(' ')[0].slice(0, 2).toUpperCase() || 'N/A'}
+			{value?.name ? value.name.split(' ')[0].slice(0, 2).toUpperCase() || 'N/A' : 'N/A'}
 		</div>
 		<span class="max-w-50 truncate font-medium capitalize">
 			{value.name || 'N/A'}
@@ -416,7 +405,9 @@
 	<div class="flex max-w-125 items-center gap-2">
 		<Avatar.Root>
 			<Avatar.Image src={value.thumbnail_url} alt={value.name || 'N/A'} />
-			<Avatar.Fallback>{value.name.split(' ')[0].slice(0, 2).toUpperCase() || ''}</Avatar.Fallback>
+			<Avatar.Fallback>
+				{value.name ? value.name.split(' ')[0].slice(0, 2).toUpperCase() || '' : 'NA'}
+			</Avatar.Fallback>
 		</Avatar.Root>
 		<span class="max-w-50 truncate font-medium capitalize">
 			{value.name || 'N/A'}

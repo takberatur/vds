@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/rs/zerolog/log"
 )
@@ -21,6 +22,56 @@ func NewChromedpStrategy() *ChromedpStrategy {
 
 func (s *ChromedpStrategy) Name() string {
 	return "chromedp"
+}
+
+// GetCookies navigates to the URL and retrieves cookies as a formatted string
+func (s *ChromedpStrategy) GetCookies(ctx context.Context, url string) (string, error) {
+	// Create allocator options
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.Flag("headless", true),
+		chromedp.Flag("disable-gpu", true),
+		chromedp.Flag("no-sandbox", true),
+		chromedp.Flag("disable-dev-shm-usage", true),
+		chromedp.Flag("ignore-certificate-errors", true),
+		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"),
+	)
+
+	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+	defer cancel()
+
+	// Create context
+	ctx, cancel = chromedp.NewContext(allocCtx)
+	defer cancel()
+
+	// Set timeout
+	ctx, cancel = context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	var cookies []*network.Cookie
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(url),
+		chromedp.WaitVisible(`body`, chromedp.ByQuery),
+		chromedp.Sleep(5*time.Second), // Wait for cookies to be set
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			var err error
+			cookies, err = network.GetCookies().Do(ctx)
+			return err
+		}),
+	)
+
+	if err != nil {
+		return "", fmt.Errorf("failed to get cookies: %w", err)
+	}
+
+	var cookieBuilder strings.Builder
+	for i, cookie := range cookies {
+		if i > 0 {
+			cookieBuilder.WriteString("; ")
+		}
+		cookieBuilder.WriteString(fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
+	}
+
+	return cookieBuilder.String(), nil
 }
 
 func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error) {

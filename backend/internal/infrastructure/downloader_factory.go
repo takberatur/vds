@@ -95,6 +95,7 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 	isVimeo := normalizedType == "vimeo" || strings.Contains(url, "vimeo.com")
 	isTikTok := normalizedType == "tiktok" || strings.Contains(url, "tiktok.com")
 	isTwitter := normalizedType == "twitter" || normalizedType == "x" || strings.Contains(url, "twitter.com") || strings.Contains(url, "x.com")
+	isDailymotion := normalizedType == "dailymotion" || strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly")
 
 	var strategies []DownloaderStrategy
 
@@ -142,8 +143,8 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 		} else {
 			strategies = others
 		}
-	} else if isTikTok || isTwitter {
-		// For TikTok and Twitter, prioritize yt-dlp, then lux, then others
+	} else if isTikTok || isTwitter || isDailymotion {
+		// For TikTok, Twitter, and Dailymotion, prioritize yt-dlp, then lux, then others
 		// We explicitly exclude strategies that might interfere or are irrelevant
 		for _, strategy := range f.strategies {
 			name := strategy.Name()

@@ -53,7 +53,7 @@
 </script>
 
 <MetaTags {...metaTags} />
-<AuthLayout webSetting={data.settings?.WEBSITE}>
+<AuthLayout webSetting={data.settings?.WEBSITE} lang={data.lang}>
 	<div class="flex w-full flex-col items-start gap-y-6 rounded-lg bg-accent px-5 py-8">
 		<div class="w-full">
 			<h1 class="text-2xl font-bold text-white">Reset Password</h1>

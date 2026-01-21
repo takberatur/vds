@@ -71,7 +71,7 @@
 	useBorder
 	class="p-0"
 >
-	<section id="features" bind:this={elementSection} class=" py-16 md:py-24">
+	<section id="features" bind:this={elementSection} class="py-16 md:py-24">
 		<div class="container mx-auto px-4 md:max-w-6xl">
 			<div class="mb-12 text-center">
 				<h2 class="mb-4 text-3xl font-bold text-neutral-900 md:text-4xl dark:text-neutral-100">

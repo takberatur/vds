@@ -54,6 +54,7 @@ type SettingSystem struct {
 	MaintenanceMessage  string `json:"maintenance_message"`
 	SourceLogoFavicon   string `json:"source_logo_favicon"` // 'local' | 'remote'
 	HistatsTrackingCode string `json:"histats_tracking_code"`
+	GoogleAnalyticsCode string `json:"google_analytics_code"`
 }
 
 type SettingMonetize struct {
