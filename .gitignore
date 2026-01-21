@@ -27,4 +27,7 @@ backend/temp
 backend/.env
 backend/.env.test
 backend/.env.prod
+backend/api.exe
+backend/main.exe
+backend/worker.exe
 backend/*.exe
