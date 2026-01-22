@@ -2,6 +2,18 @@ import { browser } from '$app/environment';
 import { PUBLIC_API_URL } from '$env/static/public';
 import { derived, writable } from 'svelte/store';
 
+export type DownloadFormat = {
+	format_id?: string;
+	url?: string;
+	ext?: string;
+	resolution?: string;
+	filesize?: number;
+	height?: number;
+	vcodec?: string;
+	acodec?: string;
+	tbr?: number;
+};
+
 export type DownloadTaskView = {
 	id: string;
 	status: string;

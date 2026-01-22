@@ -3,7 +3,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as Empty from '$lib/components/ui/empty/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
-	import type { DownloadTaskView } from '@/stores';
+	import type { DownloadTaskView, DownloadFormat } from '@/stores';
 	import Icon from '@iconify/svelte';
 	import * as i18n from '@/paraglide/messages.js';
 
@@ -14,7 +14,11 @@
 	}: {
 		task?: DownloadTaskView | null;
 		onclose?: () => void;
-		downloadVideo?: (data?: DownloadTaskView | null, formatId?: string | null) => Promise<void>;
+		downloadVideo?: (
+			data?: DownloadTaskView | null,
+			formatId?: string | null,
+			directUrl?: string | null
+		) => Promise<void>;
 		deleteTask?: (taskId?: string) => void;
 	} = $props();
 
@@ -26,10 +30,6 @@
 		const hB = b.height ?? 0;
 		if (hA !== hB) return hB - hA;
 
-		const tA = a.tbr ?? 0;
-		const tB = b.tbr ?? 0;
-		if (tA !== tB) return tB - tA;
-
 		const sA = a.filesize ?? 0;
 		const sB = b.filesize ?? 0;
 		if (sA !== sB) return sB - sA;
@@ -40,7 +40,8 @@
 	function isDownloadableFormat(format: DownloadFormat) {
 		if (!format.url) return false;
 		if (format.url.includes('.m3u8')) return false;
-		if (format.vcodec && format.vcodec !== 'h264') return false;
+		// Relax vcodec check as backend might not send it for merged files
+		// if (format.vcodec && format.vcodec !== 'h264') return false;
 		return true;
 	}
 
@@ -49,7 +50,7 @@
 		format: DownloadFormat
 	) {
 		if (!currentTask) return;
-		downloadVideo?.(currentTask, format.format_id ?? null);
+		downloadVideo?.(currentTask, format.format_id ?? null, format.url ?? null);
 	}
 
 	function hadleOpenFile(url?: string | null) {

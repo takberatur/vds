@@ -23,6 +23,8 @@ type DownloadRepository interface {
 	Update(ctx context.Context, task *model.DownloadTask) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	BulkDelete(ctx context.Context, ids []uuid.UUID) error
+	AddFile(ctx context.Context, file *model.DownloadFile) error
+	FindOldAndCompleted(ctx context.Context, cutoff time.Time, limit int) ([]*model.DownloadTask, error)
 }
 
 type downloadRepository struct {
@@ -369,4 +371,59 @@ func (r *downloadRepository) BulkDelete(ctx context.Context, ids []uuid.UUID) er
 	query := `DELETE FROM downloads WHERE id = ANY($1)`
 	_, err := r.db.Exec(subCtx, query, ids)
 	return err
+}
+
+func (r *downloadRepository) AddFile(ctx context.Context, file *model.DownloadFile) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO download_files (download_id, url, format_id, resolution, extension, file_size, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id
+	`
+	now := time.Now()
+	err := r.db.QueryRow(subCtx, query,
+		file.DownloadID,
+		file.URL,
+		file.FormatID,
+		file.Resolution,
+		file.Extension,
+		file.FileSize,
+		now,
+	).Scan(&file.ID)
+
+	file.CreatedAt = now
+	return err
+}
+
+func (r *downloadRepository) FindOldAndCompleted(ctx context.Context, cutoff time.Time, limit int) ([]*model.DownloadTask, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 30*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, platform_type, status, created_at
+		FROM downloads
+		WHERE created_at < $1
+		LIMIT $2
+	`
+	// We only need ID and platform_type for deletion
+	// But let's reuse struct.
+	var tasks []*model.DownloadTask
+	rows, err := r.db.Query(subCtx, query, cutoff, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var task model.DownloadTask
+		err := rows.Scan(&task.ID, &task.PlatformType, &task.Status, &task.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, &task)
+	}
+
+	return tasks, nil
 }

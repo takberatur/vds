@@ -101,22 +101,8 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 
 	// Filter and prioritize strategies
 	if isYoutube {
-		var youtubeStrategy DownloaderStrategy
-		var others []DownloaderStrategy
-
-		for _, strategy := range f.strategies {
-			if strategy.Name() == "kkdai/youtube" {
-				youtubeStrategy = strategy
-				continue
-			}
-			others = append(others, strategy)
-		}
-
-		if youtubeStrategy != nil {
-			strategies = append([]DownloaderStrategy{youtubeStrategy}, others...)
-		} else {
-			strategies = others
-		}
+		// Use default order (yt-dlp first) for better reliability
+		strategies = f.strategies
 	} else if isRumble {
 		// For Rumble, use yt-dlp, lux, rumble-custom, and chromedp
 		for _, strategy := range f.strategies {
@@ -183,4 +169,13 @@ func (f *FallbackDownloader) DownloadVideo(ctx context.Context, url string) (*Vi
 	defer cancel()
 
 	return f.GetVideoInfo(subCtx, url)
+}
+
+func (f *FallbackDownloader) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string) error {
+	// For now, directly use yt-dlp client as it is the only one supporting flexible format download to path
+	// We create a new client here or we could reuse one if we stored it
+	client := &ytDlpClient{
+		executablePath: "yt-dlp",
+	}
+	return client.DownloadToPath(ctx, url, formatID, outputPath)
 }

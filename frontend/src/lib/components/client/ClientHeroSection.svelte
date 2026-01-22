@@ -120,10 +120,26 @@
 		}
 	}
 
-	async function downloadVideo(data?: DownloadTaskView | null, formatId?: string | null) {
+	async function downloadVideo(
+		data?: DownloadTaskView | null,
+		formatId?: string | null,
+		directUrl?: string | null
+	) {
 		if (!data) return;
 
 		try {
+			// If we have a direct URL (e.g. MinIO), use it directly
+			if (directUrl) {
+				const link = document.createElement('a');
+				link.href = directUrl;
+				link.target = '_blank';
+				link.download = `${data.title || 'download'}.mp4`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				return;
+			}
+
 			customPageLoading.show();
 
 			const params = new URLSearchParams();

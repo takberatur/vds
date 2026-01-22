@@ -18,6 +18,7 @@ type StorageClient interface {
 	UploadFile(ctx context.Context, bucketName string, objectName string, reader io.Reader, objectSize int64, contentType string) (string, error)
 	GetFileURL(ctx context.Context, bucketName string, objectName string, expiry time.Duration) (string, error)
 	DeleteFile(ctx context.Context, bucketName string, objectName string) error
+	DeleteFolder(ctx context.Context, bucketName string, prefix string) error
 	CreateBucket(ctx context.Context, bucketName string) error
 }
 
@@ -182,5 +183,33 @@ func (c *minioClient) DeleteFile(ctx context.Context, bucketName string, objectN
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}
+	return nil
+}
+
+func (c *minioClient) DeleteFolder(ctx context.Context, bucketName string, prefix string) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 30*time.Second)
+	defer cancel()
+
+	objectsCh := make(chan minio.ObjectInfo)
+	go func() {
+		defer close(objectsCh)
+		for object := range c.client.ListObjects(subCtx, bucketName, minio.ListObjectsOptions{Prefix: prefix, Recursive: true}) {
+			if object.Err != nil {
+				log.Error().Err(object.Err).Str("bucket", bucketName).Str("prefix", prefix).Msg("Error listing objects for deletion")
+				continue
+			}
+			objectsCh <- object
+		}
+	}()
+
+	opts := minio.RemoveObjectsOptions{
+		GovernanceBypass: true,
+	}
+
+	errorCh := c.client.RemoveObjects(subCtx, bucketName, objectsCh, opts)
+	for e := range errorCh {
+		log.Error().Err(e.Err).Str("bucket", bucketName).Str("object", e.ObjectName).Msg("Failed to delete object")
+	}
+
 	return nil
 }

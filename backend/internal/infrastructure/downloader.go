@@ -40,6 +40,7 @@ type FormatInfo struct {
 type DownloaderClient interface {
 	GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error)
 	DownloadVideo(ctx context.Context, url string) (*VideoInfo, error)
+	DownloadToPath(ctx context.Context, url string, formatID string, outputPath string) error
 }
 
 type ytDlpClient struct {
@@ -61,7 +62,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		"--dump-json",
 		"--no-playlist",
 		"--no-check-certificate",
-		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
 	}
 
 	if strings.Contains(url, "rumble.com") {
@@ -173,4 +174,38 @@ func (c *ytDlpClient) DownloadVideo(ctx context.Context, url string) (*VideoInfo
 	}
 
 	return info, nil
+}
+
+func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 10*time.Minute)
+	defer cancel()
+
+	args := []string{
+		"--no-playlist",
+		"--no-check-certificate",
+		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+		"-o", outputPath,
+	}
+
+	if formatID != "" {
+		args = append(args, "-f", formatID)
+	}
+
+	if strings.Contains(url, "rumble.com") {
+		args = append(args, "--referer", "https://rumble.com/")
+	}
+
+	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
+		args = append(args, "--referer", "https://www.dailymotion.com/")
+	}
+
+	args = append(args, url)
+
+	cmd := exec.CommandContext(subCtx, c.executablePath, args...)
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("yt-dlp download failed: %w", err)
+	}
+
+	return nil
 }
