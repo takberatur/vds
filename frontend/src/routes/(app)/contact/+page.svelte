@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms';
-	import { MetaTags } from 'svelte-meta-tags';
+	import { MetaTags, type MetaTagsProps } from 'svelte-meta-tags';
 	import { ClientPageLayout } from '@/components/client/index.js';
 	import { handleSubmitLoading } from '@/stores';
 	import * as Field from '$lib/components/ui/field/index.js';
@@ -15,12 +15,11 @@
 	import { toast } from '@/stores/toast';
 
 	let { data } = $props();
-	let metaTags = $derived(data.pageMetaTags);
+	let metaTags = $derived<MetaTagsProps | undefined>(data.pageMetaTags);
 	let webSetting = $derived(data.settings?.WEBSITE);
 
 	// svelte-ignore state_referenced_locally
 	const { form, enhance, errors, submitting } = superForm(data.form, {
-		id: 'contact-form',
 		resetForm: true,
 		onSubmit: (input) => {
 			invalidateAll();
@@ -42,6 +41,17 @@
 			toast.error(result.error?.message || i18n.contact_error());
 		}
 	});
+
+	if (typeof window !== 'undefined') {
+		// svelte-ignore state_referenced_locally
+		const initial = metaTags;
+
+		metaTags = undefined;
+
+		$effect(() => {
+			metaTags = initial;
+		});
+	}
 
 	const socialLinks = [
 		{

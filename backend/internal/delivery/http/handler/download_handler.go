@@ -112,7 +112,6 @@ func (h *DownloadHandler) DownloadVideo(c *fiber.Ctx) error {
 
 func (h *DownloadHandler) GetHistory(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
-	// Must be authenticated
 	userID, ok := c.Locals("user_id").(uuid.UUID)
 	if !ok {
 		return response.Error(c, fiber.StatusUnauthorized, "Unauthorized", nil)
@@ -505,90 +504,64 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			copy(baseArgs, args)
 
 			if isDailymotion {
-				log.Info().Str("url", targetURL).Msg("Streaming Dailymotion video via yt-dlp to avoid timeout")
+				log.Info().Str("url", targetURL).Msg("Streaming Dailymotion video via Chromedp interception")
 
-				// Fetch cookies using Chromedp to bypass 403 Forbidden
 				chromedpStrategy := infrastructure.NewChromedpStrategy()
-				cookies, err := chromedpStrategy.GetCookies(ctx, targetURL)
+				// Use GetMasterPlaylist to get the stream URL directly from browser traffic
+				// This bypasses yt-dlp's inability to get the manifest due to 403 errors
+				m3u8URL, cookies, ua, err := chromedpStrategy.GetMasterPlaylist(ctx, targetURL)
 				if err != nil {
-					log.Warn().Err(err).Msg("Failed to get cookies for Dailymotion, proceeding without them")
-				} else if cookies != "" {
-					log.Info().Msg("Successfully retrieved cookies for Dailymotion")
-					baseArgs = append(baseArgs, "--add-header", fmt.Sprintf("Cookie: %s", cookies))
+					log.Error().Err(err).Msg("Failed to resolve stream via Chromedp")
+					return response.Error(c, fiber.StatusInternalServerError, "Failed to resolve video stream: "+err.Error(), err.Error())
 				}
 
-				// Strategy change: Use yt-dlp to get the stream URL, then use ffmpeg to stream it.
-				// This avoids yt-dlp buffering the entire file before outputting to stdout.
+				log.Info().Str("m3u8_url", m3u8URL).Msg("Stream URL resolved via Chromedp")
 
-				// 1. Get the direct stream URL
-				getUrlArgs := append(baseArgs, "--get-url", targetURL)
-				// Remove "-o" and output template if present in baseArgs (though we created baseArgs before adding -o)
-
-				log.Info().Msg("Resolving Dailymotion stream URL...")
-				ytDlpGetUrlCmd := exec.CommandContext(ctx, "yt-dlp", getUrlArgs...)
-				var urlStdout, urlStderr bytes.Buffer
-				ytDlpGetUrlCmd.Stdout = &urlStdout
-				ytDlpGetUrlCmd.Stderr = &urlStderr
-
-				if err := ytDlpGetUrlCmd.Run(); err != nil {
-					log.Error().Err(err).Str("stderr", urlStderr.String()).Msg("Failed to resolve stream URL with yt-dlp")
-					return response.Error(c, fiber.StatusInternalServerError, "Failed to resolve video stream", err.Error())
-				}
-
-				streamUrl := strings.TrimSpace(urlStdout.String())
-				if streamUrl == "" {
-					log.Error().Msg("yt-dlp returned empty URL")
-					return response.Error(c, fiber.StatusInternalServerError, "Resolved stream URL is empty", nil)
-				}
-
-				log.Info().Str("stream_url", streamUrl).Msg("Starting ffmpeg streaming...")
-
-				// 2. Stream using ffmpeg
-				// ffmpeg -headers "Cookie: xxx" -i url -c copy -f mp4 -movflags frag_keyframe+empty_moov pipe:1
-				ffmpegArgs := []string{}
-
-				// Construct headers for ffmpeg
-				var headersBuilder strings.Builder
-				headersBuilder.WriteString("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\r\n")
-				if cookies != "" {
-					headersBuilder.WriteString(fmt.Sprintf("Cookie: %s\r\n", cookies))
-				}
-
-				ffmpegArgs = append(ffmpegArgs, "-headers", headersBuilder.String())
-				ffmpegArgs = append(ffmpegArgs, "-i", streamUrl)
-				// Use copy if possible, but for HLS to MP4 stream, we need appropriate movflags
-				// -c copy is fastest and preserves quality
-				ffmpegArgs = append(ffmpegArgs, "-c", "copy")
-				ffmpegArgs = append(ffmpegArgs, "-f", "mp4")
-				ffmpegArgs = append(ffmpegArgs, "-movflags", "frag_keyframe+empty_moov")
-				ffmpegArgs = append(ffmpegArgs, "pipe:1")
-
-				ffmpegCmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
-
-				ffmpegStdout, err := ffmpegCmd.StdoutPipe()
-				if err != nil {
-					log.Error().Err(err).Msg("Failed to create stdout pipe for ffmpeg")
-					return response.Error(c, fiber.StatusInternalServerError, "Streaming initialization failed", err.Error())
-				}
-
-				var ffmpegStderr bytes.Buffer
-				ffmpegCmd.Stderr = &ffmpegStderr
-
-				if err := ffmpegCmd.Start(); err != nil {
-					log.Error().Err(err).Str("stderr", ffmpegStderr.String()).Msg("Failed to start ffmpeg streaming")
-					return response.Error(c, fiber.StatusInternalServerError, "Streaming start failed", err.Error())
-				}
-
+				// Set headers for response
 				c.Set("Content-Type", "video/mp4")
 				c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
 
-				if err := c.SendStream(ffmpegStdout); err != nil {
+				// Use yt-dlp to stream the m3u8 URL, as it handles HLS/cookies better than raw ffmpeg
+				// yt-dlp -o - --add-header "Cookie:..." --add-header "Referer:..." --add-header "User-Agent:..." M3U8_URL
+
+				ytDlpArgs := []string{
+					"-o", "-", // Output to stdout
+					"--no-part", // Write directly to stdout
+					"--quiet",   // Suppress output
+					"--no-warnings",
+				}
+
+				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
+				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Referer: %s", targetURL))
+				if cookies != "" {
+					ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Cookie: %s", cookies))
+				}
+
+				ytDlpArgs = append(ytDlpArgs, m3u8URL)
+
+				log.Info().Msg("Starting yt-dlp streaming for m3u8")
+
+				cmd := exec.CommandContext(ctx, "yt-dlp", ytDlpArgs...)
+				var stderr bytes.Buffer
+				cmd.Stderr = &stderr
+
+				stdout, err := cmd.StdoutPipe()
+				if err != nil {
+					log.Error().Err(err).Msg("Failed to create stdout pipe for yt-dlp")
+					return response.Error(c, fiber.StatusInternalServerError, "Streaming initialization failed", err.Error())
+				}
+
+				if err := cmd.Start(); err != nil {
+					log.Error().Err(err).Str("stderr", stderr.String()).Msg("Failed to start yt-dlp streaming")
+					return response.Error(c, fiber.StatusInternalServerError, "Streaming start failed", err.Error())
+				}
+
+				if err := c.SendStream(stdout); err != nil {
 					log.Warn().Err(err).Msg("Error streaming to client")
 				}
 
-				if err := ffmpegCmd.Wait(); err != nil {
-					// Don't return error here as stream might have finished or client disconnected
-					log.Warn().Err(err).Str("stderr", ffmpegStderr.String()).Msg("ffmpeg streaming finished with warning/error")
+				if err := cmd.Wait(); err != nil {
+					log.Warn().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp streaming finished with warning/error")
 				}
 
 				return nil

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
-	import { MetaTags } from 'svelte-meta-tags';
+	import { MetaTags, type MetaTagsProps } from 'svelte-meta-tags';
 	import { superForm } from 'sveltekit-superforms';
 	import { AuthLayout, GoogleSignIn } from '@/components/index.js';
 	import * as Field from '$lib/components/ui/field/index.js';
@@ -14,7 +14,7 @@
 
 	let { data } = $props();
 	let { pageMetaTags, loginForm, settings } = $derived(data);
-	let metaTags = $derived(pageMetaTags);
+	let metaTags = $derived<MetaTagsProps | undefined>(pageMetaTags);
 
 	let passwordType = $state('password');
 	let errorMessage = $state<string | undefined>(undefined);
@@ -82,6 +82,17 @@
 			isProcessing = false;
 		}
 	};
+
+	if (typeof window !== 'undefined') {
+		// svelte-ignore state_referenced_locally
+		const initial = metaTags;
+
+		metaTags = undefined;
+
+		$effect(() => {
+			metaTags = initial;
+		});
+	}
 </script>
 
 <MetaTags {...metaTags} />

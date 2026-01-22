@@ -36,7 +36,9 @@ export const load = async ({ locals, url, parent }) => {
 		settings
 	);
 
-	const form = await superValidate(zod4(contactSchema));
+	const form = await superValidate(zod4(contactSchema), {
+		id: 'contact-form'
+	});
 
 	try {
 		const platforms = await deps.platformService.GetAll();

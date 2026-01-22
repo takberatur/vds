@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { MetaTags } from 'svelte-meta-tags';
+	import { MetaTags, type MetaTagsProps } from 'svelte-meta-tags';
 	import { ClientPageLayout } from '@/components/client/index.js';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -7,8 +7,19 @@
 	import * as i18n from '@/paraglide/messages.js';
 
 	let { data } = $props();
-	let metaTags = $derived(data.pageMetaTags);
+	let metaTags = $derived<MetaTagsProps | undefined>(data.pageMetaTags);
 	let webSetting = $derived(data.settings?.WEBSITE);
+
+	if (typeof window !== 'undefined') {
+		// svelte-ignore state_referenced_locally
+		const initial = metaTags;
+
+		metaTags = undefined;
+
+		$effect(() => {
+			metaTags = initial;
+		});
+	}
 </script>
 
 <MetaTags {...metaTags} />

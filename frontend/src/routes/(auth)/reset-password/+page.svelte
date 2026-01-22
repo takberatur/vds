@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
-	import { MetaTags } from 'svelte-meta-tags';
+	import { MetaTags, type MetaTagsProps } from 'svelte-meta-tags';
 	import { superForm } from 'sveltekit-superforms';
 	import { AuthLayout } from '@/components/index.js';
 	import * as Field from '$lib/components/ui/field/index.js';
@@ -14,7 +14,7 @@
 	import { localizeHref } from '@/paraglide/runtime';
 
 	let { data } = $props();
-	let metaTags = $derived(data.pageMetaTags);
+	let metaTags = $derived<MetaTagsProps | undefined>(data.pageMetaTags);
 
 	let showConfirmPassword = $state(false);
 	let errorMessage = $state<string | undefined>(undefined);
@@ -50,6 +50,17 @@
 		}
 		$form.token = data.token;
 	});
+
+	if (typeof window !== 'undefined') {
+		// svelte-ignore state_referenced_locally
+		const initial = metaTags;
+
+		metaTags = undefined;
+
+		$effect(() => {
+			metaTags = initial;
+		});
+	}
 </script>
 
 <MetaTags {...metaTags} />

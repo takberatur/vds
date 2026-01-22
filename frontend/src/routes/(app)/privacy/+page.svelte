@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { MetaTags } from 'svelte-meta-tags';
+	import { MetaTags, type MetaTagsProps } from 'svelte-meta-tags';
 	import { ClientPageLayout } from '@/components/client/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -9,7 +9,7 @@
 	import { smoothScroll } from '$lib/stores';
 
 	let { data } = $props();
-	let metaTags = $derived(data.pageMetaTags);
+	let metaTags = $derived<MetaTagsProps | undefined>(data.pageMetaTags);
 	let webSetting = $derived(data.settings?.WEBSITE);
 	let isScrolling = $state(false);
 
@@ -24,6 +24,17 @@
 
 		return () => unsubscribe();
 	});
+
+	if (typeof window !== 'undefined') {
+		// svelte-ignore state_referenced_locally
+		const initial = metaTags;
+
+		metaTags = undefined;
+
+		$effect(() => {
+			metaTags = initial;
+		});
+	}
 </script>
 
 <MetaTags {...metaTags} />
