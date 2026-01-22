@@ -8,85 +8,7 @@ import { localizeHref, locales as SUPPORTED_LOCALES, type Locale } from '@/parag
 
 const NODE_ENV = env.NODE_ENV || 'development';
 
-const paraglideHandle: Handle = ({ event, resolve }) => {
-	// const { url, request } = event;
-	// const pathname = event.url.pathname;
-
-	// if (
-	// 	pathname.startsWith('/api') ||
-	// 	pathname.startsWith('/_app') ||
-	// 	pathname.includes('.')
-	// ) {
-	// 	return resolve(event);
-	// }
-
-	// const ua = request.headers.get('user-agent');
-	// const isBot = !!ua && /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
-	// const pathLocale = getLocaleFromPath(pathname);
-
-	// if (isBot) {
-	// 	event.locals.lang = pathLocale ?? 'en'; { }
-
-	// 	return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-	// 		event.request = localizedRequest;
-	// 		return resolve(event, {
-	// 			transformPageChunk: ({ html, done }) => {
-	// 				return html.replace('%lang%', event.locals.lang)
-	// 			}
-	// 		});
-	// 	});
-	// }
-
-	// if (pathLocale) {
-	// 	event.locals.lang = pathLocale;
-
-	// 	event.cookies.set('PARAGLIDE_LOCALE', pathLocale, {
-	// 		httpOnly: true,
-	// 		secure: NODE_ENV === 'production',
-	// 		sameSite: 'lax',
-	// 		path: '/',
-	// 		maxAge: 60 * 60 * 24 * 7
-	// 	});
-
-	// 	return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-	// 		event.request = localizedRequest;
-
-	// 		return resolve(event, {
-	// 			// transformPageChunk: ({ html, done }) => {
-	// 			// 	if (done) {
-	// 			// 		return html
-	// 			// 			.replace(/%lang%/g, event.locals.lang)
-	// 			// 			.replace(/%canonical%/g, canonicalUrl)
-	// 			// 			.replace(/%hreflang%/g, event.request.headers.get('accept-language')?.split(',')[0] || 'en-US')
-	// 			// 			.replace(/<link rel="alternate"[^>]*%[^%]*%[^>]*>/g, '')
-	// 			// 			.replace(/<link rel="canonical"[^>]*%canonical%[^>]*>/g,
-	// 			// 				`<link rel="canonical" href="${canonicalUrl}" />`);
-	// 			// 	}
-	// 			// 	return html;
-	// 			// }
-	// 			transformPageChunk: ({ html, done }) => {
-	// 				return html.replace('%lang%', event.locals.lang)
-	// 			}
-	// 		});
-	// 	});
-	// }
-
-	// if (pathname === '/' || pathname === '') {
-	// 	const detected = detectLocale(event);
-
-	// 	event.cookies.set('PARAGLIDE_LOCALE', detected, {
-	// 		httpOnly: true,
-	// 		secure: NODE_ENV === 'production',
-	// 		sameSite: 'lax',
-	// 		path: '/',
-	// 		maxAge: 60 * 60 * 24 * 7
-	// 	});
-
-	// 	throw redirect(302, `/${detected}`);
-	// }
-
-	// return resolve(event);
-
+const paraglideHandleBasic: Handle = ({ event, resolve }) => {
 	return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
 		event.request = localizedRequest;
 		event.locals.lang = detectLocale(event);
@@ -99,6 +21,127 @@ const paraglideHandle: Handle = ({ event, resolve }) => {
 	});
 };
 
+const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
+	const { url, request } = event;
+	const pathname = event.url.pathname;
+
+	if (
+		pathname.startsWith('/api') ||
+		pathname.startsWith('/_app') ||
+		pathname.includes('.')
+	) {
+		return resolve(event);
+	}
+
+	const ua = request.headers.get('user-agent');
+	const isBot = !!ua && /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
+	const pathLocale = getLocaleFromPath(pathname);
+
+	if (isBot) {
+		event.locals.lang = pathLocale ?? 'en'; { }
+
+		return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
+			event.request = localizedRequest;
+			return resolve(event, {
+				transformPageChunk: ({ html, done }) => {
+					return html.replace('%lang%', event.locals.lang)
+				}
+			});
+		});
+	}
+
+	if (pathLocale) {
+		event.locals.lang = pathLocale;
+
+		event.cookies.set('PARAGLIDE_LOCALE', pathLocale, {
+			httpOnly: true,
+			secure: NODE_ENV === 'production',
+			sameSite: 'lax',
+			path: '/',
+			maxAge: 60 * 60 * 24 * 7
+		});
+
+		return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
+			event.request = localizedRequest;
+
+			return resolve(event, {
+				// transformPageChunk: ({ html, done }) => {
+				// 	if (done) {
+				// 		return html
+				// 			.replace(/%lang%/g, event.locals.lang)
+				// 			.replace(/%canonical%/g, canonicalUrl)
+				// 			.replace(/%hreflang%/g, event.request.headers.get('accept-language')?.split(',')[0] || 'en-US')
+				// 			.replace(/<link rel="alternate"[^>]*%[^%]*%[^>]*>/g, '')
+				// 			.replace(/<link rel="canonical"[^>]*%canonical%[^>]*>/g,
+				// 				`<link rel="canonical" href="${canonicalUrl}" />`);
+				// 	}
+				// 	return html;
+				// }
+				transformPageChunk: ({ html, done }) => {
+					return html.replace('%lang%', event.locals.lang)
+				}
+			});
+		});
+	}
+
+	if (pathname === '/' || pathname === '') {
+		const detected = detectLocale(event);
+
+		event.cookies.set('PARAGLIDE_LOCALE', detected, {
+			httpOnly: true,
+			secure: NODE_ENV === 'production',
+			sameSite: 'lax',
+			path: '/',
+			maxAge: 60 * 60 * 24 * 7
+		});
+
+		throw redirect(302, `/${detected}`);
+	}
+
+	return resolve(event);
+
+};
+
+const paraglideHandleWithCloudflareWorker: Handle = async ({ event, resolve }) => {
+	const { pathname } = event.url;
+
+	if (
+		pathname.startsWith('/api') ||
+		pathname.startsWith('/_app') ||
+		pathname.includes('.')
+	) {
+		return resolve(event);
+	}
+
+	const ua = event.request.headers.get('user-agent') ?? '';
+	const isBot = /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
+
+	const pathLocale = getLocaleFromPath(pathname);
+
+	if (isBot || pathLocale) {
+		const locale = pathLocale ?? 'en';
+		event.locals.lang = locale;
+
+		if (pathLocale) {
+			event.cookies.set('PARAGLIDE_LOCALE', locale, {
+				httpOnly: true,
+				secure: NODE_ENV === 'production',
+				sameSite: 'lax',
+				path: '/',
+				maxAge: 60 * 60 * 24 * 7
+			});
+		}
+
+		return paraglideMiddleware(event.request, ({ locale }) =>
+			resolve(event, {
+				transformPageChunk: ({ html, done }) =>
+					done ? html.replace('%lang%', locale) : html
+			})
+		);
+	}
+
+	return resolve(event);
+};
 
 const dependenciesInject: Handle = async ({ event, resolve }) => {
 	event.locals.deps = new Dependencies(event);
@@ -290,7 +333,7 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = sequence(
-	paraglideHandle,
+	paraglideHandleBasic,
 	dependenciesInject,
 	authHandle,
 	adminMiddleware,
@@ -309,8 +352,8 @@ function getLocaleFromPath(pathname: string): Locale | null {
 }
 
 function detectLocale(event: RequestEvent): Locale {
-	// const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
-	// if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
+	const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
+	if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
 
 	const accept = event.request.headers.get('accept-language');
 	const l = accept?.split(',')[0].split('-')[0] as Locale;
@@ -319,45 +362,3 @@ function detectLocale(event: RequestEvent): Locale {
 	return supported ? l : 'en';
 }
 
-
-
-// const paraglideHandle: Handle = async ({ event, resolve }) => {
-// 	const { pathname } = event.url;
-
-// 	if (
-// 		pathname.startsWith('/api') ||
-// 		pathname.startsWith('/_app') ||
-// 		pathname.includes('.')
-// 	) {
-// 		return resolve(event);
-// 	}
-
-// 	const ua = event.request.headers.get('user-agent') ?? '';
-// 	const isBot = /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
-
-// 	const pathLocale = getLocaleFromPath(pathname);
-
-// 	if (isBot || pathLocale) {
-// 		const locale = pathLocale ?? 'en';
-// 		event.locals.lang = locale;
-
-// 		if (pathLocale) {
-// 			event.cookies.set('PARAGLIDE_LOCALE', locale, {
-// 				httpOnly: true,
-// 				secure: NODE_ENV === 'production',
-// 				sameSite: 'lax',
-// 				path: '/',
-// 				maxAge: 60 * 60 * 24 * 7
-// 			});
-// 		}
-
-// 		return paraglideMiddleware(event.request, ({ locale }) =>
-// 			resolve(event, {
-// 				transformPageChunk: ({ html, done }) =>
-// 					done ? html.replace('%lang%', locale) : html
-// 			})
-// 		);
-// 	}
-
-// 	return resolve(event);
-// };

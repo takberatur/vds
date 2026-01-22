@@ -138,7 +138,8 @@ declare global {
 		id: string;
 		user_id?: string | null;
 		app_id?: string | null;
-		platform_id?: string | null;
+		platform_id: string;
+		platform_type: string;
 		original_url: string;
 		file_path?: string | null;
 		thumbnail_url?: string | null;
@@ -155,7 +156,21 @@ declare global {
 		user?: User;
 		application?: Application;
 		platform?: Platform;
+		download_files?: DownloadFile[] | null;
 	};
+
+	type DownloadFile = {
+		id: string
+		download_id: string
+		url: string
+		format_id?: string | null
+		resolution?: string | null
+		extension?: string | null
+		file_size?: number | null
+		created_at: string
+
+		download_task?: DownloadTask | null
+	}
 
 	type DownloadFormat = {
 		url: string;

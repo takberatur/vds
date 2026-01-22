@@ -8,6 +8,7 @@ import (
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
 	"github.com/user/video-downloader-backend/internal/model"
@@ -39,8 +40,8 @@ func (r *downloadRepository) Create(ctx context.Context, task *model.DownloadTas
 	defer cancel()
 
 	query := `
-		INSERT INTO downloads (user_id, app_id, original_url, platform_id, status, file_path, format, thumbnail_url, title, file_size, duration, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		INSERT INTO downloads (user_id, app_id, original_url, platform_id, platform_type, status, file_path, format, thumbnail_url, title, file_size, duration, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		RETURNING id
 	`
 	now := time.Now()
@@ -49,6 +50,7 @@ func (r *downloadRepository) Create(ctx context.Context, task *model.DownloadTas
 		task.AppID,
 		task.OriginalURL,
 		task.PlatformID,
+		task.PlatformType,
 		task.Status,
 		task.FilePath,
 		task.Format,
@@ -68,29 +70,14 @@ func (r *downloadRepository) FindByUserID(ctx context.Context, userID uuid.UUID,
 	defer cancel()
 
 	query := `
-		SELECT id, user_id, app_id, original_url, platform_id, status, file_path, format, thumbnail_url, title, file_size, duration, created_at
-		FROM downloads
+		SELECT * FROM downloads
 		WHERE user_id = $1
 		ORDER BY created_at DESC
 		LIMIT $2 OFFSET $3
 	`
-	rows, err := r.db.Query(subCtx, query, userID, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
 	var tasks []*model.DownloadTask
-	for rows.Next() {
-		var task model.DownloadTask
-		if err := rows.Scan(
-			&task.ID, &task.UserID, &task.AppID, &task.OriginalURL, &task.PlatformID, &task.Status,
-			&task.FilePath, &task.Format, &task.ThumbnailURL, &task.Title, &task.FileSize, &task.Duration,
-			&task.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		tasks = append(tasks, &task)
+	if err := pgxscan.Select(subCtx, r.db, &tasks, query, userID, limit, offset); err != nil {
+		return nil, err
 	}
 	return tasks, nil
 }
@@ -99,11 +86,90 @@ func (r *downloadRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT * FROM downloads WHERE id = $1`
+	query := `
+        SELECT 
+            d.id, d.user_id, d.app_id, d.platform_id, d.original_url, d.platform_type, d.file_path, d.thumbnail_url, 
+            d.title, d.duration, d.file_size, d.format, d.status, d.error_message, d.ip_address, d.created_at,
+            u.email as user_email,
+            p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, 
+            p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium
+        FROM downloads d 
+        LEFT JOIN users u ON d.user_id = u.id
+        LEFT JOIN platforms p ON d.platform_id = p.id
+        WHERE d.id = $1
+    `
+
 	var task model.DownloadTask
-	if err := pgxscan.Get(subCtx, r.db, &task, query, id); err != nil {
+	var userEmail *string
+	var platformName, platformSlug, platformThumbnailURL, platformType *string
+	var platformIsActive, platformIsPremium *bool
+
+	err := r.db.QueryRow(subCtx, query, id).Scan(
+		&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.PlatformType,
+		&task.FilePath, &task.ThumbnailURL, &task.Title, &task.Duration, &task.FileSize, &task.Format,
+		&task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
+		&userEmail,
+		&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, fmt.Errorf("download task not found")
+		}
 		return nil, err
 	}
+
+	if userEmail != nil && task.UserID != nil {
+		task.User = &model.User{
+			ID:    *task.UserID,
+			Email: *userEmail,
+		}
+	}
+
+	if platformName != nil {
+		task.Platform = &model.Platform{
+			ID:           task.PlatformID,
+			Name:         *platformName,
+			Slug:         *platformSlug,
+			ThumbnailURL: *platformThumbnailURL,
+			Type:         *platformType,
+			IsActive:     *platformIsActive,
+			IsPremium:    *platformIsPremium,
+		}
+	}
+
+	filesQuery := `
+        SELECT id, download_id, url, format_id, resolution, extension, file_size, created_at
+        FROM download_files
+        WHERE download_id = $1
+        ORDER BY created_at ASC
+    `
+
+	filesRows, err := r.db.Query(subCtx, filesQuery, id)
+	if err != nil {
+		return nil, err
+	}
+	defer filesRows.Close()
+
+	var downloadFiles []model.DownloadFile
+	for filesRows.Next() {
+		var file model.DownloadFile
+		err = filesRows.Scan(
+			&file.ID, &file.DownloadID, &file.URL, &file.FormatID, &file.Resolution,
+			&file.Extension, &file.FileSize, &file.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		downloadFiles = append(downloadFiles, file)
+	}
+
+	if err = filesRows.Err(); err != nil {
+		return nil, err
+	}
+
+	task.DownloadFiles = downloadFiles
+
 	return &task, nil
 }
 
@@ -116,10 +182,12 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 			d.id, d.user_id, d.app_id, d.platform_id, d.original_url, d.file_path, d.thumbnail_url, 
 			d.title, d.duration, d.file_size, d.format, d.status, d.error_message, d.ip_address, d.created_at,
 			u.email as user_email,
-			p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium
+			p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium,
+			f.id as file_id, f.download_id, f.url, f.format_id, f.resolution, f.extension, f.file_size, f.created_at
 		FROM downloads d
 		LEFT JOIN users u ON d.user_id = u.id
 		LEFT JOIN platforms p ON d.platform_id = p.id
+		LEFT JOIN download_files f ON d.id = f.download_id
 	`
 
 	// Apply filters
@@ -205,12 +273,18 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 		var userEmail *string
 		var platformName, platformSlug, platformThumbnailURL, platformType *string
 		var platformIsActive, platformIsPremium *bool
+		var fileID uuid.UUID
+		var downloadID uuid.UUID
+		var url, formatID, resolution, extension *string
+		var fileSize *int64
+		var createdAt time.Time
 
 		err := rows.Scan(
-			&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.FilePath, &task.ThumbnailURL,
+			&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.PlatformType, &task.FilePath, &task.ThumbnailURL,
 			&task.Title, &task.Duration, &task.FileSize, &task.Format, &task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
 			&userEmail,
 			&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
+			&fileID, &downloadID, &url, &formatID, &resolution, &extension, &fileSize, &createdAt,
 		)
 		if err != nil {
 			return nil, model.Pagination{}, err
@@ -223,9 +297,9 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 			}
 		}
 
-		if task.PlatformID != nil && platformName != nil {
+		if platformName != nil {
 			task.Platform = &model.Platform{
-				ID:           *task.PlatformID,
+				ID:           task.PlatformID,
 				Name:         *platformName,
 				Slug:         *platformSlug,
 				ThumbnailURL: *platformThumbnailURL,
@@ -233,6 +307,19 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 				IsActive:     *platformIsActive,
 				IsPremium:    *platformIsPremium,
 			}
+		}
+
+		if fileID != uuid.Nil {
+			task.DownloadFiles = append(task.DownloadFiles, model.DownloadFile{
+				ID:         fileID,
+				DownloadID: downloadID,
+				URL:        *url,
+				FormatID:   formatID,
+				Resolution: resolution,
+				Extension:  extension,
+				FileSize:   fileSize,
+				CreatedAt:  createdAt,
+			})
 		}
 
 		tasks = append(tasks, &task)

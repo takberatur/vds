@@ -85,7 +85,8 @@ CREATE TABLE downloads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     app_id UUID REFERENCES applications(id) ON DELETE SET NULL,
-    platform_id UUID REFERENCES platforms(id) ON DELETE SET NULL,
+    platform_id UUID NOT NULL REFERENCES platforms(id) ON DELETE SET NULL,
+		patform_type TEXT NOT NULL,
     original_url TEXT NOT NULL,
     file_path TEXT, -- Local path or S3 URL
     thumbnail_url TEXT,
@@ -96,6 +97,17 @@ CREATE TABLE downloads (
     status VARCHAR(20) NOT NULL, -- 'pending', 'processing', 'completed', 'failed'
     error_message TEXT,
     ip_address VARCHAR(45),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE download_files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    download_id UUID NOT NULL REFERENCES downloads(id) ON DELETE CASCADE,
+    url TEXT NOT NULL, -- MinIO / S3 URL
+    format_id VARCHAR(50), -- yt-dlp format id
+    resolution VARCHAR(50), -- e.g. 1920x1080
+    extension VARCHAR(10), -- mp4, webm, mp3
+    file_size BIGINT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

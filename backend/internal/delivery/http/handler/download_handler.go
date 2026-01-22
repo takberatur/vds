@@ -505,66 +505,90 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 			if isDailymotion {
 				log.Info().Str("url", targetURL).Msg("Streaming Dailymotion video via Chromedp interception")
-
 				chromedpStrategy := infrastructure.NewChromedpStrategy()
-				// Use GetMasterPlaylist to get the stream URL directly from browser traffic
-				// This bypasses yt-dlp's inability to get the manifest due to 403 errors
-				m3u8URL, cookies, ua, err := chromedpStrategy.GetMasterPlaylist(ctx, targetURL)
+				m3u8URL, cookieFilePath, ua, err := chromedpStrategy.GetMasterPlaylist(ctx, targetURL)
 				if err != nil {
 					log.Error().Err(err).Msg("Failed to resolve stream via Chromedp")
 					return response.Error(c, fiber.StatusInternalServerError, "Failed to resolve video stream: "+err.Error(), err.Error())
 				}
 
-				log.Info().Str("m3u8_url", m3u8URL).Msg("Stream URL resolved via Chromedp")
+				// Clean up cookie file after request
+				if cookieFilePath != "" {
+					defer func() {
+						os.Remove(cookieFilePath)
+					}()
+				}
 
-				// Set headers for response
-				c.Set("Content-Type", "video/mp4")
-				c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
+				// Create temp file for download
+				// We download to a file instead of streaming to avoid ERR_EMPTY_RESPONSE issues with unstable pipes
+				tempFile, err := os.CreateTemp("", "dailymotion-*.mp4")
+				if err != nil {
+					log.Error().Err(err).Msg("Failed to create temp file")
+					return response.Error(c, fiber.StatusInternalServerError, "Failed to create temp file", err.Error())
+				}
+				tempPath := tempFile.Name()
+				tempFile.Close() // Close so yt-dlp can write to it
 
-				// Use yt-dlp to stream the m3u8 URL, as it handles HLS/cookies better than raw ffmpeg
-				// yt-dlp -o - --add-header "Cookie:..." --add-header "Referer:..." --add-header "User-Agent:..." M3U8_URL
+				// Clean up temp file after request completes
+				// We use a closure to capture the current tempPath
+				defer func() {
+					if err := os.Remove(tempPath); err != nil {
+						log.Warn().Err(err).Str("path", tempPath).Msg("Failed to remove temp file")
+					}
+				}()
 
+				log.Info().Str("path", tempPath).Msg("Downloading Dailymotion video to temp file using yt-dlp")
+
+				// Use yt-dlp to download the video to the temp file
+				// yt-dlp is more robust than raw ffmpeg for HLS and variant selection
 				ytDlpArgs := []string{
-					"-o", "-", // Output to stdout
-					"--no-part", // Write directly to stdout
-					"--quiet",   // Suppress output
+					"-o", tempPath,
 					"--no-warnings",
+					"--force-overwrites",
+					"--no-part", // Do not use .part files
 				}
 
 				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
 				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Referer: %s", targetURL))
-				if cookies != "" {
-					ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Cookie: %s", cookies))
+
+				// Use cookie file instead of header
+				if cookieFilePath != "" {
+					ytDlpArgs = append(ytDlpArgs, "--cookies", cookieFilePath)
 				}
 
 				ytDlpArgs = append(ytDlpArgs, m3u8URL)
-
-				log.Info().Msg("Starting yt-dlp streaming for m3u8")
 
 				cmd := exec.CommandContext(ctx, "yt-dlp", ytDlpArgs...)
 				var stderr bytes.Buffer
 				cmd.Stderr = &stderr
 
-				stdout, err := cmd.StdoutPipe()
+				log.Info().Msg("Starting yt-dlp download to file")
+
+				if err := cmd.Run(); err != nil {
+					log.Error().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp download failed")
+					return response.Error(c, fiber.StatusInternalServerError, "Download failed", stderr.String())
+				}
+
+				// Verify file exists and has size
+				fileInfo, err := os.Stat(tempPath)
 				if err != nil {
-					log.Error().Err(err).Msg("Failed to create stdout pipe for yt-dlp")
-					return response.Error(c, fiber.StatusInternalServerError, "Streaming initialization failed", err.Error())
+					log.Error().Err(err).Msg("Failed to stat downloaded file")
+					return response.Error(c, fiber.StatusInternalServerError, "Download verification failed", err.Error())
 				}
 
-				if err := cmd.Start(); err != nil {
-					log.Error().Err(err).Str("stderr", stderr.String()).Msg("Failed to start yt-dlp streaming")
-					return response.Error(c, fiber.StatusInternalServerError, "Streaming start failed", err.Error())
+				if fileInfo.Size() == 0 {
+					log.Error().Msg("Downloaded file is empty")
+					return response.Error(c, fiber.StatusInternalServerError, "Downloaded file is empty", "Zero bytes downloaded")
 				}
 
-				if err := c.SendStream(stdout); err != nil {
-					log.Warn().Err(err).Msg("Error streaming to client")
-				}
+				log.Info().Int64("size", fileInfo.Size()).Msg("Download completed successfully, serving file")
 
-				if err := cmd.Wait(); err != nil {
-					log.Warn().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp streaming finished with warning/error")
-				}
+				// Set headers for response
+				c.Set("Content-Type", "video/mp4")
+				c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
 
-				return nil
+				// Send the file
+				return c.SendFile(tempPath)
 			}
 
 			tempFile = filepath.Join(os.TempDir(), "download-"+uuid.New().String()+".mp4")

@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS settings;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE IF EXISTS downloads;
+DROP TABLE IF EXISTS download_files;
 DROP TABLE IF EXISTS platforms;
 DROP TABLE IF EXISTS applications;
 DROP TABLE IF EXISTS oauth_providers;
