@@ -29,7 +29,7 @@
 	onMount(() => {
 		if (elementSection) {
 			scrollAnimationSection = scrollAnimation.registerElement(elementSection, {
-				animationType: 'flipIn',
+				animationType: 'bounceIn',
 				threshold: 0.2,
 				delay: 0.3,
 				offset: 50,

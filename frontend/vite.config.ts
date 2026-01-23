@@ -29,26 +29,26 @@ export default defineConfig({
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
-			strategy: ['url', 'cookie', 'baseLocale'],
+			strategy: ["url", "cookie"],
 			disableAsyncLocalStorage: true,
-			// urlPatterns: [
-			// 	{
-			// 		pattern: "/",
-			// 		localized: [
-			// 			["en", "/en"],
-			// 			["es", "/es"],
-			// 			["id", "/id"]
-			// 		],
-			// 	},
-			// 	{
-			// 		pattern: "/:path(.*)?",
-			// 		localized: [
-			// 			["en", "/en/:path(.*)?"],
-			// 			["es", "/es/:path(.*)?"],
-			// 			["id", "/id/:path(.*)?"],
-			// 		],
-			// 	},
-			// ]
+			urlPatterns: [
+				{
+					pattern: "/",
+					localized: [
+						["en", "/en"],
+						["es", "/es"],
+						["id", "/id"]
+					],
+				},
+				{
+					pattern: "/:path(.*)?",
+					localized: [
+						["en", "/en/:path(.*)?"],
+						["es", "/es/:path(.*)?"],
+						["id", "/id/:path(.*)?"],
+					],
+				},
+			]
 		}),
 		devtoolsJson()
 	],

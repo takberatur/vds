@@ -62,16 +62,17 @@
 
 	function handleOpenFile(url?: string | null, type?: string | null) {
 		if (!url) return;
-		if (!validUrl(url)) return;
+
+		// Clean URL first (remove spaces, backticks if any)
+		const cleanUrl = url
+			.trim()
+			.replace(/^`+|`+$/g, '')
+			.replace(/`/g, '');
+
+		if (!validUrl(cleanUrl)) return;
 		// check by type or domain regex
 
-		window.open(
-			url
-				.trim()
-				.replace(/^`+|`+$/g, '')
-				.replace(/`/g, ''),
-			'_blank'
-		);
+		window.open(cleanUrl, '_blank', 'noreferrer');
 	}
 
 	function validUrl(url?: string | null) {

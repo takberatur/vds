@@ -74,7 +74,7 @@
 	});
 
 	const animationOptions: AnimationOptions = {
-		animationType: 'bounceIn',
+		animationType: 'fadeIn',
 		threshold: 0.2,
 		delay: 0.3,
 		offset: 50,

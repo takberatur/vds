@@ -370,12 +370,33 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 	isTiktok := strings.EqualFold(task.PlatformType, "tiktok") ||
 		strings.Contains(lowerURL, "tiktok.com")
 
-	// Helper function to clean URLs (Currently disabled for Twitter/Instagram as they need params)
+	// Helper function to clean URLs
 	cleanURL := func(u string) string {
-		// Twitter needs query params (e.g., ?tag=21) for access, so we do NOT clean them.
-		// Instagram also needs params.
-		// TikTok direct links might need cleaning or not, usually safe to keep params for expiration/auth.
+		// Always clean surrounding whitespace and backticks which are invalid in URLs
+		// This fixes issues where URLs might be wrapped in backticks from logging or scraping artifacts
+		u = strings.TrimSpace(u)
+		u = strings.Trim(u, "`")
+		u = strings.ReplaceAll(u, "`", "")
+		u = strings.Trim(u, "'")
+		u = strings.Trim(u, "\"")
+
+		// Note: We do NOT remove query params (e.g. ?tag=21) as they are required for
+		// Twitter, Instagram, and TikTok access.
 		return u
+	}
+
+	// Sanitize task URLs immediately
+	if task.ThumbnailURL != nil {
+		cleaned := cleanURL(*task.ThumbnailURL)
+		task.ThumbnailURL = &cleaned
+	}
+	if info != nil {
+		if info.Thumbnail != "" {
+			info.Thumbnail = cleanURL(info.Thumbnail)
+		}
+		if info.DownloadURL != "" {
+			info.DownloadURL = cleanURL(info.DownloadURL)
+		}
 	}
 
 	// 1. Gather all formats (or filtered)

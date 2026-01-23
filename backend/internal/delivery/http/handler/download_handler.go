@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -277,6 +278,15 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			if targetFile != nil && targetFile.URL != "" {
 				finalURL := targetFile.URL
 
+				// Clean finalURL from dirty characters (backticks, spaces) that might be in DB from old tasks
+				finalURL = strings.TrimSpace(finalURL)
+				finalURL = strings.Trim(finalURL, "`")
+				finalURL = strings.ReplaceAll(finalURL, "`", "")
+				finalURL = strings.Trim(finalURL, "'")
+				finalURL = strings.Trim(finalURL, "\"")
+				// Trim spaces again in case they were inside quotes/backticks
+				finalURL = strings.TrimSpace(finalURL)
+
 				// Special handling for Twitter/X direct links with query params
 				// Update: We do NOT remove query params because Twitter requires them (e.g. ?tag=21) for access control (403 Forbidden without them)
 				/*
@@ -403,6 +413,13 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			// Reset targetURL to OriginalURL to avoid loop, though it might fail if OriginalURL is protected
 			targetURL = pageURL
 		}
+
+		// Clean targetURL from dirty characters (backticks, spaces) that might be in DB
+		targetURL = strings.TrimSpace(targetURL)
+		targetURL = strings.Trim(targetURL, "`")
+		targetURL = strings.ReplaceAll(targetURL, "`", "")
+		targetURL = strings.Trim(targetURL, "'")
+		targetURL = strings.Trim(targetURL, "\"")
 
 		// Check if we should use lux strategy
 		// Skip Lux for Dailymotion as it tends to download HTML files instead of video
@@ -861,9 +878,21 @@ func (h *DownloadHandler) proxyDirectURL(c *fiber.Ctx) error {
 	}
 
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+	req.Header.Set("Referer", "https://www.tiktok.com/") // Try to set Referer for TikTok/Others
 
 	client := &http.Client{
 		Timeout: 0,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// Allow redirects
+			if len(via) >= 10 {
+				return errors.New("stopped after 10 redirects")
+			}
+			// Copy headers from original request
+			for key, val := range via[0].Header {
+				req.Header[key] = val
+			}
+			return nil
+		},
 	}
 
 	resp, err := client.Do(req)

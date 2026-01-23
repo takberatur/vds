@@ -79,7 +79,7 @@
 	});
 
 	const animationOptions: AnimationOptions = {
-		animationType: 'bounceIn',
+		animationType: 'fadeIn',
 		threshold: 0.2,
 		delay: 0.3,
 		offset: 50,
@@ -203,8 +203,14 @@
 			// If we have a direct URL (e.g. MinIO), use it directly
 			if (directUrl) {
 				const link = document.createElement('a');
-				link.href = directUrl;
+				// Clean URL (remove spaces, backticks if any)
+				const cleanUrl = directUrl
+					.trim()
+					.replace(/^`+|`+$/g, '')
+					.replace(/`/g, '');
+				link.href = cleanUrl;
 				link.target = '_blank';
+				link.rel = 'noreferrer'; // Important for some CDNs (TikTok, etc.) to accept the request
 				link.download = `${data.title || 'download'}.mp4`; // Browser might ignore this for cross-origin but worth trying
 				document.body.appendChild(link);
 				link.click();
