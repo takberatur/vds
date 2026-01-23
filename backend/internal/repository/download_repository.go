@@ -42,8 +42,8 @@ func (r *downloadRepository) Create(ctx context.Context, task *model.DownloadTas
 	defer cancel()
 
 	query := `
-		INSERT INTO downloads (user_id, app_id, original_url, platform_id, platform_type, status, file_path, format, thumbnail_url, title, file_size, duration, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		INSERT INTO downloads (user_id, app_id, original_url, platform_id, platform_type, status, file_path, format, thumbnail_url, title, file_size, duration, encrypted_data, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id
 	`
 	now := time.Now()
@@ -60,6 +60,7 @@ func (r *downloadRepository) Create(ctx context.Context, task *model.DownloadTas
 		task.Title,
 		task.FileSize,
 		task.Duration,
+		task.EncryptedData,
 		now,
 	).Scan(&task.ID)
 
@@ -121,7 +122,7 @@ func (r *downloadRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 	query := `
         SELECT 
             d.id, d.user_id, d.app_id, d.platform_id, d.original_url, d.platform_type, d.file_path, d.thumbnail_url, 
-            d.title, d.duration, d.file_size, d.format, d.status, d.error_message, d.ip_address, d.created_at,
+            d.title, d.duration, d.file_size, d.encrypted_data, d.format, d.status, d.error_message, d.ip_address, d.created_at,
             u.email as user_email,
             p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, 
             p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium
@@ -138,7 +139,7 @@ func (r *downloadRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 
 	err := r.db.QueryRow(subCtx, query, id).Scan(
 		&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.PlatformType,
-		&task.FilePath, &task.ThumbnailURL, &task.Title, &task.Duration, &task.FileSize, &task.Format,
+		&task.FilePath, &task.ThumbnailURL, &task.Title, &task.Duration, &task.FileSize, &task.EncryptedData, &task.Format,
 		&task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
 		&userEmail,
 		&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
@@ -171,7 +172,7 @@ func (r *downloadRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 	}
 
 	filesQuery := `
-        SELECT id, download_id, url, format_id, resolution, extension, file_size, created_at
+        SELECT id, download_id, url, format_id, resolution, extension, file_size, encrypted_data, created_at
         FROM download_files
         WHERE download_id = $1
         ORDER BY created_at ASC
@@ -188,7 +189,7 @@ func (r *downloadRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 		var file model.DownloadFile
 		err = filesRows.Scan(
 			&file.ID, &file.DownloadID, &file.URL, &file.FormatID, &file.Resolution,
-			&file.Extension, &file.FileSize, &file.CreatedAt,
+			&file.Extension, &file.FileSize, &file.EncryptedData, &file.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -247,10 +248,10 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 	query := `
 		SELECT 
 			d.id, d.user_id, d.app_id, d.platform_id, d.original_url, d.file_path, d.thumbnail_url, 
-			d.title, d.duration, d.file_size, d.format, d.status, d.error_message, d.ip_address, d.created_at,
+			d.title, d.duration, d.file_size, d.encrypted_data, d.format, d.status, d.error_message, d.ip_address, d.created_at,
 			u.email as user_email,
 			p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium,
-			f.id as file_id, f.download_id, f.url, f.format_id, f.resolution, f.extension, f.file_size, f.created_at
+			f.id as file_id, f.download_id, f.url, f.format_id, f.resolution, f.extension, f.file_size, f.encrypted_data, f.created_at
 		FROM downloads d
 		LEFT JOIN users u ON d.user_id = u.id
 		LEFT JOIN platforms p ON d.platform_id = p.id
@@ -345,10 +346,11 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 		var url, formatID, resolution, extension *string
 		var fileSize *int64
 		var createdAt time.Time
+		var encryptedData *[]byte
 
 		err := rows.Scan(
 			&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.PlatformType, &task.FilePath, &task.ThumbnailURL,
-			&task.Title, &task.Duration, &task.FileSize, &task.Format, &task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
+			&task.Title, &task.Duration, &task.FileSize, &task.EncryptedData, &task.Format, &task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
 			&userEmail,
 			&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
 			&fileID, &downloadID, &url, &formatID, &resolution, &extension, &fileSize, &createdAt,
@@ -378,14 +380,15 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 
 		if fileID != uuid.Nil {
 			task.DownloadFiles = append(task.DownloadFiles, model.DownloadFile{
-				ID:         fileID,
-				DownloadID: downloadID,
-				URL:        *url,
-				FormatID:   formatID,
-				Resolution: resolution,
-				Extension:  extension,
-				FileSize:   fileSize,
-				CreatedAt:  createdAt,
+				ID:            fileID,
+				DownloadID:    downloadID,
+				URL:           *url,
+				FormatID:      formatID,
+				Resolution:    resolution,
+				Extension:     extension,
+				FileSize:      fileSize,
+				EncryptedData: encryptedData,
+				CreatedAt:     createdAt,
 			})
 		}
 
@@ -411,12 +414,12 @@ func (r *downloadRepository) Update(ctx context.Context, task *model.DownloadTas
 	query := `
 		UPDATE downloads 
 		SET status = $1, file_path = $2, format = $3, thumbnail_url = $4, 
-			title = $5, file_size = $6, duration = $7, error_message = $8
-		WHERE id = $9
+			title = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9
+		WHERE id = $10
 	`
 	_, err := r.db.Exec(subCtx, query,
 		task.Status, task.FilePath, task.Format, task.ThumbnailURL,
-		task.Title, task.FileSize, task.Duration, task.ErrorMessage, task.ID)
+		task.Title, task.FileSize, task.Duration, task.EncryptedData, task.ErrorMessage, task.ID)
 	return err
 }
 
@@ -443,8 +446,8 @@ func (r *downloadRepository) AddFile(ctx context.Context, file *model.DownloadFi
 	defer cancel()
 
 	query := `
-		INSERT INTO download_files (download_id, url, format_id, resolution, extension, file_size, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO download_files (download_id, url, format_id, resolution, extension, file_size, encrypted_data, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id
 	`
 	now := time.Now()
@@ -455,6 +458,7 @@ func (r *downloadRepository) AddFile(ctx context.Context, file *model.DownloadFi
 		file.Resolution,
 		file.Extension,
 		file.FileSize,
+		file.EncryptedData,
 		now,
 	).Scan(&file.ID)
 

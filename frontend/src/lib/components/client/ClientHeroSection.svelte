@@ -131,9 +131,15 @@
 			// If we have a direct URL (e.g. MinIO), use it directly
 			if (directUrl) {
 				const link = document.createElement('a');
-				link.href = directUrl;
+				// Clean URL (remove spaces, backticks if any)
+				const cleanUrl = directUrl
+					.trim()
+					.replace(/^`+|`+$/g, '')
+					.replace(/`/g, '');
+				link.href = cleanUrl;
 				link.target = '_blank';
-				link.download = `${data.title || 'download'}.mp4`;
+				link.rel = 'noreferrer'; // Important for some CDNs (TikTok, etc.) to accept the request
+				link.download = `${data.title || 'download'}.mp4`; // Browser might ignore this for cross-origin but worth trying
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
@@ -150,15 +156,7 @@
 			}
 
 			const downloadUrl = `${PUBLIC_API_URL}/public-proxy/downloads/file?${params.toString()}`;
-
-			const link = document.createElement('a');
-			link.href = downloadUrl;
-			link.target = '_blank';
-			link.download = `${data.title || 'download'}.mp4`;
-
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
+			window.location.href = downloadUrl;
 		} catch (error) {
 			errorMessage =
 				error instanceof Error ? error.message : i18n.text_failed_to_process_download();

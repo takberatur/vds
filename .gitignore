@@ -31,3 +31,5 @@ backend/api.exe
 backend/main.exe
 backend/worker.exe
 backend/*.exe
+backend/worker_bin
+backend/server_bin

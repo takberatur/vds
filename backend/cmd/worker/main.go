@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -17,6 +19,7 @@ import (
 	"github.com/user/video-downloader-backend/internal/model"
 	"github.com/user/video-downloader-backend/internal/repository"
 	"github.com/user/video-downloader-backend/pkg/logger"
+	"github.com/user/video-downloader-backend/pkg/utils"
 )
 
 func main() {
@@ -68,7 +71,7 @@ func main() {
 			return err
 		}
 
-		if err := handleVideoDownloadTask(ctx, downloadRepo, redisClient, downloader, storageClient, cfg.MinioBucket, &task); err != nil {
+		if err := handleVideoDownloadTask(ctx, downloadRepo, redisClient, downloader, storageClient, cfg.MinioBucket, cfg.EncryptionKey, &task); err != nil {
 			return err
 		}
 
@@ -162,7 +165,7 @@ func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.Downlo
 	return nil
 }
 
-func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, task *model.DownloadTask) error {
+func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
 	if err := publishProgressEvent(ctx, redisClient, task, 10); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 10).Msg("failed to publish progress event (start)")
 	}
@@ -217,7 +220,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		isInstagram ||
 		isTiktok {
 		log.Info().Str("platform", task.PlatformType).Msg("Processing as direct download (no-upload)")
-		return processDirectLinkTask(ctx, downloadRepo, redisClient, task, info)
+		return processDirectLinkTask(ctx, downloadRepo, redisClient, task, info, encryptionKey)
 	}
 
 	// 3. Select Formats to Download
@@ -303,12 +306,13 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		res := resolution
 
 		downloadFile := &model.DownloadFile{
-			DownloadID: task.ID,
-			URL:        minioURL,
-			FormatID:   &fID,
-			Resolution: &res,
-			Extension:  &ext,
-			FileSize:   &size,
+			DownloadID:    task.ID,
+			URL:           minioURL,
+			FormatID:      &fID,
+			Resolution:    &res,
+			Extension:     &ext,
+			FileSize:      &size,
+			EncryptedData: nil,
 		}
 		if err := downloadRepo.AddFile(ctx, downloadFile); err != nil {
 			log.Error().Err(err).Msg("failed to add download file record")
@@ -336,7 +340,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	return nil
 }
 
-func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, info *infrastructure.VideoInfo) error {
+func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	// 0. Ensure platform type is correct before we start
 	// This helps with Twitter detection if it was missed earlier
 	lowerURL := strings.ToLower(task.OriginalURL)
@@ -369,6 +373,10 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 
 	isTiktok := strings.EqualFold(task.PlatformType, "tiktok") ||
 		strings.Contains(lowerURL, "tiktok.com")
+
+	if isTiktok {
+		return processTikTokEncryptedTask(ctx, downloadRepo, redisClient, task, info, encryptionKey)
+	}
 
 	// Helper function to clean URLs
 	cleanURL := func(u string) string {
@@ -485,12 +493,13 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 		}
 
 		downloadFile := &model.DownloadFile{
-			DownloadID: task.ID,
-			URL:        f.URL,
-			FormatID:   &fmtID,
-			Resolution: &resolution,
-			Extension:  &ext,
-			FileSize:   &size,
+			DownloadID:    task.ID,
+			URL:           f.URL,
+			FormatID:      &fmtID,
+			Resolution:    &resolution,
+			Extension:     &ext,
+			FileSize:      &size,
+			EncryptedData: nil,
 		}
 
 		// Save to DB
@@ -612,6 +621,131 @@ func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClie
 	}
 
 	return publishDownloadEvent(ctx, redisClient, event)
+}
+
+func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
+	log.Info().Str("task_id", task.ID.String()).Msg("Processing TikTok encrypted task")
+
+	// 1. Select the best format
+	var targetURL string
+	var ext string = "mp4"
+
+	if info.DownloadURL != "" {
+		targetURL = info.DownloadURL
+	}
+
+	// Try to find a better format if available
+	if len(info.Formats) > 0 {
+		var bestFormat *infrastructure.FormatInfo
+		for _, f := range info.Formats {
+			// Check for valid video format
+			// TikTok formats often have "h264" vcodec or just http URL
+			// Avoid m3u8
+			if f.URL != "" && !strings.Contains(f.URL, ".m3u8") {
+				if bestFormat == nil {
+					temp := f
+					bestFormat = &temp
+				} else {
+					// Compare height if available
+					if f.Height != nil && bestFormat.Height != nil && *f.Height > *bestFormat.Height {
+						temp := f
+						bestFormat = &temp
+					} else if bestFormat.Height == nil && f.Height != nil {
+						// Prefer one with height
+						temp := f
+						bestFormat = &temp
+					}
+				}
+			}
+		}
+		if bestFormat != nil {
+			targetURL = bestFormat.URL
+			if bestFormat.Ext != "" {
+				ext = bestFormat.Ext
+			}
+		}
+	}
+
+	if targetURL == "" {
+		return fmt.Errorf("no suitable download URL found for TikTok task")
+	}
+
+	// 2. Download the video
+	req, err := http.NewRequestWithContext(ctx, "GET", targetURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+	req.Header.Set("Referer", "https://www.tiktok.com/")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download video: status %d", resp.StatusCode)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if len(data) == 0 {
+		return fmt.Errorf("downloaded empty file")
+	}
+
+	// 3. Encrypt
+	encryptedData, err := utils.EncryptData(data, encryptionKey)
+	if err != nil {
+		return fmt.Errorf("failed to encrypt data: %w", err)
+	}
+
+	// 4. Save to DB
+	// We store original file size for metadata, but the data is encrypted
+	fileSize := int64(len(data))
+
+	fID := "encrypted"
+	resolution := "original"
+	// Use a dummy URL that indicates it's encrypted
+	dummyURL := fmt.Sprintf("encrypted://%s/video.%s", task.PlatformType, ext)
+
+	dlFile := &model.DownloadFile{
+		DownloadID:    task.ID,
+		URL:           dummyURL,
+		FormatID:      &fID,
+		Resolution:    &resolution,
+		Extension:     &ext,
+		FileSize:      &fileSize,
+		EncryptedData: &encryptedData,
+	}
+
+	if err := downloadRepo.AddFile(ctx, dlFile); err != nil {
+		return err
+	}
+
+	task.EncryptedData = &encryptedData
+	task.FilePath = &dummyURL
+	task.FileSize = &fileSize
+	task.Format = &ext
+	task.Status = "completed"
+
+	if err := downloadRepo.Update(ctx, task); err != nil {
+		return err
+	}
+
+	// Publish completion
+	// Need to populate DownloadFiles for event
+	task.DownloadFiles = []model.DownloadFile{*dlFile}
+	if err := publishCompletionEvent(ctx, redisClient, task); err != nil {
+		log.Error().Err(err).Msg("failed to publish complete event")
+	}
+
+	log.Info().Str("task_id", task.ID.String()).Int64("original_size", fileSize).Msg("TikTok encrypted task completed")
+	return nil
 }
 
 func publishProgressEvent(ctx context.Context, redisClient infrastructure.RedisClient, task *model.DownloadTask, progress int) error {

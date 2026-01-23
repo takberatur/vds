@@ -275,8 +275,45 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				targetFile = &task.DownloadFiles[0]
 			}
 
-			if targetFile != nil && targetFile.URL != "" {
-				finalURL := targetFile.URL
+			if targetFile != nil {
+				// Check if file is encrypted
+				if targetFile.EncryptedData != nil {
+					log.Info().Str("task_id", task.ID.String()).Msg("Found encrypted file in DB, decrypting and streaming")
+
+					cfg := config.LoadConfig()
+					decrypted, err := utils.DecryptData(*targetFile.EncryptedData, cfg.EncryptionKey)
+					if err != nil {
+						log.Error().Err(err).Msg("Failed to decrypt video")
+						return response.Error(c, fiber.StatusInternalServerError, "Failed to decrypt video", err.Error())
+					}
+
+					// Stream decrypted data
+					c.Set("Content-Type", "video/mp4")
+					c.Set("Content-Length", fmt.Sprintf("%d", len(decrypted)))
+
+					// Use filename from query or task title
+					finalFilename := filename
+					if finalFilename == "" {
+						if task.Title != nil {
+							finalFilename = *task.Title
+						} else {
+							finalFilename = "download"
+						}
+					}
+					if !strings.HasSuffix(strings.ToLower(finalFilename), ".mp4") {
+						finalFilename += ".mp4"
+					}
+					// Sanitize filename
+					finalFilename = strings.ReplaceAll(finalFilename, `"`, `\"`)
+					encodedFilename := url.QueryEscape(finalFilename)
+
+					c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, finalFilename, encodedFilename))
+
+					return c.Status(http.StatusOK).SendStream(bytes.NewReader(decrypted))
+				}
+				
+				if targetFile.URL != "" {
+					finalURL := targetFile.URL
 
 				// Clean finalURL from dirty characters (backticks, spaces) that might be in DB from old tasks
 				finalURL = strings.TrimSpace(finalURL)
@@ -287,32 +324,24 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				// Trim spaces again in case they were inside quotes/backticks
 				finalURL = strings.TrimSpace(finalURL)
 
-				// Special handling for Twitter/X direct links with query params
-				// Update: We do NOT remove query params because Twitter requires them (e.g. ?tag=21) for access control (403 Forbidden without them)
-				/*
-					isTwitter := strings.Contains(finalURL, "twimg.com") ||
-						strings.Contains(finalURL, "twitter.com") ||
-						strings.Contains(finalURL, "x.com") ||
-						strings.EqualFold(task.PlatformType, "twitter") ||
-						strings.EqualFold(task.PlatformType, "x")
+				// Prevent recursive redirects if finalURL is the proxy URL itself
+				// This fixes ERR_UNSAFE_REDIRECT when the DB contains a URL pointing to this proxy
+				if strings.Contains(finalURL, "/api/v1/public-proxy/") {
+					log.Warn().
+						Str("task_id", task.ID.String()).
+						Str("url", finalURL).
+						Msg("Recursive proxy URL detected in completed task, skipping redirect optimization to avoid loop")
+					// Fall through to normal processing
+				} else {
+					log.Info().
+						Str("task_id", task.ID.String()).
+						Str("url", finalURL).
+						Str("original_url", targetFile.URL).
+						Str("format_id", formatID).
+						Msg("Found existing file in storage, redirecting")
 
-					if isTwitter {
-						// Regex to match extension followed by query params
-						// Case insensitive search for extensions
-						re := regexp.MustCompile(`(?i)\.(mp4|m3u8|mkv|avi|mov)(\?.*)?$`)
-						// Replace with just the extension
-						finalURL = re.ReplaceAllString(finalURL, ".$1")
-					}
-				*/
-
-				log.Info().
-					Str("task_id", task.ID.String()).
-					Str("url", finalURL).
-					Str("original_url", targetFile.URL).
-					Str("format_id", formatID).
-					Msg("Found existing file in storage, redirecting")
-
-				return c.Redirect(finalURL)
+					return c.Redirect(finalURL)
+				}
 			}
 		}
 

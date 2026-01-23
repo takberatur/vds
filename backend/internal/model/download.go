@@ -19,23 +19,24 @@ type DownloadFormat struct {
 }
 
 type DownloadTask struct {
-	ID           uuid.UUID        `json:"id" db:"id"`
-	UserID       *uuid.UUID       `json:"user_id,omitempty" db:"user_id"`
-	AppID        *uuid.UUID       `json:"app_id,omitempty" db:"app_id"`
-	PlatformID   uuid.UUID        `json:"platform_id,omitempty" db:"platform_id"`
-	PlatformType string           `json:"platform_type,omitempty" db:"platform_type"`
-	OriginalURL  string           `json:"original_url" db:"original_url"`
-	FilePath     *string          `json:"file_path" db:"file_path"`
-	ThumbnailURL *string          `json:"thumbnail_url" db:"thumbnail_url"`
-	Title        *string          `json:"title" db:"title"`
-	Duration     *int             `json:"duration" db:"duration"`
-	FileSize     *int64           `json:"file_size" db:"file_size"`
-	Format       *string          `json:"format" db:"format"`
-	Status       string           `json:"status" db:"status"`
-	ErrorMessage *string          `json:"error_message" db:"error_message"`
-	IPAddress    *string          `json:"ip_address" db:"ip_address"`
-	CreatedAt    time.Time        `json:"created_at" db:"created_at"`
-	Formats      []DownloadFormat `json:"formats,omitempty" db:"-"`
+	ID            uuid.UUID        `json:"id" db:"id"`
+	UserID        *uuid.UUID       `json:"user_id,omitempty" db:"user_id"`
+	AppID         *uuid.UUID       `json:"app_id,omitempty" db:"app_id"`
+	PlatformID    uuid.UUID        `json:"platform_id,omitempty" db:"platform_id"`
+	PlatformType  string           `json:"platform_type,omitempty" db:"platform_type"`
+	OriginalURL   string           `json:"original_url" db:"original_url"`
+	FilePath      *string          `json:"file_path" db:"file_path"`
+	ThumbnailURL  *string          `json:"thumbnail_url" db:"thumbnail_url"`
+	Title         *string          `json:"title" db:"title"`
+	Duration      *int             `json:"duration" db:"duration"`
+	FileSize      *int64           `json:"file_size" db:"file_size"`
+	EncryptedData *[]byte          `json:"encrypted_data" db:"encrypted_data"`
+	Format        *string          `json:"format" db:"format"`
+	Status        string           `json:"status" db:"status"`
+	ErrorMessage  *string          `json:"error_message" db:"error_message"`
+	IPAddress     *string          `json:"ip_address" db:"ip_address"`
+	CreatedAt     time.Time        `json:"created_at" db:"created_at"`
+	Formats       []DownloadFormat `json:"formats,omitempty" db:"-"`
 
 	User          *User          `json:"user,omitempty" db:"-"`
 	Application   *Application   `json:"application,omitempty" db:"-"`
@@ -44,14 +45,15 @@ type DownloadTask struct {
 }
 
 type DownloadFile struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	DownloadID uuid.UUID `json:"download_id" db:"download_id"`
-	URL        string    `json:"url" db:"url"`
-	FormatID   *string   `json:"format_id,omitempty" db:"format_id"`
-	Resolution *string   `json:"resolution,omitempty" db:"resolution"`
-	Extension  *string   `json:"extension,omitempty" db:"extension"`
-	FileSize   *int64    `json:"file_size,omitempty" db:"file_size"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	ID            uuid.UUID `json:"id" db:"id"`
+	DownloadID    uuid.UUID `json:"download_id" db:"download_id"`
+	URL           string    `json:"url" db:"url"`
+	FormatID      *string   `json:"format_id,omitempty" db:"format_id"`
+	Resolution    *string   `json:"resolution,omitempty" db:"resolution"`
+	Extension     *string   `json:"extension,omitempty" db:"extension"`
+	FileSize      *int64    `json:"file_size,omitempty" db:"file_size"`
+	EncryptedData *[]byte   `json:"encrypted_data,omitempty" db:"encrypted_data"`
+	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 
 	DownloadTask *DownloadTask `json:"download_task,omitempty" db:"-"`
 }

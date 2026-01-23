@@ -93,6 +93,7 @@ CREATE TABLE downloads (
     title TEXT,
     duration INT, -- in seconds
     file_size BIGINT, -- in bytes
+		encrypted_data BYTEA, -- Encoded data for download files encode string to avoid special characters
     format VARCHAR(20), -- mp4, mp3
     status VARCHAR(20) NOT NULL, -- 'pending', 'processing', 'completed', 'failed'
     error_message TEXT,
@@ -108,6 +109,7 @@ CREATE TABLE download_files (
     resolution VARCHAR(50), -- e.g. 1920x1080
     extension VARCHAR(10), -- mp4, webm, mp3
     file_size BIGINT,
+		encrypted_data BYTEA,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

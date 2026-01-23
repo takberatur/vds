@@ -146,6 +146,7 @@ declare global {
 		title?: string | null;
 		duration?: number | null;
 		file_size?: number | null;
+		encrypted_data?: Uint8Array | null;
 		format?: string | null;
 		status: 'pending' | 'processing' | 'completed' | 'failed';
 		error_message?: string | null;
@@ -167,6 +168,7 @@ declare global {
 		resolution?: string | null
 		extension?: string | null
 		file_size?: number | null
+		encrypted_data?: Uint8Array | null
 		created_at: string
 
 		download_task?: DownloadTask | null
