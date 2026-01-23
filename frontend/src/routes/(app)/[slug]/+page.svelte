@@ -32,5 +32,6 @@
 		platforms={data.platforms}
 		setting={data.settings}
 		form={data.form}
+		lang={data.lang}
 	/>
 </ClientHomeLayout>

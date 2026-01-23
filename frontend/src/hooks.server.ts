@@ -105,9 +105,15 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 const paraglideHandleWithCloudflareWorker: Handle = async ({ event, resolve }) => {
 	const { pathname } = event.url;
 
+	const imagesRegex = /\.(png|jpg|jpeg|gif|webp|svg)$/;
+
 	if (
 		pathname.startsWith('/api') ||
 		pathname.startsWith('/_app') ||
+		pathname.startsWith('/favicon.ico') ||
+		imagesRegex.test(pathname) ||
+		pathname.startsWith('/images/') ||
+		pathname.startsWith('/robots.txt') ||
 		pathname.includes('.')
 	) {
 		return resolve(event);
@@ -121,16 +127,6 @@ const paraglideHandleWithCloudflareWorker: Handle = async ({ event, resolve }) =
 	if (isBot || pathLocale) {
 		const locale = pathLocale ?? 'en';
 		event.locals.lang = locale;
-
-		if (pathLocale) {
-			event.cookies.set('PARAGLIDE_LOCALE', locale, {
-				httpOnly: true,
-				secure: NODE_ENV === 'production',
-				sameSite: 'lax',
-				path: '/',
-				maxAge: 60 * 60 * 24 * 7
-			});
-		}
 
 		return paraglideMiddleware(event.request, ({ locale }) =>
 			resolve(event, {
@@ -333,7 +329,7 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = sequence(
-	paraglideHandleBasic,
+	paraglideHandleWithAutoDetectedLocale,
 	dependenciesInject,
 	authHandle,
 	adminMiddleware,
@@ -352,8 +348,8 @@ function getLocaleFromPath(pathname: string): Locale | null {
 }
 
 function detectLocale(event: RequestEvent): Locale {
-	const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
-	if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
+	// const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
+	// if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
 
 	const accept = event.request.headers.get('accept-language');
 	const l = accept?.split(',')[0].split('-')[0] as Locale;

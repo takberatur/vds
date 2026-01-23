@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import {
@@ -66,6 +67,26 @@
 
 		return () => unsubscribe();
 	});
+
+	async function handleLanguageChange(code?: string) {
+		if (!code || !isLocale(code)) return;
+
+		setLocale(code);
+
+		const rawPath = removeLocaleFromPath(page.url.pathname);
+		const localized = localizeHref(rawPath, { locale: code });
+
+		await goto(localized);
+	}
+
+	function removeLocaleFromPath(path: string) {
+		const parts = path.split('/');
+		if (parts[1] && availableLocales.includes(parts[1].toLowerCase() as Locale)) {
+			return '/' + parts.slice(2).join('/');
+		}
+		console.log(path);
+		return path;
+	}
 </script>
 
 <header class="sticky top-0 z-50 w-full shadow-md backdrop-blur-md dark:backdrop-blur-md">
@@ -114,13 +135,7 @@
 		</nav>
 		<div class="hidden items-center gap-2 md:flex">
 			<LightSwitch />
-			<LanguageSwitcher
-				{languages}
-				bind:value={currentLang}
-				onChange={(code: string) => {
-					if (isLocale(code)) setLocale(code);
-				}}
-			/>
+			<LanguageSwitcher {languages} bind:value={currentLang} onChange={handleLanguageChange} />
 			{#if user}
 				<Button
 					href={localizeHref(`${user?.role?.name === 'admin' ? '/dashboard' : '/user'}`)}

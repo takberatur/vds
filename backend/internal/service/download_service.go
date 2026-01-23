@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -101,8 +102,59 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 	}
 
 	if info != nil && len(info.Formats) > 0 {
-		formats = make([]model.DownloadFormat, 0, len(info.Formats))
-		for _, f := range info.Formats {
+		// Filter formats logic
+		var formatsToProcess []infrastructure.FormatInfo
+
+		isTwitter := strings.ToLower(platform.Type) == "twitter" ||
+			strings.ToLower(platform.Type) == "x" ||
+			strings.Contains(strings.ToLower(req.URL), "twitter.com") ||
+			strings.Contains(strings.ToLower(req.URL), "x.com") ||
+			strings.Contains(strings.ToLower(req.URL), "twimg.com")
+
+		isTiktok := strings.ToLower(platform.Type) == "tiktok" ||
+			strings.Contains(strings.ToLower(req.URL), "tiktok.com")
+
+		if strings.ToLower(platform.Type) == "youtube" ||
+			strings.ToLower(platform.Type) == "facebook" ||
+			isTwitter ||
+			isTiktok {
+			var validFormats []infrastructure.FormatInfo
+			for _, f := range info.Formats {
+				// Relaxed check: empty string often means "present but unknown"
+				hasVideo := f.Vcodec != "none"
+				hasAudio := f.Acodec != "none"
+
+				if f.Vcodec == "" && f.Acodec == "" && f.Ext == "mp4" {
+					hasVideo = true
+					hasAudio = true
+				}
+
+				// Special case for TikTok
+				if isTiktok && (strings.HasPrefix(f.URL, "http") && !strings.Contains(f.URL, ".m3u8")) {
+					hasVideo = true
+					hasAudio = true
+				}
+
+				if hasVideo && hasAudio {
+					validFormats = append(validFormats, f)
+				}
+			}
+			if len(validFormats) > 0 {
+				formatsToProcess = validFormats
+			} else {
+				formatsToProcess = info.Formats
+			}
+		} else {
+			formatsToProcess = info.Formats
+		}
+
+		/*
+			// Update: We want ALL formats to be available for selection, especially now that Frontend supports "Video Only" / "Audio Only" badges.
+			formatsToProcess = info.Formats
+		*/
+
+		formats = make([]model.DownloadFormat, 0, len(formatsToProcess))
+		for _, f := range formatsToProcess {
 			if f.URL == "" {
 				continue
 			}
@@ -129,16 +181,12 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 	filePath := info.DownloadURL
 
 	var duration *int
-	if info.Duration > 0 {
-		dur := int(info.Duration)
+	if info.Duration != nil && *info.Duration > 0 {
+		dur := int(*info.Duration)
 		duration = &dur
 	}
 
-	var fileSize *int64
-	if info.Filesize > 0 {
-		size := info.Filesize
-		fileSize = &size
-	}
+	fileSize := info.Filesize
 
 	task := &model.DownloadTask{
 		UserID:       userID,

@@ -6,6 +6,8 @@
 	import type { DownloadTaskView, DownloadFormat } from '@/stores';
 	import Icon from '@iconify/svelte';
 	import * as i18n from '@/paraglide/messages.js';
+	import { cn } from '@/utils';
+	import test from 'node:test';
 
 	let {
 		task,
@@ -23,7 +25,12 @@
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
-	console.log(task);
+	console.log('download task', task);
+	const twitterRegex = /^(https?:\/\/)?(www\.)?(twitter|x|twimg)\.com\/[a-zA-Z0-9_]+$/i;
+
+	const excludeUrlType = (url?: string | null) => {
+		return twitterRegex.test(url?.toLowerCase() ?? '');
+	};
 
 	function sortFormatsDesc(a: DownloadFormat, b: DownloadFormat) {
 		const hA = a.height ?? 0;
@@ -53,9 +60,11 @@
 		downloadVideo?.(currentTask, format.format_id ?? null, format.url ?? null);
 	}
 
-	function hadleOpenFile(url?: string | null) {
+	function handleOpenFile(url?: string | null, type?: string | null) {
 		if (!url) return;
 		if (!validUrl(url)) return;
+		// check by type or domain regex
+
 		window.open(
 			url
 				.trim()
@@ -74,6 +83,28 @@
 			return false;
 		}
 	}
+
+	function cleanVideoUrl(urlStr: string): string {
+		try {
+			const url = new URL(urlStr);
+			// remove all spaces
+			url.pathname = url.pathname.replace(/\s+/g, '');
+			// Remove all query parameters
+			url.search = '';
+			// Remove hash if present
+			url.hash = '';
+			// (Optional) If you need to trim *after* the extension,
+			// you might need regex on url.pathname if it contains extra data
+			// Example: "video.mp4/ignored" -> "video.mp4"
+			url.pathname = url.pathname.replace(/\.(mp4|m3u8|mkv|avi|mov).*$/i, '.$1');
+			return url.toString();
+		} catch (error) {
+			console.error('Invalid URL', error);
+			return urlStr;
+		}
+	}
+
+	const excludePlatformType = ['tiktok', 'snackvideo'];
 </script>
 
 <div>
@@ -89,7 +120,7 @@
 		>
 			{i18n.text_open_result()}
 		</Dialog.Trigger>
-		<Dialog.Content class="sm:max-w-106.25">
+		<Dialog.Content class="sm:max-w-106.25 lg:max-w-lg">
 			<Dialog.Title>{i18n.text_download_results()}</Dialog.Title>
 			<Dialog.Description>
 				{i18n.text_download_results_description()}
@@ -145,8 +176,11 @@
 												type="button"
 												variant="ghost"
 												size="sm"
-												class="hidden bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white"
-												onclick={() => hadleOpenFile(task.file_path)}
+												class={cn(
+													'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white',
+													excludeUrlType(task.file_path) ? 'hidden' : ''
+												)}
+												onclick={() => handleOpenFile(task.file_path, task.type)}
 											>
 												{i18n.text_open_file()}
 											</Button>
@@ -198,6 +232,19 @@
 																		Best
 																	</span>
 																{/if}
+																{#if (format.vcodec === 'none' || format.vcodec === '') && format.acodec !== 'none' && format.acodec !== ''}
+																	<span
+																		class="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold text-white uppercase"
+																	>
+																		Audio Only
+																	</span>
+																{:else if (format.acodec === 'none' || format.acodec === '') && format.vcodec !== 'none' && format.vcodec !== ''}
+																	<span
+																		class="rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-semibold text-white uppercase"
+																	>
+																		Video Only
+																	</span>
+																{/if}
 															</div>
 															<span class="text-neutral-500 dark:text-neutral-400">
 																{format.ext?.toUpperCase() ?? ''}
@@ -206,15 +253,29 @@
 																	: ''}
 															</span>
 														</div>
-														<Button
-															type="button"
-															variant="ghost"
-															size="sm"
-															class="bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:hover:text-white"
-															onclick={() => handleDownloadFormat(task, format)}
-														>
-															{i18n.text_download()}
-														</Button>
+														<div class="flex flex-col items-center gap-2">
+															<Button
+																type="button"
+																variant="ghost"
+																size="sm"
+																class="bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:hover:text-white"
+																onclick={() => handleDownloadFormat(task, format)}
+															>
+																{i18n.text_download()}
+															</Button>
+															<Button
+																type="button"
+																variant="ghost"
+																size="sm"
+																class={cn(
+																	'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white',
+																	excludeUrlType(format.url) ? 'hidden' : ''
+																)}
+																onclick={() => handleOpenFile(format.url, task.type)}
+															>
+																{i18n.text_open_file()}
+															</Button>
+														</div>
 													</div>
 												{/each}
 											</div>

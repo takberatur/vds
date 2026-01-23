@@ -81,6 +81,36 @@ func (r *downloadRepository) FindByUserID(ctx context.Context, userID uuid.UUID,
 	if err := pgxscan.Select(subCtx, r.db, &tasks, query, userID, limit, offset); err != nil {
 		return nil, err
 	}
+
+	if len(tasks) > 0 {
+		taskIDs := make([]uuid.UUID, len(tasks))
+		for i, t := range tasks {
+			taskIDs[i] = t.ID
+		}
+
+		filesQuery := `
+			SELECT id, download_id, url, format_id, resolution, extension, file_size, created_at
+			FROM download_files
+			WHERE download_id = ANY($1)
+		`
+		var allFiles []model.DownloadFile
+		if err := pgxscan.Select(subCtx, r.db, &allFiles, filesQuery, taskIDs); err != nil {
+			return nil, err
+		}
+
+		filesMap := make(map[uuid.UUID][]model.DownloadFile)
+		for _, f := range allFiles {
+			filesMap[f.DownloadID] = append(filesMap[f.DownloadID], f)
+		}
+
+		for _, t := range tasks {
+			if files, ok := filesMap[t.ID]; ok {
+				t.DownloadFiles = files
+				t.Formats = r.mapFilesToFormats(files)
+			}
+		}
+	}
+
 	return tasks, nil
 }
 
@@ -171,8 +201,43 @@ func (r *downloadRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 	}
 
 	task.DownloadFiles = downloadFiles
+	task.Formats = r.mapFilesToFormats(downloadFiles)
 
 	return &task, nil
+}
+
+func (r *downloadRepository) mapFilesToFormats(files []model.DownloadFile) []model.DownloadFormat {
+	if len(files) == 0 {
+		return nil
+	}
+	formats := make([]model.DownloadFormat, 0, len(files))
+	for _, file := range files {
+		var height *int
+		if file.Resolution != nil {
+			var h int
+			if _, err := fmt.Sscanf(*file.Resolution, "%dp", &h); err == nil {
+				height = &h
+			}
+		}
+
+		formatID := ""
+		if file.FormatID != nil {
+			formatID = *file.FormatID
+		}
+		ext := ""
+		if file.Extension != nil {
+			ext = *file.Extension
+		}
+
+		formats = append(formats, model.DownloadFormat{
+			URL:      file.URL,
+			Filesize: file.FileSize,
+			FormatID: formatID,
+			Ext:      ext,
+			Height:   height,
+		})
+	}
+	return formats
 }
 
 func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryParamsRequest) ([]*model.DownloadTask, model.Pagination, error) {

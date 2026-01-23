@@ -30,7 +30,8 @@
 		platform,
 		platforms,
 		user,
-		form: formData
+		form: formData,
+		lang
 	}: {
 		id?: string;
 		setting?: SettingsValue | null;
@@ -38,6 +39,7 @@
 		platforms?: Platform[];
 		user?: User | null;
 		form: SuperValidated<DownloadVideoSchema>;
+		lang: string;
 	} = $props();
 
 	const ws = getContext<WebsocketStore>('websocket');
@@ -498,12 +500,13 @@
 			<div id="platforms" class="flex flex-wrap items-center justify-center gap-4 md:gap-6">
 				{#each platforms as platform}
 					<a
-						href={localizeHref(`/${platform.slug}`)}
+						href={localizeHref(`/${platform.slug}`, { locale: lang })}
 						class={cn(
 							'flex cursor-pointer flex-col items-center gap-2 rounded-xl bg-muted p-4 shadow-md transition-shadow hover:shadow-lg',
-							page.url.pathname === localizeHref(`/${platform.slug}`)
+							page.url.pathname === localizeHref(`/${platform.slug}`, { locale: lang })
 								? 'bg-sky-500 text-white dark:bg-sky-600 dark:text-white'
-								: ''
+								: '',
+							!platform.is_active ? 'hidden' : ''
 						)}
 					>
 						<img

@@ -7,15 +7,15 @@ import (
 )
 
 type DownloadFormat struct {
-	URL      string  `json:"url"`
-	Filesize int64   `json:"filesize,omitempty"`
-	FormatID string  `json:"format_id,omitempty"`
-	Acodec   string  `json:"acodec,omitempty"`
-	Vcodec   string  `json:"vcodec,omitempty"`
-	Ext      string  `json:"ext,omitempty"`
-	Height   int     `json:"height,omitempty"`
-	Width    int     `json:"width,omitempty"`
-	Tbr      float64 `json:"tbr,omitempty"`
+	URL      string   `json:"url"`
+	Filesize *int64   `json:"filesize,omitempty"`
+	FormatID string   `json:"format_id,omitempty"`
+	Acodec   string   `json:"acodec,omitempty"`
+	Vcodec   string   `json:"vcodec,omitempty"`
+	Ext      string   `json:"ext,omitempty"`
+	Height   *int     `json:"height,omitempty"`
+	Width    *int     `json:"width,omitempty"`
+	Tbr      *float64 `json:"tbr,omitempty"`
 }
 
 type DownloadTask struct {
@@ -78,8 +78,15 @@ type DownloadRequest struct {
 }
 
 type DownloadPayload struct {
-	FilePath *string          `json:"file_path,omitempty"`
-	Formats  []DownloadFormat `json:"formats,omitempty"`
+	ID           uuid.UUID        `json:"id,omitempty"`
+	Status       string           `json:"status,omitempty"`
+	Progress     int              `json:"progress,omitempty"`
+	Title        string           `json:"title,omitempty"`
+	ThumbnailURL string           `json:"thumbnail_url,omitempty"`
+	Type         string           `json:"type,omitempty"`
+	CreatedAt    time.Time        `json:"created_at,omitempty"`
+	FilePath     *string          `json:"file_path,omitempty"`
+	Formats      []DownloadFormat `json:"formats,omitempty"`
 }
 
 type DownloadEvent struct {

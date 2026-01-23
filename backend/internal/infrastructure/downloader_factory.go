@@ -44,10 +44,11 @@ func (s *YoutubeGoStrategy) GetVideoInfo(ctx context.Context, url string) (*Vide
 		bestURL = formats[0].URL
 	}
 
+	dur := video.Duration.Seconds()
 	return &VideoInfo{
 		ID:          video.ID,
 		Title:       video.Title,
-		Duration:    video.Duration.Seconds(),
+		Duration:    &dur,
 		Thumbnail:   video.Thumbnails[0].URL, // Pick first thumbnail
 		WebpageURL:  "https://www.youtube.com/watch?v=" + video.ID,
 		Extractor:   "youtube",

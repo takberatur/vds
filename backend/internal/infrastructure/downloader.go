@@ -15,26 +15,26 @@ import (
 type VideoInfo struct {
 	ID          string       `json:"id"`
 	Title       string       `json:"title"`
-	Duration    float64      `json:"duration"` // seconds
+	Duration    *float64     `json:"duration"` // seconds
 	Thumbnail   string       `json:"thumbnail"`
 	WebpageURL  string       `json:"webpage_url"`
 	Extractor   string       `json:"extractor"` // youtube, tiktok, etc.
 	Filename    string       `json:"filename,omitempty"`
-	Filesize    int64        `json:"filesize,omitempty"`
+	Filesize    *int64       `json:"filesize,omitempty"`
 	DownloadURL string       `json:"url,omitempty"` // Direct link if available
 	Formats     []FormatInfo `json:"formats,omitempty"`
 }
 
 type FormatInfo struct {
-	URL      string  `json:"url"`
-	Filesize int64   `json:"filesize,omitempty"`
-	FormatID string  `json:"format_id,omitempty"`
-	Acodec   string  `json:"acodec,omitempty"`
-	Vcodec   string  `json:"vcodec,omitempty"`
-	Ext      string  `json:"ext,omitempty"`
-	Height   int     `json:"height,omitempty"`
-	Width    int     `json:"width,omitempty"`
-	Tbr      float64 `json:"tbr,omitempty"`
+	URL      string   `json:"url"`
+	Filesize *int64   `json:"filesize,omitempty"`
+	FormatID string   `json:"format_id,omitempty"`
+	Acodec   string   `json:"acodec,omitempty"`
+	Vcodec   string   `json:"vcodec,omitempty"`
+	Ext      string   `json:"ext,omitempty"`
+	Height   *int     `json:"height,omitempty"`
+	Width    *int     `json:"width,omitempty"`
+	Tbr      *float64 `json:"tbr,omitempty"`
 }
 
 type DownloaderClient interface {
@@ -92,7 +92,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	if info.DownloadURL == "" && len(info.Formats) > 0 {
 		if best := pickBestFormat(info.Formats); best != nil {
 			info.DownloadURL = best.URL
-			if info.Filesize == 0 && best.Filesize > 0 {
+			if info.Filesize == nil && best.Filesize != nil {
 				info.Filesize = best.Filesize
 			}
 		}
@@ -120,15 +120,45 @@ func pickBestFormat(formats []FormatInfo) *FormatInfo {
 			bestNonHLS = f
 			continue
 		}
-		if f.Height > bestNonHLS.Height {
+
+		fHeight := 0
+		if f.Height != nil {
+			fHeight = *f.Height
+		}
+		bestHeight := 0
+		if bestNonHLS.Height != nil {
+			bestHeight = *bestNonHLS.Height
+		}
+
+		if fHeight > bestHeight {
 			bestNonHLS = f
 			continue
 		}
-		if f.Height == bestNonHLS.Height && f.Tbr > bestNonHLS.Tbr {
+
+		fTbr := 0.0
+		if f.Tbr != nil {
+			fTbr = *f.Tbr
+		}
+		bestTbr := 0.0
+		if bestNonHLS.Tbr != nil {
+			bestTbr = *bestNonHLS.Tbr
+		}
+
+		if fHeight == bestHeight && fTbr > bestTbr {
 			bestNonHLS = f
 			continue
 		}
-		if f.Height == bestNonHLS.Height && f.Tbr == bestNonHLS.Tbr && f.Filesize > bestNonHLS.Filesize {
+
+		fSize := int64(0)
+		if f.Filesize != nil {
+			fSize = *f.Filesize
+		}
+		bestSize := int64(0)
+		if bestNonHLS.Filesize != nil {
+			bestSize = *bestNonHLS.Filesize
+		}
+
+		if fHeight == bestHeight && fTbr == bestTbr && fSize > bestSize {
 			bestNonHLS = f
 			continue
 		}
@@ -148,15 +178,45 @@ func pickBestFormat(formats []FormatInfo) *FormatInfo {
 			best = f
 			continue
 		}
-		if f.Height > best.Height {
+
+		fHeight := 0
+		if f.Height != nil {
+			fHeight = *f.Height
+		}
+		bestHeight := 0
+		if best.Height != nil {
+			bestHeight = *best.Height
+		}
+
+		if fHeight > bestHeight {
 			best = f
 			continue
 		}
-		if f.Height == best.Height && f.Tbr > best.Tbr {
+
+		fTbr := 0.0
+		if f.Tbr != nil {
+			fTbr = *f.Tbr
+		}
+		bestTbr := 0.0
+		if best.Tbr != nil {
+			bestTbr = *best.Tbr
+		}
+
+		if fHeight == bestHeight && fTbr > bestTbr {
 			best = f
 			continue
 		}
-		if f.Height == best.Height && f.Tbr == best.Tbr && f.Filesize > best.Filesize {
+
+		fSize := int64(0)
+		if f.Filesize != nil {
+			fSize = *f.Filesize
+		}
+		bestSize := int64(0)
+		if best.Filesize != nil {
+			bestSize = *best.Filesize
+		}
+
+		if fHeight == bestHeight && fTbr == bestTbr && fSize > bestSize {
 			best = f
 			continue
 		}

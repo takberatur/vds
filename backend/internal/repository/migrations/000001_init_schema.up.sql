@@ -86,7 +86,7 @@ CREATE TABLE downloads (
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     app_id UUID REFERENCES applications(id) ON DELETE SET NULL,
     platform_id UUID NOT NULL REFERENCES platforms(id) ON DELETE SET NULL,
-		patform_type TEXT NOT NULL,
+		platform_type TEXT NOT NULL,
     original_url TEXT NOT NULL,
     file_path TEXT, -- Local path or S3 URL
     thumbnail_url TEXT,

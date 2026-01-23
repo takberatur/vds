@@ -15,7 +15,7 @@ export default defineConfig({
 			'client.giuadiario.info',
 		],
 		// hmr: {
-		// 	protocol: 'wss',
+		// 	protocol: process.env.NODE_ENV === "development" ? 'wss' : undefined,
 		// 	port: process.env.NODE_ENV === "development" ? 5173 : undefined,
 		// 	host:
 		// 		process.env.NODE_ENV === "development"
@@ -29,7 +29,26 @@ export default defineConfig({
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
-			strategy: ['url', 'cookie', 'baseLocale']
+			strategy: ['url', 'cookie', 'baseLocale'],
+			disableAsyncLocalStorage: true,
+			// urlPatterns: [
+			// 	{
+			// 		pattern: "/",
+			// 		localized: [
+			// 			["en", "/en"],
+			// 			["es", "/es"],
+			// 			["id", "/id"]
+			// 		],
+			// 	},
+			// 	{
+			// 		pattern: "/:path(.*)?",
+			// 		localized: [
+			// 			["en", "/en/:path(.*)?"],
+			// 			["es", "/es/:path(.*)?"],
+			// 			["id", "/id/:path(.*)?"],
+			// 		],
+			// 	},
+			// ]
 		}),
 		devtoolsJson()
 	],

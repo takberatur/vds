@@ -85,17 +85,17 @@
 			<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
 				{#each features as feature}
 					<div
-						class="group flex flex-col items-center rounded-2xl border border-border bg-linear-to-br from-white to-neutral-50 p-6 transition-all hover:border-blue-300 hover:shadow-xl dark:border-neutral-700 dark:bg-linear-to-br dark:from-neutral-950 dark:to-neutral-900 dark:hover:border-blue-500"
+						class="group flex flex-col items-center rounded-2xl border border-border bg-linear-to-br from-white to-neutral-50 p-6 text-center transition-all hover:border-blue-300 hover:shadow-xl dark:border-neutral-700 dark:bg-linear-to-br dark:from-neutral-950 dark:to-neutral-900 dark:hover:border-blue-500"
 					>
 						<div
 							class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-purple-600 text-white transition-transform group-hover:scale-110 dark:bg-blue-500"
 						>
 							<feature.icon class="h-6 w-6" />
 						</div>
-						<h3 class="mb-2 text-xl font-bold text-neutral-900 dark:text-neutral-100">
+						<h3 class="mb-2 text-center text-xl font-bold text-neutral-900 dark:text-neutral-100">
 							{feature.title}
 						</h3>
-						<p class="text-neutral-600 dark:text-neutral-400">{feature.description}</p>
+						<p class="text-center text-neutral-600 dark:text-neutral-400">{feature.description}</p>
 					</div>
 				{/each}
 			</div>

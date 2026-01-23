@@ -7,11 +7,11 @@ export type DownloadFormat = {
 	url?: string;
 	ext?: string;
 	resolution?: string;
-	filesize?: number;
-	height?: number;
+	filesize?: number | null;
+	height?: number | null;
 	vcodec?: string;
 	acodec?: string;
-	tbr?: number;
+	tbr?: number | null;
 };
 
 export type DownloadTaskView = {
@@ -20,6 +20,7 @@ export type DownloadTaskView = {
 	progress: number;
 	title?: string | null;
 	thumbnail_url?: string | null;
+	type: string;
 	created_at?: string | null;
 	file_path?: string | null;
 	formats?: DownloadFormat[] | null;
@@ -191,6 +192,7 @@ export const createWebsocketStore = (userID?: string | null) => {
 						progress: existing?.progress ?? 0,
 						title: task.title ?? existing?.title ?? null,
 						thumbnail_url: task.thumbnail_url ?? existing?.thumbnail_url ?? null,
+						type: task.type ?? existing?.type ?? null,
 						created_at: task.created_at ?? existing?.created_at ?? null,
 						file_path: task.file_path ?? existing?.file_path ?? null,
 						formats: task.formats ?? existing?.formats ?? null

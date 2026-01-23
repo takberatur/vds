@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -113,8 +114,8 @@ func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepos
 					prefix := fmt.Sprintf("%s/%s/", task.PlatformType, task.ID.String())
 					if err := storageClient.DeleteFolder(ctx, bucketName, prefix); err != nil {
 						log.Error().Err(err).Str("task_id", task.ID.String()).Msg("Failed to delete folder from MinIO")
-						// We continue to delete from DB to avoid orphan records, 
-						// or we could skip adding to idsToDelete. 
+						// We continue to delete from DB to avoid orphan records,
+						// or we could skip adding to idsToDelete.
 						// Let's delete from DB to keep it clean as requested.
 					}
 					idsToDelete = append(idsToDelete, task.ID)
@@ -182,8 +183,8 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 			t := info.Thumbnail
 			task.ThumbnailURL = &t
 		}
-		if info.Duration > 0 {
-			d := int(info.Duration)
+		if info.Duration != nil && *info.Duration > 0 {
+			d := int(*info.Duration)
 			task.Duration = &d
 		}
 	}
@@ -194,6 +195,29 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 
 	if err := publishProgressEvent(ctx, redisClient, task, 30); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (metadata)")
+	}
+
+	// Special handling for platforms with direct URLs (YouTube, Facebook, Twitter/X)
+	// We skip the download-upload loop and just save the direct URLs
+	isTwitter := strings.ToLower(task.PlatformType) == "twitter" ||
+		strings.ToLower(task.PlatformType) == "x" ||
+		strings.Contains(strings.ToLower(task.OriginalURL), "twitter.com") ||
+		strings.Contains(strings.ToLower(task.OriginalURL), "x.com") ||
+		strings.Contains(strings.ToLower(task.OriginalURL), "twimg.com")
+
+	isInstagram := strings.ToLower(task.PlatformType) == "instagram" ||
+		strings.Contains(strings.ToLower(task.OriginalURL), "instagram.com")
+
+	isTiktok := strings.ToLower(task.PlatformType) == "tiktok" ||
+		strings.Contains(strings.ToLower(task.OriginalURL), "tiktok.com")
+
+	if strings.ToLower(task.PlatformType) == "youtube" ||
+		strings.ToLower(task.PlatformType) == "facebook" ||
+		isTwitter ||
+		isInstagram ||
+		isTiktok {
+		log.Info().Str("platform", task.PlatformType).Msg("Processing as direct download (no-upload)")
+		return processDirectLinkTask(ctx, downloadRepo, redisClient, task, info)
 	}
 
 	// 3. Select Formats to Download
@@ -220,7 +244,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		// 4. Download each format
 		// Use resolution in temp filename to avoid invalid chars from selector (e.g. "/")
 		tempPattern := fmt.Sprintf("vid-%dp-*.%s", fmtInfo.Height, fmtInfo.Ext)
-		if fmtInfo.Height == 0 {
+		if fmtInfo.Height == nil || *fmtInfo.Height == 0 {
 			tempPattern = fmt.Sprintf("vid-best-*.%s", fmtInfo.Ext)
 		}
 
@@ -248,8 +272,8 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 
 		fi, _ := f.Stat()
 		resolution := ""
-		if fmtInfo.Height > 0 {
-			resolution = fmt.Sprintf("%dp", fmtInfo.Height)
+		if fmtInfo.Height != nil && *fmtInfo.Height > 0 {
+			resolution = fmt.Sprintf("%dp", *fmtInfo.Height)
 		}
 
 		// Use resolution for filename to avoid special chars from format selector
@@ -312,6 +336,203 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	return nil
 }
 
+func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, info *infrastructure.VideoInfo) error {
+	// 0. Ensure platform type is correct before we start
+	// This helps with Twitter detection if it was missed earlier
+	lowerURL := strings.ToLower(task.OriginalURL)
+	if task.PlatformType == "" {
+		if strings.Contains(lowerURL, "twitter.com") || strings.Contains(lowerURL, "x.com") || strings.Contains(lowerURL, "twimg.com") {
+			task.PlatformType = "twitter"
+		} else if strings.Contains(lowerURL, "youtube.com") || strings.Contains(lowerURL, "youtu.be") {
+			task.PlatformType = "youtube"
+		} else if strings.Contains(lowerURL, "facebook.com") || strings.Contains(lowerURL, "fb.watch") {
+			task.PlatformType = "facebook"
+		} else if strings.Contains(lowerURL, "instagram.com") {
+			task.PlatformType = "instagram"
+		} else if strings.Contains(lowerURL, "tiktok.com") {
+			task.PlatformType = "tiktok"
+		}
+	}
+
+	/*
+		isTwitter := strings.EqualFold(task.PlatformType, "twitter") ||
+			strings.EqualFold(task.PlatformType, "x") ||
+			strings.Contains(lowerURL, "twitter.com") ||
+			strings.Contains(lowerURL, "x.com") ||
+			strings.Contains(lowerURL, "twimg.com")
+	*/
+
+	/*
+		isInstagram := strings.EqualFold(task.PlatformType, "instagram") ||
+			strings.Contains(lowerURL, "instagram.com")
+	*/
+
+	isTiktok := strings.EqualFold(task.PlatformType, "tiktok") ||
+		strings.Contains(lowerURL, "tiktok.com")
+
+	// Helper function to clean URLs (Currently disabled for Twitter/Instagram as they need params)
+	cleanURL := func(u string) string {
+		// Twitter needs query params (e.g., ?tag=21) for access, so we do NOT clean them.
+		// Instagram also needs params.
+		// TikTok direct links might need cleaning or not, usually safe to keep params for expiration/auth.
+		return u
+	}
+
+	// 1. Gather all formats (or filtered)
+	// We want to save ALL available formats that have a valid URL
+	var formatsToSave []infrastructure.FormatInfo
+	if len(info.Formats) > 0 {
+		// Filter for YouTube/Facebook/Twitter/Instagram/TikTok:
+		// Keep formats, but maybe add metadata to indicate video-only/audio-only if needed in future
+		var validFormats []infrastructure.FormatInfo
+		for _, f := range info.Formats {
+			// Restore Filter: Only keep formats with both Video and Audio
+			// This prevents "video only" or "audio only" links which are useless as direct downloads for average users
+
+			// Relaxed check: empty string often means "present but unknown" in some contexts,
+			// while "none" explicitly means missing.
+			hasVideo := f.Vcodec != "none"
+			hasAudio := f.Acodec != "none"
+
+			// If specific codecs are empty, we give benefit of doubt for HTTP formats (often combined)
+			// checking ext might help (mp4 usually has both unless specified)
+			if f.Vcodec == "" && f.Acodec == "" && f.Ext == "mp4" {
+				hasVideo = true
+				hasAudio = true
+			}
+
+			// Special case for TikTok: yt-dlp might return formats with weird codec strings or "none"
+			// but if it has a valid http URL and it's not m3u8, it's likely playable.
+			if isTiktok && (strings.HasPrefix(f.URL, "http") && !strings.Contains(f.URL, ".m3u8")) {
+				// Assume playable if it's a direct http link for tiktok
+				hasVideo = true
+				hasAudio = true
+			}
+
+			if hasVideo && hasAudio {
+				// Clean URL before saving
+				f.URL = cleanURL(f.URL)
+				validFormats = append(validFormats, f)
+			}
+		}
+
+		// Use filtered formats if any found, otherwise fallback to all
+		if len(validFormats) > 0 {
+			formatsToSave = validFormats
+		} else {
+			formatsToSave = info.Formats
+		}
+	} else if info.DownloadURL != "" {
+		formatsToSave = append(formatsToSave, infrastructure.FormatInfo{
+			URL: cleanURL(info.DownloadURL),
+			Ext: "mp4", // Default guess
+		})
+	}
+
+	// 2. Save to download_files table
+	// We also need to find the "best" format to set as the main file for the task
+	var bestFile *model.DownloadFile
+
+	for i, f := range formatsToSave {
+		if f.URL == "" {
+			continue
+		}
+
+		// Construct DB model
+		// Use safe defaults for nil pointers
+		var resolution string
+		if f.Height != nil && *f.Height > 0 {
+			resolution = fmt.Sprintf("%dp", *f.Height)
+		} else if f.Width != nil && *f.Width > 0 {
+			resolution = fmt.Sprintf("%dw", *f.Width) // fallback
+		}
+
+		// Format ID from yt-dlp (e.g. "137", "22", "sb3")
+		fmtID := f.FormatID
+		if fmtID == "" {
+			fmtID = "unknown"
+		}
+
+		ext := f.Ext
+		if ext == "" {
+			ext = "unknown"
+		}
+
+		var size int64
+		if f.Filesize != nil {
+			size = *f.Filesize
+		}
+
+		downloadFile := &model.DownloadFile{
+			DownloadID: task.ID,
+			URL:        f.URL,
+			FormatID:   &fmtID,
+			Resolution: &resolution,
+			Extension:  &ext,
+			FileSize:   &size,
+		}
+
+		// Save to DB
+		if err := downloadRepo.AddFile(ctx, downloadFile); err != nil {
+			log.Error().Err(err).Str("format_id", fmtID).Msg("failed to add direct download file record")
+			// Continue to try other formats
+		}
+
+		// Append to task.DownloadFiles so publishCompletionEvent includes them
+		task.DownloadFiles = append(task.DownloadFiles, *downloadFile)
+
+		// Determine if this is the "best" file to represent the task
+		// Heuristic: Highest resolution, or largest file size
+		// Simple logic: if this is the first one, or better than current best
+		if bestFile == nil {
+			bestFile = downloadFile
+		} else {
+			// Compare resolution if available
+			if f.Height != nil && bestFile.Resolution != nil {
+				var currentH int
+				fmt.Sscanf(*bestFile.Resolution, "%dp", &currentH)
+				if *f.Height > currentH {
+					bestFile = downloadFile
+				}
+			}
+		}
+
+		// Progress simulation?
+		if i%5 == 0 {
+			progress := 30 + int(float64(i)/float64(len(formatsToSave))*60)
+			if progress > 99 {
+				progress = 99
+			}
+			publishProgressEvent(ctx, redisClient, task, progress)
+		}
+	}
+
+	// 3. Update Task Status & Main File Info
+	if bestFile != nil {
+		task.FilePath = &bestFile.URL
+		task.FileSize = bestFile.FileSize
+		task.Format = bestFile.FormatID
+	} else if info.DownloadURL != "" {
+		// Fallback if no formats loop worked but top level has URL
+		u := info.DownloadURL
+		task.FilePath = &u
+	}
+
+	task.Status = "completed"
+	if err := downloadRepo.Update(ctx, task); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
+		return err
+	}
+
+	// 4. Publish Completion
+	if err := publishCompletionEvent(ctx, redisClient, task); err != nil {
+		log.Error().Err(err).Msg("failed to publish complete event")
+	}
+
+	log.Info().Str("task_id", task.ID.String()).Int("files_count", len(task.DownloadFiles)).Msg("Direct download processing completed")
+	return nil
+}
+
 func pickFormatsToDownload(formats []infrastructure.FormatInfo) []infrastructure.FormatInfo {
 	if len(formats) == 0 {
 		return nil
@@ -322,8 +543,8 @@ func pickFormatsToDownload(formats []infrastructure.FormatInfo) []infrastructure
 	heights := make(map[int]bool)
 	for _, f := range formats {
 		// Filter out audio-only (vcodec=none) and very low quality
-		if f.Height >= 360 && f.Vcodec != "none" {
-			heights[f.Height] = true
+		if f.Height != nil && *f.Height >= 360 && f.Vcodec != "none" {
+			heights[*f.Height] = true
 		}
 	}
 
@@ -348,7 +569,7 @@ func pickFormatsToDownload(formats []infrastructure.FormatInfo) []infrastructure
 
 		result = append(result, infrastructure.FormatInfo{
 			FormatID: selector,
-			Height:   h,
+			Height:   intPtr(h),
 			Ext:      "mp4", // We'll let yt-dlp merge to mp4 (requires ffmpeg)
 		})
 	}
@@ -398,42 +619,61 @@ func publishCompletionEvent(ctx context.Context, redisClient infrastructure.Redi
 	var payloadFormats []model.DownloadFormat
 	for _, f := range task.DownloadFiles {
 		format := model.DownloadFormat{
-			URL: f.URL,
+			URL:      f.URL,
+			FormatID: getValueOrEmpty(f.FormatID),
+			Ext:      getValueOrEmpty(f.Extension),
 		}
-		if f.FormatID != nil {
-			format.FormatID = *f.FormatID
-		}
-		if f.Extension != nil {
-			format.Ext = *f.Extension
-		}
+
 		if f.FileSize != nil {
-			format.Filesize = *f.FileSize
+			format.Filesize = f.FileSize
 		}
+
+		// Try to parse height from resolution if possible, or leave it nil
 		if f.Resolution != nil {
-			// Extract height from resolution string like "1080p"
 			var h int
-			fmt.Sscanf(*f.Resolution, "%dp", &h)
-			format.Height = h
+			if _, err := fmt.Sscanf(*f.Resolution, "%dp", &h); err == nil {
+				format.Height = &h
+			}
 		}
+
 		payloadFormats = append(payloadFormats, format)
 	}
 
-	payload = &model.DownloadPayload{
-		FilePath: payloadFilePath,
-		Formats:  payloadFormats,
+	// Ensure platform type is set
+	platformType := task.PlatformType
+	if platformType == "" {
+		// Fallback detection from OriginalURL
+		lowerURL := strings.ToLower(task.OriginalURL)
+		if strings.Contains(lowerURL, "twitter.com") || strings.Contains(lowerURL, "x.com") {
+			platformType = "twitter"
+		} else if strings.Contains(lowerURL, "youtube.com") || strings.Contains(lowerURL, "youtu.be") {
+			platformType = "youtube"
+		} else if strings.Contains(lowerURL, "facebook.com") || strings.Contains(lowerURL, "fb.watch") {
+			platformType = "facebook"
+		} else if strings.Contains(lowerURL, "instagram.com") {
+			platformType = "instagram"
+		} else if strings.Contains(lowerURL, "tiktok.com") {
+			platformType = "tiktok"
+		}
 	}
 
-	log.Info().
-		Str("task_id", task.ID.String()).
-		Int("formats_count", len(payloadFormats)).
-		Msg("Publishing completion event with MinIO URLs")
+	payload = &model.DownloadPayload{
+		ID:           task.ID,
+		Status:       task.Status,
+		Progress:     100,
+		Title:        getValueOrEmpty(task.Title),
+		ThumbnailURL: getValueOrEmpty(task.ThumbnailURL),
+		Type:         platformType,
+		CreatedAt:    task.CreatedAt,
+		FilePath:     payloadFilePath,
+		Formats:      payloadFormats,
+	}
 
 	event := &model.DownloadEvent{
 		Type:      "download.completed",
 		TaskID:    task.ID,
 		UserID:    task.UserID,
 		Status:    "completed",
-		Progress:  intPtr(100),
 		Payload:   payload,
 		CreatedAt: time.Now(),
 	}
@@ -441,17 +681,20 @@ func publishCompletionEvent(ctx context.Context, redisClient infrastructure.Redi
 	return publishDownloadEvent(ctx, redisClient, event)
 }
 
-func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, err error) error {
-	msg := ""
-	if err != nil {
-		msg = err.Error()
+func getValueOrEmpty(ptr *string) string {
+	if ptr == nil {
+		return ""
 	}
+	return *ptr
+}
 
+func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, err error) error {
 	task.Status = "failed"
-	task.ErrorMessage = &msg
+	errMsg := err.Error()
+	task.ErrorMessage = &errMsg
 
 	if updateErr := downloadRepo.Update(ctx, task); updateErr != nil {
-		log.Error().Err(updateErr).Str("task_id", task.ID.String()).Msg("failed to update task to failed")
+		return updateErr
 	}
 
 	event := &model.DownloadEvent{
@@ -459,7 +702,7 @@ func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadReposit
 		TaskID:    task.ID,
 		UserID:    task.UserID,
 		Status:    "failed",
-		Error:     msg,
+		Error:     errMsg,
 		CreatedAt: time.Now(),
 	}
 

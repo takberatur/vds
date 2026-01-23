@@ -97,7 +97,7 @@ func (v *VimeoStrategy) fetchVideoInfo(videoID string) (*VideoInfo, error) {
 			info.Title = title
 		}
 		if duration, ok := video["duration"].(float64); ok {
-			info.Duration = duration
+			info.Duration = &duration
 		}
 	}
 

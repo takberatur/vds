@@ -429,7 +429,8 @@
 							'flex cursor-pointer flex-col items-center gap-2 rounded-xl bg-muted p-4 shadow-md transition-shadow hover:shadow-lg',
 							page.url.pathname === localizeHref(`/${platform.slug}`)
 								? 'bg-sky-500 text-white dark:bg-sky-600 dark:text-white'
-								: ''
+								: '',
+							!platform.is_active ? 'hidden' : ''
 						)}
 					>
 						<img

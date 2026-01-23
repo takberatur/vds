@@ -246,6 +246,66 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			return response.Error(c, fiber.StatusNotFound, "Download task not found", nil)
 		}
 
+		// Optimization: Check if we have already downloaded files for this task in storage
+		// If so, redirect to the storage URL directly instead of re-downloading
+		if task.Status == "completed" && len(task.DownloadFiles) > 0 {
+			var targetFile *model.DownloadFile
+
+			// If format_id is specified, try to find matching file
+			// The worker saves format_id as resolution (e.g. "1080p") or "best"
+			if formatID != "" {
+				for i := range task.DownloadFiles {
+					f := &task.DownloadFiles[i]
+					// Check exact match or if formatID matches resolution
+					if (f.FormatID != nil && *f.FormatID == formatID) ||
+						(f.Resolution != nil && *f.Resolution == formatID) {
+						targetFile = f
+						break
+					}
+				}
+			}
+
+			// If no specific format found or requested, try to find the "best" or default file
+			if targetFile == nil && len(task.DownloadFiles) > 0 {
+				// If formatID was requested but not found, we might want to fall back to the best available
+				// or continue to re-download.
+				// But usually if status is completed, we should have the files.
+				// Let's pick the first one which is usually the best quality
+				targetFile = &task.DownloadFiles[0]
+			}
+
+			if targetFile != nil && targetFile.URL != "" {
+				finalURL := targetFile.URL
+
+				// Special handling for Twitter/X direct links with query params
+				// Update: We do NOT remove query params because Twitter requires them (e.g. ?tag=21) for access control (403 Forbidden without them)
+				/*
+					isTwitter := strings.Contains(finalURL, "twimg.com") ||
+						strings.Contains(finalURL, "twitter.com") ||
+						strings.Contains(finalURL, "x.com") ||
+						strings.EqualFold(task.PlatformType, "twitter") ||
+						strings.EqualFold(task.PlatformType, "x")
+
+					if isTwitter {
+						// Regex to match extension followed by query params
+						// Case insensitive search for extensions
+						re := regexp.MustCompile(`(?i)\.(mp4|m3u8|mkv|avi|mov)(\?.*)?$`)
+						// Replace with just the extension
+						finalURL = re.ReplaceAllString(finalURL, ".$1")
+					}
+				*/
+
+				log.Info().
+					Str("task_id", task.ID.String()).
+					Str("url", finalURL).
+					Str("original_url", targetFile.URL).
+					Str("format_id", formatID).
+					Msg("Found existing file in storage, redirecting")
+
+				return c.Redirect(finalURL)
+			}
+		}
+
 		pageURL := task.OriginalURL
 		if pageURL == "" {
 			return response.Error(c, fiber.StatusBadRequest, "Original URL is missing for this task", nil)
