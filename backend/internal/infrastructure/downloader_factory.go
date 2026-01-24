@@ -73,7 +73,8 @@ func NewFallbackDownloader() *FallbackDownloader {
 	vimeoStrat := NewVimeoStrategy()
 
 	return &FallbackDownloader{
-		strategies: []DownloaderStrategy{ytDlp, ytGo, luxStrat, rumbleStrat, chromedpStrat, vimeoStrat},
+		// Global default order: yt-dlp -> lux -> custom strategies -> chromedp (fallback)
+		strategies: []DownloaderStrategy{ytDlp, luxStrat, ytGo, rumbleStrat, vimeoStrat, chromedpStrat},
 	}
 }
 
@@ -102,10 +103,36 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 
 	// Filter and prioritize strategies
 	if isYoutube {
-		// Use default order (yt-dlp first) for better reliability
-		strategies = f.strategies
+		// Requested order: yt-dlp -> lux -> custom (kkdai/youtube) -> chromedp
+		var ytDlpStrat, luxStrat, ytGoStrat, chromedpStrat DownloaderStrategy
+		for _, strategy := range f.strategies {
+			if strategy.Name() == "yt-dlp" {
+				ytDlpStrat = strategy
+			} else if strategy.Name() == "lux" {
+				luxStrat = strategy
+			} else if strategy.Name() == "kkdai/youtube" {
+				ytGoStrat = strategy
+			} else if strategy.Name() == "chromedp" {
+				chromedpStrat = strategy
+			}
+		}
+
+		if ytDlpStrat != nil {
+			strategies = append(strategies, ytDlpStrat)
+		}
+		if luxStrat != nil {
+			strategies = append(strategies, luxStrat)
+		}
+		if ytGoStrat != nil {
+			strategies = append(strategies, ytGoStrat)
+		}
+		if chromedpStrat != nil {
+			strategies = append(strategies, chromedpStrat)
+		}
 	} else if isRumble {
 		// For Rumble, use yt-dlp, lux, rumble-custom, and chromedp
+		// Order in f.strategies (init in NewFallbackDownloader) is already: yt-dlp, lux, rumble-custom, chromedp
+		// So we can just filter
 		for _, strategy := range f.strategies {
 			name := strategy.Name()
 			if name == "yt-dlp" || name == "lux" || name == "rumble-custom" || name == "chromedp" {
@@ -113,30 +140,37 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 			}
 		}
 	} else if isVimeo {
-		// For Vimeo, prioritize vimeo-custom, then yt-dlp, then lux, then chromedp
-		var vimeoStrategy DownloaderStrategy
-		var others []DownloaderStrategy
+		// Requested order: yt-dlp -> lux -> vimeo-custom -> chromedp
+		var vimeoStrategy, ytDlpStrat, luxStrat, chromedpStrat DownloaderStrategy
 
 		for _, strategy := range f.strategies {
 			if strategy.Name() == "vimeo-custom" {
 				vimeoStrategy = strategy
-			} else if strategy.Name() == "yt-dlp" || strategy.Name() == "lux" || strategy.Name() == "chromedp" {
-				others = append(others, strategy)
+			} else if strategy.Name() == "yt-dlp" {
+				ytDlpStrat = strategy
+			} else if strategy.Name() == "lux" {
+				luxStrat = strategy
+			} else if strategy.Name() == "chromedp" {
+				chromedpStrat = strategy
 			}
 		}
 
+		if ytDlpStrat != nil {
+			strategies = append(strategies, ytDlpStrat)
+		}
+		if luxStrat != nil {
+			strategies = append(strategies, luxStrat)
+		}
 		if vimeoStrategy != nil {
-			strategies = append([]DownloaderStrategy{vimeoStrategy}, others...)
-		} else {
-			strategies = others
+			strategies = append(strategies, vimeoStrategy)
+		}
+		if chromedpStrat != nil {
+			strategies = append(strategies, chromedpStrat)
 		}
 	} else if isTikTok {
-		// For TikTok, prioritize chromedp (to capture cookies), then yt-dlp, then lux
-		// We prioritize Chromedp because TikTok downloads often require cookies and mobile UA
-		// which yt-dlp might not provide in the returned info, leading to 403 errors on playback.
-		// Chromedp ensures we capture cookies that are then used by the ProxyDownload handler.
+		// Requested order: yt-dlp -> lux -> custom (none) -> chromedp
 		var ytDlpStrat, chromedpStrat, luxStrat DownloaderStrategy
-		
+
 		for _, strategy := range f.strategies {
 			if strategy.Name() == "yt-dlp" {
 				ytDlpStrat = strategy
@@ -146,16 +180,16 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 				luxStrat = strategy
 			}
 		}
-		
-		// Prioritize Chromedp for TikTok
-		if chromedpStrat != nil {
-			strategies = append(strategies, chromedpStrat)
-		}
+
+		// Prioritize yt-dlp for TikTok
 		if ytDlpStrat != nil {
 			strategies = append(strategies, ytDlpStrat)
 		}
 		if luxStrat != nil {
 			strategies = append(strategies, luxStrat)
+		}
+		if chromedpStrat != nil {
+			strategies = append(strategies, chromedpStrat)
 		}
 	} else if isTwitter || isDailymotion {
 		// For TikTok, Twitter, and Dailymotion, prioritize yt-dlp, then lux, then others

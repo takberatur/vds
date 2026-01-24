@@ -675,8 +675,17 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 	if err != nil {
 		return err
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+
+	// Use Desktop UA to match yt-dlp/chromedp behavior and avoid mismatch with cookies
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36")
 	req.Header.Set("Referer", "https://www.tiktok.com/")
+
+	// Inject cookies if available (Crucial for 403 prevention)
+	if info != nil && len(info.Cookies) > 0 {
+		for name, value := range info.Cookies {
+			req.AddCookie(&http.Cookie{Name: name, Value: value})
+		}
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
