@@ -5,9 +5,19 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({
+			out: 'build',
+			precompress: true,
+			envPrefix: 'PUBLIC_',
+			dynamic_origin: true,
+			split: false
+		}),
 		csrf: {
-			trustedOrigins: ['*'] // Use with caution!
+			checkOrigin: process.env.NODE_ENV === 'production',
+			trustedOrigins:
+				process.env.NODE_ENV === 'production'
+					? [process.env.ORIGIN ?? 'https://simontokz.com']
+					: ['*']
 		},
 		alias: {
 			'@/*': './src/lib/*'
