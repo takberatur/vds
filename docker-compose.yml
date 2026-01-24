@@ -9,69 +9,46 @@ services:
     container_name: video_downloader_api
     restart: always
     ports:
-      - "8080:8080"
+      - "5001:5001"
     environment:
-      - APP_PORT=8080
+      - APP_PORT=5001
       - APP_ENV=production
-      - DATABASE_URL=postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable
-      - REDIS_ADDR=redis:6379
-      - REDIS_PASSWORD=
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_ADDR=${REDIS_ADDR}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRY_HOUR=${JWT_EXPIRY_HOUR}
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - MINIO_BUCKET=${MINIO_BUCKET}
-      - MINIO_USE_SSL=false
-    depends_on:
-      - postgres
-      - redis
+      - MINIO_USE_SSL=${MINIO_USE_SSL}
+      - CENTRIFUGO_WS_URL=${CENTRIFUGO_WS_URL}
     networks:
+      - infrastructure-network
       - video_download_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Frontend Service (SvelteKit)
-  # frontend:
+  # frontend_01:
   #   build:
   #     context: ./frontend
   #     dockerfile: Dockerfile
   #   container_name: video_downloader_web
   #   restart: always
   #   ports:
-  #     - "3000:3000"
+  #     - "3002:3002"
   #   environment:
-  #     - PUBLIC_API_URL=http://backend:8080
+  #     - PUBLIC_API_URL=http://backend:5001
   #   depends_on:
   #     - backend
   #   networks:
   #     - video_download_network
-
-  # Database Service (PostgreSQL)
-  postgres:
-    image: postgres:15-alpine
-    container_name: video_downloader_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: video_downloader
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - video_download_network
-
-  # Cache Service (Redis)
-  redis:
-    image: redis:7-alpine
-    container_name: video_downloader_redis
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - video_download_network
 
   worker:
     build:
@@ -80,15 +57,18 @@ services:
     container_name: video_downloader_worker
     restart: always
     environment:
-      - DATABASE_URL=postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable
-      - REDIS_ADDR=redis:6379
-      - REDIS_PASSWORD=
-    depends_on:
-      - postgres
-      - redis
-    command: ["./worker"]
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_ADDR=${REDIS_ADDR}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
+      - infrastructure-network
       - video_download_network
+    command: ["./worker"]
+    healthcheck:
+      test: ["CMD", "pgrep", "worker"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   setup:
     build:
@@ -97,43 +77,28 @@ services:
     container_name: video_downloader_setup
     restart: "no"
     environment:
-      - DATABASE_URL=postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable
-    depends_on:
-      - postgres
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - infrastructure-network
     command: >
       /bin/sh -c "
-      echo 'Waiting for postgres...' &&
-      sleep 5 &&
-      migrate -path internal/repository/migrations -database 'postgres://postgres:password@postgres:5432/video_downloader?sslmode=disable' up &&
+      echo 'Waiting for PostgreSQL to be ready...'
+      until pg_isready -h infrastructure-postgres -p 5432 -U ${DB_USER}; do
+        echo 'Waiting for PostgreSQL...'
+        sleep 2
+      done
+      echo 'Running migrations...'
+      migrate -path internal/repository/migrations -database $${DATABASE_URL} up
+      echo 'Running seeders...'
       ./seed
+      echo 'Setup completed!'
       "
-    networks:
-      - video_download_network
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: video_download_network_pgadmin
-    restart: always
-    ports:
-      - "5050:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "True"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - video_download_network
-    depends_on:
-      - postgres
+    profiles: ["setup"]
 
 networks:
+  infrastructure-network:
+    external: true
+    name: infrastructure_infrastructure-network
+
   video_download_network:
     driver: bridge
-
-volumes:
-  postgres_data:
-  redis_data:
-  minio_data:
-  pgadmin_data:
