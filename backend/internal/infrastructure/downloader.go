@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -307,9 +308,11 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	args = append(args, url)
 
 	cmd := exec.CommandContext(subCtx, c.executablePath, args...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("yt-dlp download failed: %w", err)
+		return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err, stderr.String())
 	}
 
 	return nil

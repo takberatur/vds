@@ -1,6 +1,9 @@
 import { browser } from '$app/environment';
-import { PUBLIC_API_URL } from '$env/static/public';
-import { derived, writable } from 'svelte/store';
+import { PUBLIC_CENTRIFUGE_URL } from '$env/static/public';
+import { writable } from 'svelte/store';
+import { Centrifuge, Subscription } from 'centrifuge';
+
+const CENTRIFUGO_URL = PUBLIC_CENTRIFUGE_URL;
 
 export type DownloadFormat = {
 	format_id?: string;
@@ -34,55 +37,12 @@ export type WebsocketStore = ReturnType<typeof createWebsocketStore>;
 
 
 export const createWebsocketStore = (userID?: string | null) => {
-	let socket: WebSocket | null = null;
-	let currentUserId: string | null = null;
+	let centrifuge: Centrifuge | null = null;
+	let subscriptions: Record<string, Subscription> = {};
 
 	const state = writable<DownloadState>({
 		tasks: {}
 	});
-
-	const apiWsConfig = (() => {
-		try {
-			const url = new URL(PUBLIC_API_URL);
-			const protocol = url.protocol === 'https:' ? 'wss' : 'ws';
-			const basePath = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
-
-			return {
-				protocol,
-				host: url.host,
-				basePath
-			};
-		} catch {
-			return null as {
-				protocol: string;
-				host: string;
-				basePath: string;
-			} | null;
-		}
-	})();
-
-	function getWebSocketUrl() {
-		if (!browser) return null;
-
-		if (apiWsConfig) {
-			const { protocol, host, basePath } = apiWsConfig;
-
-			if (userID) {
-				return `${protocol}://${host}${basePath}/downloads/ws/${userID}`;
-			}
-
-			return `${protocol}://${host}${basePath}/ws`;
-		}
-
-		const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-		const base = `${protocol}://${window.location.host}`;
-
-		if (userID) {
-			return `${base}/api/v1/downloads/ws/${userID}`;
-		}
-
-		return `${base}/api/v1/ws`;
-	}
 
 	function applyEvent(data: any) {
 		if (!data || !data.task_id) return;
@@ -121,58 +81,56 @@ export const createWebsocketStore = (userID?: string | null) => {
 	function connect() {
 		if (!browser) return;
 
-		const targetId = userID ?? null;
+		if (centrifuge) return;
 
-		if (
-			socket &&
-			(socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) &&
-			currentUserId === targetId
-		) {
-			return;
-		}
+		// Use environment variable if available (need to be added to .env) or fallback
+		// For this environment, user specified ws://infrastructure-centrifugo:8000
+		// But browser needs localhost or public URL.
+		const url = CENTRIFUGO_URL;
 
-		if (socket) {
-			socket.close();
-			socket = null;
-		}
+		centrifuge = new Centrifuge(url, {
+			// Add any auth token if needed, but for public downloads it might be anonymous
+		});
 
-		const url = getWebSocketUrl();
-		if (!url) return;
+		centrifuge.on('connected', (ctx) => {
+			console.log('Centrifugo connected', ctx);
+		});
 
-		currentUserId = targetId;
-		socket = new WebSocket(url);
+		centrifuge.on('disconnected', (ctx) => {
+			console.log('Centrifugo disconnected', ctx);
+		});
 
-		socket.onopen = () => {
-			// console.info('Download websocket connected', { url, userId: currentUserId });
-		};
+		centrifuge.connect();
+	}
 
-		socket.onmessage = (event) => {
-			try {
-				const data = JSON.parse(event.data);
-				applyEvent(data);
-			} catch (error) {
-				console.error('Failed to parse download event', error);
-			}
-		};
+	function subscribe(taskId: string) {
+		if (!browser || !centrifuge) return;
+		if (subscriptions[taskId]) return;
 
-		socket.onerror = (event) => {
-			console.error('Download websocket error', event);
-			if (socket) {
-				socket.close();
-			}
-		};
+		const channel = `download:progress:${taskId}`;
+		console.log(`Subscribing to channel: ${channel}`);
 
-		socket.onclose = () => {
-			const reconnectUserId = currentUserId;
-			socket = null;
-			if (reconnectUserId === targetId) {
-				setTimeout(() => {
-					if (!socket && reconnectUserId === currentUserId) {
-						connect();
-					}
-				}, 1000);
-			}
-		};
+		const sub = centrifuge.newSubscription(channel);
+
+		sub.on('publication', (ctx) => {
+			// ctx.data is the payload published from backend
+			applyEvent(ctx.data);
+		});
+
+		sub.on('subscribing', (ctx) => {
+			console.log(`Subscribing to ${channel}`, ctx);
+		});
+
+		sub.on('subscribed', (ctx) => {
+			console.log(`Subscribed to ${channel}`, ctx);
+		});
+
+		sub.on('error', (ctx) => {
+			console.error(`Subscription error for ${channel}`, ctx);
+		});
+
+		sub.subscribe();
+		subscriptions[taskId] = sub;
 	}
 
 	function upsertTaskFromApi(task: any) {
@@ -203,9 +161,10 @@ export const createWebsocketStore = (userID?: string | null) => {
 	}
 
 	function disconnect() {
-		if (socket) {
-			socket.close();
-			socket = null;
+		if (centrifuge) {
+			centrifuge.disconnect();
+			centrifuge = null;
+			subscriptions = {};
 		}
 		state.set({ tasks: {} });
 	}
@@ -215,6 +174,7 @@ export const createWebsocketStore = (userID?: string | null) => {
 		stateSubscribe: state.subscribe,
 		connect,
 		upsertTaskFromApi,
-		disconnect
+		disconnect,
+		subscribe // Expose this
 	};
-}
+};

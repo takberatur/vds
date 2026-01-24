@@ -10,7 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/rs/zerolog/log"
 	"github.com/user/video-downloader-backend/internal/config"
-	"github.com/user/video-downloader-backend/internal/delivery/http/handler"
 	"github.com/user/video-downloader-backend/internal/delivery/http/route"
 	"github.com/user/video-downloader-backend/internal/infrastructure"
 	"github.com/user/video-downloader-backend/internal/middleware"
@@ -44,6 +43,9 @@ func main() {
 		defer redisClient.Close()
 		log.Info().Msg("Connected to Redis")
 
+		// Initialize Centrifugo Client
+		centrifugoClient := infrastructure.NewCentrifugoClient(cfg.CentrifugoURL, cfg.CentrifugoAPIKey)
+
 		go func() {
 			subCtx := context.Background()
 			sub := redisClient.Subscribe(subCtx, infrastructure.DownloadEventChannel)
@@ -67,9 +69,15 @@ func main() {
 						Str("type", event.Type).
 						Str("task_id", event.TaskID.String()).
 						Str("status", event.Status).
-						Msg("Received download event from redis, broadcasting to websockets")
+						Msg("Received download event from redis, publishing to Centrifugo")
 				}
-				handler.BroadcastDownloadEvent(&event)
+
+				// Publish to Centrifugo (Channel: download:progress:<taskID>)
+				// This ensures only the specific client (subscribed to this task) receives the update
+				channel := "download:progress:" + event.TaskID.String()
+				if err := centrifugoClient.Publish(subCtx, channel, event); err != nil {
+					log.Error().Err(err).Str("channel", channel).Msg("Failed to publish to Centrifugo")
+				}
 			}
 			log.Warn().Msg("Redis download events subscription loop exited")
 		}()

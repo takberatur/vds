@@ -4,6 +4,7 @@ go 1.25
 
 require (
 	github.com/PuerkitoBio/goquery v1.11.0
+	github.com/centrifugal/gocent/v3 v3.4.0
 	github.com/chromedp/cdproto v0.0.0-20250803210736-d308e07a266d
 	github.com/chromedp/chromedp v0.14.2
 	github.com/georgysavva/scany/v2 v2.1.4

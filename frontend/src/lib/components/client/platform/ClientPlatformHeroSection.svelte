@@ -70,6 +70,7 @@
 				successMessage = result.data.message;
 				const task = result.data.data;
 				ws.upsertTaskFromApi(task);
+				ws.subscribe(task.id);
 			}
 		},
 		onError: ({ result }) => {
