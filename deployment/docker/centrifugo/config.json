@@ -1,0 +1,87 @@
+{
+	"token_hmac_secret_key": "ZnnO6Vlp214SNjAhtMon3z36M6BF/1SYrokd+Eb+oqMy33nCSBjeSBtSVGcNc5H9raLv/ls5+E4qY8sGC+1jnw==",
+	"api_key": "DC5oHAYr1dC9d2re6gKtdzQd+gxWsbyWpomG0zMP9TwRefcTFYathoyhKiATnIJTMDjAcAdp2hboLL4Jq1TmAA==",
+	"admin_password": "YjwNLKcwSuEH5TqMHtzgzpsz/C6D6WDBdbwD9pGqeas=",
+	"admin_secret": "IS/r9LSupA0U1p6Yt1ShFqXSs4DQ8igsv4EL/doLBRTtZ152qgiecTGeY9EwXSBan8YER/t03lQ0p/nN0f7CWQ==",
+	"admin": true,
+	"admin_insecure": false,
+	"engine": "redis",
+	"redis_address": "infrastructure-redis:6379",
+	"redis_password": "wyZuK64Tg105+erzJ1n/sg2DeQ4a4BbVr9c3M0D7neo=",
+	"redis_db": 0,
+	"allowed_origins": [
+		"http://localhost:5173",
+		"http://localhost:8080",
+		"http://localhost:3000",
+		"https://app.socialforge.com",
+		"https://socialforge.com",
+		"https://app.agcforge.com",
+		"https://agcforge.com",
+		"https://api.agcforge.com",
+		"https://infrastructures.help",
+		"https://api-simontok.agcforge.com",
+		"https://simontokz.com",
+		"https://client.giuadiario.info",
+		"https://compositely-sanguinolent-cari.ngrok-free.dev"
+	],
+	"namespaces": [
+		{
+			"name": "chat",
+			"presence": true,
+			"join_leave": true,
+			"history_size": 100,
+			"history_ttl": "24h"
+		},
+		{
+			"name": "notifications",
+			"history_size": 50,
+			"history_ttl": "12h"
+		},
+		{
+			"name": "presence",
+			"presence": true,
+			"join_leave": true
+		},
+		{
+			"name": "typing",
+			"history_size": 0
+		},
+		{
+			"name": "alerts",
+			"history_size": 100,
+			"history_ttl": "168h"
+		},
+		{
+			"name": "broadcast",
+			"history_size": 50,
+			"history_ttl": "24h"
+		},
+		{
+			"name": "announcements",
+			"history_size": 200,
+			"history_ttl": "720h"
+		},
+		{
+			"name": "system_events",
+			"history_size": 500,
+			"history_ttl": "168h"
+		},
+		{
+			"name": "user_status",
+			"presence": true,
+			"join_leave": true
+		},
+		{
+			"name": "download",
+			"presence": true,
+			"history_size": 100,
+			"history_ttl": "1h"
+		}
+	],
+	"log_level": "debug",
+	"health": true,
+	"prometheus": true,
+	"grpc_api": {
+		"bind": "0.0.0.0:10000"
+	}
+}

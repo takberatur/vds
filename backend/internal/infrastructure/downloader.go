@@ -74,7 +74,8 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		args = append(args, "--extractor-args", "youtube:player_client=android")
+		// Switch to ios client as android client is experiencing issues
+		args = append(args, "--extractor-args", "youtube:player_client=ios")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
@@ -86,7 +87,11 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	cmd := exec.CommandContext(subCtx, c.executablePath, args...)
 	output, err := cmd.Output()
 	if err != nil {
-		log.Error().Str("url", url).Err(err).Msg("yt-dlp failed")
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			log.Error().Str("url", url).Str("stderr", string(exitErr.Stderr)).Err(err).Msg("yt-dlp failed")
+		} else {
+			log.Error().Str("url", url).Err(err).Msg("yt-dlp failed")
+		}
 		return nil, fmt.Errorf("failed to fetch video info: %w", err)
 	}
 
@@ -298,7 +303,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		args = append(args, "--extractor-args", "youtube:player_client=android")
+		args = append(args, "--extractor-args", "youtube:player_client=ios")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
