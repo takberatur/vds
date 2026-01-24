@@ -37,7 +37,7 @@ func main() {
 	defer db.Pool.Close()
 	log.Info().Msg("Connected to PostgreSQL")
 
-		redisClient, err := infrastructure.NewRedisClient(cfg.RedisAddr, cfg.RedisPassword)
+	redisClient, err := infrastructure.NewRedisClient(cfg.RedisAddr, cfg.RedisPassword)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to connect to redis")
 	} else {
@@ -45,8 +45,8 @@ func main() {
 		log.Info().Msg("Connected to Redis")
 
 		go func() {
-				subCtx := context.Background()
-				sub := redisClient.Subscribe(subCtx, infrastructure.DownloadEventChannel)
+			subCtx := context.Background()
+			sub := redisClient.Subscribe(subCtx, infrastructure.DownloadEventChannel)
 			ch := sub.Channel()
 			log.Info().Str("channel", infrastructure.DownloadEventChannel).Msg("Subscribed to download events channel")
 			for msg := range ch {
@@ -96,8 +96,11 @@ func main() {
 		middleware.RateLimiter(),
 		cors.New(cors.Config{
 			AllowOrigins:     cfg.ClientURL,
-			AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key, X-XSRF-TOKEN",
+			AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+			AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key, X-XSRF-TOKEN, X-CSRF-Token",
 			AllowCredentials: true,
+			ExposeHeaders:    "Set-Cookie",
+			MaxAge:           12 * 3600,
 		}),
 	)
 	app.Use(middleware.APIKeyMiddleware(appCacheService))
