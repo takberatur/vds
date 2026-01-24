@@ -12,6 +12,12 @@ type Config struct {
 	AppEnv        string
 	ClientURL     string
 	DatabaseURL   string
+	DBUser        string
+	DBPassword    string
+	DBName        string
+	DBHost        string
+	DBPort        string
+	DBURL         string
 	RedisAddr     string
 	RedisPassword string
 	JWTSecret     string
@@ -35,6 +41,12 @@ func LoadConfig() *Config {
 		AppEnv:        getEnv("APP_ENV", "development"),
 		ClientURL:     getEnv("CLIENT_URL", "http://localhost:5173"),
 		DatabaseURL:   getEnv("DATABASE_URL", "postgres://user:password@localhost:5432/dbname"),
+		DBUser:        getEnv("DB_USER", "user"),
+		DBPassword:    getEnv("DB_PASSWORD", "password"),
+		DBName:        getEnv("DB_NAME", "dbname"),
+		DBHost:        getEnv("DB_HOST", "localhost"),
+		DBPort:        getEnv("DB_PORT", "5432"),
+		DBURL:         getEnv("DB_URL", "postgres://user:password@localhost:5432/dbname"),
 		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
 		RedisPassword: getEnv("REDIS_PASSWORD", ""),
 		JWTSecret:     getEnv("JWT_SECRET", "super-secret-key"),
