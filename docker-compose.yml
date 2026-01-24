@@ -14,6 +14,12 @@ services:
       - APP_PORT=5001
       - APP_ENV=production
       - DATABASE_URL=${DATABASE_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_URL=${DB_URL}
       - REDIS_ADDR=${REDIS_ADDR}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
@@ -39,7 +45,7 @@ services:
   #   build:
   #     context: ./frontend
   #     dockerfile: Dockerfile
-  #   container_name: video_downloader_web
+  #   container_name: video_downloader_web_01
   #   restart: always
   #   ports:
   #     - "3002:3002"
@@ -48,6 +54,7 @@ services:
   #   depends_on:
   #     - backend
   #   networks:
+  #     - infrastructure-network
   #     - video_download_network
 
   worker:
@@ -57,7 +64,15 @@ services:
     container_name: video_downloader_worker
     restart: always
     environment:
+      - APP_PORT=5001
+      - APP_ENV=production
       - DATABASE_URL=${DATABASE_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_URL=${DB_URL}
       - REDIS_ADDR=${REDIS_ADDR}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
@@ -78,6 +93,12 @@ services:
     restart: "no"
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_URL=${DB_URL}
     networks:
       - infrastructure-network
     command: >

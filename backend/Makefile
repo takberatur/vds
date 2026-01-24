@@ -1,8 +1,8 @@
 # Database Variables
-DB_USER=postgres
-DB_PASSWORD=
+DB_USER=forge
+DB_PASSWORD=X31hEufzUnHeErA27C3wyKodE0GfmJmEJ5O+Pgt7Dfg=
 DB_NAME=video_downloader
-DB_HOST=localhost
+DB_HOST=infrastructure-postgres
 DB_PORT=5432
 DB_URL=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 
