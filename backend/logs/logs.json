@@ -1,0 +1,517 @@
+[
+	{
+		"level": "info",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Starting application..."
+	}
+{
+		"level": "info",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Connected to PostgreSQL"
+	}
+{
+		"level": "debug",
+		"command": "hello",
+		"args": "[hello 3 auth default wyZuK64Tg105+erzJ1n/sg2DeQ4a4BbVr9c3M0D7neo=]",
+		"duration": "424.875µs",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Redis Command Executed"
+	}
+{
+		"level": "error",
+		"error": "ERR unknown subcommand 'maint_notifications'. Try CLIENT HELP.",
+		"command": "client",
+		"args": "[client maint_notifications on moving-endpoint-type internal-fqdn]",
+		"duration": "360.275µs",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Redis Command Failed"
+	}
+{
+		"level": "debug",
+		"pipeline_size": 2,
+		"duration": "191.254µs",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Redis Pipeline Executed"
+	}
+{
+		"level": "debug",
+		"command": "ping",
+		"args": "[ping]",
+		"duration": "3.35551ms",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Redis Command Executed"
+	}
+{
+		"level": "info",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Connected to Redis"
+	}
+{
+		"level": "info",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Connected to MinIO"
+	}
+{
+		"level": "debug",
+		"command": "hello",
+		"args": "[hello 3 auth default wyZuK64Tg105+erzJ1n/sg2DeQ4a4BbVr9c3M0D7neo=]",
+		"duration": "277.193µs",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Redis Command Executed"
+	}    
+{
+		"level": "debug",
+		"pipeline_size": 2,
+		"duration": "201.477µs",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Redis Pipeline Executed"
+	}
+{
+		"level": "info",
+		"channel": "download:events",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Subscribed to download events channel"
+	}
+{
+		"level": "info",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Starting to load all applications to Redis cache..."
+	}
+{
+		"level": "debug",
+		"sql": "SELECT * FROM applications",
+		"duration": "3.182195ms",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Database Query Executed"
+	}
+{
+		"level": "info",
+		"count": 0,
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Successfully loaded applications to cache"
+	}
+{
+		"level": "info",
+		"port": "5001",
+		"time": "2026-01-24T12:46:11Z",
+		"message": "Server starting"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/ws",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:12Z",
+		"time": "2026-01-24T12:46:12Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "info",
+		"method": "GET",
+		"path": "/api/v1/ws",
+		"status": 101,
+		"ip": "103.157.62.25",
+		"latency": "120.522µs",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:12Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"total_clients": 1,
+		"time": "2026-01-24T12:46:12Z",
+		"message": "Websocket client connected to anonymous download events"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/public-admin/settings/public",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:24Z",
+		"time": "2026-01-24T12:46:24Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/public-admin/settings/public",
+		"duration": 60000,
+		"time": "2026-01-24T12:46:24Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/public-admin/settings/public",
+		"time": "2026-01-24T12:46:24Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "debug",
+		"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+		"duration": "2.165815ms",
+		"time": "2026-01-24T12:46:24Z",
+		"message": "Database Query Executed"
+	}
+{
+		"level": "info",
+		"method": "GET",
+		"path": "/api/v1/public-admin/settings/public",
+		"status": 200,
+		"ip": "103.157.62.21, 103.157.62.25",
+		"latency": "3.440016ms",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:24Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/web-client/platforms",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:25Z",
+		"time": "2026-01-24T12:46:25Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/web-client/platforms",
+		"duration": 60000,
+		"time": "2026-01-24T12:46:25Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/web-client/platforms",
+		"time": "2026-01-24T12:46:25Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "debug",
+		"sql": "SELECT * FROM platforms",
+		"duration": "2.29577ms",
+		"time": "2026-01-24T12:46:25Z",
+		"message": "Database Query Executed"
+	}
+{
+		"level": "info",
+		"method": "GET",
+		"path": "/api/v1/web-client/platforms",
+		"status": 200,
+		"ip": "103.157.62.21, 103.157.62.25",
+		"latency": "2.865419ms",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:25Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"total_clients": 0,
+		"time": "2026-01-24T12:46:25Z",
+		"message": "Websocket client disconnected from anonymous download events"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/ws",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:28Z",
+		"time": "2026-01-24T12:46:28Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "info",
+		"method": "GET",
+		"path": "/api/v1/ws",
+		"status": 101,
+		"ip": "103.157.62.25",
+		"latency": "58.21µs",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:28Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"total_clients": 1,
+		"time": "2026-01-24T12:46:28Z",
+		"message": "Websocket client connected to anonymous download events"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/public-admin/settings/public",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:34Z",
+		"time": "2026-01-24T12:46:34Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/public-admin/settings/public",
+		"duration": 60000,
+		"time": "2026-01-24T12:46:34Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/public-admin/settings/public",
+		"time": "2026-01-24T12:46:34Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "debug",
+		"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+		"duration": "467.921µs",
+		"time": "2026-01-24T12:46:34Z",
+		"message": "Database Query Executed"
+	}
+{
+		"level": "info",
+		"method": "GET",
+		"path": "/api/v1/public-admin/settings/public",
+		"status": 200,
+		"ip": "103.157.62.21, 103.157.62.25",
+		"latency": "1.086254ms",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:34Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/token/csrf",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:35Z",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "debug",
+		"command": "get",
+		"args": "[get csrf_token:6f249d33-66ef-4e4c-bf2d-c2f849d87091]",
+		"duration": "369.637µs",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Redis Command Executed"
+	}
+{
+		"level": "debug",
+		"command": "set",
+		"args": "[set csrf_token:6f249d33-66ef-4e4c-bf2d-c2f849d87091 c858f3c6-6b08-493c-8e21-0978a37ff735 ex 3600]",
+		"duration": "1.080042ms",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Redis Command Executed"
+	}
+{
+		"level": "info",
+		"method": "GET",
+		"path": "/api/v1/token/csrf",
+		"status": 200,
+		"ip": "103.157.62.21, 103.157.62.25",
+		"latency": "2.259314ms",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/web-client/download/process",
+		"timeout": 1800000,
+		"deadline": "2026-01-24T13:16:35Z",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Context initialized"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/web-client/download/process",
+		"duration": 60000,
+		"time": "2026-01-24T12:46:35Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "debug",
+		"command": "get",
+		"args": "[get csrf_token:6f249d33-66ef-4e4c-bf2d-c2f849d87091]",
+		"duration": "220.239µs",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Redis Command Executed"
+	}
+{
+		"level": "info",
+		"path": "/api/v1/web-client/download/process",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "The context time has been set plus for the route"
+	}
+{
+		"level": "info",
+		"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+		"type": "tiktok",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Received download request"
+	}
+{
+		"level": "debug",
+		"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE type = $1\n\t",
+		"duration": "1.505969ms",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Database Query Executed"
+	}
+{
+		"level": "info",
+		"strategy": "yt-dlp",
+		"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+		"time": "2026-01-24T12:46:35Z",
+		"message": "Attempting download with strategy"
+	}
+{
+		"level": "error",
+		"error": "failed to parse yt-dlp output: json: cannot unmarshal string into Go struct field VideoInfo.cookies of type map[string]string",
+		"strategy": "yt-dlp",
+		"time": "2026-01-24T12:46:39Z",
+		"message": "Strategy failed"
+	}
+{
+		"level": "info",
+		"strategy": "lux",
+		"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+		"time": "2026-01-24T12:46:39Z",
+		"message": "Attempting download with strategy"
+	}  
+{
+		"level": "info",
+		"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+		"time": "2026-01-24T12:46:39Z",
+		"message": "Fetching video info with lux"
+	}
+{
+		"level": "info",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Recovered video info from failed lux execution"
+	}
+{
+		"level": "info",
+		"strategy": "lux",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Download info success"
+	}     
+{
+		"level": "debug",
+		"sql": "\n\t\tINSERT INTO downloads (user_id, app_id, original_url, platform_id, platform_type, status, file_path, format, thumbnail_url, title, file_size, duration, encrypted_data, created_at)\n\t\tVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\n\t\tRETURNING id\n\t",
+		"duration": "5.857325ms",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Database Query Executed"
+	}
+{
+		"level": "info",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Enqueuing video download task"
+	}
+{
+		"level": "info",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Successfully enqueued video download task"
+	}
+{
+		"level": "info",
+		"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"processing_time": 13198.721432,
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Download request processed successfully"
+	}
+{
+		"level": "info",
+		"type": "download.queued",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "queued",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Broadcasting initial queued download event"
+	}
+{
+		"level": "info",
+		"type": "download.queued",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "queued",
+		"anon_clients": 1,
+		"user_clients": 0,
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Broadcasting download event to websocket clients"
+	}
+{
+		"level": "info",
+		"method": "POST",
+		"path": "/api/v1/web-client/download/process",
+		"status": 200,
+		"ip": "103.157.62.21, 103.157.62.25",
+		"latency": "13.200434896s",
+		"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+		"time": "2026-01-24T12:46:48Z",
+		"message": "Request processed"
+	}
+{
+		"level": "info",
+		"type": "download.processing",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "processing",
+		"time": "2026-01-24T12:46:49Z",
+		"message": "Received download event from redis, broadcasting to websockets"
+	}
+{
+		"level": "info",
+		"type": "download.processing",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "processing",
+		"anon_clients": 1,
+		"user_clients": 0,
+		"time": "2026-01-24T12:46:49Z",
+		"message": "Broadcasting download event to websocket clients"
+	}
+{
+		"level": "info",
+		"type": "download.processing",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "processing",
+		"time": "2026-01-24T12:46:49Z",
+		"message": "Received download event from redis, broadcasting to websockets"
+	}
+{
+		"level": "info",
+		"type": "download.processing",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "processing",
+		"anon_clients": 1,
+		"user_clients": 0,
+		"time": "2026-01-24T12:46:49Z",
+		"message": "Broadcasting download event to websocket clients"
+	}
+{
+		"level": "info",
+		"type": "download.processing",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "processing",
+		"time": "2026-01-24T12:47:03Z",
+		"message": "Received download event from redis, broadcasting to websockets"
+	}
+{
+		"level": "info",
+		"type": "download.processing",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "processing",
+		"anon_clients": 1,
+		"user_clients": 0,
+		"time": "2026-01-24T12:47:03Z",
+		"message": "Broadcasting download event to websocket clients"
+	}
+{
+		"level": "info",
+		"type": "download.failed",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "failed",
+		"time": "2026-01-24T12:47:03Z",
+		"message": "Received download event from redis, broadcasting to websockets"
+	}
+{
+		"level": "info",
+		"type": "download.failed",
+		"task_id": "2478349e-84b3-4797-a53a-ea4e731995f5",
+		"status": "failed",
+		"anon_clients": 1,
+		"user_clients": 0,
+		"time": "2026-01-24T12:47:03Z",
+		"message": "Broadcasting download event to websocket clients"
+	}
+]

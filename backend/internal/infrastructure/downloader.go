@@ -13,15 +13,15 @@ import (
 )
 
 type VideoInfo struct {
-	ID          string       `json:"id"`
-	Title       string       `json:"title"`
-	Duration    *float64     `json:"duration"` // seconds
-	Thumbnail   string       `json:"thumbnail"`
-	WebpageURL  string       `json:"webpage_url"`
-	Extractor   string       `json:"extractor"` // youtube, tiktok, etc.
-	Filename    string       `json:"filename,omitempty"`
-	Filesize    *int64       `json:"filesize,omitempty"`
-	DownloadURL string            `json:"url,omitempty"` // Direct link if available
+	ID          string            `json:"id"`
+	Title       string            `json:"title"`
+	Duration    *float64          `json:"duration"` // seconds
+	Thumbnail   string            `json:"thumbnail"`
+	WebpageURL  string            `json:"webpage_url"`
+	Extractor   string            `json:"extractor"` // youtube, tiktok, etc.
+	Filename    string            `json:"filename,omitempty"`
+	Filesize    *int64            `json:"filesize,omitempty"`
+	DownloadURL string            `json:"url,omitempty"`     // Direct link if available
 	Cookies     map[string]string `json:"cookies,omitempty"` // Cookies required for download
 	Formats     []FormatInfo      `json:"formats,omitempty"`
 }
@@ -86,8 +86,35 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	var info VideoInfo
-	if err := json.Unmarshal(output, &info); err != nil {
+
+	// Use an alias to avoid recursion and skip the original Cookies field
+	type Alias VideoInfo
+	aux := &struct {
+		Cookies interface{} `json:"cookies,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(&info),
+	}
+
+	if err := json.Unmarshal(output, &aux); err != nil {
 		return nil, fmt.Errorf("failed to parse yt-dlp output: %w", err)
+	}
+
+	// Handle flexible Cookies field
+	if aux.Cookies != nil {
+		switch v := aux.Cookies.(type) {
+		case map[string]interface{}:
+			info.Cookies = make(map[string]string)
+			for k, val := range v {
+				if strVal, ok := val.(string); ok {
+					info.Cookies[k] = strVal
+				}
+			}
+		case string:
+			// If it's a string, we can't easily map it to map[string]string without parsing.
+			// Log it and ignore to avoid crash.
+			log.Warn().Str("url", url).Msg("yt-dlp returned cookies as string, ignoring")
+		}
 	}
 
 	if info.DownloadURL == "" && len(info.Formats) > 0 {
