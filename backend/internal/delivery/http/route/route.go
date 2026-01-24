@@ -69,10 +69,11 @@ func SetupRoutes(c *RouteConfig) {
 	_ = handler.NewSubscriptionHandler(subscriptionService)
 
 	credentialLimiter := middleware.CredentialAttemptLimiter(c.Redis)
+	csrfMiddleware := middleware.NewCSRF(c.Redis)
 
 	api := c.App.Group("/api/v1")
 
-	api.Get("/token/csrf", middleware.CSRFMiddleware(), func(c *fiber.Ctx) error {
+	api.Get("/token/csrf", csrfMiddleware, func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"success": true,
 			"data": fiber.Map{
@@ -107,14 +108,14 @@ func SetupRoutes(c *RouteConfig) {
 
 	// Settings
 	protectedAdmin.Get("/settings", settingHandler.GetAllSettings)
-	protectedAdmin.Put("/settings/bulk", middleware.CSRFMiddleware(), settingHandler.UpdateSettingsBulk)
-	protectedAdmin.Post("/settings/upload", middleware.CSRFMiddleware(), settingHandler.UploadFile)
+	protectedAdmin.Put("/settings/bulk", csrfMiddleware, settingHandler.UpdateSettingsBulk)
+	protectedAdmin.Post("/settings/upload", csrfMiddleware, settingHandler.UploadFile)
 
 	// Admin users
 	protectedAdmin.Get("/users/current", userHandler.GetCurrentUser)
-	protectedAdmin.Put("/users/profile", middleware.CSRFMiddleware(), userHandler.UpdateProfile)
-	protectedAdmin.Put("/users/password", middleware.CSRFMiddleware(), userHandler.UpdatePassword)
-	protectedAdmin.Post("/users/avatar", middleware.CSRFMiddleware(), userHandler.UploadAvatar)
+	protectedAdmin.Put("/users/profile", csrfMiddleware, userHandler.UpdateProfile)
+	protectedAdmin.Put("/users/password", csrfMiddleware, userHandler.UpdatePassword)
+	protectedAdmin.Post("/users/avatar", csrfMiddleware, userHandler.UploadAvatar)
 
 	// Dashboard
 	protectedAdmin.Get("/dashboard", adminHandler.GetDashboardData)
@@ -124,31 +125,31 @@ func SetupRoutes(c *RouteConfig) {
 	protectedAdmin.Get("/platforms/:id", platformHandler.GetPlatformByID)
 	protectedAdmin.Get("/platforms/type/:type", platformHandler.GetPlatformByType)
 	protectedAdmin.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
-	protectedAdmin.Post("/platforms", middleware.CSRFMiddleware(), platformHandler.CreatePlatform)
-	protectedAdmin.Put("/platforms/:id", middleware.CSRFMiddleware(), platformHandler.UpdatePlatform)
-	protectedAdmin.Post("/platforms/thumbnail/:id", middleware.CSRFMiddleware(), platformHandler.UploadThumbnail)
-	protectedAdmin.Delete("/platforms/:id", middleware.CSRFMiddleware(), platformHandler.DeletePlatform)
-	protectedAdmin.Delete("/platforms/bulk", middleware.CSRFMiddleware(), platformHandler.BulkDeletePlatforms)
+	protectedAdmin.Post("/platforms", csrfMiddleware, platformHandler.CreatePlatform)
+	protectedAdmin.Put("/platforms/:id", csrfMiddleware, platformHandler.UpdatePlatform)
+	protectedAdmin.Post("/platforms/thumbnail/:id", csrfMiddleware, platformHandler.UploadThumbnail)
+	protectedAdmin.Delete("/platforms/:id", csrfMiddleware, platformHandler.DeletePlatform)
+	protectedAdmin.Delete("/platforms/bulk", csrfMiddleware, platformHandler.BulkDeletePlatforms)
 
 	// Application
 	protectedAdmin.Get("/applications", applicationHandler.GetApplications)
 	protectedAdmin.Get("/applications/:id", applicationHandler.FindByID)
-	protectedAdmin.Post("/applications", middleware.CSRFMiddleware(), applicationHandler.RegisterApp)
-	protectedAdmin.Delete("/applications/bulk", middleware.CSRFMiddleware(), applicationHandler.BulkDeleteApps)
-	protectedAdmin.Put("/applications/:id", middleware.CSRFMiddleware(), applicationHandler.UpdateApp)
-	protectedAdmin.Delete("/applications/:id", middleware.CSRFMiddleware(), applicationHandler.DeleteApp)
+	protectedAdmin.Post("/applications", csrfMiddleware, applicationHandler.RegisterApp)
+	protectedAdmin.Delete("/applications/bulk", csrfMiddleware, applicationHandler.BulkDeleteApps)
+	protectedAdmin.Put("/applications/:id", csrfMiddleware, applicationHandler.UpdateApp)
+	protectedAdmin.Delete("/applications/:id", csrfMiddleware, applicationHandler.DeleteApp)
 
 	// Downloads
 	protectedAdmin.Get("/downloads", downloadHandler.GetDownloads)
 	protectedAdmin.Get("/downloads/:id", downloadHandler.FindByID)
-	protectedAdmin.Delete("/downloads/bulk", middleware.CSRFMiddleware(), downloadHandler.BulkDeleteDownloads)
-	protectedAdmin.Put("/downloads/:id", middleware.CSRFMiddleware(), downloadHandler.UpdateDownload)
-	protectedAdmin.Delete("/downloads/:id", middleware.CSRFMiddleware(), downloadHandler.DeleteDownload)
+	protectedAdmin.Delete("/downloads/bulk", csrfMiddleware, downloadHandler.BulkDeleteDownloads)
+	protectedAdmin.Put("/downloads/:id", csrfMiddleware, downloadHandler.UpdateDownload)
+	protectedAdmin.Delete("/downloads/:id", csrfMiddleware, downloadHandler.DeleteDownload)
 
 	// Health Check
 	protectedAdmin.Get("/health/check", healthHandler.Check)
 	protectedAdmin.Get("/health/log", healthHandler.GetLogger)
-	protectedAdmin.Post("/health/log", middleware.CSRFMiddleware(), healthHandler.ClearLogs)
+	protectedAdmin.Post("/health/log", csrfMiddleware, healthHandler.ClearLogs)
 
 	// Web Client Routes
 	publicWeb.Post("/contact", webHandler.Contact)
@@ -157,13 +158,13 @@ func SetupRoutes(c *RouteConfig) {
 	publicWeb.Get("/platforms/:id", platformHandler.GetPlatformByID)
 	publicWeb.Get("/platforms/type/:type", platformHandler.GetPlatformByType)
 	publicWeb.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
-	publicWeb.Post("/download/process", middleware.CSRFMiddleware(), downloadHandler.DownloadVideo)
+	publicWeb.Post("/download/process", csrfMiddleware, downloadHandler.DownloadVideo)
 	publicProxy.Get("/downloads/file", downloadHandler.ProxyDownload)
 
 	protectedUserWeb := publicWeb.Group("/protected-web", middleware.JWTMiddleware(tokenService))
 
 	protectedUserWeb.Get("/users/current", userHandler.GetCurrentUser)
-	protectedUserWeb.Put("/users/profile", middleware.CSRFMiddleware(), userHandler.UpdateProfile)
-	protectedUserWeb.Put("/users/password", middleware.CSRFMiddleware(), userHandler.UpdatePassword)
-	protectedUserWeb.Post("/users/avatar", middleware.CSRFMiddleware(), userHandler.UploadAvatar)
+	protectedUserWeb.Put("/users/profile", csrfMiddleware, userHandler.UpdateProfile)
+	protectedUserWeb.Put("/users/password", csrfMiddleware, userHandler.UpdatePassword)
+	protectedUserWeb.Post("/users/avatar", csrfMiddleware, userHandler.UploadAvatar)
 }
