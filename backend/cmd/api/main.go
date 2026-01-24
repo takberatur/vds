@@ -85,6 +85,7 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
+		ProxyHeader:           fiber.HeaderXForwardedFor,
 	})
 
 	infrastructure.SetupMetrics(app)
@@ -94,15 +95,17 @@ func main() {
 		recover.New(),
 		middleware.RequestLogger(),
 		middleware.RateLimiter(),
-		cors.New(cors.Config{
-			AllowOrigins:     cfg.ClientURL,
-			AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
-			AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key, X-XSRF-TOKEN, X-CSRF-Token",
-			AllowCredentials: true,
-			ExposeHeaders:    "Set-Cookie",
-			MaxAge:           12 * 3600,
-		}),
 	)
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     cfg.ClientURL, // ex: https://client.giuadiario.info
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key, X-XSRF-TOKEN",
+		AllowCredentials: true,
+		ExposeHeaders:    "Set-Cookie",
+		MaxAge:           12 * 3600,
+	}))
+
 	app.Use(middleware.APIKeyMiddleware(appCacheService))
 
 	routeConfig := &route.RouteConfig{

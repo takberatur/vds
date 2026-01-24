@@ -22,7 +22,7 @@ func CSRFMiddleware() fiber.Handler {
 	csrfInstance = csrf.New(csrf.Config{
 		KeyLookup:      "header:X-XSRF-TOKEN", // Frontend sends this header
 		CookieName:     "csrf_token",          // Cookie name to store the token
-		CookieSameSite: "Lax",
+		CookieSameSite: "None",
 		CookieSecure:   isProd,
 		CookieHTTPOnly: false,
 		ContextKey:     "csrf", // Explicitly set context key
