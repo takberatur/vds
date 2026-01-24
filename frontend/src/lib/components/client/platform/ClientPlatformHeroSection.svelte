@@ -186,6 +186,7 @@
 		}
 	}
 
+	// Validate URL input
 	function onUrlVideoChange(value: string) {
 		if (!validUrl(value)) {
 			$errors.url = ['Invalid URL'];
