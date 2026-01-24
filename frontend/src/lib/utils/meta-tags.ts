@@ -92,7 +92,7 @@ export const defaultMetaTags = (
 			sizes: '96x96',
 			href:
 				setting?.SYSTEM.source_logo_favicon === 'remote'
-					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon.ico' : '/favicon.ico')
+					? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/images/logo.png' : '/images/logo.png')
 					: '/images/icon.png'
 		},
 		{
@@ -162,7 +162,7 @@ export const defaultMetaTags = (
 			{
 				url:
 					setting?.SYSTEM.source_logo_favicon === 'remote'
-						? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/favicon.ico' : '/favicon.ico')
+						? (isValidUrl(setting?.WEBSITE.site_favicon || '') ? setting?.WEBSITE.site_favicon || '/images/logo.png' : '/images/logo.png')
 						: '/images/icon.png',
 				width: 512,
 				height: 512,

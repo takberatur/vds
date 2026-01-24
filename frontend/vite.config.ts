@@ -13,6 +13,8 @@ export default defineConfig({
 	server: {
 		allowedHosts: [
 			'client.giuadiario.info',
+			'compositely-sanguinolent-cari.ngrok-free.dev',
+			'simontokz.com'
 		],
 		// hmr: {
 		// 	protocol: process.env.NODE_ENV === "development" ? 'wss' : undefined,

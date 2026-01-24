@@ -66,6 +66,7 @@ func SetupRoutes(c *RouteConfig) {
 	applicationHandler := handler.NewApplicationHandler(applicationService)
 	downloadHandler := handler.NewDownloadHandler(downloadService, userService)
 	webHandler := handler.NewWebHandler(webService)
+	centrifugoHandler := handler.NewCentrifugoHandler(tokenService)
 	_ = handler.NewSubscriptionHandler(subscriptionService)
 
 	credentialLimiter := middleware.CredentialAttemptLimiter(c.Redis)
@@ -152,6 +153,7 @@ func SetupRoutes(c *RouteConfig) {
 	protectedAdmin.Post("/health/log", csrfMiddleware, healthHandler.ClearLogs)
 
 	// Web Client Routes
+	publicWeb.Get("/centrifugo/token", centrifugoHandler.GetToken)
 	publicWeb.Post("/contact", webHandler.Contact)
 
 	publicWeb.Get("/platforms", platformHandler.GetAll)

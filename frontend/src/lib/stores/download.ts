@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { PUBLIC_CENTRIFUGE_URL } from '$env/static/public';
+import { PUBLIC_CENTRIFUGE_URL, PUBLIC_API_URL } from '$env/static/public';
 import { writable } from 'svelte/store';
 import { Centrifuge, Subscription } from 'centrifuge';
 
@@ -78,7 +78,7 @@ export const createWebsocketStore = (userID?: string | null) => {
 		});
 	}
 
-	function connect() {
+	async function connect() {
 		if (!browser) return;
 
 		if (centrifuge) return;
@@ -88,8 +88,24 @@ export const createWebsocketStore = (userID?: string | null) => {
 		// But browser needs localhost or public URL.
 		const url = CENTRIFUGO_URL;
 
+		// Fetch connection token
+		let token = '';
+		try {
+			// Ensure no double slash
+			const baseUrl = PUBLIC_API_URL.endsWith('/') ? PUBLIC_API_URL.slice(0, -1) : PUBLIC_API_URL;
+			const res = await fetch(`${baseUrl}/web-client/centrifugo/token`);
+			if (res.ok) {
+				const data = await res.json();
+				token = data.data.token;
+			} else {
+				console.error('Failed to fetch Centrifugo token:', res.statusText);
+			}
+		} catch (e) {
+			console.error('Error fetching Centrifugo token:', e);
+		}
+
 		centrifuge = new Centrifuge(url, {
-			// Add any auth token if needed, but for public downloads it might be anonymous
+			token: token
 		});
 
 		centrifuge.on('connected', (ctx) => {

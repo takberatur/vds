@@ -6,7 +6,7 @@
 	<title>{page.status} - {page.error?.message}</title>
 	<meta name="description" content="Error {page.status}: {page.error?.message}" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="/images/logo.png" type="image/x-icon" />
 </svelte:head>
 <main class="relative flex flex-col items-center justify-center px-4">
 	<div class="mx-auto flex h-screen flex-col items-center justify-center">

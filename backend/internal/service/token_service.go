@@ -13,6 +13,7 @@ import (
 type TokenService interface {
 	GenerateAccessToken(user *model.User) (string, error)
 	ValidateToken(tokenString string) (*jwt.Token, error)
+	GenerateCentrifugoToken(userID string) (string, error)
 }
 
 type tokenService struct {
@@ -68,6 +69,28 @@ func (s *tokenService) GenerateRefreshToken(user *model.User) (string, error) {
 	signedToken, err := token.SignedString([]byte(s.cfg.JWTSecret))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %w", err)
+	}
+
+	return signedToken, nil
+}
+
+func (s *tokenService) GenerateCentrifugoToken(userID string) (string, error) {
+	// If userID is empty, it's an anonymous connection
+	claims := jwt.MapClaims{
+		"sub": userID,
+		// "exp": time.Now().Add(24 * time.Hour).Unix(), // Optional: Expiry
+		"iat": time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	if s.cfg.CentrifugoTokenSecret == "" {
+		return "", fmt.Errorf("Centrifugo token secret is not configured")
+	}
+
+	signedToken, err := token.SignedString([]byte(s.cfg.CentrifugoTokenSecret))
+	if err != nil {
+		return "", fmt.Errorf("failed to sign centrifugo token: %w", err)
 	}
 
 	return signedToken, nil

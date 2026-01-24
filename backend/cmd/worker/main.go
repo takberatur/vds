@@ -61,6 +61,9 @@ func main() {
 	}
 	defer redisClient.Close()
 
+	// Initialize Centrifugo Client
+	centrifugoClient := infrastructure.NewCentrifugoClient(cfg.CentrifugoURL, cfg.CentrifugoAPIKey)
+
 	mux := asynq.NewServeMux()
 
 	mux.HandleFunc(infrastructure.TypeVideoDownload, func(ctx context.Context, t *asynq.Task) error {
@@ -69,7 +72,7 @@ func main() {
 			return err
 		}
 
-		if err := handleVideoDownloadTask(ctx, downloadRepo, redisClient, downloader, storageClient, cfg.MinioBucket, cfg.EncryptionKey, &task); err != nil {
+		if err := handleVideoDownloadTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, storageClient, cfg.MinioBucket, cfg.EncryptionKey, &task); err != nil {
 			return err
 		}
 
@@ -134,26 +137,40 @@ func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepos
 	}
 }
 
-func publishDownloadEvent(ctx context.Context, redisClient infrastructure.RedisClient, event *model.DownloadEvent) error {
+func publishDownloadEvent(ctx context.Context, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, event *model.DownloadEvent) error {
+	// 1. Publish to Redis (Old method - kept for backward compatibility during migration)
 	data, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
-	return redisClient.Publish(ctx, infrastructure.DownloadEventChannel, data).Err()
+	if err := redisClient.Publish(ctx, infrastructure.DownloadEventChannel, data).Err(); err != nil {
+		log.Error().Err(err).Msg("Failed to publish event to Redis")
+		// Don't return error here, try Centrifugo too
+	}
+
+	// 2. Publish to Centrifugo (New method - per-task channel)
+	// Channel format: "download:progress:<task_id>"
+	channel := fmt.Sprintf("download:progress:%s", event.TaskID.String())
+	if err := centrifugoClient.Publish(ctx, channel, event); err != nil {
+		log.Error().Err(err).Str("channel", channel).Msg("Failed to publish event to Centrifugo")
+		// We log error but don't fail the task, as this is notification only
+	}
+
+	return nil
 }
 
-func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
+func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
 	task.Status = "processing"
 	if err := downloadRepo.Update(ctx, task); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to processing")
 	}
 
-	if err := publishStartEvent(ctx, redisClient, task); err != nil {
+	if err := publishStartEvent(ctx, redisClient, centrifugoClient, task); err != nil {
 		log.Error().Err(err).Msg("failed to publish start event")
 	}
 
-	if err := processDownloadTask(ctx, downloadRepo, redisClient, downloader, storageClient, bucketName, encryptionKey, task); err != nil {
-		failErr := markTaskFailed(ctx, downloadRepo, redisClient, task, err)
+	if err := processDownloadTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, storageClient, bucketName, encryptionKey, task); err != nil {
+		failErr := markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
 		if failErr != nil {
 			log.Error().Err(failErr).Str("task_id", task.ID.String()).Msg("failed to mark task as failed")
 		}
@@ -163,8 +180,8 @@ func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.Downlo
 	return nil
 }
 
-func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
-	if err := publishProgressEvent(ctx, redisClient, task, 10); err != nil {
+func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
+	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 10); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 10).Msg("failed to publish progress event (start)")
 	}
 
@@ -194,7 +211,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task metadata")
 	}
 
-	if err := publishProgressEvent(ctx, redisClient, task, 30); err != nil {
+	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (metadata)")
 	}
 
@@ -218,7 +235,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		isInstagram ||
 		isTiktok {
 		log.Info().Str("platform", task.PlatformType).Msg("Processing as direct download (no-upload)")
-		return processDirectLinkTask(ctx, downloadRepo, redisClient, downloader, task, info, encryptionKey)
+		return processDirectLinkTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, task, info, encryptionKey)
 	}
 
 	// 3. Select Formats to Download
@@ -238,7 +255,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 
 	for i, fmtInfo := range selectedFormats {
 		progress := 30 + int(float64(i)/float64(len(selectedFormats))*50)
-		if err := publishProgressEvent(ctx, redisClient, task, progress); err != nil {
+		if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, progress); err != nil {
 			log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", progress).Msg("failed to publish progress event (downloading)")
 		}
 
@@ -331,14 +348,14 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	}
 
 	// 8. Publish Completion
-	if err := publishCompletionEvent(ctx, redisClient, task); err != nil {
+	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
 		log.Error().Err(err).Msg("failed to publish complete event")
 	}
 
 	return nil
 }
 
-func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
+func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	// 0. Ensure platform type is correct before we start
 	// This helps with Twitter detection if it was missed earlier
 	lowerURL := strings.ToLower(task.OriginalURL)
@@ -373,7 +390,7 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 		strings.Contains(lowerURL, "tiktok.com")
 
 	if isTiktok {
-		return processTikTokEncryptedTask(ctx, downloadRepo, redisClient, downloader, task, info, encryptionKey)
+		return processTikTokEncryptedTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, task, info, encryptionKey)
 	}
 
 	// Helper function to clean URLs
@@ -531,7 +548,7 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 			if progress > 99 {
 				progress = 99
 			}
-			publishProgressEvent(ctx, redisClient, task, progress)
+			publishProgressEvent(ctx, redisClient, centrifugoClient, task, progress)
 		}
 	}
 
@@ -553,7 +570,7 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 	}
 
 	// 4. Publish Completion
-	if err := publishCompletionEvent(ctx, redisClient, task); err != nil {
+	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
 		log.Error().Err(err).Msg("failed to publish complete event")
 	}
 
@@ -609,7 +626,7 @@ func intPtr(v int) *int {
 	return &v
 }
 
-func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClient, task *model.DownloadTask) error {
+func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, task *model.DownloadTask) error {
 	event := &model.DownloadEvent{
 		Type:      "download.processing",
 		TaskID:    task.ID,
@@ -618,10 +635,10 @@ func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClie
 		CreatedAt: time.Now(),
 	}
 
-	return publishDownloadEvent(ctx, redisClient, event)
+	return publishDownloadEvent(ctx, redisClient, centrifugoClient, event)
 }
 
-func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
+func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	log.Info().Str("task_id", task.ID.String()).Msg("Processing TikTok encrypted task")
 
 	// 1. Select the best format
@@ -741,7 +758,7 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 	// Publish completion
 	// Need to populate DownloadFiles for event
 	task.DownloadFiles = []model.DownloadFile{*dlFile}
-	if err := publishCompletionEvent(ctx, redisClient, task); err != nil {
+	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
 		log.Error().Err(err).Msg("failed to publish complete event")
 	}
 
@@ -749,7 +766,7 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 	return nil
 }
 
-func publishProgressEvent(ctx context.Context, redisClient infrastructure.RedisClient, task *model.DownloadTask, progress int) error {
+func publishProgressEvent(ctx context.Context, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, task *model.DownloadTask, progress int) error {
 	event := &model.DownloadEvent{
 		Type:      "download.processing",
 		TaskID:    task.ID,
@@ -759,10 +776,10 @@ func publishProgressEvent(ctx context.Context, redisClient infrastructure.RedisC
 		CreatedAt: time.Now(),
 	}
 
-	return publishDownloadEvent(ctx, redisClient, event)
+	return publishDownloadEvent(ctx, redisClient, centrifugoClient, event)
 }
 
-func publishCompletionEvent(ctx context.Context, redisClient infrastructure.RedisClient, task *model.DownloadTask) error {
+func publishCompletionEvent(ctx context.Context, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, task *model.DownloadTask) error {
 	var payload *model.DownloadPayload
 
 	// Prepare payload file path
@@ -834,7 +851,7 @@ func publishCompletionEvent(ctx context.Context, redisClient infrastructure.Redi
 		CreatedAt: time.Now(),
 	}
 
-	return publishDownloadEvent(ctx, redisClient, event)
+	return publishDownloadEvent(ctx, redisClient, centrifugoClient, event)
 }
 
 func getValueOrEmpty(ptr *string) string {
@@ -844,7 +861,7 @@ func getValueOrEmpty(ptr *string) string {
 	return *ptr
 }
 
-func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, err error) error {
+func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, task *model.DownloadTask, err error) error {
 	task.Status = "failed"
 	errMsg := err.Error()
 	task.ErrorMessage = &errMsg
@@ -862,5 +879,5 @@ func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadReposit
 		CreatedAt: time.Now(),
 	}
 
-	return publishDownloadEvent(ctx, redisClient, event)
+	return publishDownloadEvent(ctx, redisClient, centrifugoClient, event)
 }
