@@ -130,6 +130,7 @@ declare global {
 			method: HttpMethod,
 			path: string,
 			data?: any,
+			csrfProtected?: boolean,
 			headers?: Record<string, string>
 		): Promise<ApiResponse<T>>;
 		multipartAuthRequest<T>(

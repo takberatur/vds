@@ -292,6 +292,14 @@ func (s *ChromedpStrategy) GetCookies(ctx context.Context, url string) (string, 
 }
 
 func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error) {
+	// Detect if TikTok
+	isTikTok := strings.Contains(strings.ToLower(url), "tiktok.com")
+
+	ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
+	if isTikTok {
+		ua = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+	}
+
 	// Create allocator options
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
@@ -299,7 +307,7 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 		chromedp.Flag("no-sandbox", true),
 		chromedp.Flag("disable-dev-shm-usage", true),
 		chromedp.Flag("ignore-certificate-errors", true), // Ignore SSL errors
-		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"),
+		chromedp.UserAgent(ua),
 	)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
@@ -329,6 +337,7 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 	defer cancel()
 
 	var htmlContent string
+	var cookies []*network.Cookie
 
 	log.Info().Str("url", url).Msg("Navigating with Chromedp")
 
@@ -336,6 +345,11 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 		chromedp.Navigate(url),
 		chromedp.WaitVisible(`body`, chromedp.ByQuery),
 		chromedp.Sleep(10*time.Second), // Increase wait time for JS to execute/hydrate and cloudflare challenge
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			var err error
+			cookies, err = network.GetCookies().Do(ctx)
+			return err
+		}),
 		chromedp.OuterHTML("html", &htmlContent),
 	)
 
@@ -412,6 +426,15 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 			// Extract ID from URL if possible, or just use hash
 			videoInfo.ID = "rumble-video"
 		}
+
+		// Populate cookies
+		if len(cookies) > 0 {
+			videoInfo.Cookies = make(map[string]string)
+			for _, c := range cookies {
+				videoInfo.Cookies[c.Name] = c.Value
+			}
+		}
+
 		return videoInfo, nil
 	}
 

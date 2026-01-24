@@ -22,6 +22,7 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"github.com/user/video-downloader-backend/internal/config"
 	"github.com/user/video-downloader-backend/internal/infrastructure"
 	"github.com/user/video-downloader-backend/internal/middleware"
 	"github.com/user/video-downloader-backend/internal/model"
@@ -311,36 +312,37 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 					return c.Status(http.StatusOK).SendStream(bytes.NewReader(decrypted))
 				}
-				
+
 				if targetFile.URL != "" {
 					finalURL := targetFile.URL
 
-				// Clean finalURL from dirty characters (backticks, spaces) that might be in DB from old tasks
-				finalURL = strings.TrimSpace(finalURL)
-				finalURL = strings.Trim(finalURL, "`")
-				finalURL = strings.ReplaceAll(finalURL, "`", "")
-				finalURL = strings.Trim(finalURL, "'")
-				finalURL = strings.Trim(finalURL, "\"")
-				// Trim spaces again in case they were inside quotes/backticks
-				finalURL = strings.TrimSpace(finalURL)
+					// Clean finalURL from dirty characters (backticks, spaces) that might be in DB from old tasks
+					finalURL = strings.TrimSpace(finalURL)
+					finalURL = strings.Trim(finalURL, "`")
+					finalURL = strings.ReplaceAll(finalURL, "`", "")
+					finalURL = strings.Trim(finalURL, "'")
+					finalURL = strings.Trim(finalURL, "\"")
+					// Trim spaces again in case they were inside quotes/backticks
+					finalURL = strings.TrimSpace(finalURL)
 
-				// Prevent recursive redirects if finalURL is the proxy URL itself
-				// This fixes ERR_UNSAFE_REDIRECT when the DB contains a URL pointing to this proxy
-				if strings.Contains(finalURL, "/api/v1/public-proxy/") {
-					log.Warn().
-						Str("task_id", task.ID.String()).
-						Str("url", finalURL).
-						Msg("Recursive proxy URL detected in completed task, skipping redirect optimization to avoid loop")
-					// Fall through to normal processing
-				} else {
-					log.Info().
-						Str("task_id", task.ID.String()).
-						Str("url", finalURL).
-						Str("original_url", targetFile.URL).
-						Str("format_id", formatID).
-						Msg("Found existing file in storage, redirecting")
+					// Prevent recursive redirects if finalURL is the proxy URL itself
+					// This fixes ERR_UNSAFE_REDIRECT when the DB contains a URL pointing to this proxy
+					if strings.Contains(finalURL, "/api/v1/public-proxy/") {
+						log.Warn().
+							Str("task_id", task.ID.String()).
+							Str("url", finalURL).
+							Msg("Recursive proxy URL detected in completed task, skipping redirect optimization to avoid loop")
+						// Fall through to normal processing
+					} else {
+						log.Info().
+							Str("task_id", task.ID.String()).
+							Str("url", finalURL).
+							Str("original_url", targetFile.URL).
+							Str("format_id", formatID).
+							Msg("Found existing file in storage, redirecting")
 
-					return c.Redirect(finalURL)
+						return c.Redirect(finalURL)
+					}
 				}
 			}
 		}
@@ -820,10 +822,34 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				if err != nil {
 					return response.Error(c, fiber.StatusInternalServerError, "Failed to create fallback request", err.Error())
 				}
-				req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36")
+
+				// Set User-Agent (default to Desktop)
+				ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
+
+				// Try to get cookies from Redis for this task
+				if taskCookies, err := h.svc.GetTaskCookies(ctx, id); err == nil && len(taskCookies) > 0 {
+					var cookieStrings []string
+					for k, v := range taskCookies {
+						cookieStrings = append(cookieStrings, fmt.Sprintf("%s=%s", k, v))
+					}
+					req.Header.Set("Cookie", strings.Join(cookieStrings, "; "))
+
+					// If we have cookies and it's TikTok, switch to Mobile UA
+					// This matches the strategy used in ChromedpStrategy
+					if isTikTok {
+						ua = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+						log.Info().Str("task_id", id.String()).Msg("Using Mobile UA and Cookies for TikTok proxy download")
+					}
+				}
+
+				req.Header.Set("User-Agent", ua)
+
 				// Pass existing headers? Maybe Referer
 				if isRumble {
 					req.Header.Set("Referer", "https://rumble.com/")
+				}
+				if isTikTok {
+					req.Header.Set("Referer", "https://www.tiktok.com/")
 				}
 
 				client := &http.Client{Timeout: 0}

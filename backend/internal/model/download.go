@@ -30,7 +30,7 @@ type DownloadTask struct {
 	Title         *string          `json:"title" db:"title"`
 	Duration      *int             `json:"duration" db:"duration"`
 	FileSize      *int64           `json:"file_size" db:"file_size"`
-	EncryptedData *[]byte          `json:"encrypted_data" db:"encrypted_data"`
+	EncryptedData *[]byte          `json:"-" db:"encrypted_data"`
 	Format        *string          `json:"format" db:"format"`
 	Status        string           `json:"status" db:"status"`
 	ErrorMessage  *string          `json:"error_message" db:"error_message"`
@@ -52,7 +52,7 @@ type DownloadFile struct {
 	Resolution    *string   `json:"resolution,omitempty" db:"resolution"`
 	Extension     *string   `json:"extension,omitempty" db:"extension"`
 	FileSize      *int64    `json:"file_size,omitempty" db:"file_size"`
-	EncryptedData *[]byte   `json:"encrypted_data,omitempty" db:"encrypted_data"`
+	EncryptedData *[]byte   `json:"-" db:"encrypted_data"`
 	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 
 	DownloadTask *DownloadTask `json:"download_task,omitempty" db:"-"`

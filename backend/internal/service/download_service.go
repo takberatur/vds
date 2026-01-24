@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 	"github.com/user/video-downloader-backend/internal/infrastructure"
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
@@ -22,6 +24,7 @@ type DownloadService interface {
 	Update(ctx context.Context, id uuid.UUID, task *model.DownloadTask) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	BulkDelete(ctx context.Context, ids []uuid.UUID) error
+	GetTaskCookies(ctx context.Context, taskID uuid.UUID) (map[string]string, error)
 }
 
 type downloadService struct {
@@ -30,6 +33,7 @@ type downloadService struct {
 	platformRepo repository.PlatformRepository
 	downloader   infrastructure.DownloaderClient
 	taskClient   infrastructure.TaskClient
+	redisClient  *redis.Client
 }
 
 func NewDownloadService(
@@ -38,6 +42,7 @@ func NewDownloadService(
 	platformRepo repository.PlatformRepository,
 	downloader infrastructure.DownloaderClient,
 	taskClient infrastructure.TaskClient,
+	redisClient *redis.Client,
 ) DownloadService {
 	return &downloadService{
 		repo:         repo,
@@ -45,6 +50,7 @@ func NewDownloadService(
 		platformRepo: platformRepo,
 		downloader:   downloader,
 		taskClient:   taskClient,
+		redisClient:  redisClient,
 	}
 }
 
@@ -294,4 +300,21 @@ func (s *downloadService) BulkDelete(ctx context.Context, ids []uuid.UUID) error
 	defer cancel()
 
 	return s.repo.BulkDelete(subCtx, ids)
+}
+
+func (s *downloadService) GetTaskCookies(ctx context.Context, taskID uuid.UUID) (map[string]string, error) {
+	key := "download:cookies:" + taskID.String()
+	val, err := s.redisClient.Get(ctx, key).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var cookies map[string]string
+	if err := json.Unmarshal([]byte(val), &cookies); err != nil {
+		return nil, err
+	}
+	return cookies, nil
 }

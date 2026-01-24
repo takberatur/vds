@@ -130,7 +130,34 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 		} else {
 			strategies = others
 		}
-	} else if isTikTok || isTwitter || isDailymotion {
+	} else if isTikTok {
+		// For TikTok, prioritize chromedp (to capture cookies), then yt-dlp, then lux
+		// We prioritize Chromedp because TikTok downloads often require cookies and mobile UA
+		// which yt-dlp might not provide in the returned info, leading to 403 errors on playback.
+		// Chromedp ensures we capture cookies that are then used by the ProxyDownload handler.
+		var ytDlpStrat, chromedpStrat, luxStrat DownloaderStrategy
+		
+		for _, strategy := range f.strategies {
+			if strategy.Name() == "yt-dlp" {
+				ytDlpStrat = strategy
+			} else if strategy.Name() == "chromedp" {
+				chromedpStrat = strategy
+			} else if strategy.Name() == "lux" {
+				luxStrat = strategy
+			}
+		}
+		
+		// Prioritize Chromedp for TikTok
+		if chromedpStrat != nil {
+			strategies = append(strategies, chromedpStrat)
+		}
+		if ytDlpStrat != nil {
+			strategies = append(strategies, ytDlpStrat)
+		}
+		if luxStrat != nil {
+			strategies = append(strategies, luxStrat)
+		}
+	} else if isTwitter || isDailymotion {
 		// For TikTok, Twitter, and Dailymotion, prioritize yt-dlp, then lux, then others
 		// We explicitly exclude strategies that might interfere or are irrelevant
 		for _, strategy := range f.strategies {

@@ -345,7 +345,7 @@
 
 			{#if Object.keys($tasks).length > 0}
 				<div
-					class="mx-auto mt-6 max-w-3xl rounded-2xl bg-white/80 p-4 shadow-md md:p-6 dark:bg-black/80"
+					class="mx-auto mt-6 max-w-3xl rounded-2xl bg-muted p-4 shadow-xl shadow-blue-100/50 md:p-6 dark:bg-neutral-900 dark:shadow-blue-900/50"
 				>
 					<h2 class="mb-4 text-left text-sm font-semibold text-neutral-700 dark:text-neutral-300">
 						{i18n.text_progress_download_title()}
@@ -419,7 +419,7 @@
 				</div>
 			{/if}
 
-			<div id="platforms" class="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+			<div id="platforms" class="mt-4 flex flex-wrap items-center justify-center gap-4 md:gap-6">
 				{#each platforms as platform}
 					<a
 						href={localizeHref(`/${platform.slug}`)}

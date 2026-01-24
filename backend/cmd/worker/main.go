@@ -144,7 +144,7 @@ func publishDownloadEvent(ctx context.Context, redisClient infrastructure.RedisC
 	return redisClient.Publish(ctx, infrastructure.DownloadEventChannel, data).Err()
 }
 
-func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, task *model.DownloadTask) error {
+func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
 	task.Status = "processing"
 	if err := downloadRepo.Update(ctx, task); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to processing")
@@ -154,7 +154,7 @@ func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.Downlo
 		log.Error().Err(err).Msg("failed to publish start event")
 	}
 
-	if err := processDownloadTask(ctx, downloadRepo, redisClient, downloader, storageClient, bucketName, task); err != nil {
+	if err := processDownloadTask(ctx, downloadRepo, redisClient, downloader, storageClient, bucketName, encryptionKey, task); err != nil {
 		failErr := markTaskFailed(ctx, downloadRepo, redisClient, task, err)
 		if failErr != nil {
 			log.Error().Err(failErr).Str("task_id", task.ID.String()).Msg("failed to mark task as failed")

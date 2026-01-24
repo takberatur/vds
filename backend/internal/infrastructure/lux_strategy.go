@@ -35,6 +35,15 @@ func (s *LuxStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	log.Info().Str("url", url).Msg("Fetching video info with lux")
 	if err := cmd.Run(); err != nil {
+		// Lux sometimes prints errors to stdout, but might have printed the info/url before failing
+		output := stdout.String()
+
+		// Try to recover info from stdout even if it failed (common for TikTok 403)
+		if recoveredInfo := s.tryRecoverInfo(output, url); recoveredInfo != nil {
+			log.Info().Msg("Recovered video info from failed lux execution")
+			return recoveredInfo, nil
+		}
+
 		// Lux sometimes prints errors to stdout
 		return nil, fmt.Errorf("lux failed: %w, stderr: %s, stdout: %s", err, stderr.String(), stdout.String())
 	}
@@ -61,6 +70,49 @@ func (s *LuxStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	return info, nil
+}
+
+func (s *LuxStrategy) tryRecoverInfo(output string, originalURL string) *VideoInfo {
+	lines := strings.Split(output, "\n")
+	var title string
+	var downloadURL string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "Title:") {
+			title = strings.TrimSpace(strings.TrimPrefix(line, "Title:"))
+		}
+
+		// Check for URL in error context
+		// Example: "https://v16-webapp-prime.tiktok.com/... request error: HTTP 403"
+		// Or sometimes just the URL on a line if it's listing streams
+		if strings.HasPrefix(line, "https://") && (strings.Contains(line, "tiktok.com") || strings.Contains(line, "googlevideo.com") || strings.Contains(line, "akamaized.net")) {
+			// Basic check to avoid capturing the input URL if it's just repeating "Downloading ..."
+			if !strings.Contains(line, "Downloading") && line != originalURL {
+				parts := strings.Split(line, " ")
+				if len(parts) > 0 && strings.HasPrefix(parts[0], "https://") {
+					candidate := parts[0]
+					// Filter out some common non-video URLs if needed, but for now accept it
+					downloadURL = candidate
+				}
+			}
+		}
+	}
+
+	if downloadURL != "" {
+		if title == "" {
+			title = "TikTok Video (Recovered)" // Fallback title
+		}
+
+		return &VideoInfo{
+			Title:       title,
+			WebpageURL:  originalURL,
+			Extractor:   "lux",
+			DownloadURL: downloadURL,
+			Formats:     []FormatInfo{{URL: downloadURL, Ext: "mp4"}},
+		}
+	}
+	return nil
 }
 
 func parseLuxOutput(output string) *VideoInfo {

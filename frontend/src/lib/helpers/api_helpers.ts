@@ -332,12 +332,13 @@ export class ApiClientHandler extends BaseHelper implements ApiClient {
 		method: HttpMethod,
 		path: string,
 		data?: any,
+		csrfProtected?: boolean,
 		headers?: Record<string, string>
 	): Promise<ApiResponse<T>> {
 		return this.createApiRequest<T>(method, path, {
 			data,
 			auth: false,
-			csrfProtected: false,
+			csrfProtected: csrfProtected ?? false,
 			headers
 		});
 	}

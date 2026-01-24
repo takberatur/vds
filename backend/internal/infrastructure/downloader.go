@@ -21,8 +21,9 @@ type VideoInfo struct {
 	Extractor   string       `json:"extractor"` // youtube, tiktok, etc.
 	Filename    string       `json:"filename,omitempty"`
 	Filesize    *int64       `json:"filesize,omitempty"`
-	DownloadURL string       `json:"url,omitempty"` // Direct link if available
-	Formats     []FormatInfo `json:"formats,omitempty"`
+	DownloadURL string            `json:"url,omitempty"` // Direct link if available
+	Cookies     map[string]string `json:"cookies,omitempty"` // Cookies required for download
+	Formats     []FormatInfo      `json:"formats,omitempty"`
 }
 
 type FormatInfo struct {

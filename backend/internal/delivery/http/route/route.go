@@ -51,6 +51,7 @@ func SetupRoutes(c *RouteConfig) {
 		platformRepo,
 		downloader,
 		taskClient,
+		c.Redis,
 	)
 
 	subscriptionService := service.NewSubscriptionService(subscriptionRepo)
@@ -156,7 +157,7 @@ func SetupRoutes(c *RouteConfig) {
 	publicWeb.Get("/platforms/:id", platformHandler.GetPlatformByID)
 	publicWeb.Get("/platforms/type/:type", platformHandler.GetPlatformByType)
 	publicWeb.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
-	publicWeb.Post("/download/process", downloadHandler.DownloadVideo)
+	publicWeb.Post("/download/process", middleware.CSRFMiddleware(), downloadHandler.DownloadVideo)
 	publicProxy.Get("/downloads/file", downloadHandler.ProxyDownload)
 
 	protectedUserWeb := publicWeb.Group("/protected-web", middleware.JWTMiddleware(tokenService))
