@@ -55,11 +55,20 @@ func main() {
 					log.Error().Err(err).Msg("Failed to unmarshal download event from redis")
 					continue
 				}
-				log.Info().
-					Str("type", event.Type).
-					Str("task_id", event.TaskID.String()).
-					Str("status", event.Status).
-					Msg("Received download event from redis, broadcasting to websockets")
+				if event.Error != "" {
+					log.Error().
+						Str("type", event.Type).
+						Str("task_id", event.TaskID.String()).
+						Str("status", event.Status).
+						Str("error", event.Error).
+						Msg("Received download FAILED event from redis")
+				} else {
+					log.Info().
+						Str("type", event.Type).
+						Str("task_id", event.TaskID.String()).
+						Str("status", event.Status).
+						Msg("Received download event from redis, broadcasting to websockets")
+				}
 				handler.BroadcastDownloadEvent(&event)
 			}
 			log.Warn().Msg("Redis download events subscription loop exited")
