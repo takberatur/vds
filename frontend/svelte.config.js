@@ -13,7 +13,7 @@ const config = {
 			split: false
 		}),
 		csrf: {
-			checkOrigin: process.env.NODE_ENV === 'production',
+			// checkOrigin: process.env.NODE_ENV === 'production', deprecated
 			trustedOrigins:
 				process.env.NODE_ENV === 'production'
 					? [process.env.ORIGIN ?? 'https://simontokz.com']

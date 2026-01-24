@@ -41,7 +41,7 @@ type FormatInfo struct {
 type DownloaderClient interface {
 	GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error)
 	DownloadVideo(ctx context.Context, url string) (*VideoInfo, error)
-	DownloadToPath(ctx context.Context, url string, formatID string, outputPath string) error
+	DownloadToPath(ctx context.Context, url string, formatID string, outputPath string, cookies map[string]string) error
 }
 
 type ytDlpClient struct {
@@ -70,6 +70,10 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		args = append(args, "--referer", "https://rumble.com/")
 		args = append(args, "--add-header", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
 		args = append(args, "--add-header", "Accept-Language: en-US,en;q=0.9")
+	}
+
+	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
+		args = append(args, "--extractor-args", "youtube:player_client=android")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
@@ -264,15 +268,24 @@ func (c *ytDlpClient) DownloadVideo(ctx context.Context, url string) (*VideoInfo
 	return info, nil
 }
 
-func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string) error {
+func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string, cookies map[string]string) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 10*time.Minute)
 	defer cancel()
 
 	args := []string{
 		"--no-playlist",
 		"--no-check-certificate",
-		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
 		"-o", outputPath,
+	}
+
+	if len(cookies) > 0 {
+		var cookieParts []string
+		for k, v := range cookies {
+			cookieParts = append(cookieParts, fmt.Sprintf("%s=%s", k, v))
+		}
+		cookieStr := strings.Join(cookieParts, "; ")
+		args = append(args, "--add-header", fmt.Sprintf("Cookie: %s", cookieStr))
 	}
 
 	if formatID != "" {
@@ -281,6 +294,10 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	if strings.Contains(url, "rumble.com") {
 		args = append(args, "--referer", "https://rumble.com/")
+	}
+
+	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
+		args = append(args, "--extractor-args", "youtube:player_client=android")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {

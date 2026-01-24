@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -220,7 +218,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		isInstagram ||
 		isTiktok {
 		log.Info().Str("platform", task.PlatformType).Msg("Processing as direct download (no-upload)")
-		return processDirectLinkTask(ctx, downloadRepo, redisClient, task, info, encryptionKey)
+		return processDirectLinkTask(ctx, downloadRepo, redisClient, downloader, task, info, encryptionKey)
 	}
 
 	// 3. Select Formats to Download
@@ -260,7 +258,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		tempFile.Close()
 		defer os.Remove(tempPath)
 
-		err = downloader.DownloadToPath(ctx, task.OriginalURL, fmtInfo.FormatID, tempPath)
+		err = downloader.DownloadToPath(ctx, task.OriginalURL, fmtInfo.FormatID, tempPath, nil)
 		if err != nil {
 			log.Error().Err(err).Str("format", fmtInfo.FormatID).Msg("failed to download format")
 			continue
@@ -340,7 +338,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	return nil
 }
 
-func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
+func processDirectLinkTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	// 0. Ensure platform type is correct before we start
 	// This helps with Twitter detection if it was missed earlier
 	lowerURL := strings.ToLower(task.OriginalURL)
@@ -375,7 +373,7 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 		strings.Contains(lowerURL, "tiktok.com")
 
 	if isTiktok {
-		return processTikTokEncryptedTask(ctx, downloadRepo, redisClient, task, info, encryptionKey)
+		return processTikTokEncryptedTask(ctx, downloadRepo, redisClient, downloader, task, info, encryptionKey)
 	}
 
 	// Helper function to clean URLs
@@ -623,7 +621,7 @@ func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClie
 	return publishDownloadEvent(ctx, redisClient, event)
 }
 
-func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
+func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	log.Info().Str("task_id", task.ID.String()).Msg("Processing TikTok encrypted task")
 
 	// 1. Select the best format
@@ -670,37 +668,31 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 		return fmt.Errorf("no suitable download URL found for TikTok task")
 	}
 
-	// 2. Download the video
-	req, err := http.NewRequestWithContext(ctx, "GET", targetURL, nil)
+	// 2. Download the video using yt-dlp to handle cookies/headers correctly
+	// Create temp file
+	tempFile, err := os.CreateTemp("", "tiktok-*.mp4")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	tempPath := tempFile.Name()
+	tempFile.Close()
+	defer os.Remove(tempPath)
+
+	// Pass cookies if available
+	var cookies map[string]string
+	if info != nil {
+		cookies = info.Cookies
 	}
 
-	// Use Desktop UA to match yt-dlp/chromedp behavior and avoid mismatch with cookies
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36")
-	req.Header.Set("Referer", "https://www.tiktok.com/")
-
-	// Inject cookies if available (Crucial for 403 prevention)
-	if info != nil && len(info.Cookies) > 0 {
-		for name, value := range info.Cookies {
-			req.AddCookie(&http.Cookie{Name: name, Value: value})
-		}
+	// Download
+	if err := downloader.DownloadToPath(ctx, targetURL, "", tempPath, cookies); err != nil {
+		return fmt.Errorf("failed to download video with yt-dlp: %w", err)
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	// Read content
+	data, err := os.ReadFile(tempPath)
 	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to download video: status %d", resp.StatusCode)
-	}
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
+		return fmt.Errorf("failed to read downloaded file: %w", err)
 	}
 
 	if len(data) == 0 {

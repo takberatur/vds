@@ -1,5 +1,5 @@
 # Build Stage
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -38,7 +38,7 @@ RUN apk add --no-cache \
     chromium && \
     wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp && \
     chmod a+rx /usr/local/bin/yt-dlp && \
-    curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.0/migrate.linux-amd64.tar.gz | tar xvz && \
+    curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \
     mv migrate /usr/local/bin/migrate && \
     chmod +x /usr/local/bin/migrate
 
@@ -56,8 +56,8 @@ COPY --from=builder /app/internal/repository/migrations ./internal/repository/mi
 # Expose port API
 EXPOSE 8080
 
-# Setup cron job to clean up temp files every 10 minutes
-RUN echo "*/10 * * * * find /tmp -name 'download-*.mp4' -mmin +10 -delete" >> /var/spool/cron/crontabs/root
+# Setup cron job to clean up temp files every 5 minutes
+RUN echo "*/5 * * * * find /tmp -name '*.mp4' -mmin +5 -delete" >> /var/spool/cron/crontabs/root
 
 # Create entrypoint script to run both cron and api
 RUN echo '#!/bin/sh' > /entrypoint.sh && \

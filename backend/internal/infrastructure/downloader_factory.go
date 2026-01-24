@@ -233,11 +233,11 @@ func (f *FallbackDownloader) DownloadVideo(ctx context.Context, url string) (*Vi
 	return f.GetVideoInfo(subCtx, url)
 }
 
-func (f *FallbackDownloader) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string) error {
+func (f *FallbackDownloader) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string, cookies map[string]string) error {
 	// For now, directly use yt-dlp client as it is the only one supporting flexible format download to path
 	// We create a new client here or we could reuse one if we stored it
 	client := &ytDlpClient{
 		executablePath: "yt-dlp",
 	}
-	return client.DownloadToPath(ctx, url, formatID, outputPath)
+	return client.DownloadToPath(ctx, url, formatID, outputPath, cookies)
 }
