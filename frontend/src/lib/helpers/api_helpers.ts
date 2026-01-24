@@ -76,9 +76,9 @@ export class ApiClientHandler extends BaseHelper implements ApiClient {
 			let newCookie = '';
 			const setCookie = response.headers.get('set-cookie');
 			if (setCookie) {
-				const csrfCookieMatch = setCookie.match(/csrf_token=([^;]+)/);
+				const csrfCookieMatch = setCookie.match(/csrf_session_id=([^;]+)/);
 				if (csrfCookieMatch) {
-					newCookie = `csrf_token=${csrfCookieMatch[1]}`;
+					newCookie = `csrf_session_id=${csrfCookieMatch[1]}`;
 				}
 			}
 
@@ -143,8 +143,8 @@ export class ApiClientHandler extends BaseHelper implements ApiClient {
 
 			if (cookie) {
 				if (cookieString) {
-					// Remove old csrf_token to avoid conflicts
-					cookieString = cookieString.replace(/csrf_token=[^;]+(; )?/, '');
+					// Remove old csrf_session_id to avoid conflicts
+					cookieString = cookieString.replace(/csrf_session_id=[^;]+(; )?/, '');
 					// Append new cookie
 					cookieString = cookieString ? `${cookieString}; ${cookie}` : cookie;
 				} else {
@@ -261,8 +261,8 @@ export class ApiClientHandler extends BaseHelper implements ApiClient {
 
 			if (cookie) {
 				if (cookieString) {
-					// Remove old csrf_token to avoid conflicts
-					cookieString = cookieString.replace(/csrf_token=[^;]+(; )?/, '');
+					// Remove old csrf_session_id to avoid conflicts
+					cookieString = cookieString.replace(/csrf_session_id=[^;]+(; )?/, '');
 					// Append new cookie
 					cookieString = cookieString ? `${cookieString}; ${cookie}` : cookie;
 				} else {

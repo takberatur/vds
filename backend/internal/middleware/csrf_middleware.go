@@ -19,10 +19,18 @@ func NewCSRF(redisClient *redis.Client) fiber.Handler {
 		cookieName := "csrf_session_id"
 
 		// Determine Cookie Settings
-		// If production, use None (requires Secure). If dev, use Lax.
+		protocol := c.Protocol()
+		if protoHeader := c.Get("X-Forwarded-Proto"); protoHeader != "" {
+			protocol = protoHeader
+		}
+
 		sameSite := "Lax"
-		if isProd {
+		secureCookie := false
+
+		// Only use Secure/None if actually on HTTPS
+		if isProd && protocol == "https" {
 			sameSite = "None"
+			secureCookie = true
 		}
 
 		// 1. Get or Create Session ID
@@ -34,7 +42,7 @@ func NewCSRF(redisClient *redis.Client) fiber.Handler {
 				Value:    sessionID,
 				Expires:  time.Now().Add(24 * time.Hour),
 				HTTPOnly: true,
-				Secure:   isProd,
+				Secure:   secureCookie,
 				SameSite: sameSite,
 			})
 		}
