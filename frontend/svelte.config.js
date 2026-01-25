@@ -1,4 +1,4 @@
-import adapter from 'svelte-adapter-bun';
+import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -8,17 +8,16 @@ const config = {
 		adapter: adapter({
 			out: 'build',
 			precompress: true,
-			dynamic_origin: true,
-			split: false
+			dynamic_origin: true
 		}),
 		csrf: {
-			// checkOrigin: process.env.NODE_ENV === 'production', deprecated
 			trustedOrigins:
 				process.env.NODE_ENV === 'production'
-					? [process.env.ORIGIN ?? 'https://simontokz.com']
+					? ['https://simontokz.com', 'https://www.simontokz.com']
 					: ['*']
 		},
 		alias: {
+			'@': './src/lib',
 			'@/*': './src/lib/*'
 		}
 	}
