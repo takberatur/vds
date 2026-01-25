@@ -74,7 +74,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		// Switch to ios client as android client is experiencing issues
+		// Switch to ios client as it is more stable than android currently
 		args = append(args, "--extractor-args", "youtube:player_client=ios")
 	}
 

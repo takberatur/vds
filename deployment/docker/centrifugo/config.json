@@ -75,7 +75,8 @@
 			"name": "download",
 			"presence": true,
 			"history_size": 100,
-			"history_ttl": "1h"
+			"history_ttl": "1h",
+			"anonymous": true
 		}
 	],
 	"log_level": "debug",

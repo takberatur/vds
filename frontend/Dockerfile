@@ -6,6 +6,7 @@ WORKDIR /app
 # Install dependencies
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
+RUN export NODE_OPTIONS="--max-old-space-size=8192"
 
 # Copy source code
 COPY . .
