@@ -1,0 +1,9 @@
+.gitignore
+.github
+.vscode
+android
+deployment
+api.http
+docs.txt
+example-link.txt
+/tsconfig.json
