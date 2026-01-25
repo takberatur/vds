@@ -67,10 +67,8 @@ services:
       - ADDRESS_HEADER=True-Client-IP
       - BODY_SIZE_LIMIT=100M
       - SIGTERM=30
-      - BUN_JSC_useJIT=1
-      - BUN_JSC_jitThreshold=50 # more agresif
-      - BUN_JSC_useDFGJIT=1
-      - BUN_JSC_useFTLJIT=1
+      - BUN_JSC_useJIT=true
+      - BUN_JSC_useConcurrentJIT=true
       - PUBLIC_CENTRIFUGE_URL=${PUBLIC_CENTRIFUGE_URL}
       - PUBLIC_CENTRIFUGO_API_KEY=${PUBLIC_CENTRIFUGO_API_KEY}
     depends_on:

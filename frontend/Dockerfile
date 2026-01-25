@@ -24,6 +24,7 @@ ENV PORT=3002
 ENV HOST=0.0.0.0
 
 # Copy built app dan dependencies
+# COPY --from=builder /app/node_modules node_modules
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./package.json
 
@@ -39,4 +40,4 @@ COPY --from=builder /app/.env ./.env
 
 EXPOSE 3002
 
-CMD ["bun", "build/index.js"]
+CMD ["bun", "run", "./build/index.js"]
