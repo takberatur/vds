@@ -9,7 +9,7 @@ services:
     container_name: video_downloader_api
     restart: always
     ports:
-      - "5001:5001"
+      - "127.0.0.1:5001:5001"
     environment:
       - APP_PORT=5001
       - APP_ENV=production
@@ -53,7 +53,7 @@ services:
     container_name: video_downloader_web_01
     restart: always
     ports:
-      - "3002:3002"
+      - "127.0.0.1:3002:3002"
     environment:
       - NODE_ENV=production
       - PUBLIC_API_URL=http://backend:5001
@@ -67,8 +67,8 @@ services:
       - ADDRESS_HEADER=True-Client-IP
       - BODY_SIZE_LIMIT=100M
       - SIGTERM=30
-      - BUN_JSC_useJIT=true
-      - BUN_JSC_useConcurrentJIT=true
+      # - BUN_JSC_useJIT=true
+      # - BUN_JSC_useConcurrentJIT=true
       - PUBLIC_CENTRIFUGE_URL=${PUBLIC_CENTRIFUGE_URL}
       - PUBLIC_CENTRIFUGO_API_KEY=${PUBLIC_CENTRIFUGO_API_KEY}
     depends_on:

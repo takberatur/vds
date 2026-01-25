@@ -31,3 +31,4 @@ backend/worker.exe
 backend/*.exe
 backend/worker_bin
 backend/server_bin
+tsconfig.json
