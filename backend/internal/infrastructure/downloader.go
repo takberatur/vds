@@ -59,12 +59,18 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 25*time.Second)
 	defer cancel()
 
+	var userAgent string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+
+	if strings.Contains(url, "tiktok.com") || strings.Contains(url, "instagram.com") {
+		userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+	}
+
 	args := []string{
 		"--js-runtimes", "node",
 		"--dump-json",
 		"--no-playlist",
 		"--no-check-certificate",
-		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+		"--user-agent", userAgent,
 	}
 
 	if strings.Contains(url, "rumble.com") {
@@ -74,8 +80,8 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		// Switch to ios client as it is more stable than android currently
-		args = append(args, "--extractor-args", "youtube:player_client=ios")
+		// Switch to android_creator client as it is more stable
+		args = append(args, "--extractor-args", "youtube:player_client=android_creator")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {

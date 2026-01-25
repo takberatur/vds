@@ -563,6 +563,25 @@ func processDirectLinkTask(ctx context.Context, downloadRepo repository.Download
 		task.FilePath = &u
 	}
 
+	// Validate that the FilePath is not the original platform URL
+	if task.FilePath != nil {
+		lowerPath := strings.ToLower(*task.FilePath)
+		// Check if URL looks like a webpage rather than a media file
+		// Note: Some CDNs might contain the domain, but usually not the full path structure of a post
+		if strings.Contains(lowerPath, "instagram.com/reel/") ||
+			strings.Contains(lowerPath, "instagram.com/p/") ||
+			strings.Contains(lowerPath, "tiktok.com/@") ||
+			strings.Contains(lowerPath, "tiktok.com/video/") ||
+			(strings.Contains(lowerPath, "youtube.com/watch") && !strings.Contains(lowerPath, "googlevideo.com")) {
+
+			errMsg := "Failed to extract direct video link (returned platform URL)"
+			log.Error().Str("url", *task.FilePath).Msg(errMsg)
+
+			// Mark as failed instead of completed
+			return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, fmt.Errorf("%s", errMsg))
+		}
+	}
+
 	task.Status = "completed"
 	if err := downloadRepo.Update(ctx, task); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
