@@ -15,8 +15,6 @@ frontend/.env.prod
 frontend/build
 frontend/.env.local
 frontend/.env.production
-frontend/bun.lockb
-frontend/package-lock.json
 android/app/build
 android/.gradle
 android/.idea
