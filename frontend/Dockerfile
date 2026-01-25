@@ -39,4 +39,4 @@ COPY --from=builder /app/.env ./.env
 
 EXPOSE 3002
 
-CMD ["bun", "build/entry.js"]
+CMD ["bun", "build/index.js"]
