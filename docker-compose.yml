@@ -38,6 +38,8 @@ services:
     networks:
       - video_download_network
       - shared-network
+    volumes:
+      - ./backend/cookies.txt:/app/cookies.txt
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/metrics"]
       interval: 30s
@@ -98,6 +100,8 @@ services:
     networks:
       - video_download_network
       - shared-network
+    volumes:
+      - ./backend/cookies.txt:/app/cookies.txt
     command: ["./worker"]
     healthcheck:
       test: ["CMD", "pgrep", "worker"]
