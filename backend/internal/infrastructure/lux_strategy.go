@@ -56,16 +56,20 @@ func (s *LuxStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	info.WebpageURL = url
 	info.Extractor = "lux"
-	// Use a special scheme to indicate lux should be used for download
-	info.DownloadURL = "lux://" + url
-
-	// Add a default format if none found (lux -i usually lists streams)
-	if len(info.Formats) == 0 {
-		info.Formats = []FormatInfo{
-			{
-				URL: info.DownloadURL,
-				Ext: "mp4", // Assume mp4
-			},
+	
+	// If parseLuxOutput didn't find a direct URL, we can't use it for direct download.
+	// We used to set "lux://" here, but that causes the worker to fail because it expects a real URL.
+	// If we return nil/error here, the factory will fallback to Chromedp, which is what we want.
+	if info.DownloadURL == "" || strings.HasPrefix(info.DownloadURL, "lux://") {
+		// Try to see if we can extract it from the output lines manually if parser missed it
+		// Reuse tryRecoverInfo logic which does a good job finding URLs
+		if recovered := s.tryRecoverInfo(output, url); recovered != nil && recovered.DownloadURL != "" {
+			info.DownloadURL = recovered.DownloadURL
+			info.Formats = recovered.Formats
+		} else {
+			// Fail so we fallback to Chromedp
+			log.Warn().Str("url", url).Msg("Lux strategy failed to extract direct URL, falling back")
+			return nil, fmt.Errorf("lux failed to extract direct URL")
 		}
 	}
 
@@ -83,10 +87,10 @@ func (s *LuxStrategy) tryRecoverInfo(output string, originalURL string) *VideoIn
 			title = strings.TrimSpace(strings.TrimPrefix(line, "Title:"))
 		}
 
-		// Check for URL in error context
+		// Check for URL in error context OR normal output
 		// Example: "https://v16-webapp-prime.tiktok.com/... request error: HTTP 403"
 		// Or sometimes just the URL on a line if it's listing streams
-		if strings.HasPrefix(line, "https://") && (strings.Contains(line, "tiktok.com") || strings.Contains(line, "googlevideo.com") || strings.Contains(line, "akamaized.net")) {
+		if strings.HasPrefix(line, "https://") && (strings.Contains(line, "tiktok.com") || strings.Contains(line, "googlevideo.com") || strings.Contains(line, "akamaized.net") || strings.Contains(line, "instagram.com") || strings.Contains(line, "fbcdn.net")) {
 			// Basic check to avoid capturing the input URL if it's just repeating "Downloading ..."
 			if !strings.Contains(line, "Downloading") && line != originalURL {
 				parts := strings.Split(line, " ")
@@ -101,7 +105,7 @@ func (s *LuxStrategy) tryRecoverInfo(output string, originalURL string) *VideoIn
 
 	if downloadURL != "" {
 		if title == "" {
-			title = "TikTok Video (Recovered)" // Fallback title
+			title = "Video (Recovered)" // Fallback title
 		}
 
 		return &VideoInfo{
@@ -118,15 +122,16 @@ func (s *LuxStrategy) tryRecoverInfo(output string, originalURL string) *VideoIn
 func parseLuxOutput(output string) *VideoInfo {
 	lines := strings.Split(output, "\n")
 	info := &VideoInfo{}
-
+	
+	// We reuse tryRecoverInfo logic effectively, but here we parse formally
+	// Since tryRecoverInfo is robust, we can actually just rely on it or similar logic.
+	// But let's keep basic title parsing here.
+	
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "Title:") {
 			info.Title = strings.TrimSpace(strings.TrimPrefix(line, "Title:"))
 		}
-		// Parsing streams is complex and fragile from text output.
-		// For now, we mainly need the Title to verify it works.
-		// If we need streams, we'd need a more robust parser.
 	}
 
 	if info.Title == "" {

@@ -90,8 +90,8 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		// Switch to android_creator client as it is more stable
-		args = append(args, "--extractor-args", "youtube:player_client=android_creator")
+		// Switch to tv client which is often less restricted
+		args = append(args, "--extractor-args", "youtube:player_client=tv")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
@@ -297,8 +297,13 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	args := []string{
 		"--no-playlist",
 		"--no-check-certificate",
-		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
 		"-o", outputPath,
+	}
+
+	// Check if cookies.txt exists and use it
+	if _, err := os.Stat("cookies.txt"); err == nil {
+		args = append(args, "--cookies", "cookies.txt")
 	}
 
 	if len(cookies) > 0 {
@@ -319,7 +324,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		args = append(args, "--extractor-args", "youtube:player_client=ios")
+		args = append(args, "--extractor-args", "youtube:player_client=tv")
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
