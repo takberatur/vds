@@ -5,170 +5,50 @@
 	"pid": 1,
 	"engine": "redis",
 	"gomaxprocs": 1,
-	"time": "2026-01-25T14:52:49Z",
+	"time": "2026-01-25T16:26:06Z",
 	"message": "starting Centrifugo"
 }
 {
 	"level": "info",
 	"path": "/centrifugo/config.json",
-	"time": "2026-01-25T14:52:49Z",
+	"time": "2026-01-25T16:26:06Z",
 	"message": "using config file"
 }
 {
 	"level": "info",
 	"algorithms": "HS256, HS384, HS512",
-	"time": "2026-01-25T14:52:49Z",
+	"time": "2026-01-25T16:26:06Z",
 	"message": "enabled JWT verifiers"
 }
 {
 	"level": "debug",
 	"shard": "infrastructure-redis:6379",
-	"time": "2026-01-25T14:52:49Z",
+	"time": "2026-01-25T16:26:06Z",
 	"message": "running Redis control PUB/SUB"
 }
 {
 	"level": "debug",
 	"numProcessors": 4,
 	"shard": "infrastructure-redis:6379",
-	"time": "2026-01-25T14:52:49Z",
+	"time": "2026-01-25T16:26:06Z",
 	"message": "running Redis PUB/SUB"
 }
 {
 	"level": "info",
-	"time": "2026-01-25T14:52:49Z",
+	"time": "2026-01-25T16:26:06Z",
 	"message": "serving websocket, api, admin, prometheus, health endpoints on :8000"
 }
 {
-	"level": "debug",
-	"method": "GET",
-	"status": 101,
-	"path": "/connection/websocket",
-	"addr": "103.157.62.25",
-	"duration": "248.849µs",
-	"time": "2026-01-25T14:52:51Z",
-	"message": "http request"
+	"level": "warn",
+	"key": "channel_prefix_private",
+	"time": "2026-01-25T16:26:06Z",
+	"message": "unknown key found in the configuration file"
 }
 {
-	"level": "debug",
-	"client": "33a8192b-d322-41d4-b864-be10d1f56465",
-	"transport": "websocket",
-	"time": "2026-01-25T14:52:51Z",
-	"message": "client connection established"
-}
-{
-	"level": "debug",
-	"client": "33a8192b-d322-41d4-b864-be10d1f56465",
-	"user": "",
-	"time": "2026-01-25T14:52:52Z",
-	"message": "client authenticated"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37796",
-	"duration": "12.048µs",
-	"time": "2026-01-25T14:52:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56790",
-	"duration": "11.252µs",
-	"time": "2026-01-25T14:53:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59256",
-	"duration": "10.338µs",
-	"time": "2026-01-25T14:53:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50876",
-	"duration": "12.863µs",
-	"time": "2026-01-25T14:53:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49416",
-	"duration": "10.152µs",
-	"time": "2026-01-25T14:53:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60248",
-	"duration": "26.109µs",
-	"time": "2026-01-25T14:53:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35494",
-	"duration": "12.689µs",
-	"time": "2026-01-25T14:53:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44356",
-	"duration": "10.181µs",
-	"time": "2026-01-25T14:54:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50846",
-	"duration": "11.482µs",
-	"time": "2026-01-25T14:54:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33454",
-	"duration": "15.243µs",
-	"time": "2026-01-25T14:54:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"client": "33a8192b-d322-41d4-b864-be10d1f56465",
-	"duration": "1m37.899184209s",
-	"transport": "websocket",
-	"time": "2026-01-25T14:54:29Z",
-	"message": "client connection completed"
+	"level": "warn",
+	"key": "channel_user_bound",
+	"time": "2026-01-25T16:26:06Z",
+	"message": "unknown key found in the configuration file"
 }
 {
 	"level": "debug",
@@ -176,1547 +56,32 @@
 	"status": 101,
 	"path": "/connection/websocket",
 	"addr": "103.157.62.25",
-	"duration": "142.847µs",
-	"time": "2026-01-25T14:54:33Z",
+	"duration": "140.872µs",
+	"time": "2026-01-25T16:26:09Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
+	"client": "b8403151-780d-455d-bf7b-7e8b42f8ded1",
 	"transport": "websocket",
-	"time": "2026-01-25T14:54:33Z",
+	"time": "2026-01-25T16:26:09Z",
 	"message": "client connection established"
 }
 {
 	"level": "debug",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
+	"client": "b8403151-780d-455d-bf7b-7e8b42f8ded1",
 	"user": "",
-	"time": "2026-01-25T14:54:34Z",
+	"time": "2026-01-25T16:26:10Z",
 	"message": "client authenticated"
 }
 {
 	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39570",
-	"duration": "10.743µs",
-	"time": "2026-01-25T14:54:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46894",
-	"duration": "10.066µs",
-	"time": "2026-01-25T14:54:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60002",
-	"duration": "12.877µs",
-	"time": "2026-01-25T14:54:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38842",
-	"duration": "12.766µs",
-	"time": "2026-01-25T14:55:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47818",
-	"duration": "10.534µs",
-	"time": "2026-01-25T14:55:19Z",
-	"message": "http request"
-}
-{
-	"level": "info",
-	"channel": "download:progress:16ab4cd7-6789-4ce4-b4f0-3525ed75756f",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"user": "",
-	"time": "2026-01-25T14:55:20Z",
-	"message": "attempt to subscribe without sufficient permission"
-}
-{
-	"level": "info",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"code": 103,
-	"command": "id:2  subscribe:{channel:\"download:progress:16ab4cd7-6789-4ce4-b4f0-3525ed75756f\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:2  error:{code:103  message:\"permission denied\"}",
-	"user": "",
-	"time": "2026-01-25T14:55:20Z",
-	"message": "client command error"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "3.588873ms",
-	"time": "2026-01-25T14:55:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "2.230353ms",
-	"time": "2026-01-25T14:55:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "440.067µs",
-	"time": "2026-01-25T14:55:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "333.439µs",
-	"time": "2026-01-25T14:55:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"channel": "download:progress:16ab4cd7-6789-4ce4-b4f0-3525ed75756f",
-	"time": "2026-01-25T14:55:21Z",
-	"message": "unsubscribe node from channel"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "853.6µs",
-	"time": "2026-01-25T14:55:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "921.838µs",
-	"time": "2026-01-25T14:55:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "583.11µs",
-	"time": "2026-01-25T14:55:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "941.287µs",
-	"time": "2026-01-25T14:55:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "1.256372ms",
-	"time": "2026-01-25T14:55:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "1.337659ms",
-	"time": "2026-01-25T14:55:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37430",
-	"duration": "14.079µs",
-	"time": "2026-01-25T14:55:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:32806",
-	"duration": "11.321µs",
-	"time": "2026-01-25T14:55:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34428",
-	"duration": "11.312µs",
-	"time": "2026-01-25T14:55:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43486",
-	"duration": "14.058µs",
-	"time": "2026-01-25T14:56:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49866",
-	"duration": "12.557µs",
-	"time": "2026-01-25T14:56:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36590",
-	"duration": "11.551µs",
-	"time": "2026-01-25T14:56:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44404",
-	"duration": "12.418µs",
-	"time": "2026-01-25T14:56:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "697.865µs",
-	"time": "2026-01-25T14:56:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "439.257µs",
-	"time": "2026-01-25T14:56:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "369.65µs",
-	"time": "2026-01-25T14:56:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "380.199µs",
-	"time": "2026-01-25T14:56:37Z",
-	"message": "http request"
-}
-{
-	"level": "info",
-	"channel": "download:progress:17912890-e9f6-4e85-8540-62cbd696de0b",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"user": "",
-	"time": "2026-01-25T14:56:37Z",
-	"message": "attempt to subscribe without sufficient permission"
-}
-{
-	"level": "info",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"code": 103,
-	"command": "id:3  subscribe:{channel:\"download:progress:17912890-e9f6-4e85-8540-62cbd696de0b\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:3  error:{code:103  message:\"permission denied\"}",
-	"user": "",
-	"time": "2026-01-25T14:56:37Z",
-	"message": "client command error"
-}
-{
-	"level": "debug",
-	"channel": "download:progress:17912890-e9f6-4e85-8540-62cbd696de0b",
-	"time": "2026-01-25T14:56:38Z",
-	"message": "unsubscribe node from channel"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33016",
-	"duration": "17.061µs",
-	"time": "2026-01-25T14:56:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "463.86µs",
-	"time": "2026-01-25T14:56:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "511.774µs",
-	"time": "2026-01-25T14:56:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "1.165957ms",
-	"time": "2026-01-25T14:56:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "1.215403ms",
-	"time": "2026-01-25T14:56:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46482",
-	"duration": "12.531µs",
-	"time": "2026-01-25T14:56:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44040",
-	"duration": "14.496µs",
-	"time": "2026-01-25T14:57:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/",
-	"addr": "23.27.145.12",
-	"duration": "1.451923ms",
-	"time": "2026-01-25T14:57:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60796",
-	"duration": "11.821µs",
-	"time": "2026-01-25T14:57:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "576.404µs",
-	"time": "2026-01-25T14:57:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "756.914µs",
-	"time": "2026-01-25T14:57:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "349.703µs",
-	"time": "2026-01-25T14:57:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "405.659µs",
-	"time": "2026-01-25T14:57:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "1.108098ms",
-	"time": "2026-01-25T14:57:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "1.140669ms",
-	"time": "2026-01-25T14:57:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "870.677µs",
-	"time": "2026-01-25T14:57:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "813.884µs",
-	"time": "2026-01-25T14:57:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60516",
-	"duration": "9.81µs",
-	"time": "2026-01-25T14:57:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38196",
-	"duration": "12.502µs",
-	"time": "2026-01-25T14:57:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "515.105µs",
-	"time": "2026-01-25T14:57:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "334.823µs",
-	"time": "2026-01-25T14:57:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "336.709µs",
-	"time": "2026-01-25T14:57:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "259.369µs",
-	"time": "2026-01-25T14:57:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "875.736µs",
-	"time": "2026-01-25T14:57:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "659.298µs",
-	"time": "2026-01-25T14:57:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35118",
-	"duration": "9.773µs",
-	"time": "2026-01-25T14:57:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:37296",
-	"duration": "1.016554ms",
-	"time": "2026-01-25T14:57:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:42082",
-	"duration": "1.195835ms",
-	"time": "2026-01-25T14:57:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47200",
-	"duration": "14.974µs",
-	"time": "2026-01-25T14:57:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43388",
-	"duration": "12.534µs",
-	"time": "2026-01-25T14:58:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37004",
-	"duration": "10.091µs",
-	"time": "2026-01-25T14:58:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60654",
-	"duration": "12.264µs",
-	"time": "2026-01-25T14:58:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "590.591µs",
-	"time": "2026-01-25T14:58:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "571.544µs",
-	"time": "2026-01-25T14:58:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "344.494µs",
-	"time": "2026-01-25T14:58:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "823.362µs",
-	"time": "2026-01-25T14:58:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "969.054µs",
-	"time": "2026-01-25T14:58:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "1.135434ms",
-	"time": "2026-01-25T14:58:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58072",
-	"duration": "12.434µs",
-	"time": "2026-01-25T14:58:31Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.308005ms",
-	"time": "2026-01-25T14:58:34Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "1.09831ms",
-	"time": "2026-01-25T14:58:34Z",
-	"message": "http request"
-}
-{
-	"level": "info",
-	"channel": "download:progress:c6234b51-a860-4afd-8f96-ede45f0f78bb",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"user": "",
-	"time": "2026-01-25T14:58:35Z",
-	"message": "attempt to subscribe without sufficient permission"
-}
-{
-	"level": "info",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"code": 103,
-	"command": "id:4  subscribe:{channel:\"download:progress:c6234b51-a860-4afd-8f96-ede45f0f78bb\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:4  error:{code:103  message:\"permission denied\"}",
-	"user": "",
-	"time": "2026-01-25T14:58:35Z",
-	"message": "client command error"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "488.659µs",
-	"time": "2026-01-25T14:58:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "480.965µs",
-	"time": "2026-01-25T14:58:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "447.28µs",
-	"time": "2026-01-25T14:58:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "431.53µs",
-	"time": "2026-01-25T14:58:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"channel": "download:progress:c6234b51-a860-4afd-8f96-ede45f0f78bb",
-	"time": "2026-01-25T14:58:36Z",
-	"message": "unsubscribe node from channel"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "999.597µs",
-	"time": "2026-01-25T14:58:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "1.121807ms",
-	"time": "2026-01-25T14:58:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49134",
-	"duration": "12.396µs",
-	"time": "2026-01-25T14:58:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "492.888µs",
-	"time": "2026-01-25T14:58:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "719.2µs",
-	"time": "2026-01-25T14:58:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44232",
-	"duration": "16.027µs",
-	"time": "2026-01-25T14:58:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41254",
-	"duration": "12.831µs",
-	"time": "2026-01-25T14:59:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36738",
-	"duration": "10.63µs",
-	"time": "2026-01-25T14:59:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "538.481µs",
-	"time": "2026-01-25T14:59:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "467.373µs",
-	"time": "2026-01-25T14:59:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "406.237µs",
-	"time": "2026-01-25T14:59:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "466.183µs",
-	"time": "2026-01-25T14:59:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "921.489µs",
-	"time": "2026-01-25T14:59:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "956.617µs",
-	"time": "2026-01-25T14:59:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "848.856µs",
-	"time": "2026-01-25T14:59:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "820.872µs",
-	"time": "2026-01-25T14:59:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57810",
-	"duration": "10.17µs",
-	"time": "2026-01-25T14:59:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42386",
-	"duration": "11.234µs",
-	"time": "2026-01-25T14:59:31Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39140",
-	"duration": "10.108µs",
-	"time": "2026-01-25T14:59:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47300",
-	"duration": "206.48µs",
-	"time": "2026-01-25T14:59:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "440.465µs",
-	"time": "2026-01-25T14:59:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "347.672µs",
-	"time": "2026-01-25T14:59:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "313.006µs",
-	"time": "2026-01-25T14:59:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "270.27µs",
-	"time": "2026-01-25T14:59:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.062009ms",
-	"time": "2026-01-25T14:59:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "1.048299ms",
-	"time": "2026-01-25T14:59:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "941.627µs",
-	"time": "2026-01-25T14:59:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "868.11µs",
-	"time": "2026-01-25T14:59:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48638",
-	"duration": "14.194µs",
-	"time": "2026-01-25T15:00:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34286",
-	"duration": "10.783µs",
-	"time": "2026-01-25T15:00:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35200",
-	"duration": "14.531µs",
-	"time": "2026-01-25T15:00:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38538",
-	"duration": "12.371µs",
-	"time": "2026-01-25T15:00:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53184",
-	"duration": "13.634µs",
-	"time": "2026-01-25T15:00:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/.env",
-	"addr": "45.139.104.168",
-	"duration": "53.832µs",
-	"time": "2026-01-25T15:00:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39172",
-	"duration": "11.483µs",
-	"time": "2026-01-25T15:00:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55312",
-	"duration": "10.121µs",
-	"time": "2026-01-25T15:01:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "752.088µs",
-	"time": "2026-01-25T15:01:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "695.732µs",
-	"time": "2026-01-25T15:01:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "651.223µs",
-	"time": "2026-01-25T15:01:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "895.115µs",
-	"time": "2026-01-25T15:01:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "543.663µs",
-	"time": "2026-01-25T15:01:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.415775ms",
-	"time": "2026-01-25T15:01:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "503.719µs",
-	"time": "2026-01-25T15:01:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.251457ms",
-	"time": "2026-01-25T15:01:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59626",
-	"duration": "11.585µs",
-	"time": "2026-01-25T15:01:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45950",
-	"duration": "9.773µs",
-	"time": "2026-01-25T15:01:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44544",
-	"duration": "10.037µs",
-	"time": "2026-01-25T15:01:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55522",
-	"duration": "10.441µs",
-	"time": "2026-01-25T15:01:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "580.648µs",
-	"time": "2026-01-25T15:01:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "738.898µs",
-	"time": "2026-01-25T15:01:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "363.11µs",
-	"time": "2026-01-25T15:01:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "737.471µs",
-	"time": "2026-01-25T15:01:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "869.012µs",
-	"time": "2026-01-25T15:01:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "465.358µs",
-	"time": "2026-01-25T15:01:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58758",
-	"duration": "12.717µs",
-	"time": "2026-01-25T15:01:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "950.284µs",
-	"time": "2026-01-25T15:01:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.424084ms",
-	"time": "2026-01-25T15:01:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55662",
-	"duration": "9.428µs",
-	"time": "2026-01-25T15:02:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37598",
-	"duration": "11.403µs",
-	"time": "2026-01-25T15:02:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40692",
-	"duration": "12.43µs",
-	"time": "2026-01-25T15:02:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60518",
-	"duration": "9.884µs",
-	"time": "2026-01-25T15:02:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35586",
-	"duration": "16.236µs",
-	"time": "2026-01-25T15:02:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47700",
-	"duration": "9.718µs",
-	"time": "2026-01-25T15:02:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37174",
-	"duration": "13.301µs",
-	"time": "2026-01-25T15:03:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42118",
-	"duration": "9.53µs",
-	"time": "2026-01-25T15:03:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45626",
-	"duration": "12.049µs",
-	"time": "2026-01-25T15:03:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/SDK/webLanguage",
-	"addr": "5.61.209.92",
-	"duration": "63.347µs",
-	"time": "2026-01-25T15:03:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33686",
-	"duration": "11.992µs",
-	"time": "2026-01-25T15:03:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50580",
-	"duration": "16.628µs",
-	"time": "2026-01-25T15:03:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "619.017µs",
-	"time": "2026-01-25T15:03:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "572.035µs",
-	"time": "2026-01-25T15:03:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "617.535µs",
-	"time": "2026-01-25T15:03:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "230.684µs",
-	"time": "2026-01-25T15:03:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "860.548µs",
-	"time": "2026-01-25T15:03:51Z",
+	"addr": "172.19.0.2:49144",
+	"duration": "3.163211ms",
+	"time": "2026-01-25T16:26:13Z",
 	"message": "http request"
 }
 {
@@ -1724,9 +89,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.095301ms",
-	"time": "2026-01-25T15:03:51Z",
+	"addr": "172.19.0.3:37994",
+	"duration": "4.944566ms",
+	"time": "2026-01-25T16:26:13Z",
 	"message": "http request"
 }
 {
@@ -1734,9 +99,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:51748",
-	"duration": "12.036µs",
-	"time": "2026-01-25T15:03:53Z",
+	"addr": "[::1]:58910",
+	"duration": "13.082µs",
+	"time": "2026-01-25T16:26:16Z",
 	"message": "http request"
 }
 {
@@ -1744,9 +109,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:53744",
-	"duration": "1.075929ms",
-	"time": "2026-01-25T15:03:54Z",
+	"addr": "172.19.0.3:37994",
+	"duration": "1.052343ms",
+	"time": "2026-01-25T16:26:16Z",
 	"message": "http request"
 }
 {
@@ -1754,39 +119,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49848",
-	"duration": "1.268356ms",
-	"time": "2026-01-25T15:03:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48608",
-	"duration": "20.981µs",
-	"time": "2026-01-25T15:04:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42068",
-	"duration": "11.463µs",
-	"time": "2026-01-25T15:04:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40680",
-	"duration": "11.097µs",
-	"time": "2026-01-25T15:04:24Z",
+	"addr": "172.19.0.2:49144",
+	"duration": "767.158µs",
+	"time": "2026-01-25T16:26:16Z",
 	"message": "http request"
 }
 {
@@ -1794,9 +129,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:36672",
-	"duration": "10.377µs",
-	"time": "2026-01-25T15:04:34Z",
+	"addr": "[::1]:53596",
+	"duration": "9.843µs",
+	"time": "2026-01-25T16:26:26Z",
 	"message": "http request"
 }
 {
@@ -1804,9 +139,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:56666",
-	"duration": "9.572µs",
-	"time": "2026-01-25T15:04:44Z",
+	"addr": "[::1]:46902",
+	"duration": "10.087µs",
+	"time": "2026-01-25T16:26:36Z",
 	"message": "http request"
 }
 {
@@ -1814,9 +149,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:52650",
-	"duration": "12.804µs",
-	"time": "2026-01-25T15:04:54Z",
+	"addr": "[::1]:49450",
+	"duration": "10.089µs",
+	"time": "2026-01-25T16:26:46Z",
 	"message": "http request"
 }
 {
@@ -1824,9 +159,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:50756",
-	"duration": "13.247µs",
-	"time": "2026-01-25T15:05:04Z",
+	"addr": "[::1]:53320",
+	"duration": "9.934µs",
+	"time": "2026-01-25T16:26:56Z",
 	"message": "http request"
 }
 {
@@ -1834,9 +169,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:41364",
-	"duration": "9.304µs",
-	"time": "2026-01-25T15:05:14Z",
+	"addr": "[::1]:51256",
+	"duration": "14.48µs",
+	"time": "2026-01-25T16:27:06Z",
 	"message": "http request"
 }
 {
@@ -1844,9 +179,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:37970",
-	"duration": "9.84µs",
-	"time": "2026-01-25T15:05:24Z",
+	"addr": "[::1]:48130",
+	"duration": "15.696µs",
+	"time": "2026-01-25T16:27:16Z",
 	"message": "http request"
 }
 {
@@ -1854,9 +189,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:33836",
-	"duration": "12.726µs",
-	"time": "2026-01-25T15:05:34Z",
+	"addr": "[::1]:60534",
+	"duration": "10.03µs",
+	"time": "2026-01-25T16:27:27Z",
 	"message": "http request"
 }
 {
@@ -1864,9 +199,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:48324",
-	"duration": "8.547µs",
-	"time": "2026-01-25T15:05:44Z",
+	"addr": "[::1]:59330",
+	"duration": "12.052µs",
+	"time": "2026-01-25T16:27:37Z",
 	"message": "http request"
 }
 {
@@ -1874,9 +209,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:52486",
-	"duration": "12.893µs",
-	"time": "2026-01-25T15:05:54Z",
+	"addr": "[::1]:41468",
+	"duration": "11.84µs",
+	"time": "2026-01-25T16:27:47Z",
 	"message": "http request"
 }
 {
@@ -1884,89 +219,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:60450",
-	"duration": "40.492µs",
-	"time": "2026-01-25T15:06:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "563.812µs",
-	"time": "2026-01-25T15:06:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "405.01µs",
-	"time": "2026-01-25T15:06:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "636.036µs",
-	"time": "2026-01-25T15:06:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "294.401µs",
-	"time": "2026-01-25T15:06:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.049619ms",
-	"time": "2026-01-25T15:06:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.093655ms",
-	"time": "2026-01-25T15:06:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "810.728µs",
-	"time": "2026-01-25T15:06:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "733.648µs",
-	"time": "2026-01-25T15:06:14Z",
+	"addr": "[::1]:35276",
+	"duration": "10.276µs",
+	"time": "2026-01-25T16:27:57Z",
 	"message": "http request"
 }
 {
@@ -1974,5039 +229,17 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:48656",
-	"duration": "14.38µs",
-	"time": "2026-01-25T15:06:15Z",
+	"addr": "[::1]:46538",
+	"duration": "12.634µs",
+	"time": "2026-01-25T16:28:07Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"client": "76649ea8-e114-4ae6-9b9f-4de824d8ff42",
-	"duration": "11m42.619649071s",
+	"client": "b8403151-780d-455d-bf7b-7e8b42f8ded1",
+	"duration": "2m3.409484571s",
 	"transport": "websocket",
-	"time": "2026-01-25T15:06:16Z",
-	"message": "client connection completed"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 101,
-	"path": "/connection/websocket",
-	"addr": "103.157.62.25",
-	"duration": "157.691µs",
-	"time": "2026-01-25T15:06:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"transport": "websocket",
-	"time": "2026-01-25T15:06:20Z",
-	"message": "client connection established"
-}
-{
-	"level": "debug",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"user": "",
-	"time": "2026-01-25T15:06:21Z",
-	"message": "client authenticated"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37174",
-	"duration": "10.308µs",
-	"time": "2026-01-25T15:06:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39786",
-	"duration": "13.048µs",
-	"time": "2026-01-25T15:06:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37192",
-	"duration": "13.564µs",
-	"time": "2026-01-25T15:06:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42572",
-	"duration": "12.723µs",
-	"time": "2026-01-25T15:06:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38004",
-	"duration": "9.328µs",
-	"time": "2026-01-25T15:07:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35398",
-	"duration": "16.688µs",
-	"time": "2026-01-25T15:07:15Z",
-	"message": "http request"
-}
-{
-	"level": "info",
-	"channel": "download:progress:06550b76-f8fe-49bd-8ed7-7bcb3c80c8be",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"user": "",
-	"time": "2026-01-25T15:07:22Z",
-	"message": "attempt to subscribe without sufficient permission"
-}
-{
-	"level": "info",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"code": 103,
-	"command": "id:2  subscribe:{channel:\"download:progress:06550b76-f8fe-49bd-8ed7-7bcb3c80c8be\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:2  error:{code:103  message:\"permission denied\"}",
-	"user": "",
-	"time": "2026-01-25T15:07:22Z",
-	"message": "client command error"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "547.672µs",
-	"time": "2026-01-25T15:07:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "290.077µs",
-	"time": "2026-01-25T15:07:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "486.41µs",
-	"time": "2026-01-25T15:07:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "648.092µs",
-	"time": "2026-01-25T15:07:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"channel": "download:progress:06550b76-f8fe-49bd-8ed7-7bcb3c80c8be",
-	"time": "2026-01-25T15:07:23Z",
-	"message": "unsubscribe node from channel"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34340",
-	"duration": "10.685µs",
-	"time": "2026-01-25T15:07:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "859.188µs",
-	"time": "2026-01-25T15:07:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "806.743µs",
-	"time": "2026-01-25T15:07:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "487.358µs",
-	"time": "2026-01-25T15:07:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "390.851µs",
-	"time": "2026-01-25T15:07:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "472.418µs",
-	"time": "2026-01-25T15:07:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "896.724µs",
-	"time": "2026-01-25T15:07:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33980",
-	"duration": "24.842µs",
-	"time": "2026-01-25T15:07:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46962",
-	"duration": "9.175µs",
-	"time": "2026-01-25T15:07:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36842",
-	"duration": "12.963µs",
-	"time": "2026-01-25T15:07:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/admin/settings",
-	"addr": "103.157.62.25",
-	"duration": "52.172µs",
-	"time": "2026-01-25T15:07:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "582.527µs",
-	"time": "2026-01-25T15:08:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 304,
-	"path": "/",
-	"addr": "103.157.62.25",
-	"duration": "59.372µs",
-	"time": "2026-01-25T15:08:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/admin/settings",
-	"addr": "103.157.62.25",
-	"duration": "66.904µs",
-	"time": "2026-01-25T15:08:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "619.795µs",
-	"time": "2026-01-25T15:08:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49928",
-	"duration": "9.726µs",
-	"time": "2026-01-25T15:08:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "840.581µs",
-	"time": "2026-01-25T15:08:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "713.743µs",
-	"time": "2026-01-25T15:08:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "878.293µs",
-	"time": "2026-01-25T15:08:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42412",
-	"duration": "14.004µs",
-	"time": "2026-01-25T15:08:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "828.152µs",
-	"time": "2026-01-25T15:08:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/admin/api",
-	"addr": "103.157.62.25",
-	"duration": "704.111µs",
-	"time": "2026-01-25T15:08:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44526",
-	"duration": "775.106µs",
-	"time": "2026-01-25T15:08:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43250",
-	"duration": "9.418µs",
-	"time": "2026-01-25T15:08:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49174",
-	"duration": "11.377µs",
-	"time": "2026-01-25T15:08:46Z",
-	"message": "http request"
-}
-{
-	"level": "info",
-	"channel": "download:progress:93135d1e-beaf-4551-a42c-1b2d92b80172",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"user": "",
-	"time": "2026-01-25T15:08:54Z",
-	"message": "attempt to subscribe without sufficient permission"
-}
-{
-	"level": "info",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"code": 103,
-	"command": "id:3  subscribe:{channel:\"download:progress:93135d1e-beaf-4551-a42c-1b2d92b80172\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:3  error:{code:103  message:\"permission denied\"}",
-	"user": "",
-	"time": "2026-01-25T15:08:54Z",
-	"message": "client command error"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "575.422µs",
-	"time": "2026-01-25T15:08:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "582.059µs",
-	"time": "2026-01-25T15:08:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "323.474µs",
-	"time": "2026-01-25T15:08:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "365.205µs",
-	"time": "2026-01-25T15:08:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"channel": "download:progress:93135d1e-beaf-4551-a42c-1b2d92b80172",
-	"time": "2026-01-25T15:08:55Z",
-	"message": "unsubscribe node from channel"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47268",
-	"duration": "12.728µs",
-	"time": "2026-01-25T15:08:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38122",
-	"duration": "19.748µs",
-	"time": "2026-01-25T15:09:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "519.668µs",
-	"time": "2026-01-25T15:09:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "490.461µs",
-	"time": "2026-01-25T15:09:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "400.506µs",
-	"time": "2026-01-25T15:09:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.004207ms",
-	"time": "2026-01-25T15:09:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46434",
-	"duration": "12.09µs",
-	"time": "2026-01-25T15:09:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41994",
-	"duration": "12.107µs",
-	"time": "2026-01-25T15:09:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "517.402µs",
-	"time": "2026-01-25T15:09:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "493.023µs",
-	"time": "2026-01-25T15:09:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "446.436µs",
-	"time": "2026-01-25T15:09:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "680.074µs",
-	"time": "2026-01-25T15:09:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43732",
-	"duration": "12.482µs",
-	"time": "2026-01-25T15:09:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.155143ms",
-	"time": "2026-01-25T15:09:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.206743ms",
-	"time": "2026-01-25T15:09:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33384",
-	"duration": "469.016µs",
-	"time": "2026-01-25T15:09:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "847.477µs",
-	"time": "2026-01-25T15:09:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "796.123µs",
-	"time": "2026-01-25T15:09:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54292",
-	"duration": "9.001µs",
-	"time": "2026-01-25T15:09:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40680",
-	"duration": "9.483µs",
-	"time": "2026-01-25T15:10:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "542.115µs",
-	"time": "2026-01-25T15:10:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "657.847µs",
-	"time": "2026-01-25T15:10:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "576.694µs",
-	"time": "2026-01-25T15:10:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "586.135µs",
-	"time": "2026-01-25T15:10:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52046",
-	"duration": "11.991µs",
-	"time": "2026-01-25T15:10:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "952.763µs",
-	"time": "2026-01-25T15:10:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "858.2µs",
-	"time": "2026-01-25T15:10:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.135972ms",
-	"time": "2026-01-25T15:10:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.123126ms",
-	"time": "2026-01-25T15:10:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46886",
-	"duration": "16.99µs",
-	"time": "2026-01-25T15:10:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "PROPFIND",
-	"status": 200,
-	"path": "/",
-	"addr": "45.55.37.35",
-	"duration": "67.219µs",
-	"time": "2026-01-25T15:10:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54530",
-	"duration": "12.124µs",
-	"time": "2026-01-25T15:10:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58272",
-	"duration": "12.309µs",
-	"time": "2026-01-25T15:10:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56506",
-	"duration": "12.193µs",
-	"time": "2026-01-25T15:10:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "636.34µs",
-	"time": "2026-01-25T15:10:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "497.939µs",
-	"time": "2026-01-25T15:10:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "548.239µs",
-	"time": "2026-01-25T15:10:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "252.72µs",
-	"time": "2026-01-25T15:10:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42730",
-	"duration": "12.263µs",
-	"time": "2026-01-25T15:11:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.013613ms",
-	"time": "2026-01-25T15:11:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "725.933µs",
-	"time": "2026-01-25T15:11:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "957.578µs",
-	"time": "2026-01-25T15:11:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "989.593µs",
-	"time": "2026-01-25T15:11:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56496",
-	"duration": "12.326µs",
-	"time": "2026-01-25T15:11:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51942",
-	"duration": "9.431µs",
-	"time": "2026-01-25T15:11:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53734",
-	"duration": "16.245µs",
-	"time": "2026-01-25T15:11:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40068",
-	"duration": "11.83µs",
-	"time": "2026-01-25T15:11:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "460.349µs",
-	"time": "2026-01-25T15:11:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "615.838µs",
-	"time": "2026-01-25T15:11:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "361.968µs",
-	"time": "2026-01-25T15:11:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "411.389µs",
-	"time": "2026-01-25T15:11:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57574",
-	"duration": "8.909µs",
-	"time": "2026-01-25T15:11:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.281148ms",
-	"time": "2026-01-25T15:12:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "940.47µs",
-	"time": "2026-01-25T15:12:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33870",
-	"duration": "41.496µs",
-	"time": "2026-01-25T15:12:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "843.777µs",
-	"time": "2026-01-25T15:12:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "974.625µs",
-	"time": "2026-01-25T15:12:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47032",
-	"duration": "9.868µs",
-	"time": "2026-01-25T15:12:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54108",
-	"duration": "11.075µs",
-	"time": "2026-01-25T15:12:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50582",
-	"duration": "9.98µs",
-	"time": "2026-01-25T15:12:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46492",
-	"duration": "9.502µs",
-	"time": "2026-01-25T15:12:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34910",
-	"duration": "12.511µs",
-	"time": "2026-01-25T15:12:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59888",
-	"duration": "11.777µs",
-	"time": "2026-01-25T15:13:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42152",
-	"duration": "12.747µs",
-	"time": "2026-01-25T15:13:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39584",
-	"duration": "9.587µs",
-	"time": "2026-01-25T15:13:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45382",
-	"duration": "127.905µs",
-	"time": "2026-01-25T15:13:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55614",
-	"duration": "9.505µs",
-	"time": "2026-01-25T15:13:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33062",
-	"duration": "10.522µs",
-	"time": "2026-01-25T15:13:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42460",
-	"duration": "11.677µs",
-	"time": "2026-01-25T15:14:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42028",
-	"duration": "38.694µs",
-	"time": "2026-01-25T15:14:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36900",
-	"duration": "9.703µs",
-	"time": "2026-01-25T15:14:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37838",
-	"duration": "9.534µs",
-	"time": "2026-01-25T15:14:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "668.99µs",
-	"time": "2026-01-25T15:14:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "624.902µs",
-	"time": "2026-01-25T15:14:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "482.107µs",
-	"time": "2026-01-25T15:14:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "478.511µs",
-	"time": "2026-01-25T15:14:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50890",
-	"duration": "11.798µs",
-	"time": "2026-01-25T15:14:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "531.979µs",
-	"time": "2026-01-25T15:14:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "586.813µs",
-	"time": "2026-01-25T15:14:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60954",
-	"duration": "9.625µs",
-	"time": "2026-01-25T15:14:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "4.062823ms",
-	"time": "2026-01-25T15:15:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "4.555088ms",
-	"time": "2026-01-25T15:15:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33320",
-	"duration": "12.446µs",
-	"time": "2026-01-25T15:15:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51984",
-	"duration": "9.447µs",
-	"time": "2026-01-25T15:15:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52162",
-	"duration": "12.304µs",
-	"time": "2026-01-25T15:15:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55642",
-	"duration": "10.196µs",
-	"time": "2026-01-25T15:15:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55388",
-	"duration": "20.556µs",
-	"time": "2026-01-25T15:15:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57782",
-	"duration": "12.244µs",
-	"time": "2026-01-25T15:15:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42578",
-	"duration": "28.261µs",
-	"time": "2026-01-25T15:16:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51618",
-	"duration": "9.632µs",
-	"time": "2026-01-25T15:16:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53862",
-	"duration": "14.02µs",
-	"time": "2026-01-25T15:16:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43558",
-	"duration": "9.374µs",
-	"time": "2026-01-25T15:16:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60824",
-	"duration": "11.114µs",
-	"time": "2026-01-25T15:16:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46022",
-	"duration": "12.652µs",
-	"time": "2026-01-25T15:16:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53842",
-	"duration": "9.424µs",
-	"time": "2026-01-25T15:17:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46952",
-	"duration": "10.901µs",
-	"time": "2026-01-25T15:17:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43120",
-	"duration": "15.729µs",
-	"time": "2026-01-25T15:17:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50546",
-	"duration": "9.639µs",
-	"time": "2026-01-25T15:17:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50010",
-	"duration": "12.148µs",
-	"time": "2026-01-25T15:17:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45594",
-	"duration": "16.034µs",
-	"time": "2026-01-25T15:18:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "692.146µs",
-	"time": "2026-01-25T15:18:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "626.387µs",
-	"time": "2026-01-25T15:18:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "689.878µs",
-	"time": "2026-01-25T15:18:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "16.790036ms",
-	"time": "2026-01-25T15:18:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.067652ms",
-	"time": "2026-01-25T15:18:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.111465ms",
-	"time": "2026-01-25T15:18:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58034",
-	"duration": "12.308µs",
-	"time": "2026-01-25T15:18:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.919569ms",
-	"time": "2026-01-25T15:18:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.678275ms",
-	"time": "2026-01-25T15:18:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36270",
-	"duration": "27.799µs",
-	"time": "2026-01-25T15:18:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48988",
-	"duration": "9.106µs",
-	"time": "2026-01-25T15:18:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37188",
-	"duration": "13.132µs",
-	"time": "2026-01-25T15:18:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49626",
-	"duration": "12.574µs",
-	"time": "2026-01-25T15:18:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42802",
-	"duration": "12.586µs",
-	"time": "2026-01-25T15:19:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42488",
-	"duration": "12.779µs",
-	"time": "2026-01-25T15:19:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36526",
-	"duration": "10.512µs",
-	"time": "2026-01-25T15:19:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35170",
-	"duration": "14.117µs",
-	"time": "2026-01-25T15:19:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44256",
-	"duration": "14.008µs",
-	"time": "2026-01-25T15:19:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49050",
-	"duration": "13.91µs",
-	"time": "2026-01-25T15:19:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "638.113µs",
-	"time": "2026-01-25T15:19:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "690.425µs",
-	"time": "2026-01-25T15:19:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "382.086µs",
-	"time": "2026-01-25T15:19:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "436.109µs",
-	"time": "2026-01-25T15:19:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49656",
-	"duration": "11.824µs",
-	"time": "2026-01-25T15:20:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50778",
-	"duration": "12.68µs",
-	"time": "2026-01-25T15:20:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "996.99µs",
-	"time": "2026-01-25T15:20:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.598794ms",
-	"time": "2026-01-25T15:20:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "587.717µs",
-	"time": "2026-01-25T15:20:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "743.153µs",
-	"time": "2026-01-25T15:20:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38726",
-	"duration": "12.745µs",
-	"time": "2026-01-25T15:20:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53080",
-	"duration": "13.121µs",
-	"time": "2026-01-25T15:20:31Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/",
-	"addr": "34.45.218.41",
-	"duration": "63.67µs",
-	"time": "2026-01-25T15:20:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50352",
-	"duration": "9.91µs",
-	"time": "2026-01-25T15:20:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48812",
-	"duration": "12.475µs",
-	"time": "2026-01-25T15:20:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35688",
-	"duration": "12.852µs",
-	"time": "2026-01-25T15:21:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42302",
-	"duration": "17.293µs",
-	"time": "2026-01-25T15:21:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38096",
-	"duration": "12.471µs",
-	"time": "2026-01-25T15:21:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58998",
-	"duration": "13.656µs",
-	"time": "2026-01-25T15:21:31Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/",
-	"addr": "206.119.68.134",
-	"duration": "62.757µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "705.581µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "736.091µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "463.125µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "911.15µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 404,
-	"path": "/index.php",
-	"addr": "206.119.68.134",
-	"duration": "44.255µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 404,
-	"path": "/admin",
-	"addr": "206.119.68.134",
-	"duration": "44.273µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 401,
-	"path": "/api",
-	"addr": "206.119.68.134",
-	"duration": "9.552µs",
-	"time": "2026-01-25T15:21:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38704",
-	"duration": "18.854µs",
-	"time": "2026-01-25T15:21:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "881.545µs",
-	"time": "2026-01-25T15:21:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "797.231µs",
-	"time": "2026-01-25T15:21:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55472",
-	"duration": "13.077µs",
-	"time": "2026-01-25T15:21:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.062354ms",
-	"time": "2026-01-25T15:21:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.218628ms",
-	"time": "2026-01-25T15:21:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57280",
-	"duration": "10.409µs",
-	"time": "2026-01-25T15:22:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57508",
-	"duration": "11.413µs",
-	"time": "2026-01-25T15:22:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38572",
-	"duration": "12.418µs",
-	"time": "2026-01-25T15:22:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37752",
-	"duration": "11.323µs",
-	"time": "2026-01-25T15:22:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34502",
-	"duration": "11.969µs",
-	"time": "2026-01-25T15:22:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35980",
-	"duration": "12.913µs",
-	"time": "2026-01-25T15:22:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49536",
-	"duration": "9.181µs",
-	"time": "2026-01-25T15:23:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46210",
-	"duration": "123.625µs",
-	"time": "2026-01-25T15:23:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39724",
-	"duration": "13.222µs",
-	"time": "2026-01-25T15:23:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34502",
-	"duration": "12.148µs",
-	"time": "2026-01-25T15:23:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34178",
-	"duration": "12.234µs",
-	"time": "2026-01-25T15:23:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56954",
-	"duration": "14.237µs",
-	"time": "2026-01-25T15:23:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60604",
-	"duration": "10.08µs",
-	"time": "2026-01-25T15:24:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44180",
-	"duration": "9.987µs",
-	"time": "2026-01-25T15:24:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36266",
-	"duration": "17.741µs",
-	"time": "2026-01-25T15:24:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41684",
-	"duration": "20.782µs",
-	"time": "2026-01-25T15:24:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40536",
-	"duration": "15.068µs",
-	"time": "2026-01-25T15:24:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60892",
-	"duration": "11.964µs",
-	"time": "2026-01-25T15:24:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35494",
-	"duration": "13.902µs",
-	"time": "2026-01-25T15:25:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35888",
-	"duration": "9.912µs",
-	"time": "2026-01-25T15:25:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48332",
-	"duration": "11.97µs",
-	"time": "2026-01-25T15:25:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53618",
-	"duration": "11.212µs",
-	"time": "2026-01-25T15:25:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40972",
-	"duration": "11.676µs",
-	"time": "2026-01-25T15:25:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34474",
-	"duration": "11.467µs",
-	"time": "2026-01-25T15:25:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33612",
-	"duration": "12.524µs",
-	"time": "2026-01-25T15:26:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50690",
-	"duration": "9.353µs",
-	"time": "2026-01-25T15:26:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40732",
-	"duration": "14.069µs",
-	"time": "2026-01-25T15:26:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39984",
-	"duration": "12.535µs",
-	"time": "2026-01-25T15:26:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58066",
-	"duration": "12.534µs",
-	"time": "2026-01-25T15:26:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43174",
-	"duration": "12.313µs",
-	"time": "2026-01-25T15:26:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37520",
-	"duration": "12.238µs",
-	"time": "2026-01-25T15:27:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60780",
-	"duration": "9.03µs",
-	"time": "2026-01-25T15:27:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45490",
-	"duration": "13.111µs",
-	"time": "2026-01-25T15:27:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51266",
-	"duration": "11.489µs",
-	"time": "2026-01-25T15:27:34Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59748",
-	"duration": "12.113µs",
-	"time": "2026-01-25T15:27:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45744",
-	"duration": "12.756µs",
-	"time": "2026-01-25T15:27:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50096",
-	"duration": "11.558µs",
-	"time": "2026-01-25T15:28:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48360",
-	"duration": "10.949µs",
-	"time": "2026-01-25T15:28:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57218",
-	"duration": "13.341µs",
-	"time": "2026-01-25T15:28:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51730",
-	"duration": "11.803µs",
-	"time": "2026-01-25T15:28:34Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42948",
-	"duration": "12.819µs",
-	"time": "2026-01-25T15:28:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/",
-	"addr": "134.122.204.254",
-	"duration": "63.15µs",
-	"time": "2026-01-25T15:28:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 404,
-	"path": "/index.php",
-	"addr": "134.122.204.254",
-	"duration": "48.184µs",
-	"time": "2026-01-25T15:28:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 404,
-	"path": "/admin",
-	"addr": "134.122.204.254",
-	"duration": "55.663µs",
-	"time": "2026-01-25T15:28:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 401,
-	"path": "/api",
-	"addr": "134.122.204.254",
-	"duration": "8.276µs",
-	"time": "2026-01-25T15:28:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36534",
-	"duration": "12.244µs",
-	"time": "2026-01-25T15:28:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57668",
-	"duration": "11.829µs",
-	"time": "2026-01-25T15:29:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58340",
-	"duration": "13.034µs",
-	"time": "2026-01-25T15:29:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46452",
-	"duration": "9.414µs",
-	"time": "2026-01-25T15:29:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59138",
-	"duration": "12.59µs",
-	"time": "2026-01-25T15:29:34Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/",
-	"addr": "3.13.216.37",
-	"duration": "71.643µs",
-	"time": "2026-01-25T15:29:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37610",
-	"duration": "14.36µs",
-	"time": "2026-01-25T15:29:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52938",
-	"duration": "12.157µs",
-	"time": "2026-01-25T15:29:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41864",
-	"duration": "9.88µs",
-	"time": "2026-01-25T15:30:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57628",
-	"duration": "10.884µs",
-	"time": "2026-01-25T15:30:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54560",
-	"duration": "13.982µs",
-	"time": "2026-01-25T15:30:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39056",
-	"duration": "12.586µs",
-	"time": "2026-01-25T15:30:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34164",
-	"duration": "16.759µs",
-	"time": "2026-01-25T15:30:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37096",
-	"duration": "12.544µs",
-	"time": "2026-01-25T15:30:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37440",
-	"duration": "11.611µs",
-	"time": "2026-01-25T15:31:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "555.111µs",
-	"time": "2026-01-25T15:31:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "520.274µs",
-	"time": "2026-01-25T15:31:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "440.283µs",
-	"time": "2026-01-25T15:31:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "603.814µs",
-	"time": "2026-01-25T15:31:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50064",
-	"duration": "9.151µs",
-	"time": "2026-01-25T15:31:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "818.664µs",
-	"time": "2026-01-25T15:31:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.745648ms",
-	"time": "2026-01-25T15:31:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51608",
-	"duration": "12.833µs",
-	"time": "2026-01-25T15:31:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "857.69µs",
-	"time": "2026-01-25T15:31:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "744.151µs",
-	"time": "2026-01-25T15:31:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37760",
-	"duration": "16.346µs",
-	"time": "2026-01-25T15:31:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36078",
-	"duration": "11.139µs",
-	"time": "2026-01-25T15:31:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.680555ms",
-	"time": "2026-01-25T15:31:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "2.048895ms",
-	"time": "2026-01-25T15:31:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "495.213µs",
-	"time": "2026-01-25T15:31:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "775.168µs",
-	"time": "2026-01-25T15:31:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60568",
-	"duration": "13.594µs",
-	"time": "2026-01-25T15:31:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38586",
-	"duration": "21.136µs",
-	"time": "2026-01-25T15:32:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "869.194µs",
-	"time": "2026-01-25T15:32:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.12523ms",
-	"time": "2026-01-25T15:32:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59618",
-	"duration": "9.975µs",
-	"time": "2026-01-25T15:32:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:57584",
-	"duration": "1.049159ms",
-	"time": "2026-01-25T15:32:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:59604",
-	"duration": "1.240845ms",
-	"time": "2026-01-25T15:32:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55818",
-	"duration": "11.038µs",
-	"time": "2026-01-25T15:32:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56888",
-	"duration": "8.83µs",
-	"time": "2026-01-25T15:32:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55410",
-	"duration": "9.47µs",
-	"time": "2026-01-25T15:32:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41278",
-	"duration": "9.743µs",
-	"time": "2026-01-25T15:32:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57654",
-	"duration": "12.957µs",
-	"time": "2026-01-25T15:33:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49092",
-	"duration": "12.037µs",
-	"time": "2026-01-25T15:33:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56236",
-	"duration": "13.743µs",
-	"time": "2026-01-25T15:33:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39062",
-	"duration": "9.126µs",
-	"time": "2026-01-25T15:33:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59198",
-	"duration": "12.721µs",
-	"time": "2026-01-25T15:33:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49886",
-	"duration": "13.485µs",
-	"time": "2026-01-25T15:33:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37476",
-	"duration": "12.858µs",
-	"time": "2026-01-25T15:34:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58326",
-	"duration": "9.589µs",
-	"time": "2026-01-25T15:34:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35400",
-	"duration": "12.518µs",
-	"time": "2026-01-25T15:34:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49568",
-	"duration": "9.856µs",
-	"time": "2026-01-25T15:34:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41466",
-	"duration": "9.085µs",
-	"time": "2026-01-25T15:34:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39824",
-	"duration": "25.489µs",
-	"time": "2026-01-25T15:34:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46692",
-	"duration": "12.801µs",
-	"time": "2026-01-25T15:35:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40814",
-	"duration": "10.576µs",
-	"time": "2026-01-25T15:35:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38994",
-	"duration": "10.572µs",
-	"time": "2026-01-25T15:35:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33882",
-	"duration": "12.927µs",
-	"time": "2026-01-25T15:35:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59958",
-	"duration": "11.091µs",
-	"time": "2026-01-25T15:35:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54432",
-	"duration": "11.005µs",
-	"time": "2026-01-25T15:35:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54154",
-	"duration": "14.021µs",
-	"time": "2026-01-25T15:36:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44812",
-	"duration": "12.086µs",
-	"time": "2026-01-25T15:36:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36308",
-	"duration": "11.946µs",
-	"time": "2026-01-25T15:36:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49194",
-	"duration": "13.116µs",
-	"time": "2026-01-25T15:36:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36566",
-	"duration": "18.126µs",
-	"time": "2026-01-25T15:36:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56204",
-	"duration": "55.827µs",
-	"time": "2026-01-25T15:36:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41076",
-	"duration": "12.037µs",
-	"time": "2026-01-25T15:37:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42302",
-	"duration": "11.92µs",
-	"time": "2026-01-25T15:37:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49918",
-	"duration": "9.33µs",
-	"time": "2026-01-25T15:37:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59514",
-	"duration": "12.97µs",
-	"time": "2026-01-25T15:37:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42450",
-	"duration": "10.144µs",
-	"time": "2026-01-25T15:37:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38732",
-	"duration": "15.418µs",
-	"time": "2026-01-25T15:37:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46300",
-	"duration": "12.693µs",
-	"time": "2026-01-25T15:38:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44716",
-	"duration": "13.479µs",
-	"time": "2026-01-25T15:38:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53512",
-	"duration": "10.243µs",
-	"time": "2026-01-25T15:38:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52106",
-	"duration": "8.413µs",
-	"time": "2026-01-25T15:38:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42930",
-	"duration": "12.004µs",
-	"time": "2026-01-25T15:38:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53582",
-	"duration": "10.223µs",
-	"time": "2026-01-25T15:38:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53360",
-	"duration": "10.041µs",
-	"time": "2026-01-25T15:39:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58366",
-	"duration": "10.177µs",
-	"time": "2026-01-25T15:39:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40170",
-	"duration": "49.228µs",
-	"time": "2026-01-25T15:39:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59998",
-	"duration": "9.264µs",
-	"time": "2026-01-25T15:39:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52544",
-	"duration": "11.539µs",
-	"time": "2026-01-25T15:39:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50586",
-	"duration": "9.583µs",
-	"time": "2026-01-25T15:39:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33528",
-	"duration": "12.852µs",
-	"time": "2026-01-25T15:40:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52988",
-	"duration": "12.418µs",
-	"time": "2026-01-25T15:40:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54044",
-	"duration": "11.446µs",
-	"time": "2026-01-25T15:40:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53706",
-	"duration": "22.465µs",
-	"time": "2026-01-25T15:40:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "636.489µs",
-	"time": "2026-01-25T15:40:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "540.205µs",
-	"time": "2026-01-25T15:40:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "1.968187ms",
-	"time": "2026-01-25T15:40:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "2.30304ms",
-	"time": "2026-01-25T15:40:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/",
-	"addr": "100.29.12.221",
-	"duration": "66.921µs",
-	"time": "2026-01-25T15:40:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/favicon.ico",
-	"addr": "100.29.12.221",
-	"duration": "89.063µs",
-	"time": "2026-01-25T15:40:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/favicon.png",
-	"addr": "100.29.12.221",
-	"duration": "234.516µs",
-	"time": "2026-01-25T15:40:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/favicon.png",
-	"addr": "100.29.12.221",
-	"duration": "247.16µs",
-	"time": "2026-01-25T15:40:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "894.269µs",
-	"time": "2026-01-25T15:40:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "774.359µs",
-	"time": "2026-01-25T15:40:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "1.007295ms",
-	"time": "2026-01-25T15:40:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "1.19175ms",
-	"time": "2026-01-25T15:40:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40608",
-	"duration": "22.292µs",
-	"time": "2026-01-25T15:40:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34038",
-	"duration": "12.644µs",
-	"time": "2026-01-25T15:40:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38882",
-	"duration": "13.297µs",
-	"time": "2026-01-25T15:41:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46488",
-	"duration": "10.709µs",
-	"time": "2026-01-25T15:41:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60240",
-	"duration": "12.81µs",
-	"time": "2026-01-25T15:41:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48774",
-	"duration": "12.643µs",
-	"time": "2026-01-25T15:41:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60544",
-	"duration": "11.58µs",
-	"time": "2026-01-25T15:41:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40814",
-	"duration": "15.908µs",
-	"time": "2026-01-25T15:42:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43324",
-	"duration": "13.714µs",
-	"time": "2026-01-25T15:42:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35400",
-	"duration": "17.098µs",
-	"time": "2026-01-25T15:42:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44258",
-	"duration": "12.538µs",
-	"time": "2026-01-25T15:42:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36994",
-	"duration": "9.389µs",
-	"time": "2026-01-25T15:42:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37338",
-	"duration": "14.062µs",
-	"time": "2026-01-25T15:42:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:48946",
-	"duration": "10.397µs",
-	"time": "2026-01-25T15:43:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38338",
-	"duration": "10.855µs",
-	"time": "2026-01-25T15:43:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41662",
-	"duration": "12.112µs",
-	"time": "2026-01-25T15:43:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57796",
-	"duration": "17.819µs",
-	"time": "2026-01-25T15:43:31Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50670",
-	"duration": "11.659µs",
-	"time": "2026-01-25T15:43:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36888",
-	"duration": "17.213µs",
-	"time": "2026-01-25T15:43:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37052",
-	"duration": "46.259µs",
-	"time": "2026-01-25T15:44:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57882",
-	"duration": "13.211µs",
-	"time": "2026-01-25T15:44:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47872",
-	"duration": "9.591µs",
-	"time": "2026-01-25T15:44:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/actuator/gateway/routes",
-	"addr": "79.124.40.174",
-	"duration": "75.958µs",
-	"time": "2026-01-25T15:44:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36818",
-	"duration": "13.561µs",
-	"time": "2026-01-25T15:44:31Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51014",
-	"duration": "10.146µs",
-	"time": "2026-01-25T15:44:41Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45892",
-	"duration": "10.897µs",
-	"time": "2026-01-25T15:44:51Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54982",
-	"duration": "13.505µs",
-	"time": "2026-01-25T15:45:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "909.205µs",
-	"time": "2026-01-25T15:45:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "390.281µs",
-	"time": "2026-01-25T15:45:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "494.433µs",
-	"time": "2026-01-25T15:45:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "500.027µs",
-	"time": "2026-01-25T15:45:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47210",
-	"duration": "15.366µs",
-	"time": "2026-01-25T15:45:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "1.258373ms",
-	"time": "2026-01-25T15:45:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "1.309232ms",
-	"time": "2026-01-25T15:45:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39660",
-	"duration": "873.747µs",
-	"time": "2026-01-25T15:45:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:54522",
-	"duration": "1.014366ms",
-	"time": "2026-01-25T15:45:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58644",
-	"duration": "9.652µs",
-	"time": "2026-01-25T15:45:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57016",
-	"duration": "14.547µs",
-	"time": "2026-01-25T15:45:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57752",
-	"duration": "12µs",
-	"time": "2026-01-25T15:45:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41142",
-	"duration": "12.715µs",
-	"time": "2026-01-25T15:45:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43304",
-	"duration": "53.408µs",
-	"time": "2026-01-25T15:46:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57372",
-	"duration": "19.466µs",
-	"time": "2026-01-25T15:46:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39850",
-	"duration": "12.422µs",
-	"time": "2026-01-25T15:46:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38216",
-	"duration": "13.47µs",
-	"time": "2026-01-25T15:46:32Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58122",
-	"duration": "13.304µs",
-	"time": "2026-01-25T15:46:42Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55064",
-	"duration": "13.703µs",
-	"time": "2026-01-25T15:46:52Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56810",
-	"duration": "11.063µs",
-	"time": "2026-01-25T15:47:02Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39170",
-	"duration": "13.037µs",
-	"time": "2026-01-25T15:47:12Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59286",
-	"duration": "9.938µs",
-	"time": "2026-01-25T15:47:22Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:32954",
-	"duration": "14.208µs",
-	"time": "2026-01-25T15:47:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52968",
-	"duration": "10.374µs",
-	"time": "2026-01-25T15:47:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40916",
-	"duration": "9.297µs",
-	"time": "2026-01-25T15:47:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55002",
-	"duration": "9.531µs",
-	"time": "2026-01-25T15:48:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38118",
-	"duration": "10.901µs",
-	"time": "2026-01-25T15:48:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49906",
-	"duration": "15.4µs",
-	"time": "2026-01-25T15:48:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39268",
-	"duration": "9.797µs",
-	"time": "2026-01-25T15:48:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54918",
-	"duration": "9.238µs",
-	"time": "2026-01-25T15:48:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34580",
-	"duration": "11.199µs",
-	"time": "2026-01-25T15:48:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/",
-	"addr": "216.180.246.92",
-	"duration": "74.657µs",
-	"time": "2026-01-25T15:48:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43790",
-	"duration": "12.998µs",
-	"time": "2026-01-25T15:49:03Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55974",
-	"duration": "11.964µs",
-	"time": "2026-01-25T15:49:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40400",
-	"duration": "12.981µs",
-	"time": "2026-01-25T15:49:23Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37828",
-	"duration": "10.682µs",
-	"time": "2026-01-25T15:49:33Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42168",
-	"duration": "13.884µs",
-	"time": "2026-01-25T15:49:43Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34514",
-	"duration": "32.325µs",
-	"time": "2026-01-25T15:49:53Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:46062",
-	"duration": "14.764µs",
-	"time": "2026-01-25T15:50:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49866",
-	"duration": "13.75µs",
-	"time": "2026-01-25T15:50:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51908",
-	"duration": "13.373µs",
-	"time": "2026-01-25T15:50:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40024",
-	"duration": "12.496µs",
-	"time": "2026-01-25T15:50:34Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56138",
-	"duration": "13.538µs",
-	"time": "2026-01-25T15:50:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57324",
-	"duration": "14.351µs",
-	"time": "2026-01-25T15:50:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42616",
-	"duration": "12.283µs",
-	"time": "2026-01-25T15:51:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52504",
-	"duration": "31.607µs",
-	"time": "2026-01-25T15:51:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34536",
-	"duration": "12.179µs",
-	"time": "2026-01-25T15:51:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53734",
-	"duration": "10.025µs",
-	"time": "2026-01-25T15:51:34Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40594",
-	"duration": "23.535µs",
-	"time": "2026-01-25T15:51:44Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35086",
-	"duration": "13.054µs",
-	"time": "2026-01-25T15:51:54Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49634",
-	"duration": "17.85µs",
-	"time": "2026-01-25T15:52:04Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43352",
-	"duration": "11.19µs",
-	"time": "2026-01-25T15:52:14Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53950",
-	"duration": "13.644µs",
-	"time": "2026-01-25T15:52:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54076",
-	"duration": "12.453µs",
-	"time": "2026-01-25T15:52:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37172",
-	"duration": "11.51µs",
-	"time": "2026-01-25T15:52:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36142",
-	"duration": "11.697µs",
-	"time": "2026-01-25T15:52:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56256",
-	"duration": "9.899µs",
-	"time": "2026-01-25T15:53:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:53936",
-	"duration": "10.719µs",
-	"time": "2026-01-25T15:53:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/developmentserver/metadatauploader",
-	"addr": "4.227.180.232",
-	"duration": "55.903µs",
-	"time": "2026-01-25T15:53:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40838",
-	"duration": "13.555µs",
-	"time": "2026-01-25T15:53:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40694",
-	"duration": "10.237µs",
-	"time": "2026-01-25T15:53:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/.env",
-	"addr": "167.172.78.147",
-	"duration": "47.548µs",
-	"time": "2026-01-25T15:53:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59214",
-	"duration": "12.231µs",
-	"time": "2026-01-25T15:53:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/.git/config",
-	"addr": "167.172.78.147",
-	"duration": "64.121µs",
-	"time": "2026-01-25T15:53:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57218",
-	"duration": "10.286µs",
-	"time": "2026-01-25T15:53:55Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50962",
-	"duration": "13.412µs",
-	"time": "2026-01-25T15:54:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:59238",
-	"duration": "10.915µs",
-	"time": "2026-01-25T15:54:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39964",
-	"duration": "15.886µs",
-	"time": "2026-01-25T15:54:25Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51668",
-	"duration": "13.222µs",
-	"time": "2026-01-25T15:54:35Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37638",
-	"duration": "9.602µs",
-	"time": "2026-01-25T15:54:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:45446",
-	"duration": "11.731µs",
-	"time": "2026-01-25T15:54:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52514",
-	"duration": "12.999µs",
-	"time": "2026-01-25T15:55:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52322",
-	"duration": "21.419µs",
-	"time": "2026-01-25T15:55:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35296",
-	"duration": "13.602µs",
-	"time": "2026-01-25T15:55:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36804",
-	"duration": "13.339µs",
-	"time": "2026-01-25T15:55:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51994",
-	"duration": "11.975µs",
-	"time": "2026-01-25T15:55:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34744",
-	"duration": "16.697µs",
-	"time": "2026-01-25T15:55:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39684",
-	"duration": "10.448µs",
-	"time": "2026-01-25T15:56:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:50584",
-	"duration": "721.514µs",
-	"time": "2026-01-25T15:56:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:57916",
-	"duration": "640.355µs",
-	"time": "2026-01-25T15:56:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:50584",
-	"duration": "456.538µs",
-	"time": "2026-01-25T15:56:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:57916",
-	"duration": "267.771µs",
-	"time": "2026-01-25T15:56:13Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39730",
-	"duration": "10.834µs",
-	"time": "2026-01-25T15:56:16Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:50584",
-	"duration": "997.321µs",
-	"time": "2026-01-25T15:56:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:57916",
-	"duration": "937.512µs",
-	"time": "2026-01-25T15:56:21Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:50584",
-	"duration": "949.06µs",
-	"time": "2026-01-25T15:56:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:57916",
-	"duration": "1.055735ms",
-	"time": "2026-01-25T15:56:24Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43354",
-	"duration": "12.343µs",
-	"time": "2026-01-25T15:56:26Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34218",
-	"duration": "11.972µs",
-	"time": "2026-01-25T15:56:36Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42988",
-	"duration": "12.234µs",
-	"time": "2026-01-25T15:56:46Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:36466",
-	"duration": "11.196µs",
-	"time": "2026-01-25T15:56:56Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43364",
-	"duration": "12.169µs",
-	"time": "2026-01-25T15:57:06Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41186",
-	"duration": "14.492µs",
-	"time": "2026-01-25T15:57:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49746",
-	"duration": "12.45µs",
-	"time": "2026-01-25T15:57:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38802",
-	"duration": "16.307µs",
-	"time": "2026-01-25T15:57:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/developmentserver/metadatauploader",
-	"addr": "135.237.124.11",
-	"duration": "56.704µs",
-	"time": "2026-01-25T15:57:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49490",
-	"duration": "12.338µs",
-	"time": "2026-01-25T15:57:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43056",
-	"duration": "12.72µs",
-	"time": "2026-01-25T15:57:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50746",
-	"duration": "9.8µs",
-	"time": "2026-01-25T15:58:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41214",
-	"duration": "12.877µs",
-	"time": "2026-01-25T15:58:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38220",
-	"duration": "9.243µs",
-	"time": "2026-01-25T15:58:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40256",
-	"duration": "8.985µs",
-	"time": "2026-01-25T15:58:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:57738",
-	"duration": "10.637µs",
-	"time": "2026-01-25T15:58:47Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55278",
-	"duration": "12.516µs",
-	"time": "2026-01-25T15:58:57Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:50548",
-	"duration": "13.479µs",
-	"time": "2026-01-25T15:59:07Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/favicon.ico",
-	"addr": "216.180.246.92",
-	"duration": "58.065µs",
-	"time": "2026-01-25T15:59:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:60850",
-	"duration": "13.537µs",
-	"time": "2026-01-25T15:59:17Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47386",
-	"duration": "32.162µs",
-	"time": "2026-01-25T15:59:27Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/favicon.ico",
-	"addr": "216.180.246.92",
-	"duration": "51.561µs",
-	"time": "2026-01-25T15:59:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47172",
-	"duration": "17.031µs",
-	"time": "2026-01-25T15:59:37Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:32892",
-	"duration": "10.492µs",
-	"time": "2026-01-25T15:59:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54304",
-	"duration": "12.549µs",
-	"time": "2026-01-25T15:59:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:39008",
-	"duration": "10.626µs",
-	"time": "2026-01-25T16:00:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44182",
-	"duration": "20.686µs",
-	"time": "2026-01-25T16:00:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51886",
-	"duration": "11.461µs",
-	"time": "2026-01-25T16:00:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37518",
-	"duration": "8.616µs",
-	"time": "2026-01-25T16:00:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55266",
-	"duration": "13.893µs",
-	"time": "2026-01-25T16:00:48Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43548",
-	"duration": "9.565µs",
-	"time": "2026-01-25T16:00:58Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:33600",
-	"duration": "10.711µs",
-	"time": "2026-01-25T16:01:08Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:44858",
-	"duration": "10.293µs",
-	"time": "2026-01-25T16:01:18Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:37486",
-	"duration": "13.891µs",
-	"time": "2026-01-25T16:01:28Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:40168",
-	"duration": "11.161µs",
-	"time": "2026-01-25T16:01:38Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54312",
-	"duration": "12.909µs",
-	"time": "2026-01-25T16:01:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51620",
-	"duration": "12.099µs",
-	"time": "2026-01-25T16:01:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35372",
-	"duration": "14.041µs",
-	"time": "2026-01-25T16:02:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:41358",
-	"duration": "11.22µs",
-	"time": "2026-01-25T16:02:19Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:42650",
-	"duration": "10.682µs",
-	"time": "2026-01-25T16:02:29Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38084",
-	"duration": "10.331µs",
-	"time": "2026-01-25T16:02:39Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:47680",
-	"duration": "9.774µs",
-	"time": "2026-01-25T16:02:49Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35014",
-	"duration": "10.416µs",
-	"time": "2026-01-25T16:02:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34750",
-	"duration": "10.239µs",
-	"time": "2026-01-25T16:03:09Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"client": "de4dc523-3c8c-427d-ae86-eb924b00c9bb",
-	"duration": "56m56.534538934s",
-	"transport": "websocket",
-	"time": "2026-01-25T16:03:17Z",
+	"time": "2026-01-25T16:28:13Z",
 	"message": "client connection completed"
 }
 {
@@ -7014,9 +247,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:53488",
-	"duration": "12.312µs",
-	"time": "2026-01-25T16:03:19Z",
+	"addr": "[::1]:56866",
+	"duration": "12.65µs",
+	"time": "2026-01-25T16:28:17Z",
 	"message": "http request"
 }
 {
@@ -7025,22 +258,22 @@
 	"status": 101,
 	"path": "/connection/websocket",
 	"addr": "103.157.62.25",
-	"duration": "95.826µs",
-	"time": "2026-01-25T16:03:21Z",
+	"duration": "126.101µs",
+	"time": "2026-01-25T16:28:17Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"client": "3e9d3a2f-ff29-411f-a3db-a149bfcaf658",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
 	"transport": "websocket",
-	"time": "2026-01-25T16:03:21Z",
+	"time": "2026-01-25T16:28:17Z",
 	"message": "client connection established"
 }
 {
 	"level": "debug",
-	"client": "3e9d3a2f-ff29-411f-a3db-a149bfcaf658",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
 	"user": "",
-	"time": "2026-01-25T16:03:22Z",
+	"time": "2026-01-25T16:28:17Z",
 	"message": "client authenticated"
 }
 {
@@ -7048,9 +281,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:49774",
-	"duration": "11.683µs",
-	"time": "2026-01-25T16:03:29Z",
+	"addr": "[::1]:40780",
+	"duration": "10.877µs",
+	"time": "2026-01-25T16:28:27Z",
 	"message": "http request"
 }
 {
@@ -7058,58 +291,33 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:58138",
-	"duration": "41.584µs",
-	"time": "2026-01-25T16:03:39Z",
+	"addr": "[::1]:58304",
+	"duration": "33.349µs",
+	"time": "2026-01-25T16:28:37Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:52836",
-	"duration": "10.471µs",
-	"time": "2026-01-25T16:03:49Z",
-	"message": "http request"
+	"channel": "download:progress:8585ff91-30cf-40a7-9b15-7a040ee65493",
+	"time": "2026-01-25T16:28:42Z",
+	"message": "subscribe node on channel"
 }
 {
 	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:55314",
-	"duration": "14.611µs",
-	"time": "2026-01-25T16:03:59Z",
-	"message": "http request"
-}
-{
-	"level": "info",
-	"channel": "download:progress:2f01f795-9483-48b3-bff3-8e3d044bc42b",
-	"client": "3e9d3a2f-ff29-411f-a3db-a149bfcaf658",
+	"channel": "download:progress:8585ff91-30cf-40a7-9b15-7a040ee65493",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
 	"user": "",
-	"time": "2026-01-25T16:04:04Z",
-	"message": "attempt to subscribe without sufficient permission"
-}
-{
-	"level": "info",
-	"client": "3e9d3a2f-ff29-411f-a3db-a149bfcaf658",
-	"code": 103,
-	"command": "id:2  subscribe:{channel:\"download:progress:2f01f795-9483-48b3-bff3-8e3d044bc42b\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:2  error:{code:103  message:\"permission denied\"}",
-	"user": "",
-	"time": "2026-01-25T16:04:04Z",
-	"message": "client command error"
+	"time": "2026-01-25T16:28:42Z",
+	"message": "client subscribed to channel"
 }
 {
 	"level": "debug",
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "583.333µs",
-	"time": "2026-01-25T16:04:05Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "577.689µs",
+	"time": "2026-01-25T16:28:42Z",
 	"message": "http request"
 }
 {
@@ -7117,9 +325,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "298.975µs",
-	"time": "2026-01-25T16:04:05Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "481.052µs",
+	"time": "2026-01-25T16:28:42Z",
 	"message": "http request"
 }
 {
@@ -7127,9 +335,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "302.365µs",
-	"time": "2026-01-25T16:04:05Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "690.002µs",
+	"time": "2026-01-25T16:28:42Z",
 	"message": "http request"
 }
 {
@@ -7137,25 +345,19 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "272.088µs",
-	"time": "2026-01-25T16:04:05Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.097738ms",
+	"time": "2026-01-25T16:28:42Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"channel": "download:progress:2f01f795-9483-48b3-bff3-8e3d044bc42b",
-	"time": "2026-01-25T16:04:05Z",
-	"message": "unsubscribe node from channel"
-}
-{
-	"level": "debug",
-	"method": "POST",
+	"method": "GET",
 	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "723.825µs",
-	"time": "2026-01-25T16:04:07Z",
+	"path": "/health",
+	"addr": "[::1]:56604",
+	"duration": "14.397µs",
+	"time": "2026-01-25T16:28:47Z",
 	"message": "http request"
 }
 {
@@ -7163,9 +365,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "674.276µs",
-	"time": "2026-01-25T16:04:07Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "932.339µs",
+	"time": "2026-01-25T16:28:50Z",
 	"message": "http request"
 }
 {
@@ -7173,9 +375,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "543.927µs",
-	"time": "2026-01-25T16:04:07Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.564502ms",
+	"time": "2026-01-25T16:28:50Z",
 	"message": "http request"
 }
 {
@@ -7183,9 +385,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "344.27µs",
-	"time": "2026-01-25T16:04:07Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.05866ms",
+	"time": "2026-01-25T16:28:50Z",
 	"message": "http request"
 }
 {
@@ -7193,9 +395,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "1.322742ms",
-	"time": "2026-01-25T16:04:07Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.20337ms",
+	"time": "2026-01-25T16:28:50Z",
 	"message": "http request"
 }
 {
@@ -7203,9 +405,19 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "1.019998ms",
-	"time": "2026-01-25T16:04:07Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.016682ms",
+	"time": "2026-01-25T16:28:50Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.639839ms",
+	"time": "2026-01-25T16:28:50Z",
 	"message": "http request"
 }
 {
@@ -7213,9 +425,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:42070",
-	"duration": "10.65µs",
-	"time": "2026-01-25T16:04:10Z",
+	"addr": "[::1]:36432",
+	"duration": "12.201µs",
+	"time": "2026-01-25T16:28:57Z",
 	"message": "http request"
 }
 {
@@ -7223,99 +435,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:37418",
-	"duration": "13.02µs",
-	"time": "2026-01-25T16:04:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:38826",
-	"duration": "10.274µs",
-	"time": "2026-01-25T16:04:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:35536",
-	"duration": "11.871µs",
-	"time": "2026-01-25T16:04:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58722",
-	"duration": "23.139µs",
-	"time": "2026-01-25T16:04:50Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:54662",
-	"duration": "149.352µs",
-	"time": "2026-01-25T16:05:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:56598",
-	"duration": "12.279µs",
-	"time": "2026-01-25T16:05:10Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:51260",
-	"duration": "9.678µs",
-	"time": "2026-01-25T16:05:20Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:49452",
-	"duration": "9.822µs",
-	"time": "2026-01-25T16:05:30Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:34918",
-	"duration": "9.316µs",
-	"time": "2026-01-25T16:05:40Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:43558",
-	"duration": "11.428µs",
-	"time": "2026-01-25T16:05:50Z",
+	"addr": "[::1]:37292",
+	"duration": "9.872µs",
+	"time": "2026-01-25T16:29:07Z",
 	"message": "http request"
 }
 {
@@ -7324,73 +446,208 @@
 	"status": 200,
 	"path": "/health",
 	"addr": "[::1]:43992",
-	"duration": "17.928µs",
-	"time": "2026-01-25T16:06:00Z",
+	"duration": "13.208µs",
+	"time": "2026-01-25T16:29:17Z",
 	"message": "http request"
 }
 {
-	"level": "info",
-	"channel": "download:progress:f4aef60d-99d6-4025-9775-5a25c9a6ee9b",
-	"client": "3e9d3a2f-ff29-411f-a3db-a149bfcaf658",
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:40456",
+	"duration": "33.436µs",
+	"time": "2026-01-25T16:29:27Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "555.34µs",
+	"time": "2026-01-25T16:29:34Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "585.92µs",
+	"time": "2026-01-25T16:29:34Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "302.331µs",
+	"time": "2026-01-25T16:29:34Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "234.295µs",
+	"time": "2026-01-25T16:29:34Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:18fd5b0c-9e00-400b-8e47-aea65f8d2664",
+	"time": "2026-01-25T16:29:35Z",
+	"message": "subscribe node on channel"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:18fd5b0c-9e00-400b-8e47-aea65f8d2664",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
 	"user": "",
-	"time": "2026-01-25T16:06:05Z",
-	"message": "attempt to subscribe without sufficient permission"
+	"time": "2026-01-25T16:29:35Z",
+	"message": "client subscribed to channel"
 }
 {
-	"level": "info",
-	"client": "3e9d3a2f-ff29-411f-a3db-a149bfcaf658",
-	"code": 103,
-	"command": "id:3  subscribe:{channel:\"download:progress:f4aef60d-99d6-4025-9775-5a25c9a6ee9b\"  token:\"*** REDACTED ***\"}",
-	"error": "permission denied",
-	"reply": "id:3  error:{code:103  message:\"permission denied\"}",
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:40300",
+	"duration": "10.055µs",
+	"time": "2026-01-25T16:29:37Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:54904",
+	"duration": "14.804µs",
+	"time": "2026-01-25T16:29:48Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.210876ms",
+	"time": "2026-01-25T16:29:52Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.228533ms",
+	"time": "2026-01-25T16:29:52Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "515.574µs",
+	"time": "2026-01-25T16:29:52Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "700.913µs",
+	"time": "2026-01-25T16:29:52Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "625.847µs",
+	"time": "2026-01-25T16:29:52Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "741.25µs",
+	"time": "2026-01-25T16:29:52Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:44164",
+	"duration": "12.356µs",
+	"time": "2026-01-25T16:29:58Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:47546",
+	"duration": "9.954µs",
+	"time": "2026-01-25T16:30:08Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
+	"duration": "1m53.683494103s",
+	"transport": "websocket",
+	"time": "2026-01-25T16:30:11Z",
+	"message": "client connection completed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:8585ff91-30cf-40a7-9b15-7a040ee65493",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
 	"user": "",
-	"time": "2026-01-25T16:06:05Z",
-	"message": "client command error"
+	"time": "2026-01-25T16:30:11Z",
+	"message": "client unsubscribed from channel"
 }
 {
 	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "472.552µs",
-	"time": "2026-01-25T16:06:05Z",
-	"message": "http request"
+	"channel": "download:progress:18fd5b0c-9e00-400b-8e47-aea65f8d2664",
+	"client": "a0a6b4c9-a892-4c0c-a208-3de8e332a1ca",
+	"user": "",
+	"time": "2026-01-25T16:30:11Z",
+	"message": "client unsubscribed from channel"
 }
 {
 	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "767.231µs",
-	"time": "2026-01-25T16:06:05Z",
-	"message": "http request"
+	"channel": "download:progress:18fd5b0c-9e00-400b-8e47-aea65f8d2664",
+	"time": "2026-01-25T16:30:12Z",
+	"message": "unsubscribe node from channel"
 }
 {
 	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "447.549µs",
-	"time": "2026-01-25T16:06:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "500.026µs",
-	"time": "2026-01-25T16:06:05Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"channel": "download:progress:f4aef60d-99d6-4025-9775-5a25c9a6ee9b",
-	"time": "2026-01-25T16:06:06Z",
+	"channel": "download:progress:8585ff91-30cf-40a7-9b15-7a040ee65493",
+	"time": "2026-01-25T16:30:12Z",
 	"message": "unsubscribe node from channel"
 }
 {
@@ -7398,29 +655,43 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:46878",
-	"duration": "9.981µs",
-	"time": "2026-01-25T16:06:10Z",
+	"addr": "[::1]:58056",
+	"duration": "12.747µs",
+	"time": "2026-01-25T16:30:18Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "776.361µs",
-	"time": "2026-01-25T16:06:20Z",
+	"method": "GET",
+	"status": 101,
+	"path": "/connection/websocket",
+	"addr": "103.157.62.25",
+	"duration": "128.925µs",
+	"time": "2026-01-25T16:30:27Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"method": "POST",
+	"client": "a74d6fcf-f7d0-41d4-ae75-01485a1035b5",
+	"transport": "websocket",
+	"time": "2026-01-25T16:30:27Z",
+	"message": "client connection established"
+}
+{
+	"level": "debug",
+	"client": "a74d6fcf-f7d0-41d4-ae75-01485a1035b5",
+	"user": "",
+	"time": "2026-01-25T16:30:27Z",
+	"message": "client authenticated"
+}
+{
+	"level": "debug",
+	"method": "GET",
 	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "647.852µs",
-	"time": "2026-01-25T16:06:20Z",
+	"path": "/health",
+	"addr": "[::1]:51380",
+	"duration": "12.626µs",
+	"time": "2026-01-25T16:30:28Z",
 	"message": "http request"
 }
 {
@@ -7428,9 +699,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:48928",
-	"duration": "13.19µs",
-	"time": "2026-01-25T16:06:20Z",
+	"addr": "[::1]:57390",
+	"duration": "15.612µs",
+	"time": "2026-01-25T16:30:38Z",
 	"message": "http request"
 }
 {
@@ -7438,9 +709,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "728.08µs",
-	"time": "2026-01-25T16:06:23Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "540.453µs",
+	"time": "2026-01-25T16:30:48Z",
 	"message": "http request"
 }
 {
@@ -7448,9 +719,29 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "673.002µs",
-	"time": "2026-01-25T16:06:23Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "583.164µs",
+	"time": "2026-01-25T16:30:48Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "422.989µs",
+	"time": "2026-01-25T16:30:48Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "346.508µs",
+	"time": "2026-01-25T16:30:48Z",
 	"message": "http request"
 }
 {
@@ -7458,19 +749,33 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:51336",
-	"duration": "12.15µs",
-	"time": "2026-01-25T16:06:30Z",
+	"addr": "[::1]:43686",
+	"duration": "11.164µs",
+	"time": "2026-01-25T16:30:48Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
-	"method": "GET",
+	"channel": "download:progress:e28063e9-46cc-4af5-b6d7-9df2b1c7f768",
+	"time": "2026-01-25T16:30:48Z",
+	"message": "subscribe node on channel"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:e28063e9-46cc-4af5-b6d7-9df2b1c7f768",
+	"client": "a74d6fcf-f7d0-41d4-ae75-01485a1035b5",
+	"user": "",
+	"time": "2026-01-25T16:30:48Z",
+	"message": "client subscribed to channel"
+}
+{
+	"level": "debug",
+	"method": "POST",
 	"status": 200,
-	"path": "/health",
-	"addr": "[::1]:58976",
-	"duration": "12.782µs",
-	"time": "2026-01-25T16:06:40Z",
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "689.266µs",
+	"time": "2026-01-25T16:30:56Z",
 	"message": "http request"
 }
 {
@@ -7478,39 +783,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "440.308µs",
-	"time": "2026-01-25T16:06:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "403.125µs",
-	"time": "2026-01-25T16:06:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "252.514µs",
-	"time": "2026-01-25T16:06:45Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "597.242µs",
-	"time": "2026-01-25T16:06:45Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "702.153µs",
+	"time": "2026-01-25T16:30:56Z",
 	"message": "http request"
 }
 {
@@ -7518,9 +793,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:38666",
-	"duration": "11.488µs",
-	"time": "2026-01-25T16:06:51Z",
+	"addr": "[::1]:53444",
+	"duration": "11.961µs",
+	"time": "2026-01-25T16:30:58Z",
 	"message": "http request"
 }
 {
@@ -7528,9 +803,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "814.576µs",
-	"time": "2026-01-25T16:07:00Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "945.069µs",
+	"time": "2026-01-25T16:30:59Z",
 	"message": "http request"
 }
 {
@@ -7538,9 +813,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "795.863µs",
-	"time": "2026-01-25T16:07:00Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "681.661µs",
+	"time": "2026-01-25T16:30:59Z",
 	"message": "http request"
 }
 {
@@ -7548,9 +823,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:55180",
-	"duration": "10.208µs",
-	"time": "2026-01-25T16:07:01Z",
+	"addr": "[::1]:55080",
+	"duration": "9.444µs",
+	"time": "2026-01-25T16:31:08Z",
 	"message": "http request"
 }
 {
@@ -7558,9 +833,9 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "798.136µs",
-	"time": "2026-01-25T16:07:04Z",
+	"addr": "172.19.0.2:39820",
+	"duration": "366.975µs",
+	"time": "2026-01-25T16:31:08Z",
 	"message": "http request"
 }
 {
@@ -7568,9 +843,49 @@
 	"method": "POST",
 	"status": 200,
 	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "695.243µs",
-	"time": "2026-01-25T16:07:04Z",
+	"addr": "172.19.0.3:51710",
+	"duration": "509.364µs",
+	"time": "2026-01-25T16:31:08Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "343.233µs",
+	"time": "2026-01-25T16:31:08Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "622.222µs",
+	"time": "2026-01-25T16:31:08Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "842.404µs",
+	"time": "2026-01-25T16:31:16Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "801.138µs",
+	"time": "2026-01-25T16:31:16Z",
 	"message": "http request"
 }
 {
@@ -7578,9 +893,29 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:43450",
-	"duration": "11.876µs",
-	"time": "2026-01-25T16:07:11Z",
+	"addr": "[::1]:54816",
+	"duration": "10.276µs",
+	"time": "2026-01-25T16:31:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "931.148µs",
+	"time": "2026-01-25T16:31:19Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.310228ms",
+	"time": "2026-01-25T16:31:19Z",
 	"message": "http request"
 }
 {
@@ -7588,9 +923,49 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:49210",
-	"duration": "40.776µs",
-	"time": "2026-01-25T16:07:21Z",
+	"addr": "[::1]:50210",
+	"duration": "11.843µs",
+	"time": "2026-01-25T16:31:28Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "486.33µs",
+	"time": "2026-01-25T16:31:37Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "706.193µs",
+	"time": "2026-01-25T16:31:37Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "358.15µs",
+	"time": "2026-01-25T16:31:37Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "862.447µs",
+	"time": "2026-01-25T16:31:37Z",
 	"message": "http request"
 }
 {
@@ -7598,9 +973,49 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:41520",
-	"duration": "12.463µs",
-	"time": "2026-01-25T16:07:31Z",
+	"addr": "[::1]:54848",
+	"duration": "93.957µs",
+	"time": "2026-01-25T16:31:38Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "818.722µs",
+	"time": "2026-01-25T16:31:44Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "714.636µs",
+	"time": "2026-01-25T16:31:44Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "951.298µs",
+	"time": "2026-01-25T16:31:47Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.049688ms",
+	"time": "2026-01-25T16:31:47Z",
 	"message": "http request"
 }
 {
@@ -7608,9 +1023,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:52394",
-	"duration": "10.029µs",
-	"time": "2026-01-25T16:07:41Z",
+	"addr": "[::1]:49652",
+	"duration": "12.953µs",
+	"time": "2026-01-25T16:31:48Z",
 	"message": "http request"
 }
 {
@@ -7618,119 +1033,129 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:58374",
-	"duration": "18.271µs",
-	"time": "2026-01-25T16:07:51Z",
+	"addr": "[::1]:38062",
+	"duration": "203.594µs",
+	"time": "2026-01-25T16:31:58Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
 	"method": "GET",
 	"status": 200,
-	"path": "/",
-	"addr": "47.84.120.28",
-	"duration": "67.718µs",
-	"time": "2026-01-25T16:07:58Z",
+	"path": "/health",
+	"addr": "[::1]:46932",
+	"duration": "11.048µs",
+	"time": "2026-01-25T16:32:08Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "764.251µs",
+	"time": "2026-01-25T16:32:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.102718ms",
+	"time": "2026-01-25T16:32:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "403.697µs",
+	"time": "2026-01-25T16:32:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "359.852µs",
+	"time": "2026-01-25T16:32:18Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
 	"method": "GET",
 	"status": 200,
-	"path": "/robots.txt",
-	"addr": "47.84.120.28",
-	"duration": "72.342µs",
-	"time": "2026-01-25T16:07:59Z",
+	"path": "/health",
+	"addr": "[::1]:40386",
+	"duration": "17.887µs",
+	"time": "2026-01-25T16:32:19Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "731.847µs",
+	"time": "2026-01-25T16:32:25Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.882968ms",
+	"time": "2026-01-25T16:32:25Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "521.055µs",
+	"time": "2026-01-25T16:32:28Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.7474ms",
+	"time": "2026-01-25T16:32:28Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
 	"method": "GET",
 	"status": 200,
-	"path": "/favicon.png",
-	"addr": "47.84.120.28",
-	"duration": "156.961µs",
-	"time": "2026-01-25T16:07:59Z",
+	"path": "/health",
+	"addr": "[::1]:60730",
+	"duration": "14.196µs",
+	"time": "2026-01-25T16:32:29Z",
 	"message": "http request"
 }
 {
 	"level": "debug",
 	"method": "GET",
 	"status": 404,
-	"path": "/sitemap.xml",
-	"addr": "47.84.120.28",
-	"duration": "40.183µs",
-	"time": "2026-01-25T16:07:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/favicon.ico",
-	"addr": "47.84.119.64",
-	"duration": "40.332µs",
-	"time": "2026-01-25T16:07:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/robots.txt",
-	"addr": "47.84.119.64",
-	"duration": "67.135µs",
-	"time": "2026-01-25T16:07:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/sitemap.xml",
-	"addr": "47.84.119.64",
-	"duration": "41.99µs",
-	"time": "2026-01-25T16:07:59Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/",
-	"addr": "47.84.119.64",
-	"duration": "71.824µs",
-	"time": "2026-01-25T16:08:00Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 404,
-	"path": "/sitemap.xml",
-	"addr": "47.84.119.64",
-	"duration": "69.042µs",
-	"time": "2026-01-25T16:08:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/favicon.png",
-	"addr": "47.84.119.64",
-	"duration": "286.866µs",
-	"time": "2026-01-25T16:08:01Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "GET",
-	"status": 200,
-	"path": "/robots.txt",
-	"addr": "47.84.119.64",
-	"duration": "31.718µs",
-	"time": "2026-01-25T16:08:01Z",
+	"path": "/.env",
+	"addr": "45.139.104.168",
+	"duration": "1.213414ms",
+	"time": "2026-01-25T16:32:33Z",
 	"message": "http request"
 }
 {
@@ -7738,9 +1163,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:40088",
-	"duration": "9.992µs",
-	"time": "2026-01-25T16:08:01Z",
+	"addr": "[::1]:54898",
+	"duration": "13.139µs",
+	"time": "2026-01-25T16:32:39Z",
 	"message": "http request"
 }
 {
@@ -7748,49 +1173,9 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:36282",
-	"duration": "9.424µs",
-	"time": "2026-01-25T16:08:11Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "552.763µs",
-	"time": "2026-01-25T16:08:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "492.887µs",
-	"time": "2026-01-25T16:08:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.3:39062",
-	"duration": "435.896µs",
-	"time": "2026-01-25T16:08:15Z",
-	"message": "http request"
-}
-{
-	"level": "debug",
-	"method": "POST",
-	"status": 200,
-	"path": "/api",
-	"addr": "172.19.0.2:49734",
-	"duration": "416.324µs",
-	"time": "2026-01-25T16:08:15Z",
+	"addr": "[::1]:40712",
+	"duration": "13.002µs",
+	"time": "2026-01-25T16:32:49Z",
 	"message": "http request"
 }
 {
@@ -7798,8 +1183,308 @@
 	"method": "GET",
 	"status": 200,
 	"path": "/health",
-	"addr": "[::1]:38372",
-	"duration": "9.626µs",
-	"time": "2026-01-25T16:08:21Z",
+	"addr": "[::1]:56988",
+	"duration": "10.516µs",
+	"time": "2026-01-25T16:32:59Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:41346",
+	"duration": "12.634µs",
+	"time": "2026-01-25T16:33:09Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:56544",
+	"duration": "9.702µs",
+	"time": "2026-01-25T16:33:19Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:47398",
+	"duration": "13.383µs",
+	"time": "2026-01-25T16:33:29Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:46838",
+	"duration": "12.045µs",
+	"time": "2026-01-25T16:33:39Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:34030",
+	"duration": "9.475µs",
+	"time": "2026-01-25T16:33:49Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:47750",
+	"duration": "11.495µs",
+	"time": "2026-01-25T16:33:59Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:52630",
+	"duration": "15.044µs",
+	"time": "2026-01-25T16:34:09Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "387.228µs",
+	"time": "2026-01-25T16:34:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.038636ms",
+	"time": "2026-01-25T16:34:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "475.455µs",
+	"time": "2026-01-25T16:34:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "608.223µs",
+	"time": "2026-01-25T16:34:18Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:60824",
+	"duration": "13.551µs",
+	"time": "2026-01-25T16:34:19Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "898.854µs",
+	"time": "2026-01-25T16:34:26Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.305814ms",
+	"time": "2026-01-25T16:34:26Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:42422",
+	"duration": "12.795µs",
+	"time": "2026-01-25T16:34:29Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.3:51710",
+	"duration": "1.515854ms",
+	"time": "2026-01-25T16:34:30Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "POST",
+	"status": 200,
+	"path": "/api",
+	"addr": "172.19.0.2:39820",
+	"duration": "1.588964ms",
+	"time": "2026-01-25T16:34:30Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:59954",
+	"duration": "10.621µs",
+	"time": "2026-01-25T16:34:39Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:53162",
+	"duration": "11.221µs",
+	"time": "2026-01-25T16:34:50Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:48752",
+	"duration": "12.448µs",
+	"time": "2026-01-25T16:35:00Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:50274",
+	"duration": "9.979µs",
+	"time": "2026-01-25T16:35:10Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:60646",
+	"duration": "12.171µs",
+	"time": "2026-01-25T16:35:20Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:45352",
+	"duration": "13.152µs",
+	"time": "2026-01-25T16:35:30Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:39326",
+	"duration": "10.117µs",
+	"time": "2026-01-25T16:35:40Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:56690",
+	"duration": "10.311µs",
+	"time": "2026-01-25T16:35:50Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:58200",
+	"duration": "12.382µs",
+	"time": "2026-01-25T16:36:00Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:38880",
+	"duration": "12.298µs",
+	"time": "2026-01-25T16:36:10Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:34506",
+	"duration": "13.63µs",
+	"time": "2026-01-25T16:36:20Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:40520",
+	"duration": "12.643µs",
+	"time": "2026-01-25T16:36:30Z",
+	"message": "http request"
+}
+{
+	"level": "debug",
+	"method": "GET",
+	"status": 200,
+	"path": "/health",
+	"addr": "[::1]:51942",
+	"duration": "13.704µs",
+	"time": "2026-01-25T16:36:40Z",
 	"message": "http request"
 }

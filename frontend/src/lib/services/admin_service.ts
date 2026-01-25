@@ -42,4 +42,30 @@ export class AdminServiceImpl extends BaseService implements AdminService {
 			};
 		}
 	}
+
+	async getCookies(): Promise<string[]> {
+		try {
+			const response = await this.api.authRequest('GET', '/protected-admin/cookies');
+			if (!response.success) {
+				throw new Error(response.message || 'Failed to get cookies');
+			}
+			return response.data as string[] || [];
+		} catch (error) {
+			console.error('Error fetching cookies:', error);
+			return [];
+		}
+	}
+
+	async updateCookies(cookies: string[]): Promise<boolean> {
+		try {
+			const response = await this.api.authRequest('PUT', '/protected-admin/cookies', { cookies });
+			if (!response.success) {
+				throw new Error(response.message || 'Failed to update cookies');
+			}
+			return response.success;
+		} catch (error) {
+			console.error('Error updating cookies:', error);
+			return false;
+		}
+	}
 }

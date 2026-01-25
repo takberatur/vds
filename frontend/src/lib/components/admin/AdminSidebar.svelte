@@ -133,6 +133,12 @@
 						icon: 'ic:round-key'
 					}
 				]
+			},
+			{
+				id: 9,
+				title: 'Cookies',
+				url: localizeHref('/cookies'),
+				icon: 'fluent:cookies-16-filled'
 			}
 		] satisfies MenuItem[],
 		navBottom: [

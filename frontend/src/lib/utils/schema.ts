@@ -110,6 +110,9 @@ export const updateSettingAdsTxt = z.object({
 export const updateSettingRobotTxt = z.object({
 	content: z.string().optional().or(z.literal(''))
 })
+export const updateSettingCookie = z.object({
+	cookies: z.string().optional().or(z.literal(''))
+})
 
 
 // Account
@@ -285,6 +288,7 @@ export type UpdateSettingSystemSchema = z.infer<typeof updateSettingSystem>;
 export type UpdateSettingMonetizationSchema = z.infer<typeof updateSettingMonetization>;
 export type UpdateSettingRobotTxtSchema = z.infer<typeof updateSettingRobotTxt>;
 export type UpdateSettingAdsTxtSchema = z.infer<typeof updateSettingAdsTxt>;
+export type UpdateSettingCookieSchema = z.infer<typeof updateSettingCookie>;
 
 // Accounts
 export type UpdateProfileSchema = z.infer<typeof updateProfileSchema>;

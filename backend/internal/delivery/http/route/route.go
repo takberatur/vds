@@ -152,6 +152,10 @@ func SetupRoutes(c *RouteConfig) {
 	protectedAdmin.Get("/health/log", healthHandler.GetLogger)
 	protectedAdmin.Post("/health/log", csrfMiddleware, healthHandler.ClearLogs)
 
+	// cookies
+	protectedAdmin.Get("/cookies", adminHandler.GetCookies)
+	protectedAdmin.Put("/cookies", csrfMiddleware, adminHandler.UpdateCookies)
+
 	// Web Client Routes
 	publicWeb.Get("/centrifugo/token", centrifugoHandler.GetToken)
 	publicWeb.Post("/contact", webHandler.Contact)

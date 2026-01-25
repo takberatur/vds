@@ -515,24 +515,41 @@ func processJsonLD(data map[string]interface{}, info **VideoInfo) bool {
 func extractFromMetaTags(doc *goquery.Document) *VideoInfo {
 	var info VideoInfo
 
+	// Helper to validate URL
+	isValidURL := func(u string) bool {
+		return u != "" && !strings.HasPrefix(u, "blob:")
+	}
+
 	// Try standard OpenGraph video
-	info.DownloadURL = doc.Find("meta[property='og:video']").AttrOr("content", "")
-	if info.DownloadURL == "" {
-		info.DownloadURL = doc.Find("meta[property='og:video:secure_url']").AttrOr("content", "")
+	if val := doc.Find("meta[property='og:video']").AttrOr("content", ""); isValidURL(val) {
+		info.DownloadURL = val
 	}
 	if info.DownloadURL == "" {
-		info.DownloadURL = doc.Find("meta[property='og:video:url']").AttrOr("content", "")
+		if val := doc.Find("meta[property='og:video:secure_url']").AttrOr("content", ""); isValidURL(val) {
+			info.DownloadURL = val
+		}
 	}
 	if info.DownloadURL == "" {
-		info.DownloadURL = doc.Find("meta[itemprop='contentUrl']").AttrOr("content", "")
+		if val := doc.Find("meta[property='og:video:url']").AttrOr("content", ""); isValidURL(val) {
+			info.DownloadURL = val
+		}
+	}
+	if info.DownloadURL == "" {
+		if val := doc.Find("meta[itemprop='contentUrl']").AttrOr("content", ""); isValidURL(val) {
+			info.DownloadURL = val
+		}
 	}
 
 	// If still empty, try to find video tag src
 	if info.DownloadURL == "" {
-		info.DownloadURL = doc.Find("video source").AttrOr("src", "")
+		if val := doc.Find("video source").AttrOr("src", ""); isValidURL(val) {
+			info.DownloadURL = val
+		}
 	}
 	if info.DownloadURL == "" {
-		info.DownloadURL = doc.Find("video").AttrOr("src", "")
+		if val := doc.Find("video").AttrOr("src", ""); isValidURL(val) {
+			info.DownloadURL = val
+		}
 	}
 
 	if info.DownloadURL == "" {

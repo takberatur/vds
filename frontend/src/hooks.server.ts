@@ -238,6 +238,7 @@ const adminMiddleware: Handle = async ({ event, resolve }) => {
 		'/settings',
 		'/accounts',
 		'/application',
+		'/cookies',
 		'/users',
 		"/platform",
 		"/subscription",

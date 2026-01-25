@@ -341,6 +341,8 @@ declare global {
 	}
 	interface AdminService {
 		getDashboardData(query: QueryParams): Promise<PaginatedResult<DashboardResponse>>
+		getCookies(): Promise<string[]>
+		updateCookies(cookies: string[]): Promise<boolean>
 	}
 	interface ApplicationService {
 		GetApplications(query: QueryParams): Promise<PaginatedResult<Application>>
