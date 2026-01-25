@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -59,10 +60,14 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 25*time.Second)
 	defer cancel()
 
-	var userAgent string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+	var userAgent string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 
-	if strings.Contains(url, "tiktok.com") || strings.Contains(url, "instagram.com") {
-		userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+	// Only use mobile UA for Instagram if needed, but manual tests suggest Desktop might be better or equal if cookies are issue.
+	// For TikTok, manual test with default UA worked, so we revert the forced mobile UA.
+	if strings.Contains(url, "instagram.com") {
+		// Instagram often requires login, Mobile UA sometimes triggers a lighter page but can also trigger different checks.
+		// Let's stick to Desktop for now as per manual test insights, or try a very standard one.
+		userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 	}
 
 	args := []string{
@@ -71,6 +76,11 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		"--no-playlist",
 		"--no-check-certificate",
 		"--user-agent", userAgent,
+	}
+
+	// Check if cookies.txt exists and use it
+	if _, err := os.Stat("cookies.txt"); err == nil {
+		args = append(args, "--cookies", "cookies.txt")
 	}
 
 	if strings.Contains(url, "rumble.com") {
