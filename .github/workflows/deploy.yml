@@ -20,9 +20,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd /var/www/video-downloader
-          git pull origin main
-          # Add any other deployment commands here
-          # For example:
-          # ./deploy.sh
-          # systemctl restart your-service
-          # nginx -s reload
+
+          # Reset dan pull dengan force
+          git fetch origin
+          git reset --hard origin/main
