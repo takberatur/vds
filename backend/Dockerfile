@@ -42,7 +42,8 @@ RUN apk add --no-cache \
     curl-dev \
     linux-headers \
     chromium && \
-    pip3 install --break-system-packages yt-dlp curl-cffi && \
+    pip3 install --force-reinstall --break-system-packages "yt-dlp[default]" curl-cffi && \
+    python3 -c "import curl_cffi; print('curl_cffi installed successfully')" && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \
     mv migrate /usr/local/bin/migrate && \
     chmod +x /usr/local/bin/migrate

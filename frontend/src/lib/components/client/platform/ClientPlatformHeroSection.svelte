@@ -369,7 +369,7 @@
 			<!-- Download Form -->
 			<div class="mx-auto mb-8 max-w-3xl">
 				<div
-					class="flex flex-col gap-3 rounded-2xl border border-border bg-muted p-4 shadow-xl shadow-blue-100/50 md:p-6 dark:shadow-blue-900/50"
+					class="flex flex-col gap-3 rounded-2xl border border-border bg-blue-200 p-4 shadow-xl shadow-blue-100/50 md:p-6 dark:bg-blue-800/50 dark:shadow-blue-900/50"
 				>
 					<div class="mb-4 flex items-center justify-center gap-2">
 						<Icon
@@ -423,7 +423,7 @@
 				{:else if errorMessage}
 					<p class="mt-3 text-sm text-red-500 dark:text-red-400">{errorMessage}</p>
 				{:else}
-					<p class="mt-4 text-sm text-muted-foreground">
+					<p class="mt-4 text-sm">
 						✨ {i18n.text_hero_input_description()}
 					</p>
 				{/if}

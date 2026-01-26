@@ -23,7 +23,8 @@ type VideoInfo struct {
 	Extractor   string            `json:"extractor"` // youtube, tiktok, etc.
 	Filename    string            `json:"filename,omitempty"`
 	Filesize    *int64            `json:"filesize,omitempty"`
-	DownloadURL string            `json:"url,omitempty"`     // Direct link if available
+	DownloadURL string            `json:"url,omitempty"` // Direct link if available
+	UserAgent   string            `json:"user_agent,omitempty"`
 	Cookies     map[string]string `json:"cookies,omitempty"` // Cookies required for download
 	Formats     []FormatInfo      `json:"formats,omitempty"`
 }
@@ -52,25 +53,26 @@ type ytDlpClient struct {
 
 func NewDownloaderClient() DownloaderClient {
 	return &ytDlpClient{
-		executablePath: "yt-dlp",
+		executablePath: "python3",
 	}
 }
 
 func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error) {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 25*time.Second)
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 45*time.Second) // Increased timeout
 	defer cancel()
 
-	var userAgent string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+	var userAgent string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
 
 	// Only use mobile UA for Instagram if needed, but manual tests suggest Desktop might be better or equal if cookies are issue.
 	// For TikTok, manual test with default UA worked, so we revert the forced mobile UA.
 	if strings.Contains(url, "instagram.com") {
 		// Instagram often requires login, Mobile UA sometimes triggers a lighter page but can also trigger different checks.
 		// Let's stick to Desktop for now as per manual test insights, or try a very standard one.
-		userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+		userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
 	}
 
 	args := []string{
+		"-m", "yt_dlp", // Run as python module to ensure curl-cffi is found
 		"--js-runtimes", "node",
 		"--dump-json",
 		"--no-playlist",
@@ -82,10 +84,25 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		args = append(args, "--user-agent", userAgent)
 	}
 
+	if strings.Contains(url, "tiktok.com") {
+		// Use chrome110 target for impersonation to avoid empty file/captcha
+		args = append(args, "--impersonate", "chrome110")
+	}
+
+	if strings.Contains(url, "vimeo.com") {
+		args = append(args, "--referer", "https://vimeo.com/")
+	}
+
 	// Check if cookies.txt exists and use it
-	if _, err := os.Stat("cookies.txt"); err == nil {
+	cookiePath := "/app/cookies.txt"
+	if _, err := os.Stat(cookiePath); err == nil {
+		args = append(args, "--cookies", cookiePath)
+	} else if _, err := os.Stat("cookies.txt"); err == nil {
 		args = append(args, "--cookies", "cookies.txt")
 	}
+
+	// Add verbose logging for debugging
+	args = append(args, "--verbose")
 
 	if strings.Contains(url, "rumble.com") {
 		args = append(args, "--referer", "https://rumble.com/")
@@ -295,18 +312,34 @@ func (c *ytDlpClient) DownloadVideo(ctx context.Context, url string) (*VideoInfo
 }
 
 func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string, cookies map[string]string) error {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 10*time.Minute)
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 20*time.Minute) // Increased timeout for large downloads
 	defer cancel()
 
 	args := []string{
+		"-m", "yt_dlp", // Run as python module
 		"--no-playlist",
 		"--no-check-certificate",
-		"--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
 		"-o", outputPath,
 	}
 
+	// Only set User-Agent if NOT TikTok or YouTube to allow impersonation
+	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") {
+		args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+	}
+
+	if strings.Contains(url, "tiktok.com") {
+		args = append(args, "--impersonate", "chrome110")
+	}
+
+	if strings.Contains(url, "vimeo.com") {
+		args = append(args, "--referer", "https://vimeo.com/")
+	}
+
 	// Check if cookies.txt exists and use it
-	if _, err := os.Stat("cookies.txt"); err == nil {
+	cookiePath := "/app/cookies.txt"
+	if _, err := os.Stat(cookiePath); err == nil {
+		args = append(args, "--cookies", cookiePath)
+	} else if _, err := os.Stat("cookies.txt"); err == nil {
 		args = append(args, "--cookies", "cookies.txt")
 	}
 

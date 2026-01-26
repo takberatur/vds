@@ -292,6 +292,58 @@ func (s *ChromedpStrategy) GetCookies(ctx context.Context, url string) (string, 
 }
 
 func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error) {
+	// Specialized handling for Instagram to get m3u8
+	if strings.Contains(url, "instagram.com") {
+		m3u8URL, cookieFile, ua, err := s.GetMasterPlaylist(ctx, url)
+		if err == nil && m3u8URL != "" {
+			log.Info().Str("m3u8_url", m3u8URL).Msg("Successfully captured m3u8 for Instagram")
+
+			// Helper to validate URL (exclude blobs)
+			isValidURL := func(u string) bool {
+				return u != "" && !strings.HasPrefix(u, "blob:")
+			}
+
+			if !isValidURL(m3u8URL) {
+				log.Warn().Msg("Captured m3u8 URL is invalid (blob), falling back")
+			} else {
+				// Read the cookie file content and parse it into the map
+				cookieMap := make(map[string]string)
+				if content, err := os.ReadFile(cookieFile); err == nil {
+					lines := strings.Split(string(content), "\n")
+					for _, line := range lines {
+						if strings.HasPrefix(line, "#") || strings.TrimSpace(line) == "" {
+							continue
+						}
+						parts := strings.Split(line, "\t")
+						if len(parts) >= 7 {
+							cookieMap[parts[5]] = parts[6]
+						}
+					}
+				}
+				// Clean up the temp file as we parsed it
+				os.Remove(cookieFile)
+
+				return &VideoInfo{
+					ID:          "instagram_video", // Placeholder
+					Title:       "Instagram Video",
+					DownloadURL: m3u8URL,
+					Extractor:   "instagram",
+					UserAgent:   ua,
+					Cookies:     cookieMap,
+					Formats: []FormatInfo{
+						{
+							URL: m3u8URL,
+							Ext: "mp4",
+						},
+					},
+				}, nil
+			}
+		}
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to capture m3u8 for Instagram, falling back to JSON-LD")
+		}
+	}
+
 	// Detect if TikTok
 	isTikTok := strings.Contains(strings.ToLower(url), "tiktok.com")
 

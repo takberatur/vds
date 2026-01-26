@@ -48,36 +48,36 @@ services:
       start_period: 40s
 
   # Frontend Service 01 (SvelteKit)
-  frontend_01:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: video_downloader_web_01
-    restart: always
-    ports:
-      - "127.0.0.1:3002:3002"
-    environment:
-      - NODE_ENV=production
-      - PUBLIC_API_URL=${PUBLIC_API_URL}
-      - PUBLIC_GOOGLE_CLIENT_ID=${PUBLIC_GOOGLE_CLIENT_ID}
-      - PUBLIC_GOOGLE_CLIENT_SECRET=${PUBLIC_GOOGLE_CLIENT_SECRET}
-      - PORT=3002
-      - HOST=0.0.0.0
-      - ORIGIN=${ORIGIN}
-      - PROTOCOL_HEADER=x-forwarded-proto
-      - HOST_HEADER=x-forwarded-host
-      - ADDRESS_HEADER=True-Client-IP
-      - BODY_SIZE_LIMIT=100M
-      - SIGTERM=30
-      # - BUN_JSC_useJIT=true
-      # - BUN_JSC_useConcurrentJIT=true
-      - PUBLIC_CENTRIFUGE_URL=${PUBLIC_CENTRIFUGE_URL}
-      - PUBLIC_CENTRIFUGO_API_KEY=${PUBLIC_CENTRIFUGO_API_KEY}
-    depends_on:
-      - backend
-    networks:
-      - shared-network
-      - video_download_network
+  # frontend_01:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: video_downloader_web_01
+  #   restart: always
+  #   ports:
+  #     - "127.0.0.1:3002:3002"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - PUBLIC_API_URL=${PUBLIC_API_URL}
+  #     - PUBLIC_GOOGLE_CLIENT_ID=${PUBLIC_GOOGLE_CLIENT_ID}
+  #     - PUBLIC_GOOGLE_CLIENT_SECRET=${PUBLIC_GOOGLE_CLIENT_SECRET}
+  #     - PORT=3002
+  #     - HOST=0.0.0.0
+  #     - ORIGIN=${ORIGIN}
+  #     - PROTOCOL_HEADER=x-forwarded-proto
+  #     - HOST_HEADER=x-forwarded-host
+  #     - ADDRESS_HEADER=True-Client-IP
+  #     - BODY_SIZE_LIMIT=100M
+  #     - SIGTERM=30
+  #     # - BUN_JSC_useJIT=true
+  #     # - BUN_JSC_useConcurrentJIT=true
+  #     - PUBLIC_CENTRIFUGE_URL=${PUBLIC_CENTRIFUGE_URL}
+  #     - PUBLIC_CENTRIFUGO_API_KEY=${PUBLIC_CENTRIFUGO_API_KEY}
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - shared-network
+  #     - video_download_network
 
   worker:
     build:

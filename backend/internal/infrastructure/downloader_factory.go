@@ -65,7 +65,7 @@ type FallbackDownloader struct {
 }
 
 func NewFallbackDownloader() *FallbackDownloader {
-	ytDlp := &YtDlpStrategy{client: &ytDlpClient{executablePath: "yt-dlp"}}
+	ytDlp := &YtDlpStrategy{client: &ytDlpClient{executablePath: "python3"}}
 	ytGo := &YoutubeGoStrategy{client: youtube.Client{}}
 	luxStrat := NewLuxStrategy()
 	rumbleStrat := NewRumbleStrategy()
@@ -237,7 +237,7 @@ func (f *FallbackDownloader) DownloadToPath(ctx context.Context, url string, for
 	// For now, directly use yt-dlp client as it is the only one supporting flexible format download to path
 	// We create a new client here or we could reuse one if we stored it
 	client := &ytDlpClient{
-		executablePath: "yt-dlp",
+		executablePath: "python3",
 	}
 	return client.DownloadToPath(ctx, url, formatID, outputPath, cookies)
 }

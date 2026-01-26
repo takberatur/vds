@@ -21,6 +21,7 @@
 	import { localizeHref } from '@/paraglide/runtime';
 	import * as i18n from '@/paraglide/messages.js';
 	import { cn } from '@/utils';
+	import Icon from '@iconify/svelte';
 	import { PUBLIC_API_URL } from '$env/static/public';
 
 	let {
@@ -293,40 +294,49 @@
 
 			<!-- Download Form -->
 			<div class="mx-auto mb-8 max-w-3xl">
-				<form
-					method="POST"
-					class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-muted p-4 shadow-xl shadow-blue-100/50 md:flex-row md:p-6 dark:shadow-blue-900/50"
-					use:enhance
+				<div
+					class="flex flex-col gap-3 rounded-2xl border border-border bg-blue-200 p-4 shadow-xl shadow-blue-100/50 md:p-6 dark:bg-blue-800/50 dark:shadow-blue-900/50"
 				>
-					<Input type="hidden" name="type" value={$form.type} />
-					<Input type="hidden" name="user_id" value={$form.user_id} />
-					<Input type="hidden" name="platform_id" value={$form.platform_id} />
-					<Input type="hidden" name="app_id" value={$form.app_id} />
-					<Input
-						bind:value={$form.url}
-						name="url"
-						type="url"
-						autocomplete="url"
-						placeholder={i18n.text_input_link_download_placeholder({
-							url: 'https://youtube.com/watch?v=...'
-						})}
-						class="inline-block h-14 border-neutral-200 bg-white text-base text-neutral-900 focus-visible:ring-blue-600 dark:border-neutral-600 dark:bg-black dark:text-neutral-100 dark:focus-visible:ring-purple-600"
-						disabled={$submitting}
-						oninput={() => onUrlVideoChange($form.url)}
-					/>
-					<Button
-						type="submit"
-						disabled={$submitting}
-						class="h-10 bg-linear-to-r from-blue-600 to-purple-600 px-8 text-base font-semibold text-white shadow-lg shadow-blue-500/30 hover:from-blue-700 hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-70 md:h-12 dark:bg-linear-to-r dark:from-purple-600 dark:to-blue-600 dark:shadow-purple-500/30 dark:hover:from-purple-700 dark:hover:to-blue-700"
-					>
-						{#if $submitting}
-							<Spinner class="mr-2 size-5" />
-						{:else}
-							<Download class="mr-2 h-5 w-5" />
-						{/if}
-						{$submitting ? i18n.text_processing() : i18n.text_download()}
-					</Button>
-				</form>
+					<div class="mb-4 flex items-center justify-center gap-2">
+						<Icon
+							icon="mingcute:download-3-fill"
+							class="h-4 w-4 text-neutral-800 dark:text-white"
+						/>
+						<h2 class="text-center text-xl font-semibold">
+							{i18n.text_input_link_download_label_name({ name: 'Any Video Downloader' })}
+						</h2>
+					</div>
+					<form method="POST" class="flex flex-col items-center gap-3 md:flex-row" use:enhance>
+						<Input type="hidden" name="type" value={$form.type} />
+						<Input type="hidden" name="user_id" value={$form.user_id} />
+						<Input type="hidden" name="platform_id" value={$form.platform_id} />
+						<Input type="hidden" name="app_id" value={$form.app_id} />
+						<Input
+							bind:value={$form.url}
+							name="url"
+							type="url"
+							autocomplete="url"
+							placeholder={i18n.text_input_link_download_placeholder({
+								url: 'https://youtube.com/watch?v=...'
+							})}
+							class="inline-block h-14 border-neutral-200 bg-white text-base text-neutral-900 focus-visible:ring-blue-600 dark:border-neutral-600 dark:bg-black dark:text-neutral-100 dark:focus-visible:ring-purple-600"
+							disabled={$submitting}
+							oninput={() => onUrlVideoChange($form.url)}
+						/>
+						<Button
+							type="submit"
+							disabled={$submitting}
+							class="h-10 bg-linear-to-r from-blue-600 to-purple-600 px-8 text-base font-semibold text-white shadow-lg shadow-blue-500/30 hover:from-blue-700 hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-70 md:h-12 dark:bg-linear-to-r dark:from-purple-600 dark:to-blue-600 dark:shadow-purple-500/30 dark:hover:from-purple-700 dark:hover:to-blue-700"
+						>
+							{#if $submitting}
+								<Spinner class="mr-2 size-5" />
+							{:else}
+								<Download class="mr-2 h-5 w-5" />
+							{/if}
+							{$submitting ? i18n.text_processing() : i18n.text_download()}
+						</Button>
+					</form>
+				</div>
 				{#if $submitting}
 					<p class="mt-3 text-sm text-blue-600 dark:text-blue-400">
 						<Spinner class="mr-2 size-5" />
@@ -337,7 +347,7 @@
 				{:else if errorMessage}
 					<p class="mt-3 text-sm text-red-500 dark:text-red-400">{errorMessage}</p>
 				{:else}
-					<p class="mt-4 text-sm text-muted-foreground dark:text-muted-foreground/80">
+					<p class="mt-4 text-sm">
 						✨ {i18n.text_hero_input_description()}
 					</p>
 				{/if}
