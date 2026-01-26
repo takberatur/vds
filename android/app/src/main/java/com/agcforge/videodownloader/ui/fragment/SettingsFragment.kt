@@ -5,9 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.agcforge.videodownloader.databinding.FragmentSettingsBinding
 import com.agcforge.videodownloader.utils.PreferenceManager
+import com.agcforge.videodownloader.utils.applyTheme
 import com.agcforge.videodownloader.utils.showToast
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
 
@@ -32,6 +36,7 @@ class SettingsFragment : Fragment() {
 
         setupViews()
         setupListeners()
+        setupThemeSwitch()
     }
 
     private fun setupViews() {
@@ -102,6 +107,22 @@ class SettingsFragment : Fragment() {
             )
             .setPositiveButton("OK", null)
             .show()
+    }
+
+    private fun setupThemeSwitch() {
+        lifecycleScope.launch {
+            // Set the switch to the current theme
+            val currentTheme = preferenceManager.theme.first()
+            binding.switchTheme.isChecked = currentTheme == "Dark"
+        }
+
+        binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
+            val newTheme = if (isChecked) "Dark" else "Light"
+            lifecycleScope.launch {
+                preferenceManager.saveTheme(newTheme)
+                applyTheme(newTheme)
+            }
+        }
     }
 
     override fun onDestroyView() {

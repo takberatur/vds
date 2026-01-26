@@ -4,6 +4,6 @@ import com.agcforge.videodownloader.data.model.User
 import com.google.gson.annotations.SerializedName
 
 data class AuthResponse(
-    @SerializedName("token") val token: String,
+    @SerializedName("access_token") val token: String,
     @SerializedName("user") val user: User
 )

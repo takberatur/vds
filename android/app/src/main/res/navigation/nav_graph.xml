@@ -8,19 +8,19 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.agcforge.videodownloader.ui.fragment.HomeFragment"
-        android:label="Home"
+        android:label="@string/home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/downloadsFragment"
         android:name="com.agcforge.videodownloader.ui.fragment.DownloadsFragment"
-        android:label="Downloads"
+        android:label="@string/downloads"
         tools:layout="@layout/fragment_downloads" />
 
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.agcforge.videodownloader.ui.fragment.SettingsFragment"
-        android:label="Settings"
+        android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
 
 </navigation>

@@ -55,6 +55,7 @@
             android:id="@+id/ivPremiumBadge"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:contentDescription="@string/premium"
             android:src="@drawable/ic_premium"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"

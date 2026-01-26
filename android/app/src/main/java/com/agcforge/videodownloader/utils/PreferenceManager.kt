@@ -3,6 +3,7 @@ package com.agcforge.videodownloader.utils
 import android.content.Context
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -15,31 +16,38 @@ import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.*
 
-// DataStore extension
+// DataStore instance remains a top-level extension for easy access throughout the app
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_preferences")
 
-// Preference Manager
+/**
+ * Manages all application preferences using DataStore.
+ * This class encapsulates the logic for saving and retrieving user data and settings.
+ */
 class PreferenceManager(private val context: Context) {
 
     companion object {
+        // All preference keys are now organized within the PreferenceManager companion object
         private val TOKEN_KEY = stringPreferencesKey("auth_token")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
+        private val USER_AVATAR_KEY = stringPreferencesKey("user_avatar")
+        private val THEME_KEY = stringPreferencesKey("theme_mode")
     }
 
-    val authToken: Flow<String?> = context.dataStore.data.map { preferences ->
-        preferences[TOKEN_KEY]
-    }
+    // --- Flows to observe preference changes ---
 
-    val userId: Flow<String?> = context.dataStore.data.map { preferences ->
-        preferences[USER_ID_KEY]
-    }
+    val authToken: Flow<String?> = context.dataStore.data.map { it[TOKEN_KEY] }
+    val userId: Flow<String?> = context.dataStore.data.map { it[USER_ID_KEY] }
+    val userEmail: Flow<String?> = context.dataStore.data.map { it[USER_EMAIL_KEY] }
+    val userName: Flow<String?> = context.dataStore.data.map { it[USER_NAME_KEY] }
+    val userAvatar: Flow<String?> = context.dataStore.data.map { it[USER_AVATAR_KEY] }
+    val theme: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
+
+    // --- Suspend functions to modify preferences ---
 
     suspend fun saveAuthToken(token: String) {
-        context.dataStore.edit { preferences ->
-            preferences[TOKEN_KEY] = token
-        }
+        context.dataStore.edit { it[TOKEN_KEY] = token }
     }
 
     suspend fun saveUserInfo(userId: String, email: String, name: String) {
@@ -50,14 +58,24 @@ class PreferenceManager(private val context: Context) {
         }
     }
 
-    suspend fun clearUserData() {
+    suspend fun saveUserProfile(name: String, avatarUrl: String?) {
         context.dataStore.edit { preferences ->
-            preferences.clear()
+            preferences[USER_NAME_KEY] = name
+            avatarUrl?.let { preferences[USER_AVATAR_KEY] = it }
         }
+    }
+
+    suspend fun saveTheme(themeMode: String) {
+        context.dataStore.edit { it[THEME_KEY] = themeMode }
+    }
+
+    suspend fun clearUserData() {
+        context.dataStore.edit { it.clear() }
     }
 }
 
-// Extension Functions
+// --- General-purpose Utility Functions ---
+
 fun Context.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
 }
@@ -88,5 +106,13 @@ fun Long.formatFileSize(): String {
         this < 1024 * 1024 -> "${this / 1024} KB"
         this < 1024 * 1024 * 1024 -> "${this / (1024 * 1024)} MB"
         else -> "${this / (1024 * 1024 * 1024)} GB"
+    }
+}
+
+fun applyTheme(theme: String?) {
+    when (theme) {
+        "Light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        "Dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     }
 }

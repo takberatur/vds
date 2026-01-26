@@ -12,34 +12,43 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @GET("platforms")
+    @GET("mobile-client/platforms")
     suspend fun getPlatforms(): Response<ApiResponse<PlatformListResponse>>
 
-    @GET("platforms/{id}")
+    @GET("mobile-client/platforms/{id}")
     suspend fun getPlatform(@Path("id") id: String): Response<ApiResponse<Platform>>
 
-    @POST("downloads")
+    @POST("mobile-client/downloads")
     suspend fun createDownload(@Body request: DownloadRequest): Response<ApiResponse<DownloadResponse>>
 
-    @GET("downloads/{id}")
+    @GET("mobile-client/downloads/{id}")
     suspend fun getDownload(@Path("id") id: String): Response<ApiResponse<DownloadTask>>
 
-    @GET("downloads")
+    @GET("mobile-client/downloads")
     suspend fun getDownloads(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20
     ): Response<ApiResponse<List<DownloadTask>>>
 
-    @POST("auth/login")
+    @POST("mobile-client/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<ApiResponse<AuthResponse>>
 
-    @POST("auth/register")
+    @POST("mobile-client/auth/forgot-password")
+    suspend fun forgotPassword(@Body request: Map<String, String>): Response<ApiResponse<Any>>
+
+    @POST("mobile-client/auth/reset-password")
+    suspend fun resetPassword(@Body request: Map<String, String>): Response<ApiResponse<Any>>
+
+    @POST("mobile-client/auth/resend-verification")
+    suspend fun resendVerificationEmail(@Body request: Map<String, String>): Response<ApiResponse<Any>>
+
+    @POST("mobile-client/auth/register")
     suspend fun register(@Body request: Map<String, String>): Response<ApiResponse<AuthResponse>>
 
-    @GET("auth/me")
+    @GET("mobile-client/auth/me")
     suspend fun getCurrentUser(): Response<ApiResponse<User>>
 
-    @POST("auth/logout")
+    @POST("mobile-client/auth/logout")
     suspend fun logout(): Response<ApiResponse<Any>>
 }
 

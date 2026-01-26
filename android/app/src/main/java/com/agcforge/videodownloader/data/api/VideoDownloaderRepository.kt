@@ -85,6 +85,60 @@ class VideoDownloaderRepository {
         }
     }
 
+    suspend fun register(request: Map<String, String>): Result<AuthResponse> {
+        return try {
+            val response = api.register(request)
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("No data returned"))
+            } else {
+                Result.failure(Exception(response.body()?.error ?: "Registration failed"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun forgotPassword(request: Map<String, String>): Result<Unit> {
+        return try {
+            val response = api.forgotPassword(request)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to send reset link"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun resetPassword(request: Map<String, String>): Result<Unit> {
+        return try {
+            val response = api.resetPassword(request)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to reset password"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun resendVerificationEmail(request: Map<String, String>): Result<Unit> {
+        return try {
+            val response = api.resendVerificationEmail(request)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to resend email"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getCurrentUser(): Result<User> {
         return try {
             val response = api.getCurrentUser()

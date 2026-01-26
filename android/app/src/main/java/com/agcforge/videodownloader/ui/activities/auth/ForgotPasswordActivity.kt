@@ -1,4 +1,112 @@
 package com.agcforge.videodownloader.ui.activities.auth
 
-class ForgotPasswordActivity {
+import android.content.Intent
+import android.os.Bundle
+import android.util.Patterns
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
+import com.agcforge.videodownloader.databinding.ActivityForgotPasswordBinding
+import com.agcforge.videodownloader.utils.showToast
+import kotlinx.coroutines.launch
+
+class ForgotPasswordActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityForgotPasswordBinding
+    private val repository = VideoDownloaderRepository()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityForgotPasswordBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupToolbar()
+        setupListeners()
+    }
+
+    private fun setupToolbar() {
+        binding.toolbar.setNavigationOnClickListener {
+            finish()
+        }
+    }
+
+    private fun setupListeners() {
+        binding.apply {
+            btnSendResetLink.setOnClickListener {
+                val email = etEmail.text.toString().trim()
+
+                if (validateEmail(email)) {
+                    sendResetLink(email)
+                }
+            }
+
+            tvBackToLogin.setOnClickListener {
+                finish()
+            }
+        }
+    }
+
+    private fun validateEmail(email: String): Boolean {
+        return when {
+            email.isEmpty() -> {
+                binding.tilEmail.error = "Email is required"
+                false
+            }
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                binding.tilEmail.error = "Invalid email format"
+                false
+            }
+            else -> {
+                binding.tilEmail.error = null
+                true
+            }
+        }
+    }
+
+    private fun sendResetLink(email: String) {
+        lifecycleScope.launch {
+            showLoading(true)
+
+            try {
+                val requestBody = mapOf("email" to email)
+                val result = repository.forgotPassword(requestBody)
+
+                result.onSuccess {
+                    showLoading(false)
+                    showToast("Reset link sent to your email")
+
+                    // Show success dialog or navigate
+                    showSuccessDialog(email)
+                }.onFailure { error ->
+                    showLoading(false)
+                    showToast(error.message ?: "Failed to send reset link")
+                }
+
+            } catch (e: Exception) {
+                showLoading(false)
+                showToast("Error: ${e.message}")
+            }
+        }
+    }
+
+    private fun showSuccessDialog(email: String) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Check Your Email")
+            .setMessage("We've sent a password reset link to $email. Please check your email and follow the instructions.")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.apply {
+            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            btnSendResetLink.isEnabled = !isLoading
+            etEmail.isEnabled = !isLoading
+        }
+    }
 }

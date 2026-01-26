@@ -25,3 +25,7 @@ data class DownloadEvent (
     @SerializedName("payload") val payload: DownloadTaskView? = null,
     @SerializedName("created_at") val createdAt: String,
 )
+
+data class DownloadState(
+    val tasks: Map<String, DownloadTaskView>
+)
