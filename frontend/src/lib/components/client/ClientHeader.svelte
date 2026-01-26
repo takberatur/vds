@@ -37,7 +37,15 @@
 	const languageLabels: Partial<Record<Locale, string>> = {
 		en: 'English',
 		es: 'Español',
-		id: 'Bahasa Indonesia'
+		de: 'German',
+		pt: 'Português',
+		fr: 'Français',
+		id: 'Bahasa Indonesia',
+		hi: 'हिन्दी',
+		ar: 'العربية',
+		zh: '中文',
+		ru: 'Русский',
+		ja: '日本語'
 	};
 	const languages = availableLocales.map((code) => ({
 		code,

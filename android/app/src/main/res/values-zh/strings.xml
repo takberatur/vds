@@ -74,4 +74,17 @@
     <string name="dark_mode">深色模式</string>
     <string name="app_version">版本 1.0</string>
     <string name="language">语言</string>
+    <string name="quality_dialog_title">选择下载质量</string>
+    <string name="quality_set_toast">下载质量已设置为 %s</string>
+    <string name="storage_settings_soon">存储设置将在不久后可用</string>
+    <string name="cache_cleared_success">缓存已成功清除</string>
+    <string name="cache_cleared_fail">缓存清除失败</string>
+    <string name="about_dialog_message">这是一个由 [您的姓名] 创建的有趣项目。它使用 [insert any relevant libraries or APIs] 来从支持的平台下载视频。</string>
+    <string name="ok">确定</string>
+    <string name="email_is_required">邮箱不能为空</string>
+    <string name="invalid_format_email">邮箱格式无效</string>
+    <string name="reset_link_sent_to_email">重置链接已发送到 %s</string>
+    <string name="failed_to_send_reset_link">发送重置链接失败</string>
+    <string name="check_your_email">检查您的邮箱</string>
+    <string name="cancel">取消</string>
 </resources>

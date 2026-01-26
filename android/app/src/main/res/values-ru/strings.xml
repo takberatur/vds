@@ -74,4 +74,17 @@
     <string name="dark_mode">Темный режим</string>
     <string name="app_version">Версия 1.0</string>
     <string name="language">Язык</string>
+    <string name="quality_dialog_title">Выберите качество загрузки</string>
+    <string name="quality_set_toast">Качество загрузки установлено на %s</string>
+    <string name="storage_settings_soon">Настройки хранения будут доступны скоро</string>
+    <string name="cache_cleared_success">Кэш был успешно очищен</string>
+    <string name="cache_cleared_fail">Ошибка при очистке кэша</string>
+    <string name="about_dialog_message">Это приложение было создано [Ваше Имя] в качестве divertido проекта. Оно использует [insert any relevant libraries or APIs] для скачивания видео с поддерживаемых платформ.</string>
+    <string name="ok">OK</string>
+    <string name="email_is_required">Требуется указать адрес электронной почты</string>
+    <string name="invalid_format_email">Неверный формат электронной почты</string>
+    <string name="reset_link_sent_to_email">Ссылка для сброса отправлена ​​на %s</string>
+    <string name="failed_to_send_reset_link">Не удалось отправить ссылку для сброса</string>
+    <string name="check_your_email">Проверьте свою электронную почту</string>
+    <string name="cancel">Отмена</string>
 </resources>

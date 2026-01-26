@@ -74,4 +74,17 @@
     <string name="dark_mode">الوضع الداكن</string>
     <string name="app_version">الإصدار 1.0</string>
     <string name="language">اللغة</string>
+    <string name="quality_dialog_title">اختر جودة التنزيل</string>
+    <string name="quality_set_toast">تم تعيين جودة التنزيل إلى %s</string>
+    <string name="storage_settings_soon">إعدادات التخزين سيتمكن من الوصول إليها قريبًا</string>
+    <string name="cache_cleared_success">تم مسح ذاكرة التخزين المؤقت بنجاح</string>
+    <string name="cache_cleared_fail">فشل في مسح ذاكرة التخزين المؤقت</string>
+    <string name="about_dialog_message">تم إنشاء هذا التطبيق بواسطة [اسمك] كشروعًا مناسبة. يستخدم [أدخل أي مكتبة أو API ذات صلة] لإزالة الفيديوهات من منصات المدعومة.</string>
+    <string name="ok">موافق</string>
+    <string name="email_is_required">البريد الإلكتروني مطلوب</string>
+    <string name="invalid_format_email">تنسيق البريد الإلكتروني غير صالح</string>
+    <string name="reset_link_sent_to_email">تم إرسال رابط إعادة التعيين إلى %s</string>
+    <string name="failed_to_send_reset_link">فشل في إرسال رابط إعادة التعيين</string>
+    <string name="check_your_email">تحقق من بريدك الإلكتروني</string>
+    <string name="cancel">إلغاء</string>
 </resources>

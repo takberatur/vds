@@ -74,4 +74,17 @@
     <string name="dark_mode">Mode Gelap</string>
     <string name="app_version">Versi 1.0</string>
     <string name="language">Bahasa</string>
+    <string name="quality_dialog_title">Pilih Kualitas Unduhan</string>
+    <string name="quality_set_toast">Kualitas unduhan diatur ke %s</string>
+    <string name="storage_settings_soon">Pengaturan penyimpanan akan tersedia segera</string>
+    <string name="cache_cleared_success">Cache telah dibersihkan dengan sukses</string>
+    <string name="cache_cleared_fail">Gagal membersihkan cache</string>
+    <string name="about_dialog_message">Aplikasi ini dibuat oleh [Nama Anda] sebagai proyek hiburan. Ini menggunakan [insert any relevant libraries or APIs] untuk mengunduh video dari platform yang didukung.</string>
+    <string name="ok">OK</string>
+    <string name="email_is_required">Email wajib diisi</string>
+    <string name="invalid_format_email">Format email tidak valid</string>
+    <string name="reset_link_sent_to_email">Tautan reset telah dikirim ke %s</string>
+    <string name="failed_to_send_reset_link">Gagal mengirim tautan reset</string>
+    <string name="check_your_email">Periksa Email Anda</string>
+    <string name="cancel">Batal</string>
 </resources>

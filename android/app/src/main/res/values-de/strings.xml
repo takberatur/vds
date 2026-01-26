@@ -74,4 +74,17 @@
     <string name="dark_mode">Dunkelmodus</string>
     <string name="app_version">Version 1.0</string>
     <string name="language">Sprache</string>
+    <string name="quality_dialog_title">Downloadqualität wählen</string>
+    <string name="quality_set_toast">Downloadqualität auf %s gesetzt</string>
+    <string name="storage_settings_soon">Speicherortseinstellungen werden bald verfügbar sein</string>
+    <string name="cache_cleared_success">Cache wurde erfolgreich geleert</string>
+    <string name="cache_cleared_fail">Fehler beim Leeren des Caches</string>
+    <string name="about_dialog_message">Diese App wurde von [Ihr Name] als lustiges Projekt erstellt. Sie verwendet [insert any relevant libraries or APIs] um Videos von unterstützten Plattformen herunterzuladen.</string>
+    <string name="ok">OK</string>
+    <string name="email_is_required">E-Mail ist erforderlich</string>
+    <string name="invalid_format_email">Ungültiges E-Mail-Format</string>
+    <string name="reset_link_sent_to_email">Zurücksetzungslink wurde an %s gesendet</string>
+    <string name="failed_to_send_reset_link">Fehler beim Senden des Zurücksetzungslinks</string>
+    <string name="check_your_email">Überprüfen Sie Ihre E-Mail</string>
+    <string name="cancel">Abbrechen</string>
 </resources>

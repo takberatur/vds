@@ -74,4 +74,17 @@
     <string name="dark_mode">Modo escuro</string>
     <string name="app_version">Versão 1.0</string>
     <string name="language">Língua</string>
+    <string name="quality_dialog_title">Selecione a Qualidade de Download</string>
+    <string name="quality_set_toast">Qualidade de download definida para %s</string>
+    <string name="storage_settings_soon">Configurações de armazenamento estarão disponíveis em breve</string>
+    <string name="cache_cleared_success">Cache foi limpo com sucesso</string>
+    <string name="cache_cleared_fail">Erro ao limpar cache</string>
+    <string name="about_dialog_message">Esta aplicação foi criada por [Seu Nome] como um projeto divertido. Ela usa [insert any relevant libraries or APIs] para baixar vídeos de plataformas compatíveis.</string>
+    <string name="ok">OK</string>
+    <string name="email_is_required">E-mail obrigatório</string>
+    <string name="invalid_format_email">Formato de e-mail inválido</string>
+    <string name="reset_link_sent_to_email">Link de reset enviado para %s</string>
+    <string name="failed_to_send_reset_link">Falha ao enviar o link de reset</string>
+    <string name="check_your_email">Verifique o seu e-mail</string>
+    <string name="cancel">Cancelar</string>
 </resources>

@@ -74,4 +74,17 @@
     <string name="dark_mode">डार्क मोड</string>
     <string name="app_version">वर्जन 1.0</string>
     <string name="language">भाषा</string>
+    <string name="quality_dialog_title">डाउनलोड गुणवत्ता चुनें</string>
+    <string name="quality_set_toast">डाउनलोड गुणवत्ता %s सेटेड</string>
+    <string name="storage_settings_soon">स्टोरेज सेटिंग्स बारे में तुरंत उपलब्ध होंगे</string>
+    <string name="cache_cleared_success">कैश सफलतापूर्वक साफ़ किया गया</string>
+    <string name="cache_cleared_fail">कैश साफ़ करने में त्रुटि</string>
+    <string name="about_dialog_message">इस ऐप को [आपका नाम] ने एक लस्ता प्रोजेक्ट के रूप में बनाया गया। यह [insert any relevant libraries or APIs] का उपयोग करके समर्थित प्लेटफॉर्मों से वीडियो डाउनलोड करता है।</string>
+    <string name="ok">ओके</string>
+    <string name="email_is_required">ईमेल आवश्यक है</string>
+    <string name="invalid_format_email">अवैध ईमेल प्रारूप</string>
+    <string name="reset_link_sent_to_email">रीसेट लिंक %s पर भेजा गया</string>
+    <string name="failed_to_send_reset_link">रीसेट लिंक भेजने में त्रुटि</string>
+    <string name="check_your_email">अपना ईमेल जांचें</string>
+    <string name="cancel">रद्द करें</string>
 </resources>

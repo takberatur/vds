@@ -19,6 +19,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         preferenceManager = PreferenceManager(this)
         observeTheme()
+        observeLanguage()
         super.onCreate(savedInstanceState)
     }
 
@@ -26,6 +27,13 @@ abstract class BaseActivity : AppCompatActivity() {
         lifecycleScope.launch {
             preferenceManager.theme.first().let { theme ->
                 applyTheme(theme)
+            }
+        }
+    }
+    private fun observeLanguage() {
+        lifecycleScope.launch {
+            preferenceManager.language.collect { languageCode ->
+                restartActivity()
             }
         }
     }
@@ -48,5 +56,10 @@ abstract class BaseActivity : AppCompatActivity() {
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
         return context.createConfigurationContext(config)
+    }
+
+    fun restartActivity() {
+        finish()
+        startActivity(intent)
     }
 }

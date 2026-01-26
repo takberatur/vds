@@ -74,4 +74,17 @@
     <string name="dark_mode">ダークモード</string>
     <string name="app_version">バージョン 1.0</string>
     <string name="language">言語</string>
+    <string name="quality_dialog_title">ダウンロード品質を選択</string>
+    <string name="quality_set_toast">ダウンロード品質を %s に設定しました</string>
+    <string name="storage_settings_soon">ストレージ設定はすぐに利用可能になります</string>
+    <string name="cache_cleared_success">キャッシュが正常にクリアされました</string>
+    <string name="cache_cleared_fail">キャッシュのクリアに失敗しました</string>
+    <string name="about_dialog_message">このアプリは [あなたの名前] が創作したハブバージョンです。このアプリは [insert any relevant libraries or APIs] を使用して、サポートされているプラットフォームからビデオをダウンロードします。</string>
+    <string name="ok">OK</string>
+    <string name="email_is_required">メールアドレスは必須です</string>
+    <string name="invalid_format_email">メールアドレスの形式が無効です</string>
+    <string name="reset_link_sent_to_email">リセットリンクを%sに送信しました</string>
+    <string name="failed_to_send_reset_link">リセットリンクの送信に失敗しました</string>
+    <string name="check_your_email">メールアドレスをご確認ください</string>
+    <string name="cancel">キャンセル</string>
 </resources>
