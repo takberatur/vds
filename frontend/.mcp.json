@@ -5,6 +5,14 @@
 			"command": "npx",
 			"env": {},
 			"args": ["-y", "@sveltejs/mcp"]
+		},
+		"mcp_docker": {
+			"type": "stdio",
+			"command": "docker",
+			"args": ["mcp", "gateway", "run"],
+			"env": {
+				"DOCKER_CONTEXT": "remote"
+			}
 		}
 	}
 }
