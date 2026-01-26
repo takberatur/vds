@@ -84,10 +84,11 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		args = append(args, "--user-agent", userAgent)
 	}
 
-	if strings.Contains(url, "tiktok.com") {
-		// Use chrome110 target for impersonation to avoid empty file/captcha
-		args = append(args, "--impersonate", "chrome110")
-	}
+	// NOTE: Removed --impersonate because it causes issues with missing dependencies in the current Docker environment.
+	// We will rely on standard yt-dlp behavior or cookie usage.
+	// if strings.Contains(url, "tiktok.com") {
+	// 	args = append(args, "--impersonate", "chrome110")
+	// }
 
 	if strings.Contains(url, "vimeo.com") {
 		args = append(args, "--referer", "https://vimeo.com/")
@@ -327,9 +328,9 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
 	}
 
-	if strings.Contains(url, "tiktok.com") {
-		args = append(args, "--impersonate", "chrome110")
-	}
+	// if strings.Contains(url, "tiktok.com") {
+	// 	args = append(args, "--impersonate", "chrome110")
+	// }
 
 	if strings.Contains(url, "vimeo.com") {
 		args = append(args, "--referer", "https://vimeo.com/")
