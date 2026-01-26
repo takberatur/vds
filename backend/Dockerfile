@@ -35,9 +35,12 @@ RUN apk add --no-cache \
     nodejs \
     wget \
     curl \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
     chromium && \
-    wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp && \
-    chmod a+rx /usr/local/bin/yt-dlp && \
+    pip3 install --break-system-packages yt-dlp curl-cffi && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \
     mv migrate /usr/local/bin/migrate && \
     chmod +x /usr/local/bin/migrate

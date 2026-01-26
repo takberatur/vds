@@ -109,11 +109,11 @@ export const createWebsocketStore = (userID?: string | null) => {
 		});
 
 		centrifuge.on('connected', (ctx) => {
-			console.log('Centrifugo connected', ctx);
+			// console.log('Centrifugo connected', ctx);
 		});
 
 		centrifuge.on('disconnected', (ctx) => {
-			console.log('Centrifugo disconnected', ctx);
+			// console.log('Centrifugo disconnected', ctx);
 		});
 
 		centrifuge.connect();
@@ -124,7 +124,7 @@ export const createWebsocketStore = (userID?: string | null) => {
 		if (subscriptions[taskId]) return;
 
 		const channel = `download:progress:${taskId}`;
-		console.log(`Subscribing to channel: ${channel}`);
+		// console.log(`Subscribing to channel: ${channel}`);
 
 		const sub = centrifuge.newSubscription(channel);
 
@@ -134,11 +134,11 @@ export const createWebsocketStore = (userID?: string | null) => {
 		});
 
 		sub.on('subscribing', (ctx) => {
-			console.log(`Subscribing to ${channel}`, ctx);
+			// console.log(`Subscribing to ${channel}`, ctx);
 		});
 
 		sub.on('subscribed', (ctx) => {
-			console.log(`Subscribed to ${channel}`, ctx);
+			// console.log(`Subscribed to ${channel}`, ctx);
 		});
 
 		sub.on('error', (ctx) => {
