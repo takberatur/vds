@@ -1,4 +1,7 @@
 package com.agcforge.videodownloader.data.websocket
 
-class SubscriptionState {
-}
+data class SubscriptionState(
+    val channel: String,
+    val isSubscribed: Boolean,
+    val error: String? = null
+)

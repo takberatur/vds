@@ -140,7 +140,6 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 			}
 		}
 	} else if isVimeo {
-		// Requested order: yt-dlp -> lux -> vimeo-custom -> chromedp
 		var vimeoStrategy, ytDlpStrat, luxStrat, chromedpStrat DownloaderStrategy
 
 		for _, strategy := range f.strategies {
@@ -155,36 +154,29 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 			}
 		}
 
+		if vimeoStrategy != nil {
+			strategies = append(strategies, vimeoStrategy)
+		}
 		if ytDlpStrat != nil {
 			strategies = append(strategies, ytDlpStrat)
 		}
 		if luxStrat != nil {
 			strategies = append(strategies, luxStrat)
 		}
-		if vimeoStrategy != nil {
-			strategies = append(strategies, vimeoStrategy)
-		}
 		if chromedpStrat != nil {
 			strategies = append(strategies, chromedpStrat)
 		}
 	} else if isTikTok {
-		// Requested order: yt-dlp -> lux -> custom (none) -> chromedp
-		var ytDlpStrat, chromedpStrat, luxStrat DownloaderStrategy
+		var chromedpStrat, luxStrat DownloaderStrategy
 
 		for _, strategy := range f.strategies {
-			if strategy.Name() == "yt-dlp" {
-				ytDlpStrat = strategy
-			} else if strategy.Name() == "chromedp" {
+			if strategy.Name() == "chromedp" {
 				chromedpStrat = strategy
 			} else if strategy.Name() == "lux" {
 				luxStrat = strategy
 			}
 		}
 
-		// Prioritize yt-dlp for TikTok
-		if ytDlpStrat != nil {
-			strategies = append(strategies, ytDlpStrat)
-		}
 		if luxStrat != nil {
 			strategies = append(strategies, luxStrat)
 		}
@@ -192,15 +184,39 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 			strategies = append(strategies, chromedpStrat)
 		}
 	} else if isTwitter || isDailymotion {
-		// For TikTok, Twitter, and Dailymotion, prioritize yt-dlp, then lux, then others
-		// We explicitly exclude strategies that might interfere or are irrelevant
+		var ytDlpStrat, luxStrat, chromedpStrat DownloaderStrategy
+
 		for _, strategy := range f.strategies {
 			name := strategy.Name()
-			// Exclude platform specific strategies that don't match
-			if name == "kkdai/youtube" || name == "rumble-custom" || name == "vimeo-custom" {
-				continue
+			if name == "yt-dlp" {
+				ytDlpStrat = strategy
+			} else if name == "lux" {
+				luxStrat = strategy
+			} else if name == "chromedp" {
+				chromedpStrat = strategy
 			}
-			strategies = append(strategies, strategy)
+		}
+
+		if isDailymotion {
+			if chromedpStrat != nil {
+				strategies = append(strategies, chromedpStrat)
+			}
+			if ytDlpStrat != nil {
+				strategies = append(strategies, ytDlpStrat)
+			}
+			if luxStrat != nil {
+				strategies = append(strategies, luxStrat)
+			}
+		} else {
+			if ytDlpStrat != nil {
+				strategies = append(strategies, ytDlpStrat)
+			}
+			if luxStrat != nil {
+				strategies = append(strategies, luxStrat)
+			}
+			if chromedpStrat != nil {
+				strategies = append(strategies, chromedpStrat)
+			}
 		}
 	} else {
 		// For non-YouTube URLs, exclude kkdai/youtube strategy

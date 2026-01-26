@@ -19,7 +19,7 @@
 			credentials: 'include'
 		});
 
-		await goto('/login');
+		await goto(localizeHref('/login'));
 	}
 </script>
 

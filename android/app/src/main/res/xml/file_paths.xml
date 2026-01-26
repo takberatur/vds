@@ -4,4 +4,8 @@
     <external-files-path name="downloads_private" path="."/>
     <external-path name="downloads" path="Download/"/>
     <external-files-path name="private" path="."/>
+    <external-path name="external_files" path="." />
+    <external-files-path name="external_files" path="." />
+    <cache-path name="cache" path="." />
+    <external-cache-path name="external_cache" path="." />
 </paths>

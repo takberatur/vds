@@ -1,4 +1,87 @@
 package com.agcforge.videodownloader.ui.viewmodel
 
-class AuthViewModel {
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
+import com.agcforge.videodownloader.data.dto.AuthResponse
+import com.agcforge.videodownloader.data.model.User
+import com.agcforge.videodownloader.data.websocket.CentrifugoManager
+import com.agcforge.videodownloader.utils.PreferenceManager
+import com.agcforge.videodownloader.utils.Resource
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = VideoDownloaderRepository()
+    private val centrifugoManager = CentrifugoManager.getInstance(application)
+    private val preferenceManager = PreferenceManager(application)
+
+    private val _loginResult = MutableStateFlow<Resource<AuthResponse>>(Resource.Loading())
+    val loginResult: StateFlow<Resource<AuthResponse>> = _loginResult.asStateFlow()
+
+    private val _currentUser = MutableStateFlow<Resource<User>>(Resource.Loading())
+    val currentUser: StateFlow<Resource<User>> = _currentUser.asStateFlow()
+
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _loginResult.value = Resource.Loading()
+
+            repository.login(email, password)
+                .onSuccess { authResponse ->
+                    _loginResult.value = Resource.Success(authResponse)
+
+                    // Save auth data
+                    preferenceManager.saveAuthToken(authResponse.token)
+                    preferenceManager.saveUserInfo(
+                        authResponse.user.id,
+                        authResponse.user.email,
+                        authResponse.user.fullName
+                    )
+
+                    // Initialize WebSocket connection
+                    centrifugoManager.initialize(authResponse.user.id, authResponse.token)
+                    centrifugoManager.connect()
+                }
+                .onFailure { error ->
+                    _loginResult.value = Resource.Error(error.message ?: "Login failed")
+                }
+        }
+    }
+
+    fun getCurrentUser() {
+        viewModelScope.launch {
+            _currentUser.value = Resource.Loading()
+
+            repository.getCurrentUser()
+                .onSuccess { user ->
+                    _currentUser.value = Resource.Success(user)
+                }
+                .onFailure { error ->
+                    _currentUser.value = Resource.Error(error.message ?: "Failed to get user")
+                }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            repository.logout()
+                .onSuccess {
+                    // Disconnect WebSocket
+                    centrifugoManager.disconnect()
+
+                    // Clear preferences
+                    preferenceManager.clearUserData()
+                }
+                .onFailure { error ->
+                    // Still clear local data even if API call fails
+                    centrifugoManager.disconnect()
+                    preferenceManager.clearUserData()
+                }
+        }
+    }
 }

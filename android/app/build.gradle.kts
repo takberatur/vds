@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -24,6 +25,9 @@ android {
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", "\"https://api-simontok.agcforge.com/api/v1/\"")
+        buildConfigField("String", "CENTRIFUGO_URL", "\"https://websocket.infrastructures.help/connection/websocket\"")
     }
     ndkVersion = "29.0.14033849 rc4"
     buildTypes {
@@ -77,6 +81,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.activity.compose)
@@ -114,10 +119,26 @@ dependencies {
     implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.androidx.material3.adaptive.navigation.suite)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.swiperefreshlayout)
+    implementation(libs.androidx.core.splashscreen)
     // Messaging, Database & Ads
     implementation(libs.play.services.ads)
     implementation(libs.unity.ads)
     implementation(libs.inapp.sdk)
     implementation(libs.billing)
     implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
+    implementation(libs.glide)
+    // Websocket
+    implementation(libs.centrifuge.java)
+    // Alternative: Scarlet WebSocket
+//    implementation("com.tinder.scarlet:scarlet:0.1.12")
+//    implementation("com.tinder.scarlet:websocket-okhttp:0.1.12")
+//    implementation("com.tinder.scarlet:message-adapter-gson:0.1.12")
+//    implementation("com.tinder.scarlet:stream-adapter-coroutines:0.1.12")
+//    implementation("com.tinder.scarlet:lifecycle-android:0.1.12")
 }

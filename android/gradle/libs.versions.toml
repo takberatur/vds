@@ -1,10 +1,12 @@
 [versions]
-agp = "8.13.2"
+agp = "9.0.0"
 kotlin = "2.3.0"
 coreKtx = "1.17.0"
 google-services = "4.4.4"
-devtools-ksp = "2.2.0-2.0.2"
+devtools-ksp = "2.3.2"
 kotlin-serialization = "2.3.0"
+kotlin-parcelize = "2.3.20-Beta1"
+
 
 # dependiences
 junit = "4.13.2"
@@ -13,7 +15,7 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 kotlinxCoroutinesAndroid = "1.10.2"
 kotlinxCoroutinesCore = "1.10.2"
-kotlinStdlib = "2.2.0"
+kotlinStdlib = "2.3.0"
 activityCompose = "1.12.2"
 composeBom = "2026.01.00"
 kotlinxDatetime = "0.7.1"
@@ -42,13 +44,21 @@ foundation = "1.10.1"
 material3 = "1.4.0"
 material3AdaptiveNavigationSuite = "1.5.0-alpha12"
 material3WindowSizeClass = "1.4.0"
+datastorePreferences = "1.2.0"
+coreSplashscreen = "1.2.0"
 
 # Messaging, Database & Ads
 playServicesAds = "24.9.0"
-inappSdk = "5.2.6"
-unityAds = "4.16.5"
+inappSdk = "5.3.0"
+unityAds = "4.16.6"
 billing = "8.3.0"
 okhttp = "5.3.2"
+glide = "5.0.5"
+gson = "2.13.2"
+retrofit = "3.0.0"
+
+# Websocket
+centrifugeJava = "0.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -75,6 +85,7 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleLivedataKtx" }
 cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 coordinatorlayout = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayout" }
 drawerlayout = { module = "androidx.drawerlayout:drawerlayout", version.ref = "drawerlayout" }
@@ -93,6 +104,8 @@ androidx-foundation = { module = "androidx.compose.foundation:foundation", versi
 androidx-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "material3AdaptiveNavigationSuite" }
 androidx-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 
 # Messaging, Database & Ads
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
@@ -100,6 +113,14 @@ unity-ads = { module = "com.unity3d.ads:unity-ads", version.ref = "unityAds" }
 inapp-sdk = { module = "com.startapp:inapp-sdk", version.ref = "inappSdk" }
 billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+
+# Websocket
+centrifuge-java = { module = "io.github.centrifugal:centrifuge-java", version.ref = "centrifugeJava" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -108,3 +129,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 google-services = {id = 'com.google.gms.google-services', version.ref = 'google-services'}
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-parcelize" }

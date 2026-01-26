@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -660,7 +662,6 @@ func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClie
 func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	log.Info().Str("task_id", task.ID.String()).Msg("Processing TikTok encrypted task")
 
-	// 1. Select the best format
 	var targetURL string
 	var ext string = "mp4"
 
@@ -668,7 +669,6 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 		targetURL = info.DownloadURL
 	}
 
-	// Try to find a better format if available
 	if len(info.Formats) > 0 {
 		var bestFormat *infrastructure.FormatInfo
 		for _, f := range info.Formats {
@@ -704,38 +704,54 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 		return fmt.Errorf("no suitable download URL found for TikTok task")
 	}
 
-	// 2. Download the video using yt-dlp to handle cookies/headers correctly
-	// Create temp file
-	tempFile, err := os.CreateTemp("", "tiktok-*.mp4")
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
-	}
-	tempPath := tempFile.Name()
-	tempFile.Close()
-	defer os.Remove(tempPath)
-
-	// Pass cookies if available
-	var cookies map[string]string
-	if info != nil {
-		cookies = info.Cookies
+		return fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Download
-	if err := downloader.DownloadToPath(ctx, targetURL, "", tempPath, cookies); err != nil {
-		return fmt.Errorf("failed to download video with yt-dlp: %w", err)
+	userAgent := info.UserAgent
+	if userAgent == "" {
+		userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+	}
+	req.Header.Set("User-Agent", userAgent)
+
+	referer := info.WebpageURL
+	if referer == "" {
+		referer = task.OriginalURL
+	}
+	if referer != "" {
+		req.Header.Set("Referer", referer)
 	}
 
-	// Read content
-	data, err := os.ReadFile(tempPath)
+	if info != nil && len(info.Cookies) > 0 {
+		var parts []string
+		for k, v := range info.Cookies {
+			parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+		}
+		if len(parts) > 0 {
+			req.Header.Set("Cookie", strings.Join(parts, "; "))
+		}
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to read downloaded file: %w", err)
+		return fmt.Errorf("failed to download TikTok video: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download TikTok video: status %d", resp.StatusCode)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read TikTok response body: %w", err)
 	}
 
 	if len(data) == 0 {
 		return fmt.Errorf("downloaded empty file")
 	}
 
-	// 3. Encrypt
 	encryptedData, err := utils.EncryptData(data, encryptionKey)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt data: %w", err)

@@ -26,7 +26,7 @@
     </debug-overrides>
 
     <!-- Base config to allow most connections -->
-    <base-config cleartextTrafficPermitted="false">
+    <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system"/>
             <certificates src="user"

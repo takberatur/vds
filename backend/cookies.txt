@@ -57,3 +57,20 @@ www.tiktok.com	FALSE	/	FALSE	1777132507	last_login_method	google
 .tiktok.com	TRUE	/	FALSE	1800916377	odin_tt	13111a58bbd49235176d732ce15bb5ab7815bd9729b45282c83fecdc013c8836c5650b910d075f69fac144e5d038897a375db6fbaf5dbe460c4c908654f14dba50a40d21487b8ddc733bf78c2af2e79b
 www.tiktok.com	FALSE	/	FALSE	1777156378	msToken	paVYwzUDmPlEwkYt8xqG9N2Jv2mgWD8eRqw9egcMFIaZ50wy5JIYaaOuvEdo3sUDGXWd5j30ZiYjKT6V3Xct6T3DaKgPY11PgUHdOTFOwgY8sG3o_wxD7zpsHSUJCjLJe-WVrCX7yhMnFuCP7DJgc7lYUQ==
 .tiktok.com	TRUE	/	TRUE	1770244378	msToken	hUiW8yfynTp2Oot9JxutwkXKlY0r5NRQFPaQ2meGQbKAaXe-v7zGARdGdEqO7pTVJV16OzHqaIMWhQZviATOWp9x_Wa7TFEswfOtWb3hKaMafhpdOrLLEfVS0fhloQUNE_5pb0Zv0D4-xuvnO8PiimS7
+
+# Netscape HTTP Cookie File
+# https://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file! Do not edit.
+
+.instagram.com	TRUE	/	TRUE	1803912973	datr	DS92aW7RLXK4g3xnQ4FSaBc6
+.instagram.com	TRUE	/	TRUE	1800888973	ig_did	1430CB6C-A802-435B-9E2D-804490D64EFE
+.instagram.com	TRUE	/	TRUE	1770019335	wd	1536x791
+.instagram.com	TRUE	/	TRUE	1770019335	dpr	1.25
+.instagram.com	TRUE	/	TRUE	1803912978	mid	aXYvDQALAAH6g6mUqjdOh-krbfk8
+.instagram.com	TRUE	/	TRUE	1800890667	ig_nrcb	1
+.instagram.com	TRUE	/	TRUE	1803974543	csrftoken	Zbmde0hFhvsqJHKBElQAX6JgCSPuRxx0
+.instagram.com	TRUE	/	TRUE	1777190543	ds_user_id	4620313204
+.instagram.com	TRUE	/	TRUE	1803915202	ps_l	1
+.instagram.com	TRUE	/	TRUE	1803915202	ps_n	1
+.instagram.com	TRUE	/	TRUE	1800950536	sessionid	4620313204%3AQS5E0On5JuGRA5%3A12%3AAYjwJkUN0v71Y7mkhxmikY3Vb5llKMRL2iUQtQKpXA
+.instagram.com	TRUE	/	TRUE	0	rur	"CCO\0544620313204\0541800950542:01fe37928dab515f20df89bef7a13c889557001a7facd1bd5df28bf7517694671ff3e2d4"
