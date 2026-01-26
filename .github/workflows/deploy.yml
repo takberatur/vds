@@ -2,10 +2,7 @@ name: Deploy to Ubuntu Server
 
 on:
   push:
-    branches: [ main, master ]
-    paths-ignore:
-    - '**/android/**'
-    - 'android/**'
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -14,55 +11,53 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        sparse-checkout: |
-          !android
-        sparse-checkout-cone-mode: false
 
-    - name: Deploy to Server via SSH
+    - name: Deploy to Server
       uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
+          set -e
           cd /var/www/video-downloader
 
-          BACKUP_DIR="/tmp/backup_$(date +%Y%m%d_%H%M%S)"
-          mkdir -p $BACKUP_DIR
+          echo "🚀 Starting deployment..."
 
-          EXCLUDE_LIST=(
-            "android/"
-          )
-
-          # Create exclude string for tar
-          EXCLUDE_TAR=""
-          for item in "${EXCLUDE_LIST[@]}"; do
-            EXCLUDE_TAR+=" --exclude='$item'"
+          # Backup critical files
+          BACKUP_ITEMS=(".env" "uploads" "tmp" "docker-compose.override.yml")
+          for item in "${BACKUP_ITEMS[@]}"; do
+            if [ -e "$item" ]; then
+              cp -r "$item" "/tmp/backup_$item" 2>/dev/null || true
+            fi
           done
 
-          # Backup current excluded files
-          echo "Backing up excluded files..."
-          tar czf $BACKUP_DIR/backup.tar.gz $EXCLUDE_TAR .
-
-          # Hard reset from git
-          echo "Fetching latest code..."
+          # Git update
           git fetch origin
-
-          # Clean except excluded files
-          echo "Cleaning workspace..."
-          git clean -fd -e android
-
-          # Reset to origin
-          echo "Resetting to origin/main..."
           git reset --hard origin/main
 
-          # Restore excluded files from backup
-          echo "Restoring excluded files..."
-          tar -xzf $BACKUP_DIR/backup.tar.gz -C .
+          # Remove unwanted directories that might come from git
+          UNWANTED=("android" "ios" "node_modules" ".expo")
+          for dir in "${UNWANTED[@]}"; do
+            if [ -d "$dir" ]; then
+              echo "Removing $dir..."
+              rm -rf "$dir"
+            fi
+          done
 
-          # Set permissions
-          chmod 600 .env 2>/dev/null || true
-          chmod -R 755 uploads 2>/dev/null || true
+          # Restore backups
+          for item in "${BACKUP_ITEMS[@]}"; do
+            if [ -e "/tmp/backup_$item" ]; then
+              rm -rf "$item" 2>/dev/null || true
+              cp -r "/tmp/backup_$item" "$item"
+              rm -rf "/tmp/backup_$item"
+            fi
+          done
 
-          echo "Deployment completed!"
+          # Clean git ignored files (but keep important ones)
+          git clean -fd -e .env -e .env.* -e uploads -e tmp -e docker-compose.override.yml
+
+          echo "✅ Deployment completed!"
+
+          # Optional: Restart services
+          docker-compose up -d --build
