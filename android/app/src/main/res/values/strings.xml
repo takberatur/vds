@@ -1,32 +1,21 @@
 <resources>
     <string name="app_name">Video Downloader</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
-    <string name="admob_id">ca-app-pub-3940256099942544~3347511713</string>
-
+    <string name="admob_id" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <!-- Home -->
     <string name="paste_url_hint">Paste video URL here</string>
     <string name="download_button">Download</string>
     <string name="supported_platforms">Supported Platforms</string>
-
-    <!-- Downloads -->
     <string name="no_downloads">No downloads yet</string>
     <string name="download_details">Download Details</string>
-
-    <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="download_quality">Download Quality</string>
     <string name="storage_location">Storage Location</string>
-
-    <!-- Error messages -->
     <string name="error_invalid_url">Please enter a valid URL</string>
     <string name="error_network">Network error. Please try again.</string>
     <string name="error_unknown">An unknown error occurred</string>
@@ -84,4 +73,5 @@
     <string name="contact_us">Contact Us</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="app_version">Version 1.0</string>
+    <string name="language">Language</string>
 </resources>

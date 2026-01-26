@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -18,14 +17,13 @@ import com.agcforge.videodownloader.databinding.ActivityMainBinding
 import com.agcforge.videodownloader.service.WebSocketService
 import com.agcforge.videodownloader.ui.activities.auth.LoginActivity
 import com.agcforge.videodownloader.utils.PreferenceManager
-import com.agcforge.videodownloader.utils.applyTheme
 import com.agcforge.videodownloader.utils.loadImage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
@@ -39,20 +37,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         preferenceManager = PreferenceManager(this)
 
-        observeTheme()
         setupToolbar()
         setupNavigation()
         setupDrawer()
         updateNavigationHeader()
         startWebSocketService()
-    }
-
-    private fun observeTheme() {
-        lifecycleScope.launch {
-            preferenceManager.theme.first().let { theme ->
-                applyTheme(theme)
-            }
-        }
     }
 
     private fun setupToolbar() {
@@ -141,22 +130,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun showAboutDialog() {
         MaterialAlertDialogBuilder(this)
-            .setTitle("About")
-            .setMessage(
-                "Video Downloader\n" +
-                        "Version 1.0\n\n" +
-                        "Download videos from various platforms including YouTube, Instagram, TikTok, and more.\n\n" +
-                        "© 2026 AGCForge"
-            )
-            .setPositiveButton("OK", null)
+            .setTitle(R.string.about)
+            .setMessage(R.string.about_dialog_message)
+            .setPositiveButton(R.string.ok, null)
             .show()
     }
 
     private fun showLogoutDialog() {
         MaterialAlertDialogBuilder(this)
-            .setTitle("Logout")
+            .setTitle(R.string.logout)
             .setMessage("Are you sure you want to logout?")
-            .setPositiveButton("Logout") { _, _ ->
+            .setPositiveButton(R.string.logout) { _, _ ->
                 handleLogout()
             }
             .setNegativeButton("Cancel", null)

@@ -33,6 +33,7 @@ class PreferenceManager(private val context: Context) {
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
         private val USER_AVATAR_KEY = stringPreferencesKey("user_avatar")
         private val THEME_KEY = stringPreferencesKey("theme_mode")
+        private val LANGUAGE_KEY = stringPreferencesKey("language_code")
     }
 
     // --- Flows to observe preference changes ---
@@ -43,6 +44,7 @@ class PreferenceManager(private val context: Context) {
     val userName: Flow<String?> = context.dataStore.data.map { it[USER_NAME_KEY] }
     val userAvatar: Flow<String?> = context.dataStore.data.map { it[USER_AVATAR_KEY] }
     val theme: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
+    val language: Flow<String?> = context.dataStore.data.map { it[LANGUAGE_KEY] }
 
     // --- Suspend functions to modify preferences ---
 
@@ -67,6 +69,10 @@ class PreferenceManager(private val context: Context) {
 
     suspend fun saveTheme(themeMode: String) {
         context.dataStore.edit { it[THEME_KEY] = themeMode }
+    }
+
+    suspend fun saveLanguage(languageCode: String) {
+        context.dataStore.edit { it[LANGUAGE_KEY] = languageCode }
     }
 
     suspend fun clearUserData() {
