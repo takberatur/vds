@@ -1,0 +1,2570 @@
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Starting application..."
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Connected to PostgreSQL"
+}
+{
+	"level": "debug",
+	"command": "hello",
+	"args": "[hello 3 auth default wyZuK64Tg105+erzJ1n/sg2DeQ4a4BbVr9c3M0D7neo=]",
+	"duration": "288.268µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "error",
+	"error": "ERR unknown subcommand 'maint_notifications'. Try CLIENT HELP.",
+	"command": "client",
+	"args": "[client maint_notifications on moving-endpoint-type internal-fqdn]",
+	"duration": "234.791µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Failed"
+}
+{
+	"level": "debug",
+	"pipeline_size": 2,
+	"duration": "194.372µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Pipeline Executed"
+}
+{
+	"level": "debug",
+	"command": "ping",
+	"args": "[ping]",
+	"duration": "2.90226ms",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Connected to Redis"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Connected to MinIO"
+}
+{
+	"level": "debug",
+	"command": "hello",
+	"args": "[hello 3 auth default wyZuK64Tg105+erzJ1n/sg2DeQ4a4BbVr9c3M0D7neo=]",
+	"duration": "858.505µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"pipeline_size": 2,
+	"duration": "378.154µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Pipeline Executed"
+}
+{
+	"level": "info",
+	"channel": "download:events",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Subscribed to download events channel"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Starting to load all applications to Redis cache..."
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM applications",
+	"duration": "2.402976ms",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"count": 0,
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Successfully loaded applications to cache"
+}
+{
+	"level": "info",
+	"port": "5001",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Server starting"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:55Z",
+	"time": "2026-01-26T00:17:55Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:55Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:17:55Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "2.657685ms",
+	"time": "2026-01-26T00:17:55Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "3.466412ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:55Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:56Z",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "3.116227ms",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "4.39938ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:56Z",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "573.383µs",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "758.278µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:56Z",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "821.783µs",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.204957ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:56Z",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "1.427119ms",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.603512ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:56Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:57Z",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:57Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "1.402739ms",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.69097ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:47:57Z",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:17:57Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "684.921µs",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "868.219µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:17:57Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:01Z",
+	"time": "2026-01-26T00:18:01Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:01Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:18:01Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "955.875µs",
+	"time": "2026-01-26T00:18:01Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "8.906016ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:01Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:02Z",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:02Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "880.616µs",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.146859ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:02Z",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:02Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "2.382614ms",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "2.927602ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:02Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:03Z",
+	"time": "2026-01-26T00:18:03Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:03Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:18:03Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "955.117µs",
+	"time": "2026-01-26T00:18:03Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.324578ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:03Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:04Z",
+	"time": "2026-01-26T00:18:04Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:04Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:18:04Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "1.502929ms",
+	"time": "2026-01-26T00:18:04Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "2.050566ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:04Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:05Z",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "3.036822ms",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "3.280873ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:05Z",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "728.949µs",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/instagram",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.03863ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:05Z",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "546.16µs",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "717.15µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:05Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/centrifugo/token",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:10Z",
+	"time": "2026-01-26T00:18:10Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/centrifugo/token",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:10Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/centrifugo/token",
+	"status": 200,
+	"ip": "103.157.62.25",
+	"latency": "116.228µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:10Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:15Z",
+	"time": "2026-01-26T00:18:15Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:15Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:18:15Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "469.184µs",
+	"time": "2026-01-26T00:18:15Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "830.848µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:15Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:16Z",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "773.845µs",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.148545ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:16Z",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "537.503µs",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "688.766µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:16Z",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "826.394µs",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.067651ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/any-video-downloader",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:16Z",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/any-video-downloader",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/any-video-downloader",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "574.861µs",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/any-video-downloader",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "751.997µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:16Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/token/csrf",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:17Z",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Context initialized"
+}
+{
+	"level": "debug",
+	"command": "get",
+	"args": "[get csrf_token:d0626151-e193-426d-90ae-c2e971499df8]",
+	"duration": "290.353µs",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"command": "set",
+	"args": "[set csrf_token:d0626151-e193-426d-90ae-c2e971499df8 75540be1-b416-4980-82d4-8c7158549e17 ex 3600]",
+	"duration": "565.91µs",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/token/csrf",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.364381ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:17Z",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"command": "get",
+	"args": "[get csrf_token:d0626151-e193-426d-90ae-c2e971499df8]",
+	"duration": "240.144µs",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"type": "instagram",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Received download request"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "703.336µs",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE type = $1\n\t",
+	"duration": "576.375µs",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"strategy": "yt-dlp",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:17Z",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "674.318µs",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "874.6µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:17Z",
+	"message": "Request processed"
+}
+{
+	"level": "error",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"stderr": "WARNING: [Instagram] DTc-4Y2gDVD: General metadata extraction failed (some metadata might be missing).\nWARNING: [Instagram] unable to extract shared data; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U\nWARNING: [Instagram] Main webpage is locked behind the login page. Retrying with embed webpage (some metadata might be missing).\nWARNING: [Instagram] Unable to download webpage: HTTP Error 404: Not Found\nWARNING: [Instagram] unable to extract additional data; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U\nERROR: [Instagram] DTc-4Y2gDVD: Requested content is not available, rate-limit reached or login required. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies\n",
+	"error": "exit status 1",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "yt-dlp failed"
+}
+{
+	"level": "error",
+	"error": "failed to fetch video info: exit status 1",
+	"strategy": "yt-dlp",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "lux",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Fetching video info with lux"
+}
+{
+	"level": "error",
+	"error": "lux failed: exit status 1, stderr: , stdout: Downloading https://www.instagram.com/reels/DTc-4Y2gDVD/ error:\ncouldn't extract the media short code from the link\ngithub.com/iawia002/lux/extractors/instagram.extractShortCodeFromLink\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/instagram/instagram.go:132\ngithub.com/iawia002/lux/extractors/instagram.(*extractor).Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/instagram/instagram.go:152\ngithub.com/iawia002/lux/extractors.Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/extractors.go:54\ngithub.com/iawia002/lux/app.download\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:275\ngithub.com/iawia002/lux/app.New.func1\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:252\ngithub.com/urfave/cli/v2.(*App).RunContext\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:322\ngithub.com/urfave/cli/v2.(*App).Run\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:224\nmain.main\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/main.go:13\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:285\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1693\ngithub.com/iawia002/lux/extractors/instagram.(*extractor).Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/instagram/instagram.go:154\ngithub.com/iawia002/lux/extractors.Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/extractors.go:54\ngithub.com/iawia002/lux/app.download\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:275\ngithub.com/iawia002/lux/app.New.func1\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:252\ngithub.com/urfave/cli/v2.(*App).RunContext\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:322\ngithub.com/urfave/cli/v2.(*App).Run\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:224\nmain.main\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/main.go:13\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:285\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1693\ngithub.com/iawia002/lux/extractors.Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/extractors.go:56\ngithub.com/iawia002/lux/app.download\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:275\ngithub.com/iawia002/lux/app.New.func1\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:252\ngithub.com/urfave/cli/v2.(*App).RunContext\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:322\ngithub.com/urfave/cli/v2.(*App).Run\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:224\nmain.main\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/main.go:13\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:285\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1693\n",
+	"strategy": "lux",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "rumble-custom",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Starting Rumble strategy"
+}
+{
+	"level": "error",
+	"error": "oembed api returned status: 404",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Failed to get embed ID"
+}
+{
+	"level": "error",
+	"error": "oembed api returned status: 404",
+	"strategy": "rumble-custom",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "vimeo-custom",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "error",
+	"error": "invalid Vimeo URL: unable to extract video ID",
+	"strategy": "vimeo-custom",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "chromedp",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:19Z",
+	"message": "Navigating with Chromedp"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"page_title": "InstagramInstagramAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMoreAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMoreAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMoreAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMore",
+	"time": "2026-01-26T00:18:33Z",
+	"message": "Chromedp page title"
+}
+{
+	"level": "info",
+	"count": 0,
+	"time": "2026-01-26T00:18:33Z",
+	"message": "Found JSON-LD scripts"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:18:33Z",
+	"message": "JSON-LD failed, trying meta tags fallback"
+}
+{
+	"level": "error",
+	"error": "failed to extract video info with chromedp",
+	"strategy": "chromedp",
+	"time": "2026-01-26T00:18:33Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "error",
+	"error": "all download strategies failed: failed to extract video info with chromedp",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:33Z",
+	"message": "Failed to process download request"
+}
+{
+	"level": "error",
+	"method": "POST",
+	"path": "/api/v1/web-client/download/process",
+	"status": 500,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "15.772650658s",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:33Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:41Z",
+	"time": "2026-01-26T00:18:41Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:41Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:18:41Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "514.9µs",
+	"time": "2026-01-26T00:18:41Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.005035ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:41Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:42Z",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:42Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "806µs",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.07248ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:42Z",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:42Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "797.222µs",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.162855ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:42Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:43Z",
+	"time": "2026-01-26T00:18:43Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:43Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:18:43Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "524.638µs",
+	"time": "2026-01-26T00:18:43Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "681.055µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:43Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:46Z",
+	"time": "2026-01-26T00:18:46Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:46Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:18:46Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "468.755µs",
+	"time": "2026-01-26T00:18:46Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "870.905µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:46Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:47Z",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:47Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "1.090058ms",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.634439ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/token/csrf",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:47Z",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Context initialized"
+}
+{
+	"level": "debug",
+	"command": "get",
+	"args": "[get csrf_token:04b72d66-45ca-4b74-bb66-18c45d2a4882]",
+	"duration": "258.303µs",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"command": "set",
+	"args": "[set csrf_token:04b72d66-45ca-4b74-bb66-18c45d2a4882 5782bed7-c7a1-4c98-aa84-04ced6ba9cf7 ex 3600]",
+	"duration": "716.39µs",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/token/csrf",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.633186ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:48:47Z",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"duration": 60000,
+	"time": "2026-01-26T00:18:47Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"command": "get",
+	"args": "[get csrf_token:04b72d66-45ca-4b74-bb66-18c45d2a4882]",
+	"duration": "302.573µs",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"type": "instagram",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Received download request"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "675.673µs",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE type = $1\n\t",
+	"duration": "477.142µs",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"strategy": "yt-dlp",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:47Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "error",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"stderr": "WARNING: [Instagram] DTc-4Y2gDVD: General metadata extraction failed (some metadata might be missing).\nWARNING: [Instagram] unable to extract shared data; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U\nWARNING: [Instagram] Main webpage is locked behind the login page. Retrying with embed webpage (some metadata might be missing).\nWARNING: [Instagram] Unable to download webpage: HTTP Error 404: Not Found\nWARNING: [Instagram] unable to extract additional data; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U\nERROR: [Instagram] DTc-4Y2gDVD: Requested content is not available, rate-limit reached or login required. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies\n",
+	"error": "exit status 1",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "yt-dlp failed"
+}
+{
+	"level": "error",
+	"error": "failed to fetch video info: exit status 1",
+	"strategy": "yt-dlp",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "lux",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Fetching video info with lux"
+}
+{
+	"level": "error",
+	"error": "lux failed: exit status 1, stderr: , stdout: Downloading https://www.instagram.com/reels/DTc-4Y2gDVD/ error:\ncouldn't extract the media short code from the link\ngithub.com/iawia002/lux/extractors/instagram.extractShortCodeFromLink\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/instagram/instagram.go:132\ngithub.com/iawia002/lux/extractors/instagram.(*extractor).Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/instagram/instagram.go:152\ngithub.com/iawia002/lux/extractors.Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/extractors.go:54\ngithub.com/iawia002/lux/app.download\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:275\ngithub.com/iawia002/lux/app.New.func1\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:252\ngithub.com/urfave/cli/v2.(*App).RunContext\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:322\ngithub.com/urfave/cli/v2.(*App).Run\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:224\nmain.main\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/main.go:13\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:285\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1693\ngithub.com/iawia002/lux/extractors/instagram.(*extractor).Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/instagram/instagram.go:154\ngithub.com/iawia002/lux/extractors.Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/extractors.go:54\ngithub.com/iawia002/lux/app.download\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:275\ngithub.com/iawia002/lux/app.New.func1\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:252\ngithub.com/urfave/cli/v2.(*App).RunContext\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:322\ngithub.com/urfave/cli/v2.(*App).Run\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:224\nmain.main\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/main.go:13\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:285\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1693\ngithub.com/iawia002/lux/extractors.Extract\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/extractors/extractors.go:56\ngithub.com/iawia002/lux/app.download\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:275\ngithub.com/iawia002/lux/app.New.func1\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/app/app.go:252\ngithub.com/urfave/cli/v2.(*App).RunContext\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:322\ngithub.com/urfave/cli/v2.(*App).Run\n\t/go/pkg/mod/github.com/urfave/cli/v2@v2.6.0/app.go:224\nmain.main\n\t/go/pkg/mod/github.com/iawia002/lux@v0.24.1/main.go:13\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:285\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1693\n",
+	"strategy": "lux",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "rumble-custom",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Starting Rumble strategy"
+}
+{
+	"level": "error",
+	"error": "oembed api returned status: 404",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Failed to get embed ID"
+}
+{
+	"level": "error",
+	"error": "oembed api returned status: 404",
+	"strategy": "rumble-custom",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "vimeo-custom",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "error",
+	"error": "invalid Vimeo URL: unable to extract video ID",
+	"strategy": "vimeo-custom",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "chromedp",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:18:49Z",
+	"message": "Navigating with Chromedp"
+}
+{
+	"level": "info",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"page_title": "InstagramInstagramAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMoreAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMoreAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMoreAudio is mutedAudio imageTagged usersPlay button iconLikeCommentShareMore",
+	"time": "2026-01-26T00:19:02Z",
+	"message": "Chromedp page title"
+}
+{
+	"level": "info",
+	"count": 0,
+	"time": "2026-01-26T00:19:02Z",
+	"message": "Found JSON-LD scripts"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:19:02Z",
+	"message": "JSON-LD failed, trying meta tags fallback"
+}
+{
+	"level": "error",
+	"error": "failed to extract video info with chromedp",
+	"strategy": "chromedp",
+	"time": "2026-01-26T00:19:02Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "error",
+	"error": "all download strategies failed: failed to extract video info with chromedp",
+	"url": "https://www.instagram.com/reels/DTc-4Y2gDVD/",
+	"time": "2026-01-26T00:19:02Z",
+	"message": "Failed to process download request"
+}
+{
+	"level": "error",
+	"method": "POST",
+	"path": "/api/v1/web-client/download/process",
+	"status": 500,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "15.010859648s",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:02Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:05Z",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "462.48µs",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "802.317µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:05Z",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "689.154µs",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "991.213µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:05Z",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "595.137µs",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/tiktok",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "703.866µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:05Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:06Z",
+	"time": "2026-01-26T00:19:06Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:06Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:19:06Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "520.945µs",
+	"time": "2026-01-26T00:19:06Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "676.717µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:06Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:11Z",
+	"time": "2026-01-26T00:19:11Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:11Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:19:11Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "507.888µs",
+	"time": "2026-01-26T00:19:11Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.242165ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:11Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:12Z",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:12Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "736.256µs",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "969.945µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:12Z",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:12Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "752.478µs",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "917.689µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:12Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:13Z",
+	"time": "2026-01-26T00:19:13Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:13Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:19:13Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "457.128µs",
+	"time": "2026-01-26T00:19:13Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "612.606µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:13Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:17Z",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "356.032µs",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "976.067µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:17Z",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "924.969µs",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.159946ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:17Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:18Z",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:18Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "566.057µs",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/dailymotion",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "693.356µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:18Z",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:18Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "514.799µs",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "686.778µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:18Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:22Z",
+	"time": "2026-01-26T00:19:22Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:22Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:19:22Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "546.216µs",
+	"time": "2026-01-26T00:19:22Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "959.884µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:22Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:23Z",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:23Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "534.444µs",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "841.983µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/token/csrf",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:23Z",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Context initialized"
+}
+{
+	"level": "debug",
+	"command": "get",
+	"args": "[get csrf_token:41ccc606-3f52-427d-96df-7688bbacd0c0]",
+	"duration": "215.079µs",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"command": "set",
+	"args": "[set csrf_token:41ccc606-3f52-427d-96df-7688bbacd0c0 33a0b519-c407-4929-956a-6352bf162748 ex 3600]",
+	"duration": "349.519µs",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/token/csrf",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.124068ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:23Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:24Z",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:24Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"command": "get",
+	"args": "[get csrf_token:41ccc606-3f52-427d-96df-7688bbacd0c0]",
+	"duration": "217.018µs",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/download/process",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"type": "twitter",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "Received download request"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "527.401µs",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE type = $1\n\t",
+	"duration": "783.592µs",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"strategy": "yt-dlp",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:19:24Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "warn",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "yt-dlp returned cookies as string, ignoring"
+}
+{
+	"level": "info",
+	"strategy": "yt-dlp",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Download info success"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tINSERT INTO downloads (user_id, app_id, original_url, platform_id, platform_type, status, file_path, format, thumbnail_url, title, file_size, duration, encrypted_data, created_at)\n\t\tVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\n\t\tRETURNING id\n\t",
+	"duration": "4.29113ms",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Enqueuing video download task"
+}
+{
+	"level": "info",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Successfully enqueued video download task"
+}
+{
+	"level": "info",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"processing_time": 2659.318468,
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Download request processed successfully"
+}
+{
+	"level": "info",
+	"type": "download.queued",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "queued",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Broadcasting initial queued download event"
+}
+{
+	"level": "info",
+	"method": "POST",
+	"path": "/api/v1/web-client/download/process",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "2.660843499s",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"type": "download.queued",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "queued",
+	"anon_clients": 0,
+	"user_clients": 0,
+	"time": "2026-01-26T00:19:26Z",
+	"message": "Broadcasting download event to websocket clients"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:27Z",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:27Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/public-admin/settings/public",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key",
+	"duration": "559.882µs",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/public-admin/settings/public",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "672.513µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"type": "download.processing",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "processing",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Received download event from redis, publishing to Centrifugo"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"type": "download.processing",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "processing",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Received download event from redis, publishing to Centrifugo"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:27Z",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:27Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT \n\t\t\tu.id, u.email, u.password_hash, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,\n\t\t\tr.id, r.name, r.permissions\n\t\tFROM users u\n\t\tLEFT JOIN roles r ON u.role_id = r.id\n\t\tWHERE u.id = $1\n\t",
+	"duration": "825.11µs",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/protected-web/users/current",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.125398ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:27Z",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:27Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tSELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at\n\t\tFROM platforms WHERE slug = $1\n\t",
+	"duration": "735.579µs",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms/slug/twitter",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "1.140701ms",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"timeout": 1800000,
+	"deadline": "2026-01-26T00:49:28Z",
+	"time": "2026-01-26T00:19:28Z",
+	"message": "Context initialized"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"duration": 60000,
+	"time": "2026-01-26T00:19:28Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "info",
+	"path": "/api/v1/web-client/platforms",
+	"time": "2026-01-26T00:19:28Z",
+	"message": "The context time has been set plus for the route"
+}
+{
+	"level": "debug",
+	"sql": "SELECT * FROM platforms",
+	"duration": "606.941µs",
+	"time": "2026-01-26T00:19:28Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "info",
+	"method": "GET",
+	"path": "/api/v1/web-client/platforms",
+	"status": 200,
+	"ip": "103.157.62.19, 103.157.62.25",
+	"latency": "855.303µs",
+	"user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+	"time": "2026-01-26T00:19:28Z",
+	"message": "Request processed"
+}
+{
+	"level": "info",
+	"type": "download.processing",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "processing",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Received download event from redis, publishing to Centrifugo"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "error",
+	"type": "download.failed",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "failed",
+	"error": "failed to download video with yt-dlp: yt-dlp download failed: exit status 1, stderr: ERROR: [generic] Unable to download webpage: HTTP Error 403: Forbidden (caused by <HTTPError 403: Forbidden>)\n",
+	"time": "2026-01-26T00:19:40Z",
+	"message": "Received download FAILED event from redis"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:40Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"type": "download.processing",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "processing",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Received download event from redis, publishing to Centrifugo"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"type": "download.processing",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"status": "processing",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Received download event from redis, publishing to Centrifugo"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Published to centrifugo"
+}

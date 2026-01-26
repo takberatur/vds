@@ -480,6 +480,21 @@ func processJsonLD(data map[string]interface{}, info **VideoInfo) bool {
 		return false
 	}
 
+	// Helper to validate URL (exclude blobs)
+	isValidURL := func(u string) bool {
+		return u != "" && !strings.HasPrefix(u, "blob:")
+	}
+
+	if !isValidURL(contentUrl) && !isValidURL(embedUrl) {
+		return false
+	}
+
+	// Prefer contentUrl, fallback to embedUrl if valid
+	finalUrl := contentUrl
+	if !isValidURL(finalUrl) {
+		finalUrl = embedUrl
+	}
+
 	title, _ := data["name"].(string)
 	// description, _ := data["description"].(string)
 	thumbnailUrl, _ := data["thumbnailUrl"].(string)
@@ -497,13 +512,13 @@ func processJsonLD(data map[string]interface{}, info **VideoInfo) bool {
 	*info = &VideoInfo{
 		Title:       title,
 		Thumbnail:   thumbnailUrl,
-		DownloadURL: contentUrl,
+		DownloadURL: finalUrl,
 	}
 
-	if contentUrl != "" {
+	if finalUrl != "" {
 		(*info).Formats = []FormatInfo{
 			{
-				URL: contentUrl,
+				URL: finalUrl,
 				Ext: "mp4", // Assumption for now
 			},
 		}

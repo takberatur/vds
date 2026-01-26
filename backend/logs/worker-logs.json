@@ -1,0 +1,315 @@
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Starting worker..."
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Cleanup cron job initialized (interval: 10m, retention: 30m)"
+}
+{
+	"level": "debug",
+	"command": "hello",
+	"args": "[hello 3 auth default wyZuK64Tg105+erzJ1n/sg2DeQ4a4BbVr9c3M0D7neo=]",
+	"duration": "297.627µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "error",
+	"error": "ERR unknown subcommand 'maint_notifications'. Try CLIENT HELP.",
+	"command": "client",
+	"args": "[client maint_notifications on moving-endpoint-type internal-fqdn]",
+	"duration": "288.322µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Failed"
+}
+{
+	"level": "debug",
+	"pipeline_size": 2,
+	"duration": "154.89µs",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Pipeline Executed"
+}
+{
+	"level": "debug",
+	"command": "ping",
+	"args": "[ping]",
+	"duration": "2.480726ms",
+	"time": "2026-01-26T00:16:02Z",
+	"message": "Redis Command Executed"
+}
+asynq: pid=1 2026/01/26 00: 16: 02.924908 INFO: Starting processing
+asynq: pid=1 2026/01/26 00: 16: 02.925158 INFO: Send signal TSTP to stop processing new tasks
+asynq: pid=1 2026/01/26 00: 16: 02.925172 INFO: Send signal TERM or INT to terminate the process
+{
+	"level": "debug",
+	"sql": "\n\t\tUPDATE downloads \n\t\tSET status = $1, file_path = $2, format = $3, thumbnail_url = $4, \n\t\t\ttitle = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9\n\t\tWHERE id = $10\n\t",
+	"duration": "3.627527ms",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 112 114 111 99 101 115 115 105 110 103 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 112 114 111 99 101 115 115 105 110 103 34 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 49 57 58 50 55 46 51 53 48 49 55 55 52 50 56 90 34 125]]",
+	"duration": "240.582µs",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 112 114 111 99 101 115 115 105 110 103 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 112 114 111 99 101 115 115 105 110 103 34 44 34 112 114 111 103 114 101 115 115 34 58 49 48 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 49 57 58 50 55 46 51 53 51 54 50 52 52 57 53 90 34 125]]",
+	"duration": "272.796µs",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"strategy": "yt-dlp",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:19:27Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "error",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"stderr": "WARNING: [TikTok] The extractor is attempting impersonation, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies\nERROR: [TikTok] 7567607923665423632: Unable to extract webpage video data; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U\n",
+	"error": "exit status 1",
+	"time": "2026-01-26T00:19:29Z",
+	"message": "yt-dlp failed"
+}
+{
+	"level": "error",
+	"error": "failed to fetch video info: exit status 1",
+	"strategy": "yt-dlp",
+	"time": "2026-01-26T00:19:29Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "lux",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:19:29Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:19:29Z",
+	"message": "Fetching video info with lux"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Recovered video info from failed lux execution"
+}
+{
+	"level": "info",
+	"strategy": "lux",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Download info success"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tUPDATE downloads \n\t\tSET status = $1, file_path = $2, format = $3, thumbnail_url = $4, \n\t\t\ttitle = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9\n\t\tWHERE id = $10\n\t",
+	"duration": "1.284238ms",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 112 114 111 99 101 115 115 105 110 103 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 112 114 111 99 101 115 115 105 110 103 34 44 34 112 114 111 103 114 101 115 115 34 58 51 48 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 49 57 58 51 56 46 57 56 52 48 56 54 51 52 90 34 125]]",
+	"duration": "190.776µs",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"platform": "twitter",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Processing as direct download (no-upload)"
+}
+{
+	"level": "info",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:38Z",
+	"message": "Processing TikTok encrypted task"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tUPDATE downloads \n\t\tSET status = $1, file_path = $2, format = $3, thumbnail_url = $4, \n\t\t\ttitle = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9\n\t\tWHERE id = $10\n\t",
+	"duration": "2.388442ms",
+	"time": "2026-01-26T00:19:40Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 102 97 105 108 101 100 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 102 97 105 108 101 100 34 44 34 101 114 114 111 114 34 58 34 102 97 105 108 101 100 32 116 111 32 100 111 119 110 108 111 97 100 32 118 105 100 101 111 32 119 105 116 104 32 121 116 45 100 108 112 58 32 121 116 45 100 108 112 32 100 111 119 110 108 111 97 100 32 102 97 105 108 101 100 58 32 101 120 105 116 32 115 116 97 116 117 115 32 49 44 32 115 116 100 101 114 114 58 32 69 82 82 79 82 58 32 91 103 101 110 101 114 105 99 93 32 85 110 97 98 108 101 32 116 111 32 100 111 119 110 108 111 97 100 32 119 101 98 112 97 103 101 58 32 72 84 84 80 32 69 114 114 111 114 32 52 48 51 58 32 70 111 114 98 105 100 100 101 110 32 40 99 97 117 115 101 100 32 98 121 32 92 117 48 48 51 99 72 84 84 80 69 114 114 111 114 32 52 48 51 58 32 70 111 114 98 105 100 100 101 110 92 117 48 48 51 101 41 92 110 34 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 49 57 58 52 48 46 53 51 50 53 51 53 53 57 56 90 34 125]]",
+	"duration": "263.53µs",
+	"time": "2026-01-26T00:19:40Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:19:40Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tUPDATE downloads \n\t\tSET status = $1, file_path = $2, format = $3, thumbnail_url = $4, \n\t\t\ttitle = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9\n\t\tWHERE id = $10\n\t",
+	"duration": "3.315923ms",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 112 114 111 99 101 115 115 105 110 103 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 112 114 111 99 101 115 115 105 110 103 34 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 50 48 58 49 51 46 54 48 48 52 48 57 51 56 50 90 34 125]]",
+	"duration": "235.625µs",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 112 114 111 99 101 115 115 105 110 103 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 112 114 111 99 101 115 115 105 110 103 34 44 34 112 114 111 103 114 101 115 115 34 58 49 48 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 50 48 58 49 51 46 54 48 50 49 56 57 56 55 51 90 34 125]]",
+	"duration": "816.456µs",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"strategy": "yt-dlp",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:20:13Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "error",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"stderr": "WARNING: [TikTok] The extractor is attempting impersonation, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies\nERROR: [TikTok] 7567607923665423632: Unable to extract webpage video data; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U\n",
+	"error": "exit status 1",
+	"time": "2026-01-26T00:20:15Z",
+	"message": "yt-dlp failed"
+}
+{
+	"level": "error",
+	"error": "failed to fetch video info: exit status 1",
+	"strategy": "yt-dlp",
+	"time": "2026-01-26T00:20:15Z",
+	"message": "Strategy failed"
+}
+{
+	"level": "info",
+	"strategy": "lux",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:20:15Z",
+	"message": "Attempting download with strategy"
+}
+{
+	"level": "info",
+	"url": "https://www.tiktok.com/@ruqayyah.alhisyam/video/7567607923665423632?is_from_webapp=1",
+	"time": "2026-01-26T00:20:15Z",
+	"message": "Fetching video info with lux"
+}
+{
+	"level": "info",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Recovered video info from failed lux execution"
+}
+{
+	"level": "info",
+	"strategy": "lux",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Download info success"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tUPDATE downloads \n\t\tSET status = $1, file_path = $2, format = $3, thumbnail_url = $4, \n\t\t\ttitle = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9\n\t\tWHERE id = $10\n\t",
+	"duration": "2.17679ms",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 112 114 111 99 101 115 115 105 110 103 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 112 114 111 99 101 115 115 105 110 103 34 44 34 112 114 111 103 114 101 115 115 34 58 51 48 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 50 48 58 50 54 46 48 52 53 48 52 48 53 50 52 90 34 125]]",
+	"duration": "306.372µs",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Published to centrifugo"
+}
+{
+	"level": "info",
+	"platform": "twitter",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Processing as direct download (no-upload)"
+}
+{
+	"level": "info",
+	"task_id": "70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:26Z",
+	"message": "Processing TikTok encrypted task"
+}
+{
+	"level": "debug",
+	"sql": "\n\t\tUPDATE downloads \n\t\tSET status = $1, file_path = $2, format = $3, thumbnail_url = $4, \n\t\t\ttitle = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9\n\t\tWHERE id = $10\n\t",
+	"duration": "2.601381ms",
+	"time": "2026-01-26T00:20:27Z",
+	"message": "Database Query Executed"
+}
+{
+	"level": "debug",
+	"command": "publish",
+	"args": "[publish download:events [123 34 116 121 112 101 34 58 34 100 111 119 110 108 111 97 100 46 102 97 105 108 101 100 34 44 34 116 97 115 107 95 105 100 34 58 34 55 48 99 54 100 99 101 51 45 99 57 101 53 45 52 100 55 98 45 56 99 57 57 45 49 99 50 55 52 56 48 100 101 100 48 50 34 44 34 117 115 101 114 95 105 100 34 58 34 50 101 52 51 56 49 97 52 45 102 55 98 102 45 52 52 100 52 45 97 49 49 99 45 98 102 51 98 99 54 48 98 55 99 55 98 34 44 34 115 116 97 116 117 115 34 58 34 102 97 105 108 101 100 34 44 34 101 114 114 111 114 34 58 34 102 97 105 108 101 100 32 116 111 32 100 111 119 110 108 111 97 100 32 118 105 100 101 111 32 119 105 116 104 32 121 116 45 100 108 112 58 32 121 116 45 100 108 112 32 100 111 119 110 108 111 97 100 32 102 97 105 108 101 100 58 32 101 120 105 116 32 115 116 97 116 117 115 32 49 44 32 115 116 100 101 114 114 58 32 69 82 82 79 82 58 32 91 103 101 110 101 114 105 99 93 32 85 110 97 98 108 101 32 116 111 32 100 111 119 110 108 111 97 100 32 119 101 98 112 97 103 101 58 32 72 84 84 80 32 69 114 114 111 114 32 52 48 51 58 32 70 111 114 98 105 100 100 101 110 32 40 99 97 117 115 101 100 32 98 121 32 92 117 48 48 51 99 72 84 84 80 69 114 114 111 114 32 52 48 51 58 32 70 111 114 98 105 100 100 101 110 92 117 48 48 51 101 41 92 110 34 44 34 99 114 101 97 116 101 100 95 97 116 34 58 34 50 48 50 54 45 48 49 45 50 54 84 48 48 58 50 48 58 50 55 46 55 55 49 54 49 55 51 56 52 90 34 125]]",
+	"duration": "340.898µs",
+	"time": "2026-01-26T00:20:27Z",
+	"message": "Redis Command Executed"
+}
+{
+	"level": "debug",
+	"channel": "download:progress:70c6dce3-c9e5-4d7b-8c99-1c27480ded02",
+	"time": "2026-01-26T00:20:27Z",
+	"message": "Published to centrifugo"
+}

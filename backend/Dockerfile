@@ -39,6 +39,8 @@ RUN apk add --no-cache \
     python3-dev \
     libffi-dev \
     openssl-dev \
+    curl-dev \
+    linux-headers \
     chromium && \
     pip3 install --break-system-packages yt-dlp curl-cffi && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \

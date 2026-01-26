@@ -77,8 +77,8 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		"--no-check-certificate",
 	}
 
-	// For TikTok, we avoid forcing a User-Agent to allow yt-dlp to manage impersonation via curl-cffi.
-	if !strings.Contains(url, "tiktok.com") {
+	// For TikTok and YouTube, we avoid forcing a User-Agent to allow yt-dlp to manage impersonation via curl-cffi.
+	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") {
 		args = append(args, "--user-agent", userAgent)
 	}
 
