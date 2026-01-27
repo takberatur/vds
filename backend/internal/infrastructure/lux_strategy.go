@@ -90,7 +90,7 @@ func (s *LuxStrategy) tryRecoverInfo(output string, originalURL string) *VideoIn
 		// Check for URL in error context OR normal output
 		// Example: "https://v16-webapp-prime.tiktok.com/... request error: HTTP 403"
 		// Or sometimes just the URL on a line if it's listing streams
-		if strings.HasPrefix(line, "https://") && (strings.Contains(line, "tiktok.com") || strings.Contains(line, "googlevideo.com") || strings.Contains(line, "akamaized.net") || strings.Contains(line, "instagram.com") || strings.Contains(line, "fbcdn.net")) {
+		if strings.HasPrefix(line, "https://") && (strings.Contains(line, "tiktok.com") || strings.Contains(line, "tiktokcdn.com") || strings.Contains(line, "ibytedtos.com") || strings.Contains(line, "byteoversea.com") || strings.Contains(line, "snssdk.com") || strings.Contains(line, "googlevideo.com") || strings.Contains(line, "akamaized.net") || strings.Contains(line, "instagram.com") || strings.Contains(line, "fbcdn.net")) {
 			// Basic check to avoid capturing the input URL if it's just repeating "Downloading ..."
 			if !strings.Contains(line, "Downloading") && line != originalURL {
 				parts := strings.Split(line, " ")

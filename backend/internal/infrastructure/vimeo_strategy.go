@@ -69,6 +69,9 @@ func (v *VimeoStrategy) fetchVideoInfo(videoID string) (*VideoInfo, error) {
 	req.Header.Set("Origin", "https://vimeo.com")
 	req.Header.Set("Accept", "application/json, text/plain, */*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	if cookieHeader := readNetscapeCookiesForDomain("/app/cookies.txt", "vimeo.com"); cookieHeader != "" {
+		req.Header.Set("Cookie", cookieHeader)
+	}
 
 	resp, err := v.Client.Do(req)
 	if err != nil {
@@ -131,6 +134,41 @@ func (v *VimeoStrategy) fetchVideoInfo(videoID string) (*VideoInfo, error) {
 	}
 
 	return info, nil
+}
+
+func readNetscapeCookiesForDomain(path string, domainSuffix string) string {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(b), "\n")
+	parts := make([]string, 0, 16)
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Split(line, "\t")
+		if len(fields) < 7 {
+			continue
+		}
+		domain := strings.TrimSpace(fields[0])
+		if domain == "" {
+			continue
+		}
+		domain = strings.TrimPrefix(domain, ".")
+		if !strings.HasSuffix(domain, domainSuffix) {
+			continue
+		}
+		name := strings.TrimSpace(fields[5])
+		value := strings.TrimSpace(fields[6])
+		if name == "" || value == "" {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("%s=%s", name, value))
+	}
+	return strings.Join(parts, "; ")
 }
 
 // GetVideoInfo implements the DownloaderStrategy interface

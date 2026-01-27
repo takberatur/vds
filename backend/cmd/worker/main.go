@@ -704,48 +704,108 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 		return fmt.Errorf("no suitable download URL found for TikTok task")
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+	log.Info().Str("target_url", targetURL).Msg("TikTok selected download URL")
+
+	var data []byte
+
+	ytdlpURL := task.OriginalURL
+	if info != nil && info.WebpageURL != "" {
+		ytdlpURL = info.WebpageURL
+	}
+
+	tempFile, err := os.CreateTemp("", "tiktok-*.mp4")
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return fmt.Errorf("failed to create temp file: %w", err)
+	}
+	tempPath := tempFile.Name()
+	tempFile.Close()
+	defer os.Remove(tempPath)
+
+	var cookies map[string]string
+	if info != nil {
+		cookies = info.Cookies
 	}
 
-	userAgent := info.UserAgent
-	if userAgent == "" {
-		userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
-	}
-	req.Header.Set("User-Agent", userAgent)
-
-	referer := info.WebpageURL
-	if referer == "" {
-		referer = task.OriginalURL
-	}
-	if referer != "" {
-		req.Header.Set("Referer", referer)
-	}
-
-	if info != nil && len(info.Cookies) > 0 {
-		var parts []string
-		for k, v := range info.Cookies {
-			parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+	downloadErr := downloader.DownloadToPath(ctx, ytdlpURL, "", tempPath, cookies)
+	if downloadErr == nil {
+		data, err = os.ReadFile(tempPath)
+		if err != nil {
+			return fmt.Errorf("failed to read downloaded file: %w", err)
 		}
-		if len(parts) > 0 {
-			req.Header.Set("Cookie", strings.Join(parts, "; "))
+		if len(data) == 0 {
+			downloadErr = fmt.Errorf("downloaded empty file")
 		}
 	}
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to download TikTok video: %w", err)
-	}
-	defer resp.Body.Close()
+	if downloadErr != nil {
+		log.Warn().Err(downloadErr).Msg("TikTok yt-dlp download failed, falling back to direct HTTP")
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to download TikTok video: status %d", resp.StatusCode)
-	}
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
+		if err != nil {
+			return fmt.Errorf("failed to create request: %w", err)
+		}
 
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read TikTok response body: %w", err)
+		userAgent := ""
+		if info != nil {
+			userAgent = info.UserAgent
+		}
+		if userAgent == "" {
+			userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+		}
+
+		referer := task.OriginalURL
+		if info != nil && info.WebpageURL != "" {
+			referer = info.WebpageURL
+		}
+
+		req.Header.Set("User-Agent", userAgent)
+		req.Header.Set("Accept", "*/*")
+		req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+		req.Header.Set("Sec-Fetch-Dest", "video")
+		req.Header.Set("Sec-Fetch-Mode", "no-cors")
+		req.Header.Set("Sec-Fetch-Site", "cross-site")
+		req.Header.Set("Range", "bytes=0-")
+
+		if referer != "" {
+			req.Header.Set("Referer", referer)
+			req.Header.Set("Origin", "https://www.tiktok.com")
+		}
+
+		if info != nil && len(info.Cookies) > 0 {
+			var parts []string
+			for k, v := range info.Cookies {
+				parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+			}
+			if len(parts) > 0 {
+				req.Header.Set("Cookie", strings.Join(parts, "; "))
+			}
+		}
+
+		client := &http.Client{
+			Timeout: 15 * time.Minute,
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return fmt.Errorf("failed to download TikTok video: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
+			return fmt.Errorf("failed to download TikTok video: status %d", resp.StatusCode)
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read TikTok response body: %w", err)
+		}
+
+		contentType := resp.Header.Get("Content-Type")
+		if strings.Contains(strings.ToLower(contentType), "text/html") && len(body) < 200*1024 {
+			return fmt.Errorf("failed to download TikTok video: got html response status %d", resp.StatusCode)
+		}
+
+		data = body
 	}
 
 	if len(data) == 0 {

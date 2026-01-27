@@ -344,13 +344,49 @@ func (s *ChromedpStrategy) GetVideoInfo(ctx context.Context, url string) (*Video
 		}
 	}
 
+	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
+		m3u8URL, cookieFile, ua, err := s.GetMasterPlaylist(ctx, url)
+		if err == nil && m3u8URL != "" {
+			cookieMap := make(map[string]string)
+			if content, err := os.ReadFile(cookieFile); err == nil {
+				lines := strings.Split(string(content), "\n")
+				for _, line := range lines {
+					if strings.HasPrefix(line, "#") || strings.TrimSpace(line) == "" {
+						continue
+					}
+					parts := strings.Split(line, "\t")
+					if len(parts) >= 7 {
+						cookieMap[parts[5]] = parts[6]
+					}
+				}
+			}
+			os.Remove(cookieFile)
+
+			return &VideoInfo{
+				ID:          "dailymotion_video",
+				Title:       "Dailymotion Video",
+				DownloadURL: m3u8URL,
+				Extractor:   "dailymotion",
+				UserAgent:   ua,
+				Cookies:     cookieMap,
+				Formats: []FormatInfo{
+					{
+						URL: m3u8URL,
+						Ext: "mp4",
+					},
+				},
+			}, nil
+		}
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to capture m3u8 for Dailymotion")
+		}
+	}
+
 	// Detect if TikTok
 	isTikTok := strings.Contains(strings.ToLower(url), "tiktok.com")
 
 	ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
-	if isTikTok {
-		ua = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
-	}
+	_ = isTikTok
 
 	// Create allocator options
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],

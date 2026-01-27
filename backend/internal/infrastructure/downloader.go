@@ -79,8 +79,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		"--no-check-certificate",
 	}
 
-	// For TikTok and YouTube, we avoid forcing a User-Agent to allow yt-dlp to manage impersonation via curl-cffi.
-	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") {
+	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") && !strings.Contains(url, "dailymotion.com") && !strings.Contains(url, "dai.ly") {
 		args = append(args, "--user-agent", userAgent)
 	}
 
@@ -323,8 +322,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		"-o", outputPath,
 	}
 
-	// Only set User-Agent if NOT TikTok or YouTube to allow impersonation
-	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") {
+	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") && !strings.Contains(url, "dailymotion.com") && !strings.Contains(url, "dai.ly") {
 		args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
 	}
 

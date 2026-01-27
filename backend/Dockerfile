@@ -22,27 +22,26 @@ RUN go build -o bin/api ./cmd/api && \
     go build -o bin/seed ./cmd/seed
 
 # Final Stage
-FROM alpine:3.19
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
 # Install runtime dependencies, yt-dlp, JS runtime, and migrate tool
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    curl \
+    wget \
+    tar \
+    gzip \
     ffmpeg \
     python3 \
-    py3-pip \
+    python3-pip \
     nodejs \
-    wget \
-    curl \
-    build-base \
-    python3-dev \
-    libffi-dev \
-    openssl-dev \
-    curl-dev \
-    linux-headers \
-    chromium && \
-    pip3 install --force-reinstall --break-system-packages "yt-dlp[default]" curl-cffi && \
+    npm \
+    chromium \
+    && rm -rf /var/lib/apt/lists/* && \
+    pip3 install --no-cache-dir -U pip && \
+    pip3 install --no-cache-dir -U "yt-dlp[default]" curl-cffi && \
     python3 -c "import curl_cffi; print('curl_cffi installed successfully')" && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \
     mv migrate /usr/local/bin/migrate && \
@@ -61,17 +60,6 @@ COPY --from=builder /app/internal/repository/migrations ./internal/repository/mi
 
 # Expose port API
 EXPOSE 8080
-
-# Setup cron job to clean up temp files every 5 minutes
-RUN echo "*/5 * * * * find /tmp -name '*.mp4' -mmin +5 -delete" >> /var/spool/cron/crontabs/root
-
-# Create entrypoint script to run both cron and api
-RUN echo '#!/bin/sh' > /entrypoint.sh && \
-    echo 'crond' >> /entrypoint.sh && \
-    echo 'exec "$@"' >> /entrypoint.sh && \
-    chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
 
 # Default run API (overrideable in docker-compose)
 CMD ["./api"]

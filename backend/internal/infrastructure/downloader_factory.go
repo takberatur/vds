@@ -167,16 +167,21 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 			strategies = append(strategies, chromedpStrat)
 		}
 	} else if isTikTok {
-		var chromedpStrat, luxStrat DownloaderStrategy
+		var ytDlpStrat, chromedpStrat, luxStrat DownloaderStrategy
 
 		for _, strategy := range f.strategies {
-			if strategy.Name() == "chromedp" {
+			if strategy.Name() == "yt-dlp" {
+				ytDlpStrat = strategy
+			} else if strategy.Name() == "chromedp" {
 				chromedpStrat = strategy
 			} else if strategy.Name() == "lux" {
 				luxStrat = strategy
 			}
 		}
 
+		if ytDlpStrat != nil {
+			strategies = append(strategies, ytDlpStrat)
+		}
 		if luxStrat != nil {
 			strategies = append(strategies, luxStrat)
 		}

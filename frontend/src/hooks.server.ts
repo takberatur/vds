@@ -344,7 +344,7 @@ function hasLocalePrefix(path: string): boolean {
 }
 
 function getLocaleFromPath(pathname: string): Locale | null {
-	const match = pathname.match(/^\/(en|id|es)(\/|$)/);
+	const match = pathname.match(/^\/(en|id|es|ru|pt|fr|de|zh|hi|ar|ja|tr|vi|th|el|it)(\/|$)/);
 	return match ? (match[1] as Locale) : null;
 }
 
