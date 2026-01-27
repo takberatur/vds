@@ -35,17 +35,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gzip \
     ffmpeg \
     python3 \
-    python3-pip \
+    python3-venv \
     nodejs \
     npm \
     chromium \
     && rm -rf /var/lib/apt/lists/* && \
-    pip3 install --no-cache-dir -U pip && \
-    pip3 install --no-cache-dir -U "yt-dlp[default]" curl-cffi && \
-    python3 -c "import curl_cffi; print('curl_cffi installed successfully')" && \
+    python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir -U pip && \
+    /opt/venv/bin/pip install --no-cache-dir -U "yt-dlp[default]" curl-cffi && \
+    /opt/venv/bin/python -c "import curl_cffi; print('curl_cffi installed successfully')" && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \
     mv migrate /usr/local/bin/migrate && \
     chmod +x /usr/local/bin/migrate
+
+ENV PATH="/opt/venv/bin:${PATH}"
 
 # Copy binaries dari builder
 COPY --from=builder /app/bin/api ./api
