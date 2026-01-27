@@ -716,7 +716,7 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 		userAgent = info.UserAgent
 	}
 	if userAgent == "" {
-		userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+		userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
 	}
 
 	referer := task.OriginalURL
@@ -730,9 +730,11 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 	req.Header.Set("Sec-Fetch-Dest", "video")
 	req.Header.Set("Sec-Fetch-Mode", "no-cors")
 	req.Header.Set("Sec-Fetch-Site", "cross-site")
+	req.Header.Set("Range", "bytes=0-")
+	req.Header.Set("Accept-Encoding", "identity")
 
 	if referer != "" {
-		req.Header.Set("Referer", referer)
+		req.Header.Set("Referer", "https://www.tiktok.com/")
 		req.Header.Set("Origin", "https://www.tiktok.com")
 	}
 

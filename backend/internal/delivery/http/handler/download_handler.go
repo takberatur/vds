@@ -432,6 +432,9 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				if isTikTok && strings.Contains(*task.FilePath, "/api/v1/public-proxy/") {
 					log.Warn().Str("task_id", task.ID.String()).Msg("Ignoring recursive proxy URL for TikTok, using pageURL")
 					targetURL = pageURL
+				} else if isDailymotion && strings.Contains(strings.ToLower(*task.FilePath), ".m3u8") {
+					log.Warn().Str("task_id", task.ID.String()).Msg("Ignoring direct m3u8 FilePath for Dailymotion, using pageURL")
+					targetURL = pageURL
 				} else {
 					targetURL = *task.FilePath
 				}
@@ -647,34 +650,101 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 				log.Info().Str("path", tempPath).Msg("Downloading Dailymotion video to temp file using yt-dlp")
 
-				// Use yt-dlp to download the video to the temp file
-				// yt-dlp is more robust than raw ffmpeg for HLS and variant selection
-				ytDlpArgs := []string{
-					"-o", tempPath,
-					"--no-warnings",
-					"--force-overwrites",
-					"--no-part",
-					"--force-generic-extractor",
+				readCookieHeader := func(path string) string {
+					if path == "" {
+						return ""
+					}
+					b, err := os.ReadFile(path)
+					if err != nil {
+						return ""
+					}
+					lines := strings.Split(string(b), "\n")
+					seen := make(map[string]struct{}, 64)
+					var parts []string
+					for _, line := range lines {
+						line = strings.TrimSpace(line)
+						if line == "" || strings.HasPrefix(line, "#") {
+							continue
+						}
+						fields := strings.Split(line, "\t")
+						if len(fields) < 7 {
+							continue
+						}
+						name := strings.TrimSpace(fields[5])
+						value := strings.TrimSpace(fields[6])
+						if name == "" || value == "" {
+							continue
+						}
+						if _, ok := seen[name]; ok {
+							continue
+						}
+						seen[name] = struct{}{}
+						parts = append(parts, fmt.Sprintf("%s=%s", name, value))
+					}
+					return strings.Join(parts, "; ")
 				}
 
-				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
-				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Referer: %s", targetURL))
+				cookieHeader := readCookieHeader(cookieFilePath)
 
-				if cookieFilePath != "" {
-					ytDlpArgs = append(ytDlpArgs, "--cookies", cookieFilePath)
+				ffmpegArgs := []string{
+					"-y",
+					"-loglevel", "error",
+					"-user_agent", ua,
 				}
 
-				ytDlpArgs = append(ytDlpArgs, m3u8URL)
+				var headerLines []string
+				headerLines = append(headerLines, fmt.Sprintf("User-Agent: %s", ua))
+				headerLines = append(headerLines, fmt.Sprintf("Referer: %s", targetURL))
+				headerLines = append(headerLines, "Origin: https://www.dailymotion.com")
+				if cookieHeader != "" {
+					headerLines = append(headerLines, fmt.Sprintf("Cookie: %s", cookieHeader))
+				}
+				ffmpegArgs = append(ffmpegArgs, "-headers", strings.Join(headerLines, "\r\n")+"\r\n")
 
-				cmd := exec.CommandContext(ctx, "yt-dlp", ytDlpArgs...)
-				var stderr bytes.Buffer
-				cmd.Stderr = &stderr
+				ffmpegArgs = append(ffmpegArgs,
+					"-i", m3u8URL,
+					"-c", "copy",
+					"-movflags", "+faststart",
+					tempPath,
+				)
 
-				log.Info().Msg("Starting yt-dlp download to file")
+				ffmpegCmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
+				var ffmpegStderr bytes.Buffer
+				ffmpegCmd.Stderr = &ffmpegStderr
 
-				if err := cmd.Run(); err != nil {
-					log.Error().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp download failed")
-					return response.Error(c, fiber.StatusInternalServerError, "Download failed", stderr.String())
+				log.Info().Msg("Starting ffmpeg HLS download to file")
+				ffmpegErr := ffmpegCmd.Run()
+
+				if ffmpegErr != nil {
+					log.Warn().Err(ffmpegErr).Str("stderr", ffmpegStderr.String()).Msg("ffmpeg download failed, falling back to yt-dlp")
+
+					ytDlpArgs := []string{
+						"-o", tempPath,
+						"--no-warnings",
+						"--force-overwrites",
+						"--no-part",
+						"--force-generic-extractor",
+					}
+
+					ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
+					ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Referer: %s", targetURL))
+
+					if cookieFilePath != "" {
+						ytDlpArgs = append(ytDlpArgs, "--cookies", cookieFilePath)
+					}
+
+					ytDlpArgs = append(ytDlpArgs, m3u8URL)
+
+					cmd := exec.CommandContext(ctx, "yt-dlp", ytDlpArgs...)
+					var stderr bytes.Buffer
+					cmd.Stderr = &stderr
+
+					log.Info().Msg("Starting yt-dlp download to file")
+
+					if err := cmd.Run(); err != nil {
+						log.Error().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp download failed")
+						return response.Error(c, fiber.StatusInternalServerError, "Download failed", stderr.String())
+					}
 				}
 
 				// Verify file exists and has size

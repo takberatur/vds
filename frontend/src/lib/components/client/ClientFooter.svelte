@@ -53,8 +53,8 @@
 <footer class="border-t border-b border-border py-10">
 	<div class="container mx-auto px-6 md:max-w-7xl">
 		<div class="grid gap-8 md:grid-cols-4">
-			<div class="md:col-span-2">
-				<a href={localizeHref('/')} class="mb-4 flex items-center gap-2">
+			<div class="space-y-4 md:col-span-2">
+				<a href={localizeHref('/')} class="flex items-center gap-2">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl">
 						<img src={logo} alt={webSetting?.site_name} class="h-full w-full rounded-xl" />
 					</div>
@@ -69,6 +69,14 @@
 				{:else}
 					<p class="text-sm">{translatedSiteDescription || ''}</p>
 				{/if}
+				<a
+					href="https://play.google.com/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex max-w-max rounded-md bg-neutral-100 p-2 shadow-xl/30 shadow-neutral-500 backdrop-blur-md dark:bg-neutral-800 dark:shadow-neutral-400"
+				>
+					<img src="/images/play-store.webp" alt="" class="h-10 w-auto" />
+				</a>
 			</div>
 
 			<div>
