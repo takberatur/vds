@@ -45,7 +45,12 @@
 		ar: 'العربية',
 		zh: '中文',
 		ru: 'Русский',
-		ja: '日本語'
+		ja: '日本語',
+		tr: 'Türkçe',
+		vi: 'Tiếng Việt',
+		th: 'ไทย',
+		el: 'Ελληνικά',
+		it: 'Italiano'
 	};
 	const languages = availableLocales.map((code) => ({
 		code,
