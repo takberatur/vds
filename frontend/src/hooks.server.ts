@@ -50,16 +50,17 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 		});
 	}
 
+	if (!pathLocale) {
+		event.locals.lang = detectLocale(event);
+
+		setCookie(event, event.locals.lang as Locale);
+		throw redirect(302, `/${event.locals.lang}`);
+	}
+
 	if (pathLocale) {
 		event.locals.lang = pathLocale;
 
-		event.cookies.set('PARAGLIDE_LOCALE', pathLocale, {
-			httpOnly: true,
-			secure: NODE_ENV === 'production',
-			sameSite: 'lax',
-			path: '/',
-			maxAge: 60 * 60 * 24 * 7
-		});
+		setCookie(event, pathLocale);
 
 		return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
 			event.request = localizedRequest;
@@ -87,13 +88,7 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 	if (pathname === '/' || pathname === '') {
 		const detected = detectLocale(event);
 
-		event.cookies.set('PARAGLIDE_LOCALE', detected, {
-			httpOnly: true,
-			secure: NODE_ENV === 'production',
-			sameSite: 'lax',
-			path: '/',
-			maxAge: 60 * 60 * 24 * 7
-		});
+		setCookie(event, detected);
 
 		throw redirect(302, `/${detected}`);
 	}
@@ -359,3 +354,12 @@ function detectLocale(event: RequestEvent): Locale {
 	return supported ? l : 'en';
 }
 
+function setCookie(event: RequestEvent, locale: Locale) {
+	event.cookies.set('PARAGLIDE_LOCALE', locale, {
+		httpOnly: true,
+		secure: NODE_ENV === 'production',
+		sameSite: 'lax',
+		path: '/',
+		maxAge: 60 * 60 * 24 * 7
+	});
+}

@@ -653,13 +653,13 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 					"-o", tempPath,
 					"--no-warnings",
 					"--force-overwrites",
-					"--no-part", // Do not use .part files
+					"--no-part",
+					"--force-generic-extractor",
 				}
 
 				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
 				ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Referer: %s", targetURL))
 
-				// Use cookie file instead of header
 				if cookieFilePath != "" {
 					ytDlpArgs = append(ytDlpArgs, "--cookies", cookieFilePath)
 				}
