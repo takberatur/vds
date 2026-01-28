@@ -41,8 +41,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     && rm -rf /var/lib/apt/lists/* && \
     python3 -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir -U pip && \
-    /opt/venv/bin/pip install --no-cache-dir -U "yt-dlp[default]" curl-cffi && \
+    /opt/venv/bin/pip install --no-cache-dir -U pip setuptools wheel && \
+    /opt/venv/bin/pip install --no-cache-dir -U "yt-dlp[default,curl-cffi]" && \
     /opt/venv/bin/python -c "import curl_cffi; print('curl_cffi installed successfully')" && \
     curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.1/migrate.linux-amd64.tar.gz | tar xvz && \
     mv migrate /usr/local/bin/migrate && \
