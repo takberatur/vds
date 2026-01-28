@@ -302,7 +302,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 
 			imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
 			if imp == "" {
-				imp = "chrome124"
+				imp = "chrome"
 			}
 
 			run := func(args []string) (string, error) {

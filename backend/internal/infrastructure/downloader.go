@@ -79,8 +79,40 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		"--no-check-certificate",
 	}
 
+	sanitizeEnv := func(s string) string {
+		s = strings.TrimSpace(s)
+		s = strings.Trim(s, "`")
+		s = strings.Trim(s, "\"")
+		s = strings.Trim(s, "'")
+		return strings.TrimSpace(s)
+	}
+
+	if proxyURL := sanitizeEnv(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" {
+		args = append(args, "--proxy", proxyURL)
+	}
+
+	addImpersonate := false
+	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
+		addImpersonate = true
+	}
+	if strings.Contains(url, "tiktok.com") {
+		addImpersonate = true
+	}
+	imp := sanitizeEnv(os.Getenv("YTDLP_IMPERSONATE"))
+	if imp == "" {
+		imp = "chrome"
+	}
+	argsWithImp := make([]string, 0, len(args)+2)
+	argsWithImp = append(argsWithImp, args...)
+	if addImpersonate {
+		argsWithImp = append(argsWithImp, "--impersonate", imp)
+	}
+
 	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") && !strings.Contains(url, "dailymotion.com") && !strings.Contains(url, "dai.ly") {
 		args = append(args, "--user-agent", userAgent)
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--user-agent", userAgent)
+		}
 	}
 
 	// NOTE: Removed --impersonate because it causes issues with missing dependencies in the current Docker environment.
@@ -117,21 +149,44 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
 		args = append(args, "--referer", "https://www.dailymotion.com/")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--referer", "https://www.dailymotion.com/")
+		}
 	}
 
 	args = append(args, url)
+	argsWithImp = append(argsWithImp, url)
 
-	cmd := exec.CommandContext(subCtx, c.executablePath, args...)
-	output, err := cmd.Output()
+	tryRun := func(a []string) ([]byte, error) {
+		cmd := exec.CommandContext(subCtx, c.executablePath, a...)
+		return cmd.Output()
+	}
+
+	output, err := tryRun(argsWithImp)
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			log.Error().Str("url", url).Str("stderr", string(exitErr.Stderr)).Err(err).Msg("yt-dlp failed")
+			stderr := string(exitErr.Stderr)
+			if addImpersonate && strings.Contains(stderr, "Impersonate target") {
+				output2, err2 := tryRun(args)
+				if err2 == nil {
+					output = output2
+					goto Parse
+				}
+				if exitErr2, ok2 := err2.(*exec.ExitError); ok2 {
+					log.Error().Str("url", url).Str("stderr", string(exitErr2.Stderr)).Err(err2).Msg("yt-dlp failed")
+				} else {
+					log.Error().Str("url", url).Err(err2).Msg("yt-dlp failed")
+				}
+				return nil, fmt.Errorf("failed to fetch video info: %w", err2)
+			}
+			log.Error().Str("url", url).Str("stderr", stderr).Err(err).Msg("yt-dlp failed")
 		} else {
 			log.Error().Str("url", url).Err(err).Msg("yt-dlp failed")
 		}
 		return nil, fmt.Errorf("failed to fetch video info: %w", err)
 	}
 
+Parse:
 	var info VideoInfo
 
 	// Use an alias to avoid recursion and skip the original Cookies field

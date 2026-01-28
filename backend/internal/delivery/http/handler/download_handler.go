@@ -615,6 +615,59 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 			copy(baseArgs, args)
 
 			if isDailymotion {
+				outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+				outboundProxy = strings.TrimSpace(strings.Trim(strings.Trim(strings.Trim(outboundProxy, "`"), "\""), "'"))
+				imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
+				if imp == "" {
+					imp = "chrome"
+				}
+
+				tempFile, err := os.CreateTemp("", "dailymotion-*.mp4")
+				if err != nil {
+					log.Error().Err(err).Msg("Failed to create temp file")
+					return response.Error(c, fiber.StatusInternalServerError, "Failed to create temp file", err.Error())
+				}
+				tempPath := tempFile.Name()
+				tempFile.Close()
+
+				defer func() {
+					if err := os.Remove(tempPath); err != nil {
+						log.Warn().Err(err).Str("path", tempPath).Msg("Failed to remove temp file")
+					}
+				}()
+
+				quickArgs := []string{
+					"--no-warnings",
+					"--no-playlist",
+					"--force-overwrites",
+					"--no-part",
+					"--merge-output-format", "mp4",
+					"-o", tempPath,
+					"--referer", targetURL,
+					"--impersonate", imp,
+				}
+				if outboundProxy != "" {
+					quickArgs = append(quickArgs, "--proxy", outboundProxy)
+				}
+				if _, err := os.Stat("/app/cookies.txt"); err == nil {
+					quickArgs = append(quickArgs, "--cookies", "/app/cookies.txt")
+				}
+				quickArgs = append(quickArgs, targetURL)
+
+				cmd := exec.CommandContext(ctx, "yt-dlp", quickArgs...)
+				var quickStderr bytes.Buffer
+				cmd.Stderr = &quickStderr
+				log.Info().Msg("Trying yt-dlp Dailymotion download (impersonate)")
+				if err := cmd.Run(); err == nil {
+					if fi, err := os.Stat(tempPath); err == nil && fi.Size() > 0 {
+						c.Set("Content-Type", "video/mp4")
+						c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
+						return c.SendFile(tempPath)
+					}
+				} else {
+					log.Warn().Err(err).Str("stderr", quickStderr.String()).Msg("yt-dlp Dailymotion (impersonate) failed, falling back to Chromedp interception")
+				}
+
 				log.Info().Str("url", targetURL).Msg("Streaming Dailymotion video via Chromedp interception")
 				chromedpStrategy := infrastructure.NewChromedpStrategy()
 				m3u8URL, cookieFilePath, ua, err := chromedpStrategy.GetMasterPlaylist(ctx, targetURL)
@@ -632,17 +685,17 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 				// Create temp file for download
 				// We download to a file instead of streaming to avoid ERR_EMPTY_RESPONSE issues with unstable pipes
-				tempFile, err := os.CreateTemp("", "dailymotion-*.mp4")
+				tempFile2, err := os.CreateTemp("", "dailymotion-*.mp4")
 				if err != nil {
 					log.Error().Err(err).Msg("Failed to create temp file")
 					return response.Error(c, fiber.StatusInternalServerError, "Failed to create temp file", err.Error())
 				}
-				tempPath := tempFile.Name()
-				tempFile.Close() // Close so yt-dlp can write to it
+				tempPath2 := tempFile2.Name()
+				tempFile2.Close() // Close so yt-dlp can write to it
 
 				// Clean up temp file after request completes
 				// We use a closure to capture the current tempPath
-				cleanupPaths := []string{tempPath}
+				cleanupPaths := []string{tempPath2}
 				defer func() {
 					for _, p := range cleanupPaths {
 						if err := os.Remove(p); err != nil {
@@ -651,7 +704,7 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 					}
 				}()
 
-				log.Info().Str("path", tempPath).Msg("Downloading Dailymotion video to temp file using yt-dlp")
+				log.Info().Str("path", tempPath2).Msg("Downloading Dailymotion video to temp file using yt-dlp")
 
 				readCookieHeader := func(path string) string {
 					if path == "" {
@@ -688,8 +741,8 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				}
 
 				cookieHeader := readCookieHeader(cookieFilePath)
-				outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
-				outboundProxy = strings.TrimSpace(strings.Trim(strings.Trim(strings.Trim(outboundProxy, "`"), "\""), "'"))
+				outboundProxy2 := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+				outboundProxy2 = strings.TrimSpace(strings.Trim(strings.Trim(strings.Trim(outboundProxy2, "`"), "\""), "'"))
 				manifestFile, _ := os.CreateTemp("", "manifest-*.m3u8")
 				manifestPath := ""
 				if manifestFile != nil {
@@ -732,7 +785,7 @@ try:
 finally:
   r.close()
 `
-					manifestCmd := exec.CommandContext(ctx, py, "-c", pyCode, m3u8URL, ua, targetURL, cookieHeader, manifestPath, outboundProxy)
+					manifestCmd := exec.CommandContext(ctx, py, "-c", pyCode, m3u8URL, ua, targetURL, cookieHeader, manifestPath, outboundProxy2)
 					var manifestStderr bytes.Buffer
 					manifestCmd.Stderr = &manifestStderr
 					if err := manifestCmd.Run(); err != nil {
@@ -764,8 +817,8 @@ finally:
 				}
 				ffmpegArgs = append(ffmpegArgs, "-headers", strings.Join(headerLines, "\r\n")+"\r\n")
 				ffmpegArgs = append(ffmpegArgs, "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "2")
-				if outboundProxy != "" {
-					ffmpegArgs = append(ffmpegArgs, "-http_proxy", outboundProxy)
+				if outboundProxy2 != "" {
+					ffmpegArgs = append(ffmpegArgs, "-http_proxy", outboundProxy2)
 				}
 
 				input := m3u8URL
@@ -781,7 +834,7 @@ finally:
 					"-b:a", "128k",
 					"-movflags", "+faststart",
 					"-f", "mp4",
-					tempPath,
+					tempPath2,
 				)
 
 				ffmpegCmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
@@ -879,7 +932,7 @@ finally:
 						transcodeArgs := []string{
 							"-y",
 							"-loglevel", "error",
-							"-i", tempPath,
+							"-i", tempPath2,
 							"-c:v", "libx264",
 							"-preset", "veryfast",
 							"-crf", "23",
@@ -894,7 +947,7 @@ finally:
 						transcodeCmd.Stderr = &transcodeStderr
 						log.Info().Msg("Transcoding Dailymotion to h264/aac for compatibility")
 						if err := transcodeCmd.Run(); err == nil {
-							tempPath = transPath
+							tempPath2 = transPath
 						} else {
 							log.Warn().Err(err).Str("stderr", transcodeStderr.String()).Msg("Dailymotion transcode failed, serving original file")
 						}
@@ -902,7 +955,7 @@ finally:
 				}
 
 				// Verify file exists and has size
-				fileInfo, err := os.Stat(tempPath)
+				fileInfo, err := os.Stat(tempPath2)
 				if err != nil {
 					log.Error().Err(err).Msg("Failed to stat downloaded file")
 					return response.Error(c, fiber.StatusInternalServerError, "Download verification failed", err.Error())
@@ -920,7 +973,7 @@ finally:
 				c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, filename, encodedFilename))
 
 				// Send the file
-				return c.SendFile(tempPath)
+				return c.SendFile(tempPath2)
 			}
 
 			tempFile = filepath.Join(os.TempDir(), "download-"+uuid.New().String()+".mp4")
