@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"sort"
@@ -501,6 +502,72 @@ func netscapeCookiesToHeader(path string, domainSuffixes []string) string {
 }
 
 func downloadHLSWithFFmpeg(ctx context.Context, m3u8URL string, userAgent string, referer string, cookieHeader string, outPath string) error {
+	outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+
+	manifestPath := ""
+	{
+		tmp, err := os.CreateTemp("", "manifest-*.m3u8")
+		if err == nil {
+			manifestPath = tmp.Name()
+			tmp.Close()
+			defer os.Remove(manifestPath)
+
+			py := "/opt/venv/bin/python"
+			pyCode := `
+import sys
+from curl_cffi import requests
+
+url = sys.argv[1]
+ua = sys.argv[2]
+referer = sys.argv[3]
+cookie = sys.argv[4]
+out_path = sys.argv[5]
+proxy = sys.argv[6]
+
+headers = {
+  "User-Agent": ua,
+  "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,*/*",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Referer": referer,
+  "Origin": "https://www.dailymotion.com",
+  "Accept-Encoding": "identity",
+}
+if cookie:
+  headers["Cookie"] = cookie
+
+proxies = None
+if proxy:
+  proxies = {"http": proxy, "https": proxy}
+
+r = requests.get(url, headers=headers, impersonate="chrome124", timeout=60, allow_redirects=True, proxies=proxies)
+try:
+  r.raise_for_status()
+  with open(out_path, "wb") as f:
+    f.write(r.content)
+finally:
+  r.close()
+`
+			cmd := exec.CommandContext(ctx, py, "-c", pyCode, m3u8URL, userAgent, referer, cookieHeader, manifestPath, outboundProxy)
+			var stderr bytes.Buffer
+			cmd.Stderr = &stderr
+			if err := cmd.Run(); err != nil {
+				return fmt.Errorf("curl_cffi manifest fetch failed: %w, stderr: %s", err, stderr.String())
+			}
+
+			content, err := os.ReadFile(manifestPath)
+			if err != nil {
+				return err
+			}
+			if !bytes.HasPrefix(content, []byte("#EXTM3U")) {
+				snippet := string(content)
+				if len(snippet) > 300 {
+					snippet = snippet[:300]
+				}
+				return fmt.Errorf("manifest is not m3u8: %s", snippet)
+			}
+		}
+	}
+
 	var headerLines []string
 	headerLines = append(headerLines, fmt.Sprintf("User-Agent: %s", userAgent))
 	headerLines = append(headerLines, fmt.Sprintf("Referer: %s", referer))
@@ -517,14 +584,30 @@ func downloadHLSWithFFmpeg(ctx context.Context, m3u8URL string, userAgent string
 		"-loglevel", "error",
 		"-user_agent", userAgent,
 		"-headers", strings.Join(headerLines, "\r\n") + "\r\n",
-		"-i", m3u8URL,
+		"-reconnect", "1",
+		"-reconnect_streamed", "1",
+		"-reconnect_delay_max", "2",
+	}
+
+	if outboundProxy != "" {
+		ffmpegArgs = append(ffmpegArgs, "-http_proxy", outboundProxy)
+	}
+
+	input := m3u8URL
+	if manifestPath != "" {
+		ffmpegArgs = append(ffmpegArgs, "-protocol_whitelist", "file,crypto,tcp,tls,https,http")
+		input = manifestPath
+	}
+
+	ffmpegArgs = append(ffmpegArgs,
+		"-i", input,
 		"-c:v", "copy",
 		"-c:a", "aac",
 		"-b:a", "128k",
 		"-movflags", "+faststart",
 		"-f", "mp4",
 		outPath,
-	}
+	)
 
 	cmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
 	var stderr bytes.Buffer
@@ -933,9 +1016,14 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 		}
 	}
 
-	client := &http.Client{
-		Timeout: 15 * time.Minute,
+	var transport http.RoundTripper = http.DefaultTransport
+	if proxyURL := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" {
+		if pu, err := url.Parse(proxyURL); err == nil {
+			transport = &http.Transport{Proxy: http.ProxyURL(pu)}
+		}
 	}
+
+	client := &http.Client{Timeout: 15 * time.Minute, Transport: transport}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -966,12 +1054,17 @@ ua = sys.argv[2]
 referer = sys.argv[3]
 cookie = sys.argv[4]
 out_path = sys.argv[5]
+proxy = sys.argv[6]
 
 headers = {"User-Agent": ua, "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9", "Referer": referer, "Origin": "https://www.tiktok.com", "Range": "bytes=0-", "Accept-Encoding": "identity"}
 if cookie:
     headers["Cookie"] = cookie
 
-r = requests.get(url, headers=headers, impersonate="chrome124", stream=True, timeout=300, allow_redirects=True)
+proxies = None
+if proxy:
+    proxies = {"http": proxy, "https": proxy}
+
+r = requests.get(url, headers=headers, impersonate="chrome124", stream=True, timeout=300, allow_redirects=True, proxies=proxies)
 try:
     r.raise_for_status()
     with open(out_path, "wb") as f:
@@ -981,7 +1074,8 @@ try:
 finally:
     r.close()
 `
-			curlReq := exec.CommandContext(ctx, py, "-c", pyCode, targetURL, userAgent, "https://www.tiktok.com/", cookieHeader, tempPath)
+			outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+			curlReq := exec.CommandContext(ctx, py, "-c", pyCode, targetURL, userAgent, "https://www.tiktok.com/", cookieHeader, tempPath, outboundProxy)
 			var curlStderr bytes.Buffer
 			curlReq.Stderr = &curlStderr
 			var curlStdout bytes.Buffer

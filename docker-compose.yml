@@ -35,6 +35,7 @@ services:
       - CENTRIFUGO_TOKEN_SECRET=${CENTRIFUGO_TOKEN_SECRET}
       - BCRYPT_COST=${BCRYPT_COST}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - OUTBOUND_PROXY_URL=${OUTBOUND_PROXY_URL}
     networks:
       - video_download_network
       - shared-network
@@ -97,6 +98,7 @@ services:
       - DB_URL=${DB_URL}
       - REDIS_ADDR=${REDIS_ADDR}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - OUTBOUND_PROXY_URL=${OUTBOUND_PROXY_URL}
     networks:
       - video_download_network
       - shared-network

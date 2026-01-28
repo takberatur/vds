@@ -688,6 +688,65 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				}
 
 				cookieHeader := readCookieHeader(cookieFilePath)
+				outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+				manifestFile, _ := os.CreateTemp("", "manifest-*.m3u8")
+				manifestPath := ""
+				if manifestFile != nil {
+					manifestPath = manifestFile.Name()
+					manifestFile.Close()
+					defer os.Remove(manifestPath)
+
+					py := "/opt/venv/bin/python"
+					pyCode := `
+import sys
+from curl_cffi import requests
+
+url = sys.argv[1]
+ua = sys.argv[2]
+referer = sys.argv[3]
+cookie = sys.argv[4]
+out_path = sys.argv[5]
+proxy = sys.argv[6]
+
+headers = {
+  "User-Agent": ua,
+  "Accept": "application/vnd.apple.mpegurl,application/x-mpegURL,*/*",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Referer": referer,
+  "Origin": "https://www.dailymotion.com",
+  "Accept-Encoding": "identity",
+}
+if cookie:
+  headers["Cookie"] = cookie
+
+proxies = None
+if proxy:
+  proxies = {"http": proxy, "https": proxy}
+
+r = requests.get(url, headers=headers, impersonate="chrome124", timeout=60, allow_redirects=True, proxies=proxies)
+try:
+  r.raise_for_status()
+  with open(out_path, "wb") as f:
+    f.write(r.content)
+finally:
+  r.close()
+`
+					manifestCmd := exec.CommandContext(ctx, py, "-c", pyCode, m3u8URL, ua, targetURL, cookieHeader, manifestPath, outboundProxy)
+					var manifestStderr bytes.Buffer
+					manifestCmd.Stderr = &manifestStderr
+					if err := manifestCmd.Run(); err != nil {
+						return response.Error(c, fiber.StatusInternalServerError, "Download failed", "manifest fetch failed: "+manifestStderr.String())
+					}
+
+					b, err := os.ReadFile(manifestPath)
+					if err != nil || !bytes.HasPrefix(b, []byte("#EXTM3U")) {
+						s := string(b)
+						if len(s) > 300 {
+							s = s[:300]
+						}
+						return response.Error(c, fiber.StatusInternalServerError, "Download failed", "manifest invalid: "+s)
+					}
+				}
 
 				ffmpegArgs := []string{
 					"-y",
@@ -703,9 +762,19 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 					headerLines = append(headerLines, fmt.Sprintf("Cookie: %s", cookieHeader))
 				}
 				ffmpegArgs = append(ffmpegArgs, "-headers", strings.Join(headerLines, "\r\n")+"\r\n")
+				ffmpegArgs = append(ffmpegArgs, "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "2")
+				if outboundProxy != "" {
+					ffmpegArgs = append(ffmpegArgs, "-http_proxy", outboundProxy)
+				}
+
+				input := m3u8URL
+				if manifestPath != "" {
+					ffmpegArgs = append(ffmpegArgs, "-protocol_whitelist", "file,crypto,tcp,tls,https,http")
+					input = manifestPath
+				}
 
 				ffmpegArgs = append(ffmpegArgs,
-					"-i", m3u8URL,
+					"-i", input,
 					"-c:v", "copy",
 					"-c:a", "aac",
 					"-b:a", "128k",
