@@ -69,7 +69,7 @@
 		label: languageLabels[code] ?? code.toUpperCase()
 	}));
 	let currentLang = $derived(getLocale());
-	let isMp3Path = $derived(page.url.pathname.startsWith(localizeHref('/mp3')));
+	let isMp3Path = $derived(page.url.pathname.startsWith(localizeHref('/mp3', { locale: lang })));
 	let isScrolling = $state(false);
 
 	const handleScroll = (id: string, offset: number = 500) => {
@@ -167,7 +167,7 @@
 					{i18n.text_supported_formats()}
 				</button>
 				<a
-					href={isMp3Path ? localizeHref('/video') : localizeHref('/mp3')}
+					href={isMp3Path ? localizeHref('/') : localizeHref('/mp3')}
 					target="_blank"
 					class="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-neutral-800 transition-colors hover:text-blue-600 dark:text-neutral-100 dark:hover:text-blue-400"
 					onclick={() => (isOpen = false)}

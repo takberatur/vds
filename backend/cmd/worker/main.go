@@ -459,6 +459,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		}
 		tempPath := tempFile.Name()
 		tempFile.Close()
+		_ = os.Remove(tempPath)
 		defer os.Remove(tempPath)
 
 		err = downloader.DownloadToPath(ctx, task.OriginalURL, fmtInfo.FormatID, tempPath, nil)
@@ -475,6 +476,11 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		}
 
 		fi, _ := f.Stat()
+		if fi != nil && fi.Size() == 0 {
+			f.Close()
+			log.Error().Str("path", tempPath).Msg("downloaded file is empty")
+			continue
+		}
 		resolution := ""
 		if fmtInfo.Height != nil && *fmtInfo.Height > 0 {
 			resolution = fmt.Sprintf("%dp", *fmtInfo.Height)

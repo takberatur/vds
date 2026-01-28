@@ -290,29 +290,6 @@
 	setContext('websocket', wsStore);
 </script>
 
-<svelte:head>
-	{#if data.settings?.SYSTEM?.google_analytics_code}
-		<script
-			async
-			src="https://www.googletagmanager.com/gtag/js?id={data.settings?.SYSTEM
-				?.google_analytics_code}"
-		></script>
-		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag() {
-				dataLayer.push(arguments);
-			}
-			gtag('js', new Date());
-			gtag('config', data.settings?.SYSTEM?.google_analytics_code, {
-				custom_map: { dimension1: 'lang' }
-			});
-			gtag('event', 'page_view', {
-				lang: data.lang || 'en'
-			});
-		</script>
-	{/if}
-</svelte:head>
-
 <ModeWatcher defaultMode="system" />
 <ProgressBarIndicator />
 <PageLoading />

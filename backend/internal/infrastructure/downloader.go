@@ -370,15 +370,50 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 20*time.Minute) // Increased timeout for large downloads
 	defer cancel()
 
+	sanitizeEnv := func(s string) string {
+		s = strings.TrimSpace(s)
+		s = strings.Trim(s, "`")
+		s = strings.Trim(s, "\"")
+		s = strings.Trim(s, "'")
+		return strings.TrimSpace(s)
+	}
+
+	addImpersonate := false
+	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
+		addImpersonate = true
+	}
+	if strings.Contains(url, "tiktok.com") {
+		addImpersonate = true
+	}
+	imp := sanitizeEnv(os.Getenv("YTDLP_IMPERSONATE"))
+	if imp == "" {
+		imp = "chrome"
+	}
+
 	args := []string{
 		"-m", "yt_dlp", // Run as python module
 		"--no-playlist",
 		"--no-check-certificate",
+		"--force-overwrites",
+		"--no-part",
 		"-o", outputPath,
+	}
+
+	if proxyURL := sanitizeEnv(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" {
+		args = append(args, "--proxy", proxyURL)
+	}
+
+	argsWithImp := make([]string, 0, len(args)+2)
+	argsWithImp = append(argsWithImp, args...)
+	if addImpersonate {
+		argsWithImp = append(argsWithImp, "--impersonate", imp)
 	}
 
 	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") && !strings.Contains(url, "dailymotion.com") && !strings.Contains(url, "dai.ly") {
 		args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+		}
 	}
 
 	// if strings.Contains(url, "tiktok.com") {
@@ -387,6 +422,9 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	if strings.Contains(url, "vimeo.com") {
 		args = append(args, "--referer", "https://vimeo.com/")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--referer", "https://vimeo.com/")
+		}
 	}
 
 	// Check if cookies.txt exists and use it
@@ -412,24 +450,52 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	if strings.Contains(url, "rumble.com") {
 		args = append(args, "--referer", "https://rumble.com/")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--referer", "https://rumble.com/")
+		}
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
 		args = append(args, "--extractor-args", "youtube:player_client=tv")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--extractor-args", "youtube:player_client=tv")
+		}
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
 		args = append(args, "--referer", "https://www.dailymotion.com/")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--referer", "https://www.dailymotion.com/")
+		}
 	}
 
 	args = append(args, url)
+	argsWithImp = append(argsWithImp, url)
 
-	cmd := exec.CommandContext(subCtx, c.executablePath, args...)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
+	run := func(a []string) (string, error) {
+		cmd := exec.CommandContext(subCtx, c.executablePath, a...)
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+		err := cmd.Run()
+		return stderr.String(), err
+	}
 
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err, stderr.String())
+	if addImpersonate {
+		if stderr, err := run(argsWithImp); err == nil {
+			_ = stderr
+			return nil
+		} else if strings.Contains(stderr, "Impersonate target") {
+			if stderr2, err2 := run(args); err2 != nil {
+				return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err2, stderr2)
+			}
+			return nil
+		} else {
+			return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err, stderr)
+		}
+	}
+
+	if stderr, err := run(args); err != nil {
+		return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err, stderr)
 	}
 
 	return nil

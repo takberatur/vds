@@ -124,6 +124,30 @@
 								<Field.Error>{$errors.type_monetize}</Field.Error>
 							{/if}
 						</Field.Field>
+						<Field.Field orientation="horizontal">
+							<Field.Content>
+								<Field.Label for="enable_popup_ad">
+									Enable Popup Ad : <Badge
+										variant={$form.enable_popup_ad ? 'default' : 'destructive'}
+									>
+										{$form.enable_popup_ad ? 'Active' : 'Inactive'}
+									</Badge>
+								</Field.Label>
+								<Field.Description>
+									{$form.enable_popup_ad
+										? 'Popup ad is enabled. Ads will be shown on the video player.'
+										: 'Popup ad is disabled. Ads will not be shown on the video player.'}
+								</Field.Description>
+							</Field.Content>
+							<input type="hidden" name="enable_popup_ad" value={$form.enable_popup_ad} />
+							<Switch
+								id="enable_popup_ad"
+								bind:checked={$form.enable_popup_ad}
+								name="enable_popup_ad"
+								class="cursor-pointer"
+								onCheckedChange={(val) => ($form.enable_popup_ad = val)}
+							/>
+						</Field.Field>
 						<Field.Field>
 							<Field.Label for="popup_ad_code">Popup Ad Code</Field.Label>
 							<Textarea
