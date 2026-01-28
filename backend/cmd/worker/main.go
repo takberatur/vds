@@ -271,7 +271,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		defer os.Remove(tempPath)
 
 		cookieHeader := netscapeCookiesToHeader(cookieFilePath, []string{"dailymotion.com"})
-		outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+		outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
 		{
 			pageArgs := []string{
 				"--no-warnings",
@@ -284,23 +284,44 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 				"--add-header", fmt.Sprintf("User-Agent: %s", ua),
 				"--add-header", "Origin: https://www.dailymotion.com",
 			}
+			imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
+			if imp == "" {
+				imp = "chrome124"
+			}
+			pageArgsWithImp := append(append([]string{}, pageArgs...), "--impersonate", imp)
 			if outboundProxy != "" {
 				pageArgs = append(pageArgs, "--proxy", outboundProxy)
+				pageArgsWithImp = append(pageArgsWithImp, "--proxy", outboundProxy)
 			}
 			if cookieFilePath != "" {
 				pageArgs = append(pageArgs, "--cookies", cookieFilePath)
+				pageArgsWithImp = append(pageArgsWithImp, "--cookies", cookieFilePath)
 			}
 			pageArgs = append(pageArgs, task.OriginalURL)
+			pageArgsWithImp = append(pageArgsWithImp, task.OriginalURL)
 
-			pageCmd := exec.CommandContext(ctx, "yt-dlp", pageArgs...)
-			var pageStderr bytes.Buffer
-			pageCmd.Stderr = &pageStderr
-			if err := pageCmd.Run(); err == nil {
+			run := func(args []string) (string, error) {
+				cmd := exec.CommandContext(ctx, "yt-dlp", args...)
+				var stderr bytes.Buffer
+				cmd.Stderr = &stderr
+				err := cmd.Run()
+				return stderr.String(), err
+			}
+
+			if stderr, err := run(pageArgsWithImp); err == nil {
 				if fi, err := os.Stat(tempPath); err == nil && fi.Size() > 0 {
 					goto UploadDailymotion
 				}
+			} else if strings.Contains(stderr, "Impersonate target") {
+				if stderr2, err2 := run(pageArgs); err2 == nil {
+					if fi, err := os.Stat(tempPath); err == nil && fi.Size() > 0 {
+						goto UploadDailymotion
+					}
+				} else {
+					log.Warn().Err(err2).Str("stderr", stderr2).Msg("Dailymotion yt-dlp page download failed, falling back to ffmpeg HLS")
+				}
 			} else {
-				log.Warn().Err(err).Str("stderr", pageStderr.String()).Msg("Dailymotion yt-dlp page download failed, falling back to ffmpeg HLS")
+				log.Warn().Err(err).Str("stderr", stderr).Msg("Dailymotion yt-dlp page download failed, falling back to ffmpeg HLS")
 			}
 		}
 
@@ -535,8 +556,16 @@ func netscapeCookiesToHeader(path string, domainSuffixes []string) string {
 	return strings.Join(parts, "; ")
 }
 
+func sanitizeProxyURL(raw string) string {
+	s := strings.TrimSpace(raw)
+	s = strings.Trim(s, "`")
+	s = strings.Trim(s, "\"")
+	s = strings.Trim(s, "'")
+	return strings.TrimSpace(s)
+}
+
 func downloadHLSWithFFmpeg(ctx context.Context, m3u8URL string, userAgent string, referer string, cookieHeader string, outPath string) error {
-	outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
 
 	manifestPath := ""
 	{
@@ -964,7 +993,7 @@ func publishStartEvent(ctx context.Context, redisClient infrastructure.RedisClie
 func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, task *model.DownloadTask, info *infrastructure.VideoInfo, encryptionKey string) error {
 	log.Info().Str("task_id", task.ID.String()).Msg("Processing TikTok encrypted task")
 
-	outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
 
 	{
 		tempFile, err := os.CreateTemp("", "tiktok-ytdlp-*.mp4")
@@ -1188,7 +1217,7 @@ try:
 finally:
     r.close()
 `
-			outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+			outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
 			curlReq := exec.CommandContext(ctx, py, "-c", pyCode, targetURL, userAgent, "https://www.tiktok.com/", cookieHeader, tempPath, outboundProxy)
 			var curlStderr bytes.Buffer
 			curlReq.Stderr = &curlStderr

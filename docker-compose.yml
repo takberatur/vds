@@ -99,6 +99,7 @@ services:
       - REDIS_ADDR=${REDIS_ADDR}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - OUTBOUND_PROXY_URL=${OUTBOUND_PROXY_URL}
+      - YTDLP_IMPERSONATE=${YTDLP_IMPERSONATE}
     networks:
       - video_download_network
       - shared-network

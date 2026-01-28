@@ -689,6 +689,7 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 				cookieHeader := readCookieHeader(cookieFilePath)
 				outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+				outboundProxy = strings.TrimSpace(strings.Trim(strings.Trim(strings.Trim(outboundProxy, "`"), "\""), "'"))
 				manifestFile, _ := os.CreateTemp("", "manifest-*.m3u8")
 				manifestPath := ""
 				if manifestFile != nil {
