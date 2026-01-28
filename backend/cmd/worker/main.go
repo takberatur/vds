@@ -784,11 +784,11 @@ referer = sys.argv[3]
 cookie = sys.argv[4]
 out_path = sys.argv[5]
 
-headers = {"User-Agent": ua, "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9", "Referer": referer, "Origin": "https://www.tiktok.com"}
+headers = {"User-Agent": ua, "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9", "Referer": referer, "Origin": "https://www.tiktok.com", "Range": "bytes=0-", "Accept-Encoding": "identity"}
 if cookie:
     headers["Cookie"] = cookie
 
-with requests.get(url, headers=headers, impersonate="chrome", stream=True, timeout=300) as r:
+with requests.get(url, headers=headers, impersonate="chrome124", stream=True, timeout=300, allow_redirects=True) as r:
     r.raise_for_status()
     with open(out_path, "wb") as f:
         for chunk in r.iter_content(chunk_size=1024 * 1024):
@@ -798,8 +798,10 @@ with requests.get(url, headers=headers, impersonate="chrome", stream=True, timeo
 			curlReq := exec.CommandContext(ctx, py, "-c", pyCode, targetURL, userAgent, "https://www.tiktok.com/", cookieHeader, tempPath)
 			var curlStderr bytes.Buffer
 			curlReq.Stderr = &curlStderr
+			var curlStdout bytes.Buffer
+			curlReq.Stdout = &curlStdout
 			if err := curlReq.Run(); err != nil {
-				log.Error().Err(err).Str("stderr", curlStderr.String()).Msg("curl_cffi download failed")
+				log.Error().Err(err).Str("stderr", curlStderr.String()).Str("stdout", curlStdout.String()).Msg("curl_cffi download failed")
 				return fmt.Errorf("failed to download TikTok video: status %d", resp.StatusCode)
 			}
 

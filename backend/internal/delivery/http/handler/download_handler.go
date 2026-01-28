@@ -734,6 +734,8 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 					ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
 					ytDlpArgs = append(ytDlpArgs, "--add-header", fmt.Sprintf("Referer: %s", targetURL))
+					ytDlpArgs = append(ytDlpArgs, "--referer", targetURL)
+					ytDlpArgs = append(ytDlpArgs, "--add-header", "Origin: https://www.dailymotion.com")
 
 					if cookieFilePath != "" {
 						ytDlpArgs = append(ytDlpArgs, "--cookies", cookieFilePath)
@@ -749,7 +751,30 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 					if err := cmd.Run(); err != nil {
 						log.Error().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp download failed")
-						return response.Error(c, fiber.StatusInternalServerError, "Download failed", stderr.String())
+						log.Warn().Msg("Dailymotion yt-dlp (m3u8) failed, trying yt-dlp on page URL")
+
+						pageArgs := []string{
+							"-o", tempPath,
+							"--no-warnings",
+							"--force-overwrites",
+							"--no-part",
+							"--merge-output-format", "mp4",
+							"--no-playlist",
+						}
+						pageArgs = append(pageArgs, "--referer", targetURL)
+						pageArgs = append(pageArgs, "--add-header", fmt.Sprintf("User-Agent: %s", ua))
+						pageArgs = append(pageArgs, "--add-header", "Origin: https://www.dailymotion.com")
+						if cookieFilePath != "" {
+							pageArgs = append(pageArgs, "--cookies", cookieFilePath)
+						}
+						pageArgs = append(pageArgs, targetURL)
+
+						pageCmd := exec.CommandContext(ctx, "yt-dlp", pageArgs...)
+						var pageStderr bytes.Buffer
+						pageCmd.Stderr = &pageStderr
+						if err2 := pageCmd.Run(); err2 != nil {
+							return response.Error(c, fiber.StatusInternalServerError, "Download failed", stderr.String()+"\n"+pageStderr.String())
+						}
 					}
 				}
 
