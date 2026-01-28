@@ -31,7 +31,9 @@ export const load = async ({ locals, url, parent }) => {
 			maintenance_message: settings?.SYSTEM.maintenance_message ?? '',
 			source_logo_favicon: settings?.SYSTEM.source_logo_favicon ?? 'local',
 			histats_tracking_code: settings?.SYSTEM.histats_tracking_code ?? '',
-			google_analytics_code: settings?.SYSTEM.google_analytics_code ?? ''
+			google_analytics_code: settings?.SYSTEM.google_analytics_code ?? '',
+			play_store_app_url: settings?.SYSTEM.play_store_app_url ?? '',
+			app_store_app_url: settings?.SYSTEM.app_store_app_url ?? ''
 		},
 		zod4(updateSettingSystem)
 	);
@@ -59,7 +61,10 @@ export const actions = {
 			{ key: 'maintenance_mode', value: String(form.data.maintenance_mode), group_name: 'SYSTEM' },
 			{ key: 'maintenance_message', value: form.data.maintenance_message, group_name: 'SYSTEM' },
 			{ key: 'source_logo_favicon', value: form.data.source_logo_favicon, group_name: 'SYSTEM' },
-			{ key: 'histats_tracking_code', value: form.data.histats_tracking_code, group_name: 'SYSTEM' }
+			{ key: 'histats_tracking_code', value: form.data.histats_tracking_code, group_name: 'SYSTEM' },
+			{ key: 'google_analytics_code', value: form.data.google_analytics_code, group_name: 'SYSTEM' },
+			{ key: 'play_store_app_url', value: form.data.play_store_app_url, group_name: 'SYSTEM' },
+			{ key: 'app_store_app_url', value: form.data.app_store_app_url, group_name: 'SYSTEM' }
 		].filter(s => s.value !== undefined) as { key: string; value: string; group_name: string }[];
 
 		const updateResponse = await locals.deps.settingService.updateBulkSetting(settingsToUpdate);

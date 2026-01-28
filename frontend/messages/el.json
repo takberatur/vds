@@ -234,5 +234,6 @@
   "text_download_results_description": "Τα αποτελέσματα λήψης είναι έτοιμα. ",
   "text_no_download_tasks_yet": "Δεν υπάρχουν ακόμα εργασίες λήψης",
   "text_no_download_tasks_yet_description": "Δεν έχετε δημιουργήσει ακόμη εργασίες λήψης. ",
-  "text_available_formats": "Διαθέσιμες μορφές"
+  "text_available_formats": "Διαθέσιμες μορφές",
+  "mp3_downloader": "Λήψης MP3"
 }

@@ -236,3 +236,19 @@ func (h *PlatformHandler) GetPlatformByType(c *fiber.Ctx) error {
 
 	return response.Success(c, "Platform retrieved successfully", platform)
 }
+
+func (h *PlatformHandler) GetPlatformsByCategory(c *fiber.Ctx) error {
+	ctx := middleware.HandlerContext(c)
+
+	category := c.Params("category")
+	if category == "" {
+		return response.Error(c, fiber.StatusBadRequest, "Category is required", nil)
+	}
+
+	platforms, err := h.service.GetPlatformsByCategory(ctx, category)
+	if err != nil {
+		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch platforms", err.Error())
+	}
+
+	return response.Success(c, "Platforms retrieved successfully", platforms)
+}

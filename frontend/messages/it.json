@@ -234,5 +234,6 @@
   "text_download_results_description": "I risultati del download sono pronti. ",
   "text_no_download_tasks_yet": "Nessuna attività di download ancora",
   "text_no_download_tasks_yet_description": "Non hai ancora creato alcuna attività di download. ",
-  "text_available_formats": "Formati disponibili"
+  "text_available_formats": "Formati disponibili",
+  "mp3_downloader": "Scarica MP3"
 }

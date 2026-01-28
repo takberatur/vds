@@ -90,7 +90,9 @@ export const updateSettingSystem = z.object({
 	maintenance_message: z.string().optional().or(z.literal('')),
 	source_logo_favicon: z.enum(['local', 'remote']).optional().default('local'),
 	histats_tracking_code: z.string().optional().or(z.literal('')),
-	google_analytics_code: z.string().optional().or(z.literal(''))
+	google_analytics_code: z.string().optional().or(z.literal('')),
+	play_store_app_url: z.string().optional().or(z.literal('')),
+	app_store_app_url: z.string().optional().or(z.literal(''))
 });
 export const updateSettingMonetization = z.object({
 	enable_monetize: z.boolean().optional().default(false),

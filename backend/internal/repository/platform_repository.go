@@ -21,6 +21,7 @@ type PlatformRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*model.Platform, error)
 	FindBySlug(ctx context.Context, slug string) (*model.Platform, error)
 	FindByType(ctx context.Context, type_ string) (*model.Platform, error)
+	FindByCategory(ctx context.Context, category string) ([]model.Platform, error)
 	Create(ctx context.Context, platform *model.Platform) error
 	Update(ctx context.Context, platform *model.Platform) error
 	UpdateThumbnail(ctx context.Context, thumbnail string, platformID uuid.UUID) error
@@ -61,13 +62,13 @@ func (r *platformRepository) FindAll(ctx context.Context, params model.QueryPara
 	defer cancel()
 
 	qb := NewQueryBuilder(`
-		SELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at
+		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
 		FROM platforms
 	`)
 
 	// 1. Filtering
 	if params.Search != "" {
-		qb.Where("(name ILIKE $? OR slug ILIKE $? OR type ILIKE $?)", "%"+params.Search+"%", "%"+params.Search+"%", "%"+params.Search+"%")
+		qb.Where("(name ILIKE $? OR slug ILIKE $? OR type ILIKE $? OR category ILIKE $?)", "%"+params.Search+"%", "%"+params.Search+"%", "%"+params.Search+"%", "%"+params.Search+"%")
 	}
 
 	if params.Type != "" {
@@ -149,12 +150,12 @@ func (r *platformRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 	query := `
-		SELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at
+		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
 		FROM platforms WHERE id = $1
 	`
 	var p model.Platform
 	err := r.db.QueryRow(subCtx, query, id).Scan(
-		&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.URLPattern,
+		&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.Category, &p.URLPattern,
 		&p.IsActive, &p.IsPremium, &p.Config, &p.CreatedAt,
 	)
 	if err != nil {
@@ -168,12 +169,12 @@ func (r *platformRepository) FindBySlug(ctx context.Context, slug string) (*mode
 	defer cancel()
 
 	query := `
-		SELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at
+		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
 		FROM platforms WHERE slug = $1
 	`
 	var p model.Platform
 	err := r.db.QueryRow(subCtx, query, slug).Scan(
-		&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.URLPattern,
+		&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.Category, &p.URLPattern,
 		&p.IsActive, &p.IsPremium, &p.Config, &p.CreatedAt,
 	)
 	if err != nil {
@@ -187,12 +188,12 @@ func (r *platformRepository) FindByType(ctx context.Context, type_ string) (*mod
 	defer cancel()
 
 	query := `
-		SELECT id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at
+		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
 		FROM platforms WHERE type = $1
 	`
 	var p model.Platform
 	err := r.db.QueryRow(subCtx, query, type_).Scan(
-		&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.URLPattern,
+		&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.Category, &p.URLPattern,
 		&p.IsActive, &p.IsPremium, &p.Config, &p.CreatedAt,
 	)
 	if err != nil {
@@ -200,19 +201,45 @@ func (r *platformRepository) FindByType(ctx context.Context, type_ string) (*mod
 	}
 	return &p, nil
 }
+func (r *platformRepository) FindByCategory(ctx context.Context, category string) ([]model.Platform, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
+		FROM platforms WHERE category = $1
+	`
+	var platforms []model.Platform
+	rows, err := r.db.Query(subCtx, query, category)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var p model.Platform
+		if err := rows.Scan(
+			&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.Category, &p.URLPattern,
+			&p.IsActive, &p.IsPremium, &p.Config, &p.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		platforms = append(platforms, p)
+	}
+	return platforms, nil
+}
 
 func (r *platformRepository) Create(ctx context.Context, platform *model.Platform) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
 	query := `
-		INSERT INTO platforms (name, slug, type, thumbnail_url, url_pattern, is_active, is_premium, config, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO platforms (name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		RETURNING id, created_at
 	`
 	now := time.Now()
 	err := r.db.QueryRow(subCtx, query,
-		platform.Name, platform.Slug, platform.Type, platform.ThumbnailURL, platform.URLPattern,
+		platform.Name, platform.Slug, platform.Type, platform.ThumbnailURL, platform.Category, platform.URLPattern,
 		platform.IsActive, platform.IsPremium, platform.Config, now,
 	).Scan(&platform.ID, &platform.CreatedAt)
 	return err
@@ -224,12 +251,12 @@ func (r *platformRepository) Update(ctx context.Context, platform *model.Platfor
 
 	query := `
 		UPDATE platforms 
-		SET name = $1, slug = $2, type = $3, thumbnail_url = $4, url_pattern = $5, is_active = $6, is_premium = $7, config = $8
-		WHERE id = $9
+		SET name = $1, slug = $2, type = $3, thumbnail_url = $4, category = $5, url_pattern = $6, is_active = $7, is_premium = $8, config = $9
+		WHERE id = $10
 	`
 
 	args := []interface{}{
-		platform.Name, platform.Slug, platform.Type, platform.ThumbnailURL, platform.URLPattern,
+		platform.Name, platform.Slug, platform.Type, platform.ThumbnailURL, platform.Category, platform.URLPattern,
 		platform.IsActive, platform.IsPremium, platform.Config, platform.ID,
 	}
 	_, err := r.db.Exec(subCtx, query, args...)

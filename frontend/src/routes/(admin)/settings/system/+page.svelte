@@ -196,6 +196,47 @@
 								<Field.Error>{$errors.histats_tracking_code}</Field.Error>
 							{/if}
 						</Field.Field>
+						<Field.Field>
+							<Field.Label for="play_store_app_url">Play Store App URL</Field.Label>
+							<div class="relative">
+								<Icon icon="mdi:google-play" class="absolute top-1/2 left-3 -translate-y-1/2" />
+								<Input
+									bind:value={$form.play_store_app_url}
+									name="play_store_app_url"
+									type="url"
+									class="ps-10"
+									placeholder="Enter play store app url"
+									autocomplete="url"
+									aria-invalid={!!$errors.play_store_app_url}
+									disabled={$submitting}
+								/>
+							</div>
+							{#if $errors.play_store_app_url}
+								<Field.Error>{$errors.play_store_app_url}</Field.Error>
+							{/if}
+						</Field.Field>
+						<Field.Field>
+							<Field.Label for="app_store_app_url">App Store App URL</Field.Label>
+							<div class="relative">
+								<Icon
+									icon="mingcute:appstore-fill"
+									class="absolute top-1/2 left-3 -translate-y-1/2"
+								/>
+								<Input
+									bind:value={$form.app_store_app_url}
+									name="app_store_app_url"
+									type="url"
+									class="ps-10"
+									placeholder="Enter app store app url"
+									autocomplete="url"
+									aria-invalid={!!$errors.app_store_app_url}
+									disabled={$submitting}
+								/>
+							</div>
+							{#if $errors.app_store_app_url}
+								<Field.Error>{$errors.app_store_app_url}</Field.Error>
+							{/if}
+						</Field.Field>
 					</Field.Set>
 					<Field.Field orientation="horizontal" class="mt-6 justify-end pb-4">
 						<Button type="submit" class="w-full" disabled={$submitting}>

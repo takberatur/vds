@@ -122,8 +122,9 @@ declare global {
 		id: string;
 		name: string;
 		slug: string;
-		type: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'twitter' | 'vimeo' | 'dailymotion' | 'rumble' | 'any-video-downloader' | 'youtube-to-mp3' | 'snackvideo';
+		type: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'twitter' | 'vimeo' | 'dailymotion' | 'rumble' | 'any-video-downloader' | 'snackvideo' | 'linkedin' | 'baidu' | 'pinterest' | 'snapchat' | 'twitch' | 'youtube-to-mp3' | 'facebook-to-mp3' | 'tiktok-to-mp3' | 'linkedin-to-mp3' | 'snackvideo-to-mp3' | 'twitch-to-mp3' | 'baidu-to-mp3' | 'pinterest-to-mp3' | 'snapchat-to-mp3' | 'instagram-to-mp3' | 'twitter-to-mp3' | 'vimeo-to-mp3' | 'dailymotion-to-mp3' | 'rumble-to-mp3';
 		thumbnail_url: string;
+		category: 'video' | 'audio' | 'image' | 'document' | 'other';
 		url_pattern?: string | null;
 		is_active: boolean;
 		is_premium: boolean;
@@ -283,6 +284,8 @@ declare global {
 		source_logo_favicon: 'local' | 'remote';
 		histats_tracking_code?: string;
 		google_analytics_code?: string;
+		play_store_app_url?: string;
+		app_store_app_url?: string;
 	};
 	type SettingMonetize = {
 		enable_monetize?: boolean;
@@ -338,6 +341,7 @@ declare global {
 		PublicGetPlatformByID(id: string): Promise<Platform | Error>;
 		PublicGetPlatformBySlug(slug: string): Promise<Error | Platform>
 		PublicGetPlatformByType(type_: string): Promise<Platform | Error>
+		PublicGetPlatformsByCategory(category: string): Promise<Platform[] | Error>
 	}
 	interface AdminService {
 		getDashboardData(query: QueryParams): Promise<PaginatedResult<DashboardResponse>>

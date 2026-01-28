@@ -234,5 +234,6 @@
   "text_download_results_description": "ダウンロード結果が完成しました。",
   "text_no_download_tasks_yet": "ダウンロードタスクはまだありません",
   "text_no_download_tasks_yet_description": "まだダウンロード タスクを作成していません。",
-  "text_available_formats": "利用可能なフォーマット"
+  "text_available_formats": "利用可能なフォーマット",
+  "mp3_downloader": "MP3ダウンローダー"
 }

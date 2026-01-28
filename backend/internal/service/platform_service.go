@@ -24,6 +24,7 @@ type PlatformService interface {
 	GetPlatformByID(ctx context.Context, id uuid.UUID) (*model.Platform, error)
 	GetPlatformBySlug(ctx context.Context, slug string) (*model.Platform, error)
 	GetPlatformByType(ctx context.Context, type_ string) (*model.Platform, error)
+	GetPlatformsByCategory(ctx context.Context, category string) ([]model.Platform, error)
 	CreatePlatform(ctx context.Context, platform *model.Platform) error
 	UpdatePlatform(ctx context.Context, platform *model.Platform) error
 	UploadThumbnail(ctx context.Context, platformID uuid.UUID, file io.Reader, filename string, size int64, contentType string) (string, error)
@@ -81,6 +82,13 @@ func (s *platformService) GetPlatformByType(ctx context.Context, type_ string) (
 	defer cancel()
 
 	return s.repo.FindByType(subCtx, type_)
+}
+
+func (s *platformService) GetPlatformsByCategory(ctx context.Context, category string) ([]model.Platform, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	return s.repo.FindByCategory(subCtx, category)
 }
 
 func (s *platformService) CreatePlatform(ctx context.Context, platform *model.Platform) error {

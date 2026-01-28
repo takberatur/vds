@@ -234,5 +234,6 @@
   "text_download_results_description": "Ihre Download-Ergebnisse sind fertig. ",
   "text_no_download_tasks_yet": "Noch keine Download-Aufgaben",
   "text_no_download_tasks_yet_description": "Sie haben noch keine Download-Aufgaben erstellt. ",
-  "text_available_formats": "Verfügbare Formate"
+  "text_available_formats": "Verfügbare Formate",
+  "mp3_downloader": "MP3-Downloader"
 }

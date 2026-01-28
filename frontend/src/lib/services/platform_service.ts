@@ -168,4 +168,15 @@ export class PlatformServiceImpl extends BaseService implements PlatformService 
 			return error instanceof Error ? error : new Error('Unknown error');
 		}
 	}
+	async PublicGetPlatformsByCategory(category: string): Promise<Platform[] | Error> {
+		try {
+			const response = await this.api.publicRequest<Platform[]>('GET', `/web-client/platforms/category/${category}`);
+			if (!response.success) {
+				throw new Error(response.message || 'Failed to get platforms');
+			}
+			return response.data || [];
+		} catch (error) {
+			return error instanceof Error ? error : new Error('Unknown error');
+		}
+	}
 }

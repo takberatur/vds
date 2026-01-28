@@ -234,5 +234,6 @@
   "text_download_results_description": "Hasil download Anda sudah siap. ",
   "text_no_download_tasks_yet": "Belum Ada Tugas Pengunduhan",
   "text_no_download_tasks_yet_description": "Anda belum membuat tugas pengunduhan apa pun. ",
-  "text_available_formats": "Format yang Tersedia"
+  "text_available_formats": "Format yang Tersedia",
+  "mp3_downloader": "Pengunduhan MP3"
 }

@@ -234,5 +234,6 @@
   "text_download_results_description": "आपके डाउनलोड परिणाम तैयार हैं. ",
   "text_no_download_tasks_yet": "अभी तक कोई डाउनलोड कार्य नहीं",
   "text_no_download_tasks_yet_description": "आपने अभी तक कोई डाउनलोड कार्य नहीं बनाया है. ",
-  "text_available_formats": "उपलब्ध प्रारूप"
+  "text_available_formats": "उपलब्ध प्रारूप",
+  "mp3_downloader": "MP3 डाउनलोडर"
 }

@@ -144,6 +144,13 @@
 				>
 					{i18n.text_supported_formats()}
 				</button>
+				<a
+					href={localizeHref('/mp3')}
+					class="cursor-pointer text-sm font-medium text-neutral-800 transition-colors hover:text-blue-600 dark:text-neutral-100 dark:hover:text-blue-400"
+					onclick={() => handleScroll('#supported-formats', 80)}
+				>
+					{i18n.mp3_downloader()}
+				</a>
 			{/if}
 		</nav>
 		<div class="hidden items-center gap-2 md:flex">

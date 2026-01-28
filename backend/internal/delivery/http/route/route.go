@@ -164,6 +164,7 @@ func SetupRoutes(c *RouteConfig) {
 	publicWeb.Get("/platforms/:id", platformHandler.GetPlatformByID)
 	publicWeb.Get("/platforms/type/:type", platformHandler.GetPlatformByType)
 	publicWeb.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
+	publicWeb.Get("/platforms/category/:category", platformHandler.GetPlatformsByCategory)
 	publicWeb.Post("/download/process", csrfMiddleware, downloadHandler.DownloadVideo)
 	publicProxy.Get("/downloads/file", downloadHandler.ProxyDownload)
 

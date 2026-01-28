@@ -55,6 +55,8 @@ type SettingSystem struct {
 	SourceLogoFavicon   string `json:"source_logo_favicon"` // 'local' | 'remote'
 	HistatsTrackingCode string `json:"histats_tracking_code"`
 	GoogleAnalyticsCode string `json:"google_analytics_code"`
+	PlayStoreAppURL     string `json:"play_store_app_url"`
+	AppStoreAppURL      string `json:"app_store_app_url"`
 }
 
 type SettingMonetize struct {

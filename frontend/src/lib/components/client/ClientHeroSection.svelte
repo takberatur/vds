@@ -430,7 +430,7 @@
 			{/if}
 
 			<div id="platforms" class="mt-4 flex flex-wrap items-center justify-center gap-4 md:gap-6">
-				{#each platforms as platform}
+				{#each platforms?.filter((platform) => platform.category === 'video') as platform}
 					<a
 						href={localizeHref(`/${platform.slug}`)}
 						class={cn(

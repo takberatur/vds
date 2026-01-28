@@ -234,5 +234,6 @@
   "text_download_results_description": "Your download results are ready. You can open them now.",
   "text_no_download_tasks_yet": "No Download Tasks Yet",
   "text_no_download_tasks_yet_description": "You haven't created any download tasks yet. Get started by creating your first task.",
-  "text_available_formats": "Available Formats"
+  "text_available_formats": "Available Formats",
+  "mp3_downloader": "Mp3 Downloader"
 }

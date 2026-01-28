@@ -234,5 +234,6 @@
   "text_download_results_description": "Kết quả tải xuống của bạn đã sẵn sàng. ",
   "text_no_download_tasks_yet": "Chưa có tác vụ tải xuống nào",
   "text_no_download_tasks_yet_description": "Bạn chưa tạo bất kỳ tác vụ tải xuống nào. ",
-  "text_available_formats": "Các định dạng có sẵn"
+  "text_available_formats": "Các định dạng có sẵn",
+  "mp3_downloader": "Tải xuống MP3"
 }

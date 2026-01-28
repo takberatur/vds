@@ -234,5 +234,6 @@
   "text_download_results_description": "ผลลัพธ์การดาวน์โหลดของคุณพร้อมแล้ว ",
   "text_no_download_tasks_yet": "ยังไม่มีงานดาวน์โหลด",
   "text_no_download_tasks_yet_description": "คุณยังไม่ได้สร้างงานดาวน์โหลดใดๆ ",
-  "text_available_formats": "รูปแบบที่มีอยู่"
+  "text_available_formats": "รูปแบบที่มีอยู่",
+  "mp3_downloader": "ตัวดาวน์โหลด MP3"
 }

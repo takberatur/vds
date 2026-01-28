@@ -234,5 +234,6 @@
   "text_download_results_description": "İndirme sonuçlarınız hazır. ",
   "text_no_download_tasks_yet": "Henüz İndirme Görevi Yok",
   "text_no_download_tasks_yet_description": "Henüz herhangi bir indirme görevi oluşturmadınız. ",
-  "text_available_formats": "Mevcut Formatlar"
+  "text_available_formats": "Mevcut Formatlar",
+  "mp3_downloader": "MP3 İndirici"
 }

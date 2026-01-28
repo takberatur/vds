@@ -234,5 +234,6 @@
   "text_download_results_description": "Los resultados de su descarga están listos. ",
   "text_no_download_tasks_yet": "Aún no hay tareas de descarga",
   "text_no_download_tasks_yet_description": "Aún no has creado ninguna tarea de descarga. ",
-  "text_available_formats": "Formatos disponibles"
+  "text_available_formats": "Formatos disponibles",
+  "mp3_downloader": "Descargador MP3"
 }

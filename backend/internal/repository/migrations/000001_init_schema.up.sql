@@ -71,8 +71,9 @@ CREATE TABLE platforms (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(50) NOT NULL UNIQUE, -- 'youtube', 'tiktok', 'instagram'
     slug VARCHAR(50) NOT NULL UNIQUE,
-		type VARCHAR(20) NOT NULL DEFAULT 'youtube' CHECK (type IN ('youtube', 'tiktok', 'instagram', 'facebook', 'twitter', 'vimeo', 'dailymotion', 'rumble', '','any-video-downloader', 'youtube-to-mp3', 'snackvideo')),
+		type VARCHAR(20) NOT NULL DEFAULT 'youtube' CHECK (type IN ('youtube', 'tiktok', 'instagram', 'facebook', 'twitter', 'vimeo', 'dailymotion', 'rumble', 'any-video-downloader', 'snackvideo', 'linkedin', 'baidu', 'pinterest', 'snapchat', 'twitch', 'youtube-to-mp3', 'facebook-to-mp3', 'tiktok-to-mp3', 'linkedin-to-mp3', 'snackvideo-to-mp3', 'twitch-to-mp3', 'baidu-to-mp3', 'pinterest-to-mp3', 'snapchat-to-mp3', 'instagram-to-mp3', 'twitter-to-mp3', 'vimeo-to-mp3', 'dailymotion-to-mp3', 'rumble-to-mp3')),
     thumbnail_url TEXT NOT NULL,
+		category VARCHAR(50) NOT NULL DEFAULT 'video' CHECK (category IN ('video', 'audio', 'image', 'document', 'other')),
     url_pattern VARCHAR(255), -- Regex to match URL
     is_active BOOLEAN DEFAULT TRUE,
     is_premium BOOLEAN DEFAULT FALSE, -- If true, only premium users can download
@@ -224,6 +225,8 @@ INSERT INTO settings (key, value, description, group_name) VALUES
 ('source_logo_favicon', 'local', 'Source of Logo/Favicon (local/remote)', 'SYSTEM'),
 ('histats_tracking_code', '', 'Histats Tracking Code', 'SYSTEM'),
 ('google_analytics_code', '', 'Google Analytics Code', 'SYSTEM'),
+('play_store_app_url', '', 'Google Play Store App URL', 'SYSTEM'),
+('app_store_app_url', '', 'Apple App Store App URL', 'SYSTEM'),
 
 -- MONETIZE Group
 ('enable_monetize', 'false', 'Enable Monetization Features', 'MONETIZE'),

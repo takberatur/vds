@@ -234,5 +234,6 @@
   "text_download_results_description": "نتائج التنزيل الخاصة بك جاهزة. ",
   "text_no_download_tasks_yet": "لا توجد مهام تنزيل حتى الآن",
   "text_no_download_tasks_yet_description": "لم تقم بإنشاء أي مهام تنزيل بعد. ",
-  "text_available_formats": "التنسيقات المتاحة"
+  "text_available_formats": "التنسيقات المتاحة",
+  "mp3_downloader": "تنزيل MP3"
 }

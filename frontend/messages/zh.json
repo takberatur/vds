@@ -234,5 +234,6 @@
   "text_download_results_description": "您的下载结果已准备就绪。",
   "text_no_download_tasks_yet": "还没有下载任务",
   "text_no_download_tasks_yet_description": "您尚未创建任何下载任务。",
-  "text_available_formats": "可用格式"
+  "text_available_formats": "可用格式",
+  "mp3_downloader": "MP3下载器"
 }

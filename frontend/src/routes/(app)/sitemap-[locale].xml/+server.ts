@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { localizeHref, locales, type Locale } from '@/paraglide/runtime.js';
+import { localizeHref, type Locale } from '@/paraglide/runtime.js';
 
 let pages: string[] = [
 	'about',
@@ -7,6 +7,7 @@ let pages: string[] = [
 	'faq',
 	'privacy',
 	'terms',
+	'mp3'
 ];
 
 const sitemap = (site: string, pages: string[]) => `<?xml version="1.0" encoding="UTF-8" ?>

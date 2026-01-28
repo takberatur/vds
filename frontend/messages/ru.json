@@ -234,5 +234,6 @@
   "text_download_results_description": "Результаты загрузки готовы. ",
   "text_no_download_tasks_yet": "Пока нет задач по загрузке",
   "text_no_download_tasks_yet_description": "Вы еще не создали ни одной задачи загрузки. ",
-  "text_available_formats": "Доступные форматы"
+  "text_available_formats": "Доступные форматы",
+  "mp3_downloader": "Скачать MP3"
 }

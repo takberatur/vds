@@ -64,6 +64,7 @@ type Platform struct {
 	Slug         string         `json:"slug" db:"slug"`
 	Type         string         `json:"type" db:"type"`
 	ThumbnailURL string         `json:"thumbnail_url" db:"thumbnail_url"`
+	Category     string         `json:"category" db:"category"`
 	URLPattern   *string        `json:"url_pattern" db:"url_pattern"`
 	IsActive     bool           `json:"is_active" db:"is_active"`
 	IsPremium    bool           `json:"is_premium" db:"is_premium"`

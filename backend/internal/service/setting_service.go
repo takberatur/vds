@@ -195,6 +195,10 @@ func mapSystemSetting(target *model.SettingSystem, s model.Setting) {
 		target.HistatsTrackingCode = s.Value
 	case "google_analytics_code":
 		target.GoogleAnalyticsCode = s.Value
+	case "play_store_app_url":
+		target.PlayStoreAppURL = s.Value
+	case "app_store_app_url":
+		target.AppStoreAppURL = s.Value
 	}
 }
 

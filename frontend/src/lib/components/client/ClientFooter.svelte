@@ -15,6 +15,7 @@
 	} = $props();
 
 	let webSetting = $derived(setting?.WEBSITE);
+	let systemSetting = $derived(setting?.SYSTEM);
 	// svelte-ignore state_referenced_locally
 	let translatedSiteDescription = $state(webSetting?.site_description || '');
 	let translateLoading = $state(false);
@@ -70,12 +71,20 @@
 					<p class="text-sm">{translatedSiteDescription || ''}</p>
 				{/if}
 				<a
-					href="https://play.google.com/"
+					href={systemSetting?.play_store_app_url || 'https://play.google.com/'}
 					target="_blank"
 					rel="noopener noreferrer"
 					class="flex max-w-max rounded-md bg-neutral-100 p-2 shadow-xl/30 shadow-neutral-500 backdrop-blur-md dark:bg-neutral-800 dark:shadow-neutral-400"
 				>
-					<img src="/images/play-store.webp" alt="" class="h-10 w-auto" />
+					<img src="/images/play-store.png" alt="" class="h-10 w-auto" />
+				</a>
+				<a
+					href={systemSetting?.app_store_app_url || 'https://apps.apple.com/'}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="flex max-w-max rounded-md bg-neutral-100 p-2 shadow-xl/30 shadow-neutral-500 backdrop-blur-md dark:bg-neutral-800 dark:shadow-neutral-400"
+				>
+					<img src="/images/app-store.png" alt="" class="h-10 w-auto" />
 				</a>
 			</div>
 
