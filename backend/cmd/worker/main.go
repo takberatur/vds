@@ -219,6 +219,8 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (metadata)")
 	}
 
+	isDailymotion := strings.Contains(strings.ToLower(task.OriginalURL), "dailymotion.com") || strings.Contains(strings.ToLower(task.OriginalURL), "dai.ly")
+
 	// Special handling for platforms with direct URLs (YouTube, Facebook, Twitter/X)
 	// We skip the download-upload loop and just save the direct URLs
 	isTwitter := strings.ToLower(task.PlatformType) == "twitter" ||
@@ -242,6 +244,87 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		return processDirectLinkTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, task, info, encryptionKey)
 	}
 
+	if isDailymotion {
+		log.Info().Str("url", task.OriginalURL).Msg("Processing Dailymotion with Chromedp + ffmpeg (upload)")
+
+		chromedpStrategy := infrastructure.NewChromedpStrategy()
+		m3u8URL, cookieFilePath, ua, err := chromedpStrategy.GetMasterPlaylist(ctx, task.OriginalURL)
+		if cookieFilePath != "" {
+			defer os.Remove(cookieFilePath)
+		}
+		if err != nil {
+			task.Status = "failed"
+			msg := err.Error()
+			task.ErrorMessage = &msg
+			_ = downloadRepo.Update(ctx, task)
+			_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+			return err
+		}
+
+		tempFile, err := os.CreateTemp("", "dailymotion-*.mp4")
+		if err != nil {
+			return err
+		}
+		tempPath := tempFile.Name()
+		tempFile.Close()
+		defer os.Remove(tempPath)
+
+		cookieHeader := netscapeCookiesToHeader(cookieFilePath, []string{"dailymotion.com"})
+		if err := downloadHLSWithFFmpeg(ctx, m3u8URL, ua, task.OriginalURL, cookieHeader, tempPath); err != nil {
+			task.Status = "failed"
+			msg := err.Error()
+			task.ErrorMessage = &msg
+			_ = downloadRepo.Update(ctx, task)
+			_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+			return err
+		}
+
+		f, err := os.Open(tempPath)
+		if err != nil {
+			return err
+		}
+		fi, _ := f.Stat()
+		objectName := fmt.Sprintf("%s/%s/%s.%s", "dailymotion", task.ID.String(), "best", "mp4")
+		minioURL, err := storageClient.UploadFile(ctx, bucketName, objectName, f, fi.Size(), "video/mp4")
+		f.Close()
+		if err != nil {
+			task.Status = "failed"
+			msg := err.Error()
+			task.ErrorMessage = &msg
+			_ = downloadRepo.Update(ctx, task)
+			_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+			return err
+		}
+
+		ext := "mp4"
+		size := fi.Size()
+		fID := "best"
+		res := "best"
+		downloadFile := &model.DownloadFile{
+			DownloadID:    task.ID,
+			URL:           minioURL,
+			FormatID:      &fID,
+			Resolution:    &res,
+			Extension:     &ext,
+			FileSize:      &size,
+			EncryptedData: nil,
+		}
+		_ = downloadRepo.AddFile(ctx, downloadFile)
+
+		task.FilePath = &minioURL
+		task.FileSize = &size
+		task.Format = &fID
+		task.Status = "completed"
+		if err := downloadRepo.Update(ctx, task); err != nil {
+			log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
+		}
+		task.DownloadFiles = []model.DownloadFile{*downloadFile}
+		if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+			log.Error().Err(err).Msg("failed to publish complete event")
+		}
+		return nil
+	}
+
 	// 3. Select Formats to Download
 	// For now, let's pick the best video format and maybe some common ones
 	// Or just download the best one first as requested, and then handle others if needed.
@@ -257,6 +340,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		})
 	}
 
+	downloadedAny := false
 	for i, fmtInfo := range selectedFormats {
 		progress := 30 + int(float64(i)/float64(len(selectedFormats))*50)
 		if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, progress); err != nil {
@@ -316,6 +400,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 			log.Error().Err(err).Msg("failed to upload to minio")
 			continue
 		}
+		downloadedAny = true
 
 		// 6. Save to download_files
 		ext := fmtInfo.Ext
@@ -346,16 +431,114 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	}
 
 	// 7. Update Task Status
-	task.Status = "completed"
-	if err := downloadRepo.Update(ctx, task); err != nil {
-		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
+	if downloadedAny {
+		task.Status = "completed"
+		if err := downloadRepo.Update(ctx, task); err != nil {
+			log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
+		}
+
+		if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+			log.Error().Err(err).Msg("failed to publish complete event")
+		}
+	} else {
+		task.Status = "failed"
+		msg := "all formats failed to download"
+		task.ErrorMessage = &msg
+		_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, fmt.Errorf("%s", msg))
+		return fmt.Errorf("%s", msg)
 	}
 
-	// 8. Publish Completion
-	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
-		log.Error().Err(err).Msg("failed to publish complete event")
+	return nil
+}
+
+func netscapeCookiesToHeader(path string, domainSuffixes []string) string {
+	if path == "" {
+		return ""
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	lines := strings.Split(string(b), "\n")
+	m := make(map[string]string, 64)
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Split(line, "\t")
+		if len(fields) < 7 {
+			continue
+		}
+		domain := strings.TrimSpace(fields[0])
+		domain = strings.TrimPrefix(domain, ".")
+		ok := false
+		for _, suf := range domainSuffixes {
+			if strings.HasSuffix(domain, suf) {
+				ok = true
+				break
+			}
+		}
+		if !ok {
+			continue
+		}
+		name := strings.TrimSpace(fields[5])
+		value := strings.TrimSpace(fields[6])
+		if name == "" || value == "" {
+			continue
+		}
+		m[name] = value
+	}
+	if len(m) == 0 {
+		return ""
+	}
+	parts := make([]string, 0, len(m))
+	for k, v := range m {
+		parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, "; ")
+}
+
+func downloadHLSWithFFmpeg(ctx context.Context, m3u8URL string, userAgent string, referer string, cookieHeader string, outPath string) error {
+	var headerLines []string
+	headerLines = append(headerLines, fmt.Sprintf("User-Agent: %s", userAgent))
+	headerLines = append(headerLines, fmt.Sprintf("Referer: %s", referer))
+	headerLines = append(headerLines, "Origin: https://www.dailymotion.com")
+	headerLines = append(headerLines, "Accept: */*")
+	headerLines = append(headerLines, "Accept-Language: en-US,en;q=0.9")
+	headerLines = append(headerLines, "Accept-Encoding: identity")
+	if cookieHeader != "" {
+		headerLines = append(headerLines, fmt.Sprintf("Cookie: %s", cookieHeader))
 	}
 
+	ffmpegArgs := []string{
+		"-y",
+		"-loglevel", "error",
+		"-user_agent", userAgent,
+		"-headers", strings.Join(headerLines, "\r\n") + "\r\n",
+		"-i", m3u8URL,
+		"-c:v", "copy",
+		"-c:a", "aac",
+		"-b:a", "128k",
+		"-movflags", "+faststart",
+		"-f", "mp4",
+		outPath,
+	}
+
+	cmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("ffmpeg failed: %w, stderr: %s", err, stderr.String())
+	}
+	fi, err := os.Stat(outPath)
+	if err != nil {
+		return err
+	}
+	if fi.Size() == 0 {
+		return fmt.Errorf("downloaded file is empty")
+	}
 	return nil
 }
 
@@ -788,12 +971,15 @@ headers = {"User-Agent": ua, "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9
 if cookie:
     headers["Cookie"] = cookie
 
-with requests.get(url, headers=headers, impersonate="chrome124", stream=True, timeout=300, allow_redirects=True) as r:
+r = requests.get(url, headers=headers, impersonate="chrome124", stream=True, timeout=300, allow_redirects=True)
+try:
     r.raise_for_status()
     with open(out_path, "wb") as f:
         for chunk in r.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 f.write(chunk)
+finally:
+    r.close()
 `
 			curlReq := exec.CommandContext(ctx, py, "-c", pyCode, targetURL, userAgent, "https://www.tiktok.com/", cookieHeader, tempPath)
 			var curlStderr bytes.Buffer
