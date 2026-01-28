@@ -1,6 +1,6 @@
 param(
   [string]$Context = "remote",
-  [ValidateSet("all", "backend", "worker", "frontend")]
+  [ValidateSet("all", "backend", "worker")]
   [string]$Target = "all",
   [int]$Tail = 300,
   [string]$Since = "",
@@ -16,13 +16,13 @@ docker --context $Context ps | Out-Null
 $serviceMap = @{
   backend  = "backend"
   worker   = "worker"
-  frontend = "frontend_01"
+  # frontend = "frontend_01"
 }
 
 $containerMap = @{
   backend  = "video_downloader_api"
   worker   = "video_downloader_worker"
-  frontend = "video_downloader_web_01"
+  # frontend = "video_downloader_web_01"
 }
 
 $composeFiles = @(
@@ -61,7 +61,7 @@ if ($Follow) {
 
 $targets = @()
 if ($Target -eq "all") {
-  $targets = @("backend", "worker", "frontend")
+  $targets = @("backend", "worker")
 } else {
   $targets = @($Target)
 }

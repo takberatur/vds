@@ -1,6 +1,6 @@
 param(
   [string]$Context = "remote",
-  [string[]]$Services = @("backend", "worker", "frontend_01")
+  [string[]]$Services = @("backend", "worker")
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,7 +17,7 @@ foreach ($s in $Services) {
   $serviceList += ($s -split '[,\s]+') | Where-Object { $_ -and $_.Trim() -ne "" }
 }
 
-$containersToRemove = @("video_downloader_api", "video_downloader_worker", "video_downloader_web_01", "video_downloader_setup")
+$containersToRemove = @("video_downloader_api", "video_downloader_worker", "video_downloader_setup")
 try {
   docker --context $Context rm -f @containersToRemove | Out-Null
 } catch {

@@ -15,6 +15,7 @@ frontend/.env.prod
 frontend/build
 frontend/.env.local
 frontend/.env.production
+frontend/ecosystem.config.cjs
 android/app/build
 android/.gradle
 android/.idea

@@ -642,9 +642,12 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 				// Clean up temp file after request completes
 				// We use a closure to capture the current tempPath
+				cleanupPaths := []string{tempPath}
 				defer func() {
-					if err := os.Remove(tempPath); err != nil {
-						log.Warn().Err(err).Str("path", tempPath).Msg("Failed to remove temp file")
+					for _, p := range cleanupPaths {
+						if err := os.Remove(p); err != nil {
+							log.Warn().Err(err).Str("path", p).Msg("Failed to remove temp file")
+						}
 					}
 				}()
 
@@ -703,8 +706,11 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 
 				ffmpegArgs = append(ffmpegArgs,
 					"-i", m3u8URL,
-					"-c", "copy",
+					"-c:v", "copy",
+					"-c:a", "aac",
+					"-b:a", "128k",
 					"-movflags", "+faststart",
+					"-f", "mp4",
 					tempPath,
 				)
 
@@ -744,6 +750,59 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 					if err := cmd.Run(); err != nil {
 						log.Error().Err(err).Str("stderr", stderr.String()).Msg("yt-dlp download failed")
 						return response.Error(c, fiber.StatusInternalServerError, "Download failed", stderr.String())
+					}
+				}
+
+				probeCodec := func(streamSelector string) string {
+					cmd := exec.CommandContext(ctx, "ffprobe",
+						"-v", "error",
+						"-select_streams", streamSelector,
+						"-show_entries", "stream=codec_name",
+						"-of", "default=nw=1:nk=1",
+						tempPath,
+					)
+					out, err := cmd.Output()
+					if err != nil {
+						return ""
+					}
+					return strings.TrimSpace(string(out))
+				}
+
+				vcodec := probeCodec("v:0")
+				acodec := probeCodec("a:0")
+				if vcodec != "" || acodec != "" {
+					log.Info().Str("vcodec", vcodec).Str("acodec", acodec).Msg("Dailymotion downloaded codecs")
+				}
+
+				if vcodec != "" && vcodec != "h264" {
+					transFile, err := os.CreateTemp("", "dailymotion-h264-*.mp4")
+					if err == nil {
+						transPath := transFile.Name()
+						transFile.Close()
+						cleanupPaths = append(cleanupPaths, transPath)
+
+						transcodeArgs := []string{
+							"-y",
+							"-loglevel", "error",
+							"-i", tempPath,
+							"-c:v", "libx264",
+							"-preset", "veryfast",
+							"-crf", "23",
+							"-c:a", "aac",
+							"-b:a", "128k",
+							"-movflags", "+faststart",
+							transPath,
+						}
+
+						transcodeCmd := exec.CommandContext(ctx, "ffmpeg", transcodeArgs...)
+						var transcodeStderr bytes.Buffer
+						transcodeCmd.Stderr = &transcodeStderr
+						log.Info().Msg("Transcoding Dailymotion to h264/aac for compatibility")
+						if err := transcodeCmd.Run(); err == nil {
+							tempPath = transPath
+						} else {
+							log.Warn().Err(err).Str("stderr", transcodeStderr.String()).Msg("Dailymotion transcode failed, serving original file")
+						}
 					}
 				}
 

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"sort"
 	"strings"
 	"time"
@@ -759,6 +761,98 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
+		if resp.StatusCode == http.StatusForbidden {
+			cookieHeader := req.Header.Get("Cookie")
+			log.Warn().Int("status", resp.StatusCode).Msg("TikTok direct HTTP got 403, trying curl_cffi impersonation")
+
+			tempFile, err := os.CreateTemp("", "tiktok-curlcffi-*.mp4")
+			if err != nil {
+				return fmt.Errorf("failed to create temp file: %w", err)
+			}
+			tempPath := tempFile.Name()
+			tempFile.Close()
+			defer os.Remove(tempPath)
+
+			py := "/opt/venv/bin/python"
+			pyCode := `
+import sys
+from curl_cffi import requests
+
+url = sys.argv[1]
+ua = sys.argv[2]
+referer = sys.argv[3]
+cookie = sys.argv[4]
+out_path = sys.argv[5]
+
+headers = {"User-Agent": ua, "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9", "Referer": referer, "Origin": "https://www.tiktok.com"}
+if cookie:
+    headers["Cookie"] = cookie
+
+with requests.get(url, headers=headers, impersonate="chrome", stream=True, timeout=300) as r:
+    r.raise_for_status()
+    with open(out_path, "wb") as f:
+        for chunk in r.iter_content(chunk_size=1024 * 1024):
+            if chunk:
+                f.write(chunk)
+`
+			curlReq := exec.CommandContext(ctx, py, "-c", pyCode, targetURL, userAgent, "https://www.tiktok.com/", cookieHeader, tempPath)
+			var curlStderr bytes.Buffer
+			curlReq.Stderr = &curlStderr
+			if err := curlReq.Run(); err != nil {
+				log.Error().Err(err).Str("stderr", curlStderr.String()).Msg("curl_cffi download failed")
+				return fmt.Errorf("failed to download TikTok video: status %d", resp.StatusCode)
+			}
+
+			data, err := os.ReadFile(tempPath)
+			if err != nil {
+				return fmt.Errorf("failed to read TikTok downloaded file: %w", err)
+			}
+			if len(data) == 0 {
+				return fmt.Errorf("downloaded empty file")
+			}
+
+			encryptedData, err := utils.EncryptData(data, encryptionKey)
+			if err != nil {
+				return fmt.Errorf("failed to encrypt data: %w", err)
+			}
+
+			fileSize := int64(len(data))
+			fID := "encrypted"
+			resolution := "original"
+			dummyURL := fmt.Sprintf("encrypted://%s/video.%s", task.PlatformType, ext)
+
+			dlFile := &model.DownloadFile{
+				DownloadID:    task.ID,
+				URL:           dummyURL,
+				FormatID:      &fID,
+				Resolution:    &resolution,
+				Extension:     &ext,
+				FileSize:      &fileSize,
+				EncryptedData: &encryptedData,
+			}
+
+			if err := downloadRepo.AddFile(ctx, dlFile); err != nil {
+				return err
+			}
+
+			task.EncryptedData = &encryptedData
+			task.FilePath = &dummyURL
+			task.FileSize = &fileSize
+			task.Format = &ext
+			task.Status = "completed"
+
+			if err := downloadRepo.Update(ctx, task); err != nil {
+				return err
+			}
+
+			task.DownloadFiles = []model.DownloadFile{*dlFile}
+			if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+				log.Error().Err(err).Msg("failed to publish complete event")
+			}
+
+			log.Info().Str("task_id", task.ID.String()).Int64("original_size", fileSize).Msg("TikTok encrypted task completed (curl_cffi)")
+			return nil
+		}
 		return fmt.Errorf("failed to download TikTok video: status %d", resp.StatusCode)
 	}
 
