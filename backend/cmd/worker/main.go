@@ -10,7 +10,9 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -248,20 +250,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	if isDailymotion {
 		log.Info().Str("url", task.OriginalURL).Msg("Processing Dailymotion with Chromedp + ffmpeg (upload)")
 
-		chromedpStrategy := infrastructure.NewChromedpStrategy()
-		m3u8URL, cookieFilePath, ua, err := chromedpStrategy.GetMasterPlaylist(ctx, task.OriginalURL)
-		if cookieFilePath != "" {
-			defer os.Remove(cookieFilePath)
-		}
-		if err != nil {
-			task.Status = "failed"
-			msg := err.Error()
-			task.ErrorMessage = &msg
-			_ = downloadRepo.Update(ctx, task)
-			_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
-			return err
-		}
-
+		outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
 		tempFile, err := os.CreateTemp("", "dailymotion-*.mp4")
 		if err != nil {
 			return err
@@ -270,9 +259,60 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		tempFile.Close()
 		defer os.Remove(tempPath)
 
-		cookieHeader := netscapeCookiesToHeader(cookieFilePath, []string{"dailymotion.com"})
-		outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
-		{
+		downloaded := false
+		ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
+
+		if videoID := extractDailymotionID(task.OriginalURL); videoID != "" {
+			if m3u8URL, title, thumb, dur, err := fetchDailymotionMasterPlaylist(ctx, videoID, task.OriginalURL, outboundProxy); err == nil && m3u8URL != "" {
+				if err := downloadHLSWithFFmpeg(ctx, m3u8URL, ua, task.OriginalURL, "", tempPath); err == nil {
+					if title != "" {
+						t := title
+						task.Title = &t
+					}
+					if thumb != "" {
+						t := thumb
+						task.ThumbnailURL = &t
+					}
+					if dur > 0 {
+						d := int(dur)
+						task.Duration = &d
+					}
+					downloaded = true
+				}
+			}
+		}
+
+		if !downloaded {
+			chromedpStrategy := infrastructure.NewChromedpStrategy()
+			m3u8URL, cookieFilePath, chromedpUA, err := chromedpStrategy.GetMasterPlaylist(ctx, task.OriginalURL)
+			if cookieFilePath != "" {
+				defer os.Remove(cookieFilePath)
+			}
+			if err != nil {
+				task.Status = "failed"
+				msg := err.Error()
+				task.ErrorMessage = &msg
+				_ = downloadRepo.Update(ctx, task)
+				_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+				return err
+			}
+			if chromedpUA != "" {
+				ua = chromedpUA
+			}
+
+			imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
+			if imp == "" {
+				imp = "chrome124"
+			}
+
+			run := func(args []string) (string, error) {
+				cmd := exec.CommandContext(ctx, "yt-dlp", args...)
+				var stderr bytes.Buffer
+				cmd.Stderr = &stderr
+				err := cmd.Run()
+				return stderr.String(), err
+			}
+
 			pageArgs := []string{
 				"--no-warnings",
 				"--no-playlist",
@@ -283,10 +323,6 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 				"--referer", task.OriginalURL,
 				"--add-header", fmt.Sprintf("User-Agent: %s", ua),
 				"--add-header", "Origin: https://www.dailymotion.com",
-			}
-			imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
-			if imp == "" {
-				imp = "chrome124"
 			}
 			pageArgsWithImp := append(append([]string{}, pageArgs...), "--impersonate", imp)
 			if outboundProxy != "" {
@@ -300,22 +336,14 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 			pageArgs = append(pageArgs, task.OriginalURL)
 			pageArgsWithImp = append(pageArgsWithImp, task.OriginalURL)
 
-			run := func(args []string) (string, error) {
-				cmd := exec.CommandContext(ctx, "yt-dlp", args...)
-				var stderr bytes.Buffer
-				cmd.Stderr = &stderr
-				err := cmd.Run()
-				return stderr.String(), err
-			}
-
 			if stderr, err := run(pageArgsWithImp); err == nil {
 				if fi, err := os.Stat(tempPath); err == nil && fi.Size() > 0 {
-					goto UploadDailymotion
+					downloaded = true
 				}
 			} else if strings.Contains(stderr, "Impersonate target") {
 				if stderr2, err2 := run(pageArgs); err2 == nil {
 					if fi, err := os.Stat(tempPath); err == nil && fi.Size() > 0 {
-						goto UploadDailymotion
+						downloaded = true
 					}
 				} else {
 					log.Warn().Err(err2).Str("stderr", stderr2).Msg("Dailymotion yt-dlp page download failed, falling back to ffmpeg HLS")
@@ -323,18 +351,32 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 			} else {
 				log.Warn().Err(err).Str("stderr", stderr).Msg("Dailymotion yt-dlp page download failed, falling back to ffmpeg HLS")
 			}
+
+			if !downloaded {
+				cookieHeader := netscapeCookiesToHeader(cookieFilePath, []string{"dailymotion.com"})
+				if err := downloadHLSWithFFmpeg(ctx, m3u8URL, ua, task.OriginalURL, cookieHeader, tempPath); err != nil {
+					task.Status = "failed"
+					msg := err.Error()
+					task.ErrorMessage = &msg
+					_ = downloadRepo.Update(ctx, task)
+					_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+					return err
+				}
+				downloaded = true
+			}
 		}
 
-		if err := downloadHLSWithFFmpeg(ctx, m3u8URL, ua, task.OriginalURL, cookieHeader, tempPath); err != nil {
+		fiLocal, err := os.Stat(tempPath)
+		if err != nil || fiLocal.Size() == 0 {
+			e := fmt.Errorf("downloaded file is empty")
 			task.Status = "failed"
-			msg := err.Error()
+			msg := e.Error()
 			task.ErrorMessage = &msg
 			_ = downloadRepo.Update(ctx, task)
-			_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
-			return err
+			_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, e)
+			return e
 		}
 
-	UploadDailymotion:
 		f, err := os.Open(tempPath)
 		if err != nil {
 			return err
@@ -562,6 +604,165 @@ func sanitizeProxyURL(raw string) string {
 	s = strings.Trim(s, "\"")
 	s = strings.Trim(s, "'")
 	return strings.TrimSpace(s)
+}
+
+func extractDailymotionID(u string) string {
+	u = strings.TrimSpace(u)
+	u = strings.Trim(u, "`")
+	u = strings.Trim(u, "\"")
+	u = strings.Trim(u, "'")
+	reList := []*regexp.Regexp{
+		regexp.MustCompile(`dailymotion\.com/video/([a-zA-Z0-9]+)`),
+		regexp.MustCompile(`dai\.ly/([a-zA-Z0-9]+)`),
+	}
+	for _, re := range reList {
+		if m := re.FindStringSubmatch(u); len(m) > 1 {
+			return m[1]
+		}
+	}
+	return ""
+}
+
+func fetchDailymotionMasterPlaylist(ctx context.Context, videoID string, referer string, outboundProxy string) (string, string, string, float64, error) {
+	reqURL := fmt.Sprintf("https://www.dailymotion.com/player/metadata/video/%s", videoID)
+
+	var transport http.RoundTripper = http.DefaultTransport
+	if outboundProxy != "" {
+		if pu, err := url.Parse(outboundProxy); err == nil {
+			transport = &http.Transport{Proxy: http.ProxyURL(pu)}
+		}
+	}
+	client := &http.Client{Timeout: 25 * time.Second, Transport: transport}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+	if err != nil {
+		return "", "", "", 0, err
+	}
+
+	ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
+	req.Header.Set("User-Agent", ua)
+	req.Header.Set("Accept", "application/json, text/plain, */*")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	if referer != "" {
+		req.Header.Set("Referer", referer)
+	}
+	req.Header.Set("Origin", "https://www.dailymotion.com")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", "", "", 0, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
+		return "", "", "", 0, fmt.Errorf("metadata status %d: %s", resp.StatusCode, strings.TrimSpace(string(b)))
+	}
+
+	var raw map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
+		return "", "", "", 0, err
+	}
+
+	title, _ := raw["title"].(string)
+	thumb, _ := raw["poster_url"].(string)
+
+	var duration float64
+	switch v := raw["duration"].(type) {
+	case float64:
+		duration = v
+	case int:
+		duration = float64(v)
+	}
+
+	qualities, _ := raw["qualities"].(map[string]interface{})
+	if len(qualities) == 0 {
+		return "", title, thumb, duration, fmt.Errorf("metadata missing qualities")
+	}
+
+	type stream struct {
+		url  string
+		kind string
+	}
+
+	parseList := func(v interface{}) []stream {
+		arr, ok := v.([]interface{})
+		if !ok {
+			return nil
+		}
+		out := make([]stream, 0, len(arr))
+		for _, it := range arr {
+			m, ok := it.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			u, _ := m["url"].(string)
+			t, _ := m["type"].(string)
+			if u == "" {
+				continue
+			}
+			out = append(out, stream{url: u, kind: t})
+		}
+		return out
+	}
+
+	bestKey := ""
+	bestNum := -1
+	for k := range qualities {
+		if n, err := strconv.Atoi(k); err == nil {
+			if n > bestNum {
+				bestNum = n
+				bestKey = k
+			}
+		}
+	}
+
+	tryKeys := []string{}
+	if bestKey != "" {
+		tryKeys = append(tryKeys, bestKey)
+	}
+	if _, ok := qualities["auto"]; ok {
+		tryKeys = append(tryKeys, "auto")
+	}
+	for k := range qualities {
+		if k == bestKey || k == "auto" {
+			continue
+		}
+		tryKeys = append(tryKeys, k)
+	}
+
+	pickFrom := func(list []stream) string {
+		for _, s := range list {
+			if strings.Contains(s.kind, "application") && strings.Contains(strings.ToLower(s.kind), "mpeg") && strings.Contains(s.url, ".m3u8") {
+				return s.url
+			}
+		}
+		for _, s := range list {
+			if strings.Contains(s.url, ".m3u8") {
+				return s.url
+			}
+		}
+		for _, s := range list {
+			if strings.Contains(strings.ToLower(s.kind), "video/mp4") || strings.Contains(s.url, ".mp4") {
+				return s.url
+			}
+		}
+		if len(list) > 0 {
+			return list[0].url
+		}
+		return ""
+	}
+
+	for _, key := range tryKeys {
+		if v, ok := qualities[key]; ok {
+			u := pickFrom(parseList(v))
+			if u != "" {
+				return u, title, thumb, duration, nil
+			}
+		}
+	}
+
+	return "", title, thumb, duration, fmt.Errorf("no stream url found in qualities")
 }
 
 func downloadHLSWithFFmpeg(ctx context.Context, m3u8URL string, userAgent string, referer string, cookieHeader string, outPath string) error {
