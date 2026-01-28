@@ -11,12 +11,12 @@
 
 	let {
 		task,
-		downloadVideo,
+		downloadMp3,
 		deleteTask
 	}: {
 		task?: DownloadTaskView | null;
 		onclose?: () => void;
-		downloadVideo?: (
+		downloadMp3?: (
 			data?: DownloadTaskView | null,
 			formatId?: string | null,
 			directUrl?: string | null
@@ -57,22 +57,7 @@
 		format: DownloadFormat
 	) {
 		if (!currentTask) return;
-		downloadVideo?.(currentTask, format.format_id ?? null, format.url ?? null);
-	}
-
-	function handleOpenFile(url?: string | null, type?: string | null) {
-		if (!url) return;
-
-		// Clean URL first (remove spaces, backticks if any)
-		const cleanUrl = url
-			.trim()
-			.replace(/^`+|`+$/g, '')
-			.replace(/`/g, '');
-
-		if (!validUrl(cleanUrl)) return;
-		// check by type or domain regex
-
-		window.open(cleanUrl, '_blank', 'noreferrer');
+		downloadMp3?.(currentTask, format.format_id ?? null, format.url ?? null);
 	}
 
 	function validUrl(url?: string | null) {
@@ -177,20 +162,8 @@
 												type="button"
 												variant="ghost"
 												size="sm"
-												class={cn(
-													'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white',
-													excludeUrlType(task.file_path) ? 'hidden' : ''
-												)}
-												onclick={() => handleOpenFile(task.file_path, task.type)}
-											>
-												{i18n.text_open_file()}
-											</Button>
-											<Button
-												type="button"
-												variant="ghost"
-												size="sm"
 												class="bg-blue-600 text-sm text-white hover:bg-blue-700 hover:text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:hover:text-white"
-												onclick={() => downloadVideo?.(task)}
+												onclick={() => downloadMp3?.(task)}
 											>
 												{i18n.text_download()}
 											</Button>
@@ -263,18 +236,6 @@
 																onclick={() => handleDownloadFormat(task, format)}
 															>
 																{i18n.text_download()}
-															</Button>
-															<Button
-																type="button"
-																variant="ghost"
-																size="sm"
-																class={cn(
-																	'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white',
-																	excludeUrlType(format.url) ? 'hidden' : ''
-																)}
-																onclick={() => handleOpenFile(format.url, task.type)}
-															>
-																{i18n.text_open_file()}
 															</Button>
 														</div>
 													</div>

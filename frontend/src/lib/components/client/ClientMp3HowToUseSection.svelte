@@ -12,7 +12,6 @@
 		lang?: string;
 	} = $props();
 
-	let slugName = $derived(page.url.pathname.split('mp3/')[1].replaceAll('-', ' ').toLowerCase());
 	let elementSection = $state<HTMLElement | null>(null);
 	let scrollAnimationSection = $state<ReturnType<typeof scrollAnimation.registerElement>>();
 	let textElement = $state<HTMLElement | null>(null);
@@ -86,7 +85,7 @@
 				</h2>
 				<p bind:this={textElement} class="text-lg text-muted-foreground capitalize">
 					{i18n.mp3_text_how_to_download_description({
-						platform: slugName.replaceAll('to mp3', '')
+						platform: ''
 					})}
 				</p>
 			</div>

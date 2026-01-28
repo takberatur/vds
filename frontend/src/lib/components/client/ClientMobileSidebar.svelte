@@ -49,7 +49,20 @@
 	const languageLabels: Partial<Record<Locale, string>> = {
 		en: 'English',
 		es: 'Español',
-		id: 'Bahasa Indonesia'
+		de: 'German',
+		pt: 'Português',
+		fr: 'Français',
+		id: 'Bahasa Indonesia',
+		hi: 'हिन्दी',
+		ar: 'العربية',
+		zh: '中文',
+		ru: 'Русский',
+		ja: '日本語',
+		tr: 'Türkçe',
+		vi: 'Tiếng Việt',
+		th: 'ไทย',
+		el: 'Ελληνικά',
+		it: 'Italiano'
 	};
 	const languages = availableLocales.map((code) => ({
 		code,
@@ -154,10 +167,12 @@
 					{i18n.text_supported_formats()}
 				</button>
 				<a
-					href={isMp3Path ? localizeHref('/') : localizeHref('/mp3')}
+					href={isMp3Path ? localizeHref('/video') : localizeHref('/mp3')}
+					target="_blank"
 					class="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-neutral-800 transition-colors hover:text-blue-600 dark:text-neutral-100 dark:hover:text-blue-400"
+					onclick={() => (isOpen = false)}
 				>
-					<Icon icon={isMp3Path ? 'tdesign:music-filled' : 'tdesign:video-filled'} />
+					<Icon icon={isMp3Path ? 'tdesign:video-filled' : 'tdesign:music-filled'} />
 					{isMp3Path ? i18n.video_downloader() : i18n.mp3_downloader()}
 				</a>
 			{/if}

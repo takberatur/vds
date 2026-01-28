@@ -19,6 +19,7 @@ import ClientMp3FeatureSection from './ClientMp3FeatureSection.svelte';
 import ClientMp3HowToUseSection from './ClientMp3HowToUseSection.svelte';
 import ClientMp3SupportFormatSection from './ClientMp3SupportFormatSection.svelte';
 import ClientMp3CTASection from './ClientMp3CTASection.svelte';
+import ClientMp3DialogDownloadResults from './platform/ClientMp3DialogDownloadResults.svelte';
 
 
 
@@ -51,6 +52,7 @@ export {
 	ClientMp3HowToUseSection,
 	ClientMp3SupportFormatSection,
 	ClientMp3CTASection,
+	ClientMp3DialogDownloadResults,
 	// User
 	ClientUserLayout,
 	ClientUserHeader,

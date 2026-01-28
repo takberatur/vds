@@ -17,7 +17,7 @@
 	import { Button } from '@/components/ui/button';
 	import { Input } from '@/components/ui/input';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
-	import { ClientDialogDownloadResults } from '@/components/client';
+	import { ClientMp3DialogDownloadResults } from '@/components/client';
 	import { Download } from '@lucide/svelte';
 	import { localizeHref } from '@/paraglide/runtime';
 	import Icon from '@iconify/svelte';
@@ -580,7 +580,7 @@
 
 										{#if task.status === 'completed' && task.file_path}
 											<div class="flex items-center gap-2">
-												<!-- <ClientDialogDownloadResults {task} {downloadMp3} {deleteTask} /> -->
+												<ClientMp3DialogDownloadResults {task} {downloadMp3} {deleteTask} />
 											</div>
 										{/if}
 									</div>
