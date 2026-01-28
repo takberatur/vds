@@ -112,6 +112,10 @@ func (h *DownloadHandler) DownloadVideo(c *fiber.Ctx) error {
 	return response.Success(c, "Download processed successfully", result)
 }
 
+func (h *DownloadHandler) DownloadVideoToMp3(c *fiber.Ctx) error {
+	return response.Success(c, "Download processed successfully", nil)
+}
+
 func (h *DownloadHandler) GetHistory(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
 	userID, ok := c.Locals("user_id").(uuid.UUID)
@@ -1270,6 +1274,10 @@ func (h *DownloadHandler) proxyDirectURL(c *fiber.Ctx) error {
 	}
 
 	return c.SendStream(resp.Body)
+}
+
+func (h *DownloadHandler) ProxyDownloadMp3(c *fiber.Ctx) error {
+	return response.Success(c, "Download processed successfully", nil)
 }
 
 type DownloadEventHub struct {

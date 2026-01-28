@@ -156,7 +156,7 @@
 				params.set('format_id', formatId);
 			}
 
-			const downloadUrl = `${PUBLIC_API_URL}/public-proxy/downloads/file?${params.toString()}`;
+			const downloadUrl = `${PUBLIC_API_URL}/public-proxy/downloads/file/video?${params.toString()}`;
 			window.location.href = downloadUrl;
 		} catch (error) {
 			errorMessage =
@@ -241,14 +241,34 @@
 			class: 'pos-9'
 		},
 		{
-			images: '/images/platforms/youtube-mp3.svg',
-			name: 'Youtube MP3',
+			images: '/images/platforms/snackvideo.svg',
+			name: 'Snack Video',
 			class: 'pos-10'
 		},
 		{
-			images: '/images/platforms/snackvideo.png',
-			name: 'Snack Video',
+			images: '/images/platforms/linkedin.svg',
+			name: 'LinkedIn',
 			class: 'pos-11'
+		},
+		{
+			images: '/images/platforms/twitch.svg',
+			name: 'Twitch',
+			class: 'pos-12'
+		},
+		{
+			images: '/images/platforms/snapchat.svg',
+			name: 'Snapchat',
+			class: 'pos-13'
+		},
+		{
+			images: '/images/platforms/pinterest.svg',
+			name: 'Pinterest',
+			class: 'pos-14'
+		},
+		{
+			images: '/images/platforms/baidu.svg',
+			name: 'Baidu',
+			class: 'pos-15'
 		}
 	];
 </script>
@@ -432,10 +452,10 @@
 			<div id="platforms" class="mt-4 flex flex-wrap items-center justify-center gap-4 md:gap-6">
 				{#each platforms?.filter((platform) => platform.category === 'video') as platform}
 					<a
-						href={localizeHref(`/${platform.slug}`)}
+						href={localizeHref(`/video/${platform.slug}`)}
 						class={cn(
 							'flex cursor-pointer flex-col items-center gap-2 rounded-xl bg-muted p-4 shadow-md transition-shadow hover:shadow-lg',
-							page.url.pathname === localizeHref(`/${platform.slug}`)
+							page.url.pathname === localizeHref(`/video/${platform.slug}`)
 								? 'bg-sky-500 text-white dark:bg-sky-600 dark:text-white'
 								: '',
 							!platform.is_active ? 'hidden' : ''

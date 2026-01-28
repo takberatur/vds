@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const isLetter = (char: string) => /^[a-zA-Z]$/.test(char);
 
+
 export const loginSchema = z.object({
 	email: z
 		.string({ error: 'Email is required' })
@@ -57,7 +58,7 @@ export const contactSchema = z.object({
 
 export const downloadVideoSchema = z.object({
 	url: z.string().nonempty('URL is required'),
-	type: z.enum(['youtube', 'facebook', 'twitter', 'tiktok', 'instagram', 'rumble', 'vimeo', 'dailymotion', 'any-video-downloader', 'youtube-to-mp3', 'snackvideo']).default('any-video-downloader'),
+	type: z.enum(['youtube', 'tiktok', 'instagram', 'facebook', 'twitter', 'vimeo', 'dailymotion', 'rumble', 'any-video-downloader', 'snackvideo', 'linkedin', 'baidu', 'pinterest', 'snapchat', 'twitch', 'youtube-to-mp3', 'facebook-to-mp3', 'tiktok-to-mp3', 'linkedin-to-mp3', 'snackvideo-to-mp3', 'twitch-to-mp3', 'baidu-to-mp3', 'pinterest-to-mp3', 'snapchat-to-mp3', 'instagram-to-mp3', 'twitter-to-mp3', 'vimeo-to-mp3', 'dailymotion-to-mp3', 'rumble-to-mp3']).default('any-video-downloader'),
 	user_id: z.string().optional().or(z.literal('')),
 	platform_id: z.string().optional().or(z.literal('')),
 	app_id: z.string().optional().or(z.literal(''))

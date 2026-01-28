@@ -24,6 +24,9 @@ export class WebServiceImpl extends BaseService implements WebService {
 	}
 
 	async DownloadVideo(data: DownloadVideoSchema): Promise<ApiResponse<Download>> {
-		return await this.api.publicRequest<Download>('POST', '/web-client/download/process', data, true);
+		return await this.api.publicRequest<Download>('POST', '/web-client/download/process/video', data, true);
+	}
+	async DownloadVideoToMp3(data: DownloadVideoSchema): Promise<ApiResponse<Download>> {
+		return await this.api.publicRequest<Download>('POST', '/web-client/download/process/mp3', data, true);
 	}
 }

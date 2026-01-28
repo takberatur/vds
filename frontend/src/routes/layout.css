@@ -242,6 +242,31 @@
 		--y: -100px;
 		--delay: 10s;
 	}
+	.pos-12 {
+		--x: -100px;
+		--y: -100px;
+		--delay: 11s;
+	}
+	.pos-13 {
+		--x: -100px;
+		--y: 100px;
+		--delay: 12s;
+	}
+	.pos-14 {
+		--x: 100px;
+		--y: -100px;
+		--delay: 13s;
+	}
+	.pos-15 {
+		--x: 100px;
+		--y: 100px;
+		--delay: 14s;
+	}
+	.pos-16 {
+		--x: -100px;
+		--y: -100px;
+		--delay: 15s;
+	}
 	.custom-delay-1 {
 		--delay: 0.3s;
 	}

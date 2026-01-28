@@ -370,6 +370,7 @@ declare global {
 	interface WebService {
 		Contact(data: ContactSchema): Promise<void | Error>;
 		DownloadVideo(data: DownloadVideoSchema): Promise<ApiResponse<Download>>
+		DownloadVideoToMp3(data: DownloadVideoSchema): Promise<ApiResponse<Download>>
 	}
 
 	// ==========================================

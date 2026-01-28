@@ -33,6 +33,7 @@
 			? setting?.WEBSITE?.site_logo
 			: '/images/logo.png'
 	);
+	let isMp3Path = $derived(page.url.pathname.startsWith(localizeHref('/mp3', { locale: lang })));
 
 	const languageLabels: Partial<Record<Locale, string>> = {
 		en: 'English',
@@ -145,11 +146,10 @@
 					{i18n.text_supported_formats()}
 				</button>
 				<a
-					href={localizeHref('/mp3')}
+					href={isMp3Path ? localizeHref('/') : localizeHref('/mp3')}
 					class="cursor-pointer text-sm font-medium text-neutral-800 transition-colors hover:text-blue-600 dark:text-neutral-100 dark:hover:text-blue-400"
-					onclick={() => handleScroll('#supported-formats', 80)}
 				>
-					{i18n.mp3_downloader()}
+					{isMp3Path ? i18n.video_downloader() : i18n.mp3_downloader()}
 				</a>
 			{/if}
 		</nav>

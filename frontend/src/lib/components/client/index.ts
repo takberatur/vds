@@ -11,6 +11,16 @@ import ClientSupportFormatSection from './ClientSupportFormatSection.svelte';
 import ClientCTASection from './ClientCTASection.svelte';
 import ClientPlatformHeroSection from './platform/ClientPlatformHeroSection.svelte';
 import ClientDialogDownloadResults from './platform/ClientDialogDownloadResults.svelte';
+// Mp3 components
+import ClientMp3HomeLayout from './ClientMp3HomeLayout.svelte';
+import ClientMp3HeroSection from './ClientMp3HeroSection.svelte';
+import ClientMp3PlatformHeroSection from './platform/ClientMp3PlatformHeroSection.svelte';
+import ClientMp3FeatureSection from './ClientMp3FeatureSection.svelte';
+import ClientMp3HowToUseSection from './ClientMp3HowToUseSection.svelte';
+import ClientMp3SupportFormatSection from './ClientMp3SupportFormatSection.svelte';
+import ClientMp3CTASection from './ClientMp3CTASection.svelte';
+
+
 
 // User
 import ClientUserLayout from './user/ClientUserLayout.svelte';
@@ -33,6 +43,14 @@ export {
 	ClientCTASection,
 	ClientPlatformHeroSection,
 	ClientDialogDownloadResults,
+	// Mp3 components
+	ClientMp3HomeLayout,
+	ClientMp3HeroSection,
+	ClientMp3PlatformHeroSection,
+	ClientMp3FeatureSection,
+	ClientMp3HowToUseSection,
+	ClientMp3SupportFormatSection,
+	ClientMp3CTASection,
 	// User
 	ClientUserLayout,
 	ClientUserHeader,

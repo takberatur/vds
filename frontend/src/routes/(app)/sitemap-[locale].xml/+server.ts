@@ -54,7 +54,14 @@ export async function GET({ url, request, locals, params }) {
 	}
 
 	platforms.forEach((platform) => {
-		pages.push(platform.slug);
+		let platformPages: string[] = [];
+		if (platform.category === 'audio') {
+			platformPages.push(`mp3/${platform.slug}`);
+		} else {
+			platformPages.push(`video/${platform.slug}`);
+		}
+
+		pages.push(...platformPages);
 	});
 
 	const body = sitemap(`${origin}/${locale}`, pages);

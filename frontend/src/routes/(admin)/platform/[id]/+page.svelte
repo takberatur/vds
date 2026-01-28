@@ -187,7 +187,7 @@
 										class="ps-10"
 										placeholder="Enter platform name"
 										autocomplete="off"
-										disabled={$submitting}
+										disabled
 										oninput={() => generateSlug($form.name)}
 									/>
 								</div>
@@ -211,7 +211,7 @@
 										placeholder="Enter platform slug"
 										aria-invalid={!validateSlug($form.slug)}
 										autocomplete="off"
-										disabled={$submitting}
+										disabled
 									/>
 								</div>
 								{#if $errors.slug}

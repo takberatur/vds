@@ -165,8 +165,10 @@ func SetupRoutes(c *RouteConfig) {
 	publicWeb.Get("/platforms/type/:type", platformHandler.GetPlatformByType)
 	publicWeb.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
 	publicWeb.Get("/platforms/category/:category", platformHandler.GetPlatformsByCategory)
-	publicWeb.Post("/download/process", csrfMiddleware, downloadHandler.DownloadVideo)
-	publicProxy.Get("/downloads/file", downloadHandler.ProxyDownload)
+	publicWeb.Post("/download/process/video", csrfMiddleware, downloadHandler.DownloadVideo)
+	publicWeb.Post("/download/process/mp3", csrfMiddleware, downloadHandler.DownloadVideoToMp3)
+	publicProxy.Get("/downloads/file/video", downloadHandler.ProxyDownload)
+	publicProxy.Get("/downloads/file/mp3", downloadHandler.ProxyDownloadMp3)
 
 	protectedUserWeb := publicWeb.Group("/protected-web", middleware.JWTMiddleware(tokenService))
 

@@ -124,8 +124,6 @@
 				return 'https://youtube.com/watch?v=...';
 			case 'youtube':
 				return 'https://youtube.com/watch?v=...';
-			case 'youtube-to-mp3':
-				return 'https://youtube.com/watch?v=...';
 			case 'vimeo':
 				return 'https://vimeo.com/...';
 			case 'facebook':
@@ -140,6 +138,16 @@
 				return 'https://www.instagram.com/p/...';
 			case 'rumble':
 				return 'https://rumble.com/v1234567890.html';
+			case 'linkedin':
+				return 'https://www.linkedin.com/video/...';
+			case 'pinterest':
+				return 'https://www.pinterest.com/video/...';
+			case 'snapchat':
+				return 'https://www.snapchat.com/add/...';
+			case 'twitch':
+				return 'https://www.twitch.tv/...';
+			case 'baidu':
+				return 'https://www.baidu.com/video/...';
 			default:
 				return 'https://youtube.com/watch?v=...';
 		}
@@ -154,8 +162,6 @@
 				return 'mingcute:download-3-fill';
 			case 'youtube':
 				return 'mingcute:youtube-fill';
-			case 'youtube-to-mp3':
-				return 'icon-park-outline:add-music';
 			case 'vimeo':
 				return 'lineicons:vimeo';
 			case 'facebook':
@@ -172,6 +178,16 @@
 				return 'simple-icons:rumble';
 			case 'snackvideo':
 				return 'arcticons:snackvideo';
+			case 'linkedin':
+				return 'mdi:linkedin';
+			case 'twitch':
+				return 'mdi:twitch';
+			case 'snapchat':
+				return 'mingcute:snapchat-fill';
+			case 'pinterest':
+				return 'mingcute:pinterest-fill';
+			case 'baidu':
+				return 'uiw:baidu';
 			default:
 				return 'mingcute:download-3-fill';
 		}
@@ -229,7 +245,7 @@
 				params.set('format_id', formatId);
 			}
 
-			const downloadUrl = `${PUBLIC_API_URL}/public-proxy/downloads/file?${params.toString()}`;
+			const downloadUrl = `${PUBLIC_API_URL}/public-proxy/downloads/file/video?${params.toString()}`;
 			window.location.href = downloadUrl;
 		} catch (error) {
 			errorMessage =
@@ -314,14 +330,34 @@
 			class: 'pos-9'
 		},
 		{
-			images: '/images/platforms/youtube-mp3.svg',
-			name: 'Youtube MP3',
+			images: '/images/platforms/snackvideo.svg',
+			name: 'Snack Video',
 			class: 'pos-10'
 		},
 		{
-			images: '/images/platforms/snackvideo.png',
-			name: 'Snack Video',
+			images: '/images/platforms/linkedin.svg',
+			name: 'LinkedIn',
 			class: 'pos-11'
+		},
+		{
+			images: '/images/platforms/twitch.svg',
+			name: 'Twitch',
+			class: 'pos-12'
+		},
+		{
+			images: '/images/platforms/snapchat.svg',
+			name: 'Snapchat',
+			class: 'pos-13'
+		},
+		{
+			images: '/images/platforms/pinterest.svg',
+			name: 'Pinterest',
+			class: 'pos-14'
+		},
+		{
+			images: '/images/platforms/baidu.svg',
+			name: 'Baidu',
+			class: 'pos-15'
 		}
 	];
 </script>
@@ -508,10 +544,10 @@
 			<div id="platforms" class="mt-4 flex flex-wrap items-center justify-center gap-4 md:gap-6">
 				{#each platforms?.filter((platform) => platform.category === 'video') as platform}
 					<a
-						href={localizeHref(`/${platform.slug}`, { locale: lang })}
+						href={localizeHref(`/video/${platform.slug}`, { locale: lang })}
 						class={cn(
 							'flex cursor-pointer flex-col items-center gap-2 rounded-xl bg-muted p-4 shadow-md transition-shadow hover:shadow-lg',
-							page.url.pathname === localizeHref(`/${platform.slug}`, { locale: lang })
+							page.url.pathname === localizeHref(`/video/${platform.slug}`, { locale: lang })
 								? 'bg-sky-500 text-white dark:bg-sky-600 dark:text-white'
 								: '',
 							!platform.is_active ? 'hidden' : ''

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { localizeHref } from '@/paraglide/runtime';
 	import * as i18n from '@/paraglide/messages.js';
@@ -16,6 +17,7 @@
 
 	let webSetting = $derived(setting?.WEBSITE);
 	let systemSetting = $derived(setting?.SYSTEM);
+	let isMp3Path = $derived(page.url.pathname.startsWith(localizeHref('/mp3')));
 	// svelte-ignore state_referenced_locally
 	let translatedSiteDescription = $state(webSetting?.site_description || '');
 	let translateLoading = $state(false);
@@ -94,7 +96,7 @@
 					{#each platforms as platform}
 						<li>
 							<a
-								href={localizeHref(`/${platform.slug}`)}
+								href={localizeHref(isMp3Path ? `/mp3/${platform.slug}` : `/video/${platform.slug}`)}
 								class="text-muted-foreground transition-colors hover:text-blue-600 dark:hover:text-blue-400"
 							>
 								{platform.name}

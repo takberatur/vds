@@ -112,12 +112,12 @@ func main() {
 
 	for _, platform := range platforms {
 		query := `
-			INSERT INTO platforms (id, name, slug, type, thumbnail_url, url_pattern, is_active, is_premium)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			INSERT INTO platforms (id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			ON CONFLICT (slug) DO UPDATE 
-			SET name = EXCLUDED.name, slug = EXCLUDED.slug, type = EXCLUDED.type, thumbnail_url = EXCLUDED.thumbnail_url, url_pattern = EXCLUDED.url_pattern, is_active = EXCLUDED.is_active, is_premium = EXCLUDED.is_premium
+			SET name = EXCLUDED.name, slug = EXCLUDED.slug, type = EXCLUDED.type, thumbnail_url = EXCLUDED.thumbnail_url, category = EXCLUDED.category, url_pattern = EXCLUDED.url_pattern, is_active = EXCLUDED.is_active, is_premium = EXCLUDED.is_premium
 		`
-		_, err := dbPool.Exec(ctx, query, platform.ID, platform.Name, platform.Slug, platform.Type, platform.ThumbnailURL, platform.URLPattern, platform.IsActive, platform.IsPremium)
+		_, err := dbPool.Exec(ctx, query, platform.ID, platform.Name, platform.Slug, platform.Type, platform.ThumbnailURL, platform.Category, platform.URLPattern, platform.IsActive, platform.IsPremium)
 		if err != nil {
 			log.Printf("Failed to seed platform %s: %v", platform.Name, err)
 		} else {

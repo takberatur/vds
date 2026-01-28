@@ -198,7 +198,7 @@ ON CONFLICT (name) DO NOTHING;
 -- Seed Default Settings
 INSERT INTO settings (key, value, description, group_name) VALUES
 -- WEBSITE Group
-('site_name', 'Video Downloader', 'Website Name', 'WEBSITE'),
+('site_name', 'SaveVids', 'Website Name', 'WEBSITE'),
 ('site_tagline', 'Download Full HD Videos Without Watermark for Free', 'Website Tagline', 'WEBSITE'),
 ('site_description', 'Video Downloader helps you download videos from any site without watermarks for free in MP4 or MP3 online. Fast, HD quality, and just enter the link. Try it now!', 'Website Meta Description', 'WEBSITE'),
 ('site_keywords', 'video downloader, free downloader', 'Website Meta Keywords', 'WEBSITE'),
