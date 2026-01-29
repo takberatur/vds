@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -112,10 +113,12 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	// Check if cookies.txt exists and use it
 	cookiePath := "/app/cookies.txt"
-	if _, err := os.Stat(cookiePath); err == nil {
+	if IsValidNetscapeCookiesFile(cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		args = append(args, "--cookies", "cookies.txt")
+		if IsValidNetscapeCookiesFile("cookies.txt") {
+			args = append(args, "--cookies", "cookies.txt")
+		}
 	}
 
 	// Add verbose logging for debugging
@@ -180,10 +183,12 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 					legacyArgs = append(legacyArgs, "--proxy", proxyURL)
 				}
 				cookiePath := "/app/cookies.txt"
-				if _, err := os.Stat(cookiePath); err == nil {
+				if IsValidNetscapeCookiesFile(cookiePath) {
 					legacyArgs = append(legacyArgs, "--cookies", cookiePath)
 				} else if _, err := os.Stat("cookies.txt"); err == nil {
-					legacyArgs = append(legacyArgs, "--cookies", "cookies.txt")
+					if IsValidNetscapeCookiesFile("cookies.txt") {
+						legacyArgs = append(legacyArgs, "--cookies", "cookies.txt")
+					}
 				}
 				legacyArgs = append(legacyArgs, "--verbose", url)
 				if out2, err2 := tryRun(legacyArgs); err2 == nil {
@@ -422,10 +427,12 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	// Check if cookies.txt exists and use it
 	cookiePath := "/app/cookies.txt"
-	if _, err := os.Stat(cookiePath); err == nil {
+	if IsValidNetscapeCookiesFile(cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		args = append(args, "--cookies", "cookies.txt")
+		if IsValidNetscapeCookiesFile("cookies.txt") {
+			args = append(args, "--cookies", "cookies.txt")
+		}
 	}
 
 	if len(cookies) > 0 {
@@ -501,10 +508,12 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--proxy", proxyURL, legacyArgs[len(legacyArgs)-1])
 			}
 			cookiePath := "/app/cookies.txt"
-			if _, err := os.Stat(cookiePath); err == nil {
+			if IsValidNetscapeCookiesFile(cookiePath) {
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", cookiePath, legacyArgs[len(legacyArgs)-1])
 			} else if _, err := os.Stat("cookies.txt"); err == nil {
-				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", "cookies.txt", legacyArgs[len(legacyArgs)-1])
+				if IsValidNetscapeCookiesFile("cookies.txt") {
+					legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", "cookies.txt", legacyArgs[len(legacyArgs)-1])
+				}
 			}
 			if stderr2, err2 := run(legacyArgs); err2 != nil {
 				return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err2, stderr2)
@@ -528,6 +537,36 @@ func sanitizeEnvString(s string) string {
 	s = strings.Trim(s, "\"")
 	s = strings.Trim(s, "'")
 	return strings.TrimSpace(s)
+}
+
+func IsValidNetscapeCookiesFile(path string) bool {
+	f, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	sc := bufio.NewScanner(f)
+	checked := 0
+	for sc.Scan() && checked < 50 {
+		checked++
+		line := strings.TrimSpace(sc.Text())
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, "# Netscape HTTP Cookie File") {
+			return true
+		}
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if strings.Count(line, "\t") >= 6 {
+			return true
+		}
+		return false
+	}
+
+	return false
 }
 
 func shouldUseProxyForURL(rawURL string) bool {

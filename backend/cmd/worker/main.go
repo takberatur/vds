@@ -844,7 +844,7 @@ func processTwitchLimitedTask(ctx context.Context, downloadRepo repository.Downl
 	if outboundProxy != "" {
 		args = append(args, "--proxy", outboundProxy)
 	}
-	if _, err := os.Stat("/app/cookies.txt"); err == nil {
+	if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") {
 		args = append(args, "--cookies", "/app/cookies.txt")
 	}
 	args = append(args, task.OriginalURL)
@@ -1374,7 +1374,7 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 				if outboundProxy != "" {
 					args = append(args, "--proxy", outboundProxy)
 				}
-				if _, err := os.Stat("/app/cookies.txt"); err == nil {
+				if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") {
 					args = append(args, "--cookies", "/app/cookies.txt")
 				}
 				args = append(args, task.OriginalURL)

@@ -17,6 +17,7 @@
 	import { Input } from '@/components/ui/input';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 	import { ClientDialogDownloadResults } from '@/components/client';
+	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { Download } from '@lucide/svelte';
 	import { localizeHref } from '@/paraglide/runtime';
 	import Icon from '@iconify/svelte';
@@ -553,11 +554,12 @@
 							!platform.is_active ? 'hidden' : ''
 						)}
 					>
-						<img
-							src={platform.thumbnail_url}
-							alt={platform.name}
-							class="h-10 w-auto rounded-lg object-fill object-center"
-						/>
+						<Avatar.Root class="h-10 w-auto rounded-full object-fill object-center">
+							<Avatar.Image src={platform.thumbnail_url} alt={platform.name} />
+							<Avatar.Fallback>
+								{platform.name.slice(0, 2)}
+							</Avatar.Fallback>
+						</Avatar.Root>
 						<span class="text-xs font-medium">{platform.name}</span>
 					</a>
 				{/each}
