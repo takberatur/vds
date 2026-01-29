@@ -1,5 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { localizeHref } from '@/paraglide/runtime';
+
+	onMount(async () => {
+		if (page.status === 404) {
+			await goto(localizeHref('/'), { replaceState: true });
+		}
+	});
 </script>
 
 <svelte:head>

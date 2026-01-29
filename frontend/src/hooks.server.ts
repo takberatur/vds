@@ -119,19 +119,31 @@ const paraglideHandleWithCloudflareWorker: Handle = async ({ event, resolve }) =
 
 	const pathLocale = getLocaleFromPath(pathname);
 
-	if (isBot || pathLocale) {
-		const locale = pathLocale ?? 'en';
-		event.locals.lang = locale;
+	if (isBot) {
+		event.locals.lang = pathLocale ?? 'en';
+		setCookie(event, event.locals.lang as Locale);
 
-		return paraglideMiddleware(event.request, ({ locale }) =>
-			resolve(event, {
-				transformPageChunk: ({ html, done }) =>
-					done ? html.replace('%lang%', locale) : html
-			})
+		return paraglideMiddleware(event.request, () =>
+			resolve(event)
 		);
 	}
 
-	return resolve(event);
+	if (!pathLocale) {
+		event.locals.lang = detectLocale(event);
+
+		setCookie(event, event.locals.lang as Locale);
+		throw redirect(302, `/${event.locals.lang}${pathname === '/' ? '' : pathname}`);
+	}
+
+	event.locals.lang = pathLocale;
+	setCookie(event, pathLocale);
+
+	return paraglideMiddleware(event.request, ({ locale }) =>
+		resolve(event, {
+			transformPageChunk: ({ html, done }) =>
+				done ? html.replace('%lang%', locale) : html
+		})
+	);
 };
 
 const dependenciesInject: Handle = async ({ event, resolve }) => {
@@ -279,7 +291,28 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 		const response = await resolve(event);
 
 		if (response.status === 404) {
-			// console.log('404 Not Found:', event.url.pathname);
+			const locale = getLocaleFromPath(event.url.pathname);
+
+			let redirectPath = '/';
+			if (locale) {
+				redirectPath = `/${locale}`;
+			}
+
+
+			const isStaticAsset = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/i.test(event.url.pathname);
+			const isApiRoute = event.url.pathname.startsWith('/api/');
+			const isImagesRoute = event.url.pathname.startsWith('/images/');
+			const isInternalRoute = event.url.pathname.startsWith('/_') || event.url.pathname.includes('__');
+
+			if (!isStaticAsset && !isApiRoute && !isInternalRoute && !isImagesRoute) {
+				return new Response(null, {
+					status: 302,
+					headers: {
+						'Location': redirectPath,
+						'Cache-Control': 'no-cache'
+					}
+				});
+			}
 		}
 
 		const authRoute = [
@@ -319,7 +352,6 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 			);
 		}
 
-		// Don't redirect to root on server error, let SvelteKit handle the error page
 		throw error;
 	}
 };
