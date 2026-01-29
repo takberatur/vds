@@ -41,7 +41,11 @@
 			if (event.result.type === 'success') {
 				await invalidateAll();
 				isProcessing = false;
-				await goto(localizeHref(data.user?.role?.name === 'admin' ? '/dashboard' : '/user'));
+				await goto(
+					localizeHref(data.user?.role?.name === 'admin' ? '/dashboard' : '/user', {
+						locale: data.lang
+					})
+				);
 			}
 		},
 		onError(event) {

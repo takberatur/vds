@@ -52,15 +52,19 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	if (request.method !== 'GET') {
-		return resolve(event);
-	}
+
 
 	const ua = request.headers.get('user-agent');
 	const isBot = !!ua && /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
 	const pathLocale = getLocaleFromPath(pathname);
+	const detectedLocale = detectLocale(event);
 	const isProtected = protectedPaths.some(path => pathname.startsWith(path));
 	const isAuth = authPath.some(path => pathname.startsWith(path));
+
+	if (request.method !== 'GET') {
+		event.locals.lang = detectedLocale;
+		return resolve(event);
+	}
 
 	if (isBot) {
 		event.locals.lang = pathLocale ?? 'en'; { }
@@ -76,7 +80,7 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 	}
 
 	if (!pathLocale) {
-		event.locals.lang = detectLocale(event);
+		event.locals.lang = detectedLocale;
 
 		setCookie(event, event.locals.lang as Locale);
 		throw redirect(302, `/${event.locals.lang}`);
@@ -111,7 +115,7 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 	}
 
 	if (pathname === '/' || pathname === '') {
-		const detected = detectLocale(event);
+		const detected = detectedLocale;
 
 		setCookie(event, detected);
 
@@ -298,28 +302,28 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 		const response = await resolve(event);
 
 		if (response.status === 404) {
-			// const locale = getLocaleFromPath(event.url.pathname);
+			const locale = getLocaleFromPath(event.url.pathname);
 
-			// let redirectPath = '/';
-			// if (locale) {
-			// 	redirectPath = `/${locale}`;
-			// }
+			let redirectPath = '/';
+			if (locale) {
+				redirectPath = `/${locale}`;
+			}
 
 
-			// const isStaticAsset = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/i.test(event.url.pathname);
-			// const isApiRoute = event.url.pathname.startsWith('/api/');
-			// const isImagesRoute = event.url.pathname.startsWith('/images/');
-			// const isInternalRoute = event.url.pathname.startsWith('/_') || event.url.pathname.includes('__');
+			const isStaticAsset = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/i.test(event.url.pathname);
+			const isApiRoute = event.url.pathname.startsWith('/api/');
+			const isImagesRoute = event.url.pathname.startsWith('/images/');
+			const isInternalRoute = event.url.pathname.startsWith('/_') || event.url.pathname.includes('__');
 
-			// if (!isStaticAsset && !isApiRoute && !isInternalRoute && !isImagesRoute) {
-			// 	return new Response(null, {
-			// 		status: 302,
-			// 		headers: {
-			// 			'Location': redirectPath,
-			// 			'Cache-Control': 'no-cache'
-			// 		}
-			// 	});
-			// }
+			if (!isStaticAsset && !isApiRoute && !isInternalRoute && !isImagesRoute) {
+				return new Response(null, {
+					status: 302,
+					headers: {
+						'Location': redirectPath,
+						'Cache-Control': 'no-cache'
+					}
+				});
+			}
 		}
 
 		const authRoute = [

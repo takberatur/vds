@@ -19,12 +19,20 @@
 		langStore,
 		createWebsocketStore
 	} from '$lib/stores';
-	import { locales, localizeHref, setLocale, type Locale } from '@/paraglide/runtime';
+	import {
+		locales,
+		localizeHref,
+		setLocale,
+		overwriteGetLocale,
+		overwriteSetLocale,
+		type Locale
+	} from '@/paraglide/runtime';
 
 	let { data, children } = $props();
 
 	// svelte-ignore state_referenced_locally
-	setLocale(data.lang as Locale);
+	overwriteGetLocale(() => data.lang as Locale);
+	overwriteSetLocale((locale) => setLocale(locale));
 
 	const trackedMethods = ['post', 'patch', 'put', 'delete'];
 	let originalFetch: typeof window.fetch;

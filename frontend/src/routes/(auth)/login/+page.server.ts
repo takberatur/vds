@@ -29,7 +29,7 @@ export const load = async ({ locals, url, parent }) => {
 		canonical: defaultOrigin,
 		alternates,
 		graph_type: 'website'
-	});
+	}, settings);
 
 	const loginForm = await superValidate(zod4(loginSchema));
 
@@ -77,6 +77,6 @@ export const actions = {
 
 		const isAdmin = locals.user?.role?.name === 'admin' || locals.user?.role?.name === 'Admin';
 
-		throw redirect(303, localizeHref(isAdmin ? '/dashboard' : '/user'));
+		throw redirect(303, localizeHref(isAdmin ? '/dashboard' : '/user', { locale: locals.lang }));
 	}
 };

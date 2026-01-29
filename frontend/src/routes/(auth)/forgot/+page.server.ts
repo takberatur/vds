@@ -28,7 +28,7 @@ export const load = async ({ locals, url, parent }) => {
 		canonical: defaultOrigin,
 		alternates,
 		graph_type: 'website'
-	});
+	}, settings);
 
 	const form = await superValidate(zod4(forgotSchema));
 

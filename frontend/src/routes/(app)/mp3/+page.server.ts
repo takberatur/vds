@@ -28,7 +28,7 @@ export async function load({ locals, url, parent }) {
 		canonical: defaultOrigin,
 		alternates,
 		graph_type: 'website',
-	});
+	}, settings);
 
 	const form = await superValidate({
 		url: '',
