@@ -223,6 +223,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	}
 
 	isDailymotion := strings.Contains(strings.ToLower(task.OriginalURL), "dailymotion.com") || strings.Contains(strings.ToLower(task.OriginalURL), "dai.ly")
+	isTwitch := strings.Contains(strings.ToLower(task.OriginalURL), "twitch.tv")
 
 	// Special handling for platforms with direct URLs (YouTube, Facebook, Twitter/X)
 	// We skip the download-upload loop and just save the direct URLs
@@ -245,6 +246,10 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		isTiktok {
 		log.Info().Str("platform", task.PlatformType).Msg("Processing as direct download (no-upload)")
 		return processDirectLinkTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, task, info, encryptionKey)
+	}
+
+	if isTwitch {
+		return processTwitchLimitedTask(ctx, downloadRepo, redisClient, centrifugoClient, storageClient, bucketName, task)
 	}
 
 	if isDailymotion {
@@ -447,9 +452,14 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 
 		// 4. Download each format
 		// Use resolution in temp filename to avoid invalid chars from selector (e.g. "/")
-		tempPattern := fmt.Sprintf("vid-%dp-*.%s", fmtInfo.Height, fmtInfo.Ext)
+		extForFile := strings.TrimSpace(fmtInfo.Ext)
+		if extForFile == "" || strings.EqualFold(extForFile, "unknown") {
+			extForFile = "mp4"
+		}
+
+		tempPattern := fmt.Sprintf("vid-%dp-*.%s", fmtInfo.Height, extForFile)
 		if fmtInfo.Height == nil || *fmtInfo.Height == 0 {
-			tempPattern = fmt.Sprintf("vid-best-*.%s", fmtInfo.Ext)
+			tempPattern = fmt.Sprintf("vid-best-*.%s", extForFile)
 		}
 
 		tempFile, err := os.CreateTemp("", tempPattern)
@@ -773,6 +783,126 @@ func fetchDailymotionMasterPlaylist(ctx context.Context, videoID string, referer
 	}
 
 	return "", title, thumb, duration, fmt.Errorf("no stream url found in qualities")
+}
+
+func processTwitchLimitedTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, storageClient infrastructure.StorageClient, bucketName string, task *model.DownloadTask) error {
+	log.Info().Str("url", task.OriginalURL).Msg("Processing Twitch with yt-dlp section limit (upload)")
+
+	sec := 300
+	if v := strings.TrimSpace(os.Getenv("TWITCH_MAX_SECONDS")); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			sec = n
+		}
+	}
+
+	toHMS := func(total int) string {
+		if total < 0 {
+			total = 0
+		}
+		h := total / 3600
+		m := (total % 3600) / 60
+		s := total % 60
+		return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
+	}
+
+	start := "00:00:00"
+	end := toHMS(sec)
+	section := fmt.Sprintf("*%s-%s", start, end)
+
+	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
+	jsRuntime := os.Getenv("YTDLP_JS_RUNTIME")
+	if jsRuntime == "" {
+		if _, err := os.Stat("/usr/bin/node"); err == nil {
+			jsRuntime = "node:/usr/bin/node"
+		} else if _, err := os.Stat("/usr/bin/nodejs"); err == nil {
+			jsRuntime = "node:/usr/bin/nodejs"
+		} else {
+			jsRuntime = "node"
+		}
+	}
+
+	tempFile, err := os.CreateTemp("", "twitch-*.mp4")
+	if err != nil {
+		return err
+	}
+	tempPath := tempFile.Name()
+	tempFile.Close()
+	defer os.Remove(tempPath)
+	_ = os.Remove(tempPath)
+
+	args := []string{
+		"--no-warnings",
+		"--no-playlist",
+		"--force-overwrites",
+		"--no-part",
+		"--merge-output-format", "mp4",
+		"--js-runtimes", jsRuntime,
+		"--live-from-start",
+		"--download-sections", section,
+		"-o", tempPath,
+	}
+	if outboundProxy != "" {
+		args = append(args, "--proxy", outboundProxy)
+	}
+	if _, err := os.Stat("/app/cookies.txt"); err == nil {
+		args = append(args, "--cookies", "/app/cookies.txt")
+	}
+	args = append(args, task.OriginalURL)
+
+	cmd := exec.CommandContext(ctx, "yt-dlp", args...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, fmt.Errorf("twitch yt-dlp failed: %w, stderr: %s", err, stderr.String()))
+	}
+
+	fi, err := os.Stat(tempPath)
+	if err != nil {
+		return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+	}
+	if fi.Size() == 0 {
+		return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, fmt.Errorf("downloaded file is empty"))
+	}
+
+	f, err := os.Open(tempPath)
+	if err != nil {
+		return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+	}
+	objectName := fmt.Sprintf("%s/%s/%s.%s", "twitch", task.ID.String(), "clip", "mp4")
+	minioURL, err := storageClient.UploadFile(ctx, bucketName, objectName, f, fi.Size(), "video/mp4")
+	f.Close()
+	if err != nil {
+		return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+	}
+
+	ext := "mp4"
+	size := fi.Size()
+	fID := "clip"
+	res := "clip"
+	downloadFile := &model.DownloadFile{
+		DownloadID:    task.ID,
+		URL:           minioURL,
+		FormatID:      &fID,
+		Resolution:    &res,
+		Extension:     &ext,
+		FileSize:      &size,
+		EncryptedData: nil,
+	}
+	_ = downloadRepo.AddFile(ctx, downloadFile)
+
+	task.FilePath = &minioURL
+	task.FileSize = &size
+	task.Format = &fID
+	task.Status = "completed"
+	if err := downloadRepo.Update(ctx, task); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
+	}
+	task.DownloadFiles = []model.DownloadFile{*downloadFile}
+	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+		log.Error().Err(err).Msg("failed to publish complete event")
+	}
+
+	return nil
 }
 
 func downloadHLSWithFFmpeg(ctx context.Context, m3u8URL string, userAgent string, referer string, cookieHeader string, outPath string) error {
@@ -1216,76 +1346,114 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 			tempPath := tempFile.Name()
 			tempFile.Close()
 			defer os.Remove(tempPath)
+			_ = os.Remove(tempPath)
 
-			args := []string{
-				"--no-warnings",
-				"--no-playlist",
-				"--force-overwrites",
-				"--no-part",
-				"--merge-output-format", "mp4",
-				"--js-runtimes", "node",
-				"--impersonate", imp,
-				"-o", tempPath,
-			}
-			if outboundProxy != "" {
-				args = append(args, "--proxy", outboundProxy)
-			}
-			if _, err := os.Stat("/app/cookies.txt"); err == nil {
-				args = append(args, "--cookies", "/app/cookies.txt")
-			}
-			args = append(args, task.OriginalURL)
-
-			cmd := exec.CommandContext(ctx, "yt-dlp", args...)
-			var stderr bytes.Buffer
-			cmd.Stderr = &stderr
-			if err := cmd.Run(); err == nil {
-				b, err := os.ReadFile(tempPath)
-				if err == nil && len(b) > 0 {
-					encryptedData, err := utils.EncryptData(b, encryptionKey)
-					if err != nil {
-						return fmt.Errorf("failed to encrypt data: %w", err)
-					}
-
-					fileSize := int64(len(b))
-					fID := "encrypted"
-					resolution := "original"
-					ext := "mp4"
-					dummyURL := fmt.Sprintf("encrypted://%s/video.%s", task.PlatformType, ext)
-
-					dlFile := &model.DownloadFile{
-						DownloadID:    task.ID,
-						URL:           dummyURL,
-						FormatID:      &fID,
-						Resolution:    &resolution,
-						Extension:     &ext,
-						FileSize:      &fileSize,
-						EncryptedData: &encryptedData,
-					}
-
-					if err := downloadRepo.AddFile(ctx, dlFile); err != nil {
-						return err
-					}
-
-					task.EncryptedData = &encryptedData
-					task.FilePath = &dummyURL
-					task.FileSize = &fileSize
-					task.Format = &ext
-					task.Status = "completed"
-
-					if err := downloadRepo.Update(ctx, task); err != nil {
-						return err
-					}
-
-					task.DownloadFiles = []model.DownloadFile{*dlFile}
-					if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
-						log.Error().Err(err).Msg("failed to publish complete event")
-					}
-
-					log.Info().Str("task_id", task.ID.String()).Int64("original_size", fileSize).Msg("TikTok encrypted task completed (yt-dlp)")
-					return nil
+			impCandidates := []string{imp, "Chrome-131", "Chrome-99", "Safari-17.0"}
+			jsRuntime := os.Getenv("YTDLP_JS_RUNTIME")
+			if jsRuntime == "" {
+				if _, err := os.Stat("/usr/bin/node"); err == nil {
+					jsRuntime = "node:/usr/bin/node"
+				} else if _, err := os.Stat("/usr/bin/nodejs"); err == nil {
+					jsRuntime = "node:/usr/bin/nodejs"
+				} else {
+					jsRuntime = "node"
 				}
+			}
+
+			runAttempt := func(impTarget string) (string, error) {
+				args := []string{
+					"--no-warnings",
+					"--no-playlist",
+					"--force-overwrites",
+					"--no-part",
+					"--merge-output-format", "mp4",
+					"--js-runtimes", jsRuntime,
+					"--impersonate", impTarget,
+					"-o", tempPath,
+				}
+				if outboundProxy != "" {
+					args = append(args, "--proxy", outboundProxy)
+				}
+				if _, err := os.Stat("/app/cookies.txt"); err == nil {
+					args = append(args, "--cookies", "/app/cookies.txt")
+				}
+				args = append(args, task.OriginalURL)
+
+				cmd := exec.CommandContext(ctx, "yt-dlp", args...)
+				var stderr bytes.Buffer
+				cmd.Stderr = &stderr
+				err := cmd.Run()
+				return stderr.String(), err
+			}
+
+			var lastErr error
+			var lastStderr string
+			for attempt := 0; attempt < 3; attempt++ {
+				for _, impTarget := range impCandidates {
+					lastStderr, lastErr = runAttempt(impTarget)
+					if lastErr != nil {
+						continue
+					}
+
+					if fi, err := os.Stat(tempPath); err == nil && fi.Size() > 0 {
+						if b, err := os.ReadFile(tempPath); err == nil && len(b) > 0 {
+							encryptedData, err := utils.EncryptData(b, encryptionKey)
+							if err != nil {
+								return fmt.Errorf("failed to encrypt data: %w", err)
+							}
+
+							fileSize := int64(len(b))
+							fID := "encrypted"
+							resolution := "original"
+							ext := "mp4"
+							dummyURL := fmt.Sprintf("encrypted://%s/video.%s", task.PlatformType, ext)
+
+							dlFile := &model.DownloadFile{
+								DownloadID:    task.ID,
+								URL:           dummyURL,
+								FormatID:      &fID,
+								Resolution:    &resolution,
+								Extension:     &ext,
+								FileSize:      &fileSize,
+								EncryptedData: &encryptedData,
+							}
+
+							if err := downloadRepo.AddFile(ctx, dlFile); err != nil {
+								return err
+							}
+
+							task.EncryptedData = &encryptedData
+							task.FilePath = &dummyURL
+							task.FileSize = &fileSize
+							task.Format = &ext
+							task.Status = "completed"
+
+							if err := downloadRepo.Update(ctx, task); err != nil {
+								return err
+							}
+
+							task.DownloadFiles = []model.DownloadFile{*dlFile}
+							if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+								log.Error().Err(err).Msg("failed to publish complete event")
+							}
+
+							log.Info().Str("task_id", task.ID.String()).Int64("original_size", fileSize).Msg("TikTok encrypted task completed (yt-dlp)")
+							return nil
+						}
+					}
+				}
+
+				if strings.Contains(lastStderr, "Unable to extract webpage video data") || strings.Contains(lastStderr, "Sign in") {
+					time.Sleep(1200 * time.Millisecond)
+					continue
+				}
+				break
+			}
+
+			if lastErr != nil {
+				log.Warn().Err(lastErr).Str("stderr", lastStderr).Msg("TikTok yt-dlp download failed, falling back to direct HTTP")
 			} else {
-				log.Warn().Err(err).Str("stderr", stderr.String()).Msg("TikTok yt-dlp download failed, falling back to direct HTTP")
+				log.Warn().Str("stderr", lastStderr).Msg("TikTok yt-dlp produced empty file, falling back to direct HTTP")
 			}
 		}
 	}

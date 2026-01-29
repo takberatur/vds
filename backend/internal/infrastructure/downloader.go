@@ -74,7 +74,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	args := []string{
 		"-m", "yt_dlp", // Run as python module to ensure curl-cffi is found
-		"--js-runtimes", "node",
+		"--js-runtimes", defaultJSRuntime(),
 		"--dump-json",
 		"--no-playlist",
 		"--no-check-certificate",
@@ -377,7 +377,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	args := []string{
 		"-m", "yt_dlp", // Run as python module
-		"--js-runtimes", "node",
+		"--js-runtimes", defaultJSRuntime(),
 		"--no-playlist",
 		"--no-check-certificate",
 		"--force-overwrites",
@@ -452,6 +452,19 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		args = append(args, "--referer", "https://www.dailymotion.com/")
 		if !addImpersonate {
 			argsWithImp = append(argsWithImp, "--referer", "https://www.dailymotion.com/")
+		}
+	}
+
+	if strings.Contains(url, "snapchat.com") {
+		if formatID == "" {
+			args = append(args, "-f", "best[ext=mp4]/best")
+			if !addImpersonate {
+				argsWithImp = append(argsWithImp, "-f", "best[ext=mp4]/best")
+			}
+		}
+		args = append(args, "--merge-output-format", "mp4")
+		if !addImpersonate {
+			argsWithImp = append(argsWithImp, "--merge-output-format", "mp4")
 		}
 	}
 
@@ -552,4 +565,17 @@ func shouldUseProxyForURL(rawURL string) bool {
 	}
 
 	return false
+}
+
+func defaultJSRuntime() string {
+	if v := sanitizeEnvString(os.Getenv("YTDLP_JS_RUNTIME")); v != "" {
+		return v
+	}
+	if _, err := os.Stat("/usr/bin/node"); err == nil {
+		return "node:/usr/bin/node"
+	}
+	if _, err := os.Stat("/usr/bin/nodejs"); err == nil {
+		return "node:/usr/bin/nodejs"
+	}
+	return "node"
 }
