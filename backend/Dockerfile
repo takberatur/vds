@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     tar \
     gzip \
+    unzip \
     ffmpeg \
     python3 \
     python3-venv \
@@ -40,6 +41,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     npm \
     chromium \
     && rm -rf /var/lib/apt/lists/* && \
+    curl -L https://github.com/denoland/deno/releases/download/v2.0.0/deno-x86_64-unknown-linux-gnu.zip -o /tmp/deno.zip && \
+    unzip /tmp/deno.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/deno && \
+    rm /tmp/deno.zip && \
     python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --no-cache-dir -U pip setuptools wheel && \
     /opt/venv/bin/pip install --no-cache-dir -U "yt-dlp[default,curl-cffi]" && \

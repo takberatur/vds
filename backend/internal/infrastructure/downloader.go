@@ -95,17 +95,9 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	if imp == "" {
 		imp = "chrome"
 	}
-	argsWithImp := make([]string, 0, len(args)+2)
-	argsWithImp = append(argsWithImp, args...)
-	if addImpersonate {
-		argsWithImp = append(argsWithImp, "--impersonate", imp)
-	}
 
 	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") && !strings.Contains(url, "dailymotion.com") && !strings.Contains(url, "dai.ly") {
 		args = append(args, "--user-agent", userAgent)
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--user-agent", userAgent)
-		}
 	}
 
 	// NOTE: Removed --impersonate because it causes issues with missing dependencies in the current Docker environment.
@@ -142,13 +134,16 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
 		args = append(args, "--referer", "https://www.dailymotion.com/")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--referer", "https://www.dailymotion.com/")
-		}
 	}
 
 	args = append(args, url)
-	argsWithImp = append(argsWithImp, url)
+
+	argsWithImp := args
+	if addImpersonate {
+		argsWithImp = make([]string, 0, len(args)+2)
+		argsWithImp = append(argsWithImp, args[:len(args)-1]...)
+		argsWithImp = append(argsWithImp, "--impersonate", imp, args[len(args)-1])
+	}
 
 	tryRun := func(a []string) ([]byte, error) {
 		cmd := exec.CommandContext(subCtx, c.executablePath, a...)
@@ -171,6 +166,30 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 					log.Error().Str("url", url).Err(err2).Msg("yt-dlp failed")
 				}
 				return nil, fmt.Errorf("failed to fetch video info: %w", err2)
+			}
+			if (strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")) && (strings.Contains(stderr, "Sign in to confirm") || strings.Contains(stderr, "not a bot")) {
+				legacyArgs := []string{
+					"-m", "yt_dlp",
+					"--js-runtimes", defaultJSRuntime(),
+					"--dump-json",
+					"--no-playlist",
+					"--no-check-certificate",
+					"-f", "18",
+				}
+				if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
+					legacyArgs = append(legacyArgs, "--proxy", proxyURL)
+				}
+				cookiePath := "/app/cookies.txt"
+				if _, err := os.Stat(cookiePath); err == nil {
+					legacyArgs = append(legacyArgs, "--cookies", cookiePath)
+				} else if _, err := os.Stat("cookies.txt"); err == nil {
+					legacyArgs = append(legacyArgs, "--cookies", "cookies.txt")
+				}
+				legacyArgs = append(legacyArgs, "--verbose", url)
+				if out2, err2 := tryRun(legacyArgs); err2 == nil {
+					output = out2
+					goto Parse
+				}
 			}
 			log.Error().Str("url", url).Str("stderr", stderr).Err(err).Msg("yt-dlp failed")
 		} else {
@@ -389,17 +408,8 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		args = append(args, "--proxy", proxyURL)
 	}
 
-	argsWithImp := make([]string, 0, len(args)+2)
-	argsWithImp = append(argsWithImp, args...)
-	if addImpersonate {
-		argsWithImp = append(argsWithImp, "--impersonate", imp)
-	}
-
 	if !strings.Contains(url, "tiktok.com") && !strings.Contains(url, "youtube.com") && !strings.Contains(url, "dailymotion.com") && !strings.Contains(url, "dai.ly") {
 		args = append(args, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
-		}
 	}
 
 	// if strings.Contains(url, "tiktok.com") {
@@ -408,9 +418,6 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	if strings.Contains(url, "vimeo.com") {
 		args = append(args, "--referer", "https://vimeo.com/")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--referer", "https://vimeo.com/")
-		}
 	}
 
 	// Check if cookies.txt exists and use it
@@ -436,40 +443,30 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	if strings.Contains(url, "rumble.com") {
 		args = append(args, "--referer", "https://rumble.com/")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--referer", "https://rumble.com/")
-		}
 	}
 
 	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
 		args = append(args, "--extractor-args", "youtube:player_client=tv")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--extractor-args", "youtube:player_client=tv")
-		}
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
 		args = append(args, "--referer", "https://www.dailymotion.com/")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--referer", "https://www.dailymotion.com/")
-		}
 	}
 
 	if strings.Contains(url, "snapchat.com") {
 		if formatID == "" {
 			args = append(args, "-f", "best[ext=mp4]/best")
-			if !addImpersonate {
-				argsWithImp = append(argsWithImp, "-f", "best[ext=mp4]/best")
-			}
 		}
 		args = append(args, "--merge-output-format", "mp4")
-		if !addImpersonate {
-			argsWithImp = append(argsWithImp, "--merge-output-format", "mp4")
-		}
 	}
 
 	args = append(args, url)
-	argsWithImp = append(argsWithImp, url)
+	argsWithImp := args
+	if addImpersonate {
+		argsWithImp = make([]string, 0, len(args)+2)
+		argsWithImp = append(argsWithImp, args[:len(args)-1]...)
+		argsWithImp = append(argsWithImp, "--impersonate", imp, args[len(args)-1])
+	}
 
 	run := func(a []string) (string, error) {
 		cmd := exec.CommandContext(subCtx, c.executablePath, a...)
@@ -485,6 +482,31 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 			return nil
 		} else if strings.Contains(stderr, "Impersonate target") {
 			if stderr2, err2 := run(args); err2 != nil {
+				return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err2, stderr2)
+			}
+			return nil
+		} else if (strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")) && (strings.Contains(stderr, "Sign in to confirm") || strings.Contains(stderr, "not a bot")) {
+			legacyArgs := []string{
+				"-m", "yt_dlp",
+				"--js-runtimes", defaultJSRuntime(),
+				"--no-playlist",
+				"--no-check-certificate",
+				"--force-overwrites",
+				"--no-part",
+				"-o", outputPath,
+				"-f", "18",
+				url,
+			}
+			if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
+				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--proxy", proxyURL, legacyArgs[len(legacyArgs)-1])
+			}
+			cookiePath := "/app/cookies.txt"
+			if _, err := os.Stat(cookiePath); err == nil {
+				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", cookiePath, legacyArgs[len(legacyArgs)-1])
+			} else if _, err := os.Stat("cookies.txt"); err == nil {
+				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", "cookies.txt", legacyArgs[len(legacyArgs)-1])
+			}
+			if stderr2, err2 := run(legacyArgs); err2 != nil {
 				return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err2, stderr2)
 			}
 			return nil
@@ -570,6 +592,12 @@ func shouldUseProxyForURL(rawURL string) bool {
 func defaultJSRuntime() string {
 	if v := sanitizeEnvString(os.Getenv("YTDLP_JS_RUNTIME")); v != "" {
 		return v
+	}
+	if _, err := os.Stat("/usr/local/bin/deno"); err == nil {
+		return "deno:/usr/local/bin/deno"
+	}
+	if _, err := os.Stat("/usr/bin/deno"); err == nil {
+		return "deno:/usr/bin/deno"
 	}
 	if _, err := os.Stat("/usr/bin/node"); err == nil {
 		return "node:/usr/bin/node"
