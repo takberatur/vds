@@ -462,7 +462,11 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		_ = os.Remove(tempPath)
 		defer os.Remove(tempPath)
 
-		err = downloader.DownloadToPath(ctx, task.OriginalURL, fmtInfo.FormatID, tempPath, nil)
+		downloadURL := task.OriginalURL
+		if fmtInfo.URL != "" && strings.TrimSpace(fmtInfo.FormatID) == "" {
+			downloadURL = fmtInfo.URL
+		}
+		err = downloader.DownloadToPath(ctx, downloadURL, fmtInfo.FormatID, tempPath, nil)
 		if err != nil {
 			log.Error().Err(err).Str("format", fmtInfo.FormatID).Msg("failed to download format")
 			continue
@@ -1201,6 +1205,10 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 	log.Info().Str("task_id", task.ID.String()).Msg("Processing TikTok encrypted task")
 
 	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
+	imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
+	if imp == "" {
+		imp = "chrome"
+	}
 
 	{
 		tempFile, err := os.CreateTemp("", "tiktok-ytdlp-*.mp4")
@@ -1215,6 +1223,8 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 				"--force-overwrites",
 				"--no-part",
 				"--merge-output-format", "mp4",
+				"--js-runtimes", "node",
+				"--impersonate", imp,
 				"-o", tempPath,
 			}
 			if outboundProxy != "" {

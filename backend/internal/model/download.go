@@ -74,7 +74,7 @@ type Platform struct {
 
 type DownloadRequest struct {
 	URL        string  `json:"url" validate:"required,url"`
-	Type       string  `json:"type" validate:"required,oneof=youtube facebook twitter tiktok instagram rumble vimeo dailymotion any-video-downloader youtube-to-mp3 snackvideo"`
+	Type       string  `json:"type" validate:"required,oneof=youtube facebook twitter tiktok instagram rumble vimeo dailymotion any-video-downloader linkedin pinterest snapchat twitch snackvideo youtube-to-mp3 facebook-to-mp3 instagram-to-mp3 twitter-to-mp3 tiktok-to-mp3 rumble-to-mp3 vimeo-to-mp3 dailymotion-to-mp3 linkedin-to-mp3 pinterest-to-mp3 snapchat-to-mp3 twitch-to-mp3 snackvideo-to-mp3"`
 	UserID     *string `json:"user_id,omitempty" validate:"omitempty"`
 	PlatformID *string `json:"platform_id,omitempty" validate:"omitempty"`
 	AppID      *string `json:"app_id,omitempty" validate:"omitempty"`

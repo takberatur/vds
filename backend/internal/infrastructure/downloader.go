@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -79,15 +80,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		"--no-check-certificate",
 	}
 
-	sanitizeEnv := func(s string) string {
-		s = strings.TrimSpace(s)
-		s = strings.Trim(s, "`")
-		s = strings.Trim(s, "\"")
-		s = strings.Trim(s, "'")
-		return strings.TrimSpace(s)
-	}
-
-	if proxyURL := sanitizeEnv(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" {
+	if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
 		args = append(args, "--proxy", proxyURL)
 	}
 
@@ -98,7 +91,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	if strings.Contains(url, "tiktok.com") {
 		addImpersonate = true
 	}
-	imp := sanitizeEnv(os.Getenv("YTDLP_IMPERSONATE"))
+	imp := sanitizeEnvString(os.Getenv("YTDLP_IMPERSONATE"))
 	if imp == "" {
 		imp = "chrome"
 	}
@@ -370,14 +363,6 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 20*time.Minute) // Increased timeout for large downloads
 	defer cancel()
 
-	sanitizeEnv := func(s string) string {
-		s = strings.TrimSpace(s)
-		s = strings.Trim(s, "`")
-		s = strings.Trim(s, "\"")
-		s = strings.Trim(s, "'")
-		return strings.TrimSpace(s)
-	}
-
 	addImpersonate := false
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
 		addImpersonate = true
@@ -385,13 +370,14 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	if strings.Contains(url, "tiktok.com") {
 		addImpersonate = true
 	}
-	imp := sanitizeEnv(os.Getenv("YTDLP_IMPERSONATE"))
+	imp := sanitizeEnvString(os.Getenv("YTDLP_IMPERSONATE"))
 	if imp == "" {
 		imp = "chrome"
 	}
 
 	args := []string{
 		"-m", "yt_dlp", // Run as python module
+		"--js-runtimes", "node",
 		"--no-playlist",
 		"--no-check-certificate",
 		"--force-overwrites",
@@ -399,7 +385,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		"-o", outputPath,
 	}
 
-	if proxyURL := sanitizeEnv(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" {
+	if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
 		args = append(args, "--proxy", proxyURL)
 	}
 
@@ -499,4 +485,71 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	return nil
+}
+
+func sanitizeEnvString(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.Trim(s, "`")
+	s = strings.Trim(s, "\"")
+	s = strings.Trim(s, "'")
+	return strings.TrimSpace(s)
+}
+
+func shouldUseProxyForURL(rawURL string) bool {
+	if strings.EqualFold(sanitizeEnvString(os.Getenv("PROXY_FOR_ALL")), "true") {
+		return true
+	}
+
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	if host == "" {
+		return false
+	}
+
+	exclude := sanitizeEnvString(os.Getenv("PROXY_EXCLUDE_HOSTS"))
+	if exclude != "" {
+		for _, p := range strings.Split(exclude, ",") {
+			p = strings.ToLower(strings.TrimSpace(p))
+			if p == "" {
+				continue
+			}
+			if host == p || strings.HasSuffix(host, "."+p) {
+				return false
+			}
+		}
+	}
+
+	include := sanitizeEnvString(os.Getenv("PROXY_INCLUDE_HOSTS"))
+	var patterns []string
+	if include != "" {
+		patterns = strings.Split(include, ",")
+	} else {
+		patterns = []string{
+			"tiktok.com",
+			"dailymotion.com",
+			"dai.ly",
+			"rumble.com",
+			"snackvideo.com",
+			"pinterest.com",
+			"pin.it",
+			"twitch.tv",
+			"snapchat.com",
+			"linkedin.com",
+		}
+	}
+
+	for _, p := range patterns {
+		p = strings.ToLower(strings.TrimSpace(p))
+		if p == "" {
+			continue
+		}
+		if host == p || strings.HasSuffix(host, "."+p) {
+			return true
+		}
+	}
+
+	return false
 }

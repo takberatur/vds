@@ -36,6 +36,10 @@ services:
       - BCRYPT_COST=${BCRYPT_COST}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - OUTBOUND_PROXY_URL=${OUTBOUND_PROXY_URL}
+      - YTDLP_IMPERSONATE=${YTDLP_IMPERSONATE}
+      - PROXY_FOR_ALL=${PROXY_FOR_ALL}
+      - PROXY_INCLUDE_HOSTS=${PROXY_INCLUDE_HOSTS}
+      - PROXY_EXCLUDE_HOSTS=${PROXY_EXCLUDE_HOSTS}
     networks:
       - video_download_network
       - shared-network
@@ -100,6 +104,9 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - OUTBOUND_PROXY_URL=${OUTBOUND_PROXY_URL}
       - YTDLP_IMPERSONATE=${YTDLP_IMPERSONATE}
+      - PROXY_FOR_ALL=${PROXY_FOR_ALL}
+      - PROXY_INCLUDE_HOSTS=${PROXY_INCLUDE_HOSTS}
+      - PROXY_EXCLUDE_HOSTS=${PROXY_EXCLUDE_HOSTS}
     networks:
       - video_download_network
       - shared-network

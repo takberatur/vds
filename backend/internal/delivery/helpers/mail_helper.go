@@ -45,7 +45,7 @@ func (m *mailHelper) SendResetPasswordEmail(ctx context.Context, email, resetTok
 	resetURL := fmt.Sprintf("%s/reset-password?token=%s", strings.TrimRight(setting.WEBSITE.SiteURL, "/"), resetToken)
 	siteName := setting.WEBSITE.SiteName
 	if siteName == "" {
-		siteName = "Video Downloader"
+		siteName = "Simontok"
 	}
 
 	subject := fmt.Sprintf("Reset Password - %s", siteName)
@@ -147,12 +147,12 @@ func (m *mailHelper) SendContactEmail(ctx context.Context, payload *dto.ContactR
 
 	siteName := setting.WEBSITE.SiteName
 	if siteName == "" {
-		siteName = "Video Downloader"
+		siteName = "Simontok"
 	}
 
 	siteUrl := setting.WEBSITE.SiteURL
 	if siteUrl == "" {
-		siteUrl = "https://video-downloader.com"
+		siteUrl = "https://simontokz.com"
 	}
 
 	subject := fmt.Sprintf("Contact Us - %s", siteName)
