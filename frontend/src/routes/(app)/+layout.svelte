@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { ClientFooter, ClientHeader } from '@/components/client/index.js';
-	import { type Locale } from '@/paraglide/runtime';
+	import { AppModalProvider } from '@/components/modal';
 
 	let { data, children } = $props();
 
@@ -58,4 +57,6 @@
 	{/if}
 </svelte:head>
 
-{@render children?.()}
+<AppModalProvider>
+	{@render children()}
+</AppModalProvider>

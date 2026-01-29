@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { modalStore } from '@/stores';
 	import { onMount } from 'svelte';
 
@@ -6,8 +7,8 @@
 		children,
 		snippet
 	}: {
-		children?: any;
-		snippet?: any;
+		children?: Snippet;
+		snippet?: Snippet;
 	} = $props();
 
 	let mounted = $state(false);

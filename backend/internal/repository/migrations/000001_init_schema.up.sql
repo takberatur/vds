@@ -198,10 +198,10 @@ ON CONFLICT (name) DO NOTHING;
 -- Seed Default Settings
 INSERT INTO settings (key, value, description, group_name) VALUES
 -- WEBSITE Group
-('site_name', 'SaveVids', 'Website Name', 'WEBSITE'),
+('site_name', 'Simontokz', 'Website Name', 'WEBSITE'),
 ('site_tagline', 'Download Full HD Videos Without Watermark for Free', 'Website Tagline', 'WEBSITE'),
-('site_description', 'Video Downloader helps you download videos from any site without watermarks for free in MP4 or MP3 online. Fast, HD quality, and just enter the link. Try it now!', 'Website Meta Description', 'WEBSITE'),
-('site_keywords', 'video downloader, free downloader', 'Website Meta Keywords', 'WEBSITE'),
+('site_description', 'Simontokz helps you download videos from any site without watermarks for free in MP4 or MP3 online. Fast, HD quality, and just enter the link. Try it now!', 'Website Meta Description', 'WEBSITE'),
+('site_keywords', 'simontokz, video downloader, free downloader', 'Website Meta Keywords', 'WEBSITE'),
 ('site_logo', '', 'URL to Website Logo', 'WEBSITE'),
 ('site_favicon', '', 'URL to Website Favicon', 'WEBSITE'),
 ('site_email', 'admin@example.com', 'Contact Email', 'WEBSITE'),

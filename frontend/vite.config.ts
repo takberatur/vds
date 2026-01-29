@@ -32,7 +32,7 @@ export default defineConfig({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
 			strategy: ["url", "cookie"],
-			disableAsyncLocalStorage: true,
+			// disableAsyncLocalStorage: true,
 			urlPatterns: [
 				{
 					pattern: "/",
