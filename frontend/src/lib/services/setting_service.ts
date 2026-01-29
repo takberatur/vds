@@ -74,7 +74,7 @@ export class SettingServiceImpl extends BaseService implements SettingService {
 			formData.append('file', logo);
 			formData.append('key', 'site_logo');
 
-			const response = await this.api.multipartAuthRequest<{ url: string }>('POST', `/protected-admin/settings/upload`, formData);
+			const response = await this.api.authRequest<{ url: string }>('POST', `/protected-admin/settings/upload`, formData);
 			if (!response.success) {
 				throw new Error(response.error?.message || response.message || 'Failed to update logo');
 			}

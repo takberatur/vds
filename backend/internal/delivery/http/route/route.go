@@ -36,7 +36,7 @@ func SetupRoutes(c *RouteConfig) {
 	mailHelper := helpers.NewMailHelper(settingRepo)
 	authService := service.NewAuthService(userRepo, mailHelper, tokenService, c.Redis)
 
-	settingService := service.NewSettingService(settingRepo, c.StorageClient)
+	settingService := service.NewSettingService(settingRepo, c.StorageClient, c.Cfg)
 	userService := service.NewUserService(userRepo, c.StorageClient, c.Cfg)
 	platformService := service.NewPlatformService(platformRepo, c.StorageClient, c.Cfg)
 	adminService := service.NewAdminService(adminRepo)

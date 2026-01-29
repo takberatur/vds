@@ -120,7 +120,7 @@ func (r *platformRepository) FindAll(ctx context.Context, params model.QueryPara
 	for rows.Next() {
 		var p model.Platform
 		if err := rows.Scan(
-			&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.URLPattern,
+			&p.ID, &p.Name, &p.Slug, &p.Type, &p.ThumbnailURL, &p.Category, &p.URLPattern,
 			&p.IsActive, &p.IsPremium, &p.Config, &p.CreatedAt,
 		); err != nil {
 			return nil, model.Pagination{}, err

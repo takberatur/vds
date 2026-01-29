@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog/log"
+	"github.com/user/video-downloader-backend/internal/config"
 	"github.com/user/video-downloader-backend/internal/infrastructure"
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
 	"github.com/user/video-downloader-backend/internal/model"
@@ -25,12 +28,14 @@ type SettingService interface {
 type settingService struct {
 	repo    repository.SettingRepository
 	storage infrastructure.StorageClient
+	cfg     *config.Config
 }
 
-func NewSettingService(repo repository.SettingRepository, storage infrastructure.StorageClient) SettingService {
+func NewSettingService(repo repository.SettingRepository, storage infrastructure.StorageClient, cfg *config.Config) SettingService {
 	return &settingService{
 		repo:    repo,
 		storage: storage,
+		cfg:     cfg,
 	}
 }
 
@@ -54,9 +59,19 @@ func (s *settingService) UploadFile(ctx context.Context, file *multipart.FileHea
 
 	if oldSetting, err := s.repo.GetByKey(subCtx, key); err == nil && oldSetting.Value != "" {
 		oldObject := oldSetting.Value
-		if strings.HasPrefix(oldObject, "http") {
-		} else {
-			_ = s.storage.DeleteFile(subCtx, bucketName, oldObject)
+
+		parsedURL, err := url.Parse(oldObject)
+		if err == nil {
+			path := parsedURL.Path
+			path = strings.TrimPrefix(path, "/")
+
+			if strings.HasPrefix(path, s.cfg.MinioBucket+"/") {
+				objectName := strings.TrimPrefix(path, s.cfg.MinioBucket+"/")
+
+				if err := s.storage.DeleteFile(subCtx, s.cfg.MinioBucket, objectName); err != nil {
+					log.Error().Err(err).Str("object", objectName).Msg("Failed to delete old file")
+				}
+			}
 		}
 	}
 

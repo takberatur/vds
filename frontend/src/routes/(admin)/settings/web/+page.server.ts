@@ -52,7 +52,7 @@ export const actions = {
 			});
 		}
 
-		console.log(form.data);
+		// console.log(form.data);
 
 		const settingsToUpdate = [
 			{ key: 'site_name', value: form.data.site_name, group_name: 'WEBSITE' },

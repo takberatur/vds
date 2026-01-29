@@ -1,5 +1,4 @@
-import { redirect, error as svelteError, type RequestEvent, type Handle } from '@sveltejs/kit';
-import { building } from '$app/environment';
+import { redirect, type RequestEvent, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { Dependencies } from '$lib/server';
 import { env } from '$env/dynamic/private';
@@ -7,6 +6,26 @@ import { paraglideMiddleware } from '$lib/paraglide/server';
 import { localizeHref, locales as SUPPORTED_LOCALES, type Locale } from '@/paraglide/runtime';
 
 const NODE_ENV = env.NODE_ENV || 'development';
+
+const protectedPaths = [
+	'/dashboard',
+	'/download',
+	'/settings',
+	'/accounts',
+	'/application',
+	'/cookies',
+	'/users',
+	"/platform",
+	"/subscription",
+	"/transaction",
+	"/server-status"
+];
+
+const authPath = [
+	'/login',
+	'/forgot-password',
+	'/reset-password',
+]
 
 const paraglideHandleBasic: Handle = ({ event, resolve }) => {
 	return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
@@ -22,7 +41,7 @@ const paraglideHandleBasic: Handle = ({ event, resolve }) => {
 };
 
 const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
-	const { url, request } = event;
+	const { request } = event;
 	const pathname = event.url.pathname;
 
 	if (
@@ -33,9 +52,15 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 		return resolve(event);
 	}
 
+	if (request.method !== 'GET') {
+		return resolve(event);
+	}
+
 	const ua = request.headers.get('user-agent');
 	const isBot = !!ua && /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
 	const pathLocale = getLocaleFromPath(pathname);
+	const isProtected = protectedPaths.some(path => pathname.startsWith(path));
+	const isAuth = authPath.some(path => pathname.startsWith(path));
 
 	if (isBot) {
 		event.locals.lang = pathLocale ?? 'en'; { }
@@ -239,24 +264,6 @@ const authHandle: Handle = async ({ event, resolve }) => {
 const adminMiddleware: Handle = async ({ event, resolve }) => {
 	const { url, locals } = event;
 
-	const protectedPaths = [
-		'/dashboard',
-		'/download',
-		'/settings',
-		'/accounts',
-		'/application',
-		'/cookies',
-		'/users',
-		"/platform",
-		"/subscription",
-		"/transaction"
-	];
-
-	const authPath = [
-		'/login',
-		'/forgot-password',
-		'/reset-password',
-	]
 
 	const isProtected = protectedPaths.some(path => url.pathname.startsWith(path));
 
@@ -291,28 +298,28 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 		const response = await resolve(event);
 
 		if (response.status === 404) {
-			const locale = getLocaleFromPath(event.url.pathname);
+			// const locale = getLocaleFromPath(event.url.pathname);
 
-			let redirectPath = '/';
-			if (locale) {
-				redirectPath = `/${locale}`;
-			}
+			// let redirectPath = '/';
+			// if (locale) {
+			// 	redirectPath = `/${locale}`;
+			// }
 
 
-			const isStaticAsset = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/i.test(event.url.pathname);
-			const isApiRoute = event.url.pathname.startsWith('/api/');
-			const isImagesRoute = event.url.pathname.startsWith('/images/');
-			const isInternalRoute = event.url.pathname.startsWith('/_') || event.url.pathname.includes('__');
+			// const isStaticAsset = /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/i.test(event.url.pathname);
+			// const isApiRoute = event.url.pathname.startsWith('/api/');
+			// const isImagesRoute = event.url.pathname.startsWith('/images/');
+			// const isInternalRoute = event.url.pathname.startsWith('/_') || event.url.pathname.includes('__');
 
-			if (!isStaticAsset && !isApiRoute && !isInternalRoute && !isImagesRoute) {
-				return new Response(null, {
-					status: 302,
-					headers: {
-						'Location': redirectPath,
-						'Cache-Control': 'no-cache'
-					}
-				});
-			}
+			// if (!isStaticAsset && !isApiRoute && !isInternalRoute && !isImagesRoute) {
+			// 	return new Response(null, {
+			// 		status: 302,
+			// 		headers: {
+			// 			'Location': redirectPath,
+			// 			'Cache-Control': 'no-cache'
+			// 		}
+			// 	});
+			// }
 		}
 
 		const authRoute = [

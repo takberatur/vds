@@ -5,6 +5,7 @@ export const POST = async ({ locals, request }) => {
 	const { deps } = locals;
 	try {
 		const formData = await request.formData();
+		console.log(formData);
 		const file = formData.get('file') as File;
 		if (!file) {
 			return json({
@@ -14,6 +15,7 @@ export const POST = async ({ locals, request }) => {
 		}
 
 		const response = await deps.settingService.updateLogo(file);
+		console.log(response);
 		if (response instanceof Error) {
 			throw response;
 		}

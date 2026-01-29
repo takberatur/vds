@@ -108,6 +108,7 @@ export class ApiClientHandler extends BaseHelper implements ApiClient {
 			headers?: Record<string, string>;
 		}
 	): Promise<ApiResponse<T>> {
+		// console.log('🔍 [ApiClient] Request:', method, path, options);
 		const headers = this.getSecureHeaders();
 		headers.set('X-Platform', 'browser');
 
