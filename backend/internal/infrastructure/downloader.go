@@ -555,6 +555,7 @@ func IsValidNetscapeCookiesFile(path string) bool {
 
 	sc := bufio.NewScanner(f)
 	seenHeader := false
+	seenData := false
 	checked := 0
 	for sc.Scan() && checked < 200 {
 		checked++
@@ -571,22 +572,24 @@ func IsValidNetscapeCookiesFile(path string) bool {
 			continue
 		}
 
+		if !seenHeader {
+			return false
+		}
+
 		lower := strings.ToLower(line)
 		if strings.HasPrefix(line, "{") || strings.HasPrefix(line, "[") || strings.HasPrefix(lower, "<!doctype") || strings.HasPrefix(lower, "<html") {
 			return false
 		}
 
 		if strings.Count(line, "\t") >= 6 {
-			return true
+			seenData = true
+			continue
 		}
 
-		if seenHeader {
-			return false
-		}
 		return false
 	}
 
-	return false
+	return seenHeader && seenData
 }
 
 func shouldUseProxyForURL(rawURL string) bool {
