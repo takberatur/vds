@@ -2,10 +2,12 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -135,8 +137,32 @@ func (h *AdminHandler) UpdateCookies(c *fiber.Ctx) error {
 	}
 
 	if err := os.Rename(tmpPath, cookiesPath); err != nil {
+		writeDirect := func() error {
+			tf, e := os.OpenFile(cookiesPath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0600)
+			if e != nil {
+				return e
+			}
+			_, we := tf.WriteString(contentOut)
+			ce := tf.Close()
+			if we != nil {
+				return we
+			}
+			return ce
+		}
+
+		tryDirect := false
+		if errors.Is(err, syscall.EBUSY) || errors.Is(err, syscall.EXDEV) || strings.Contains(strings.ToLower(err.Error()), "device or resource busy") {
+			tryDirect = true
+		}
+		if !tryDirect {
+			_ = os.Remove(tmpPath)
+			return response.Error(c, fiber.StatusInternalServerError, "Failed to replace cookies file", err.Error())
+		}
+
 		_ = os.Remove(tmpPath)
-		return response.Error(c, fiber.StatusInternalServerError, "Failed to replace cookies file", err.Error())
+		if derr := writeDirect(); derr != nil {
+			return response.Error(c, fiber.StatusInternalServerError, "Failed to replace cookies file", derr.Error())
+		}
 	}
 
 	data := map[string]any{

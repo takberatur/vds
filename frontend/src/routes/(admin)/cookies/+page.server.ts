@@ -27,7 +27,7 @@ export const load = async ({ locals, url, parent }) => {
 
 	const form = await superValidate(
 		{
-			cookies: Array.isArray(cookies?.lines) ? cookies.lines.join('\n') : (cookies?.lines || '')
+			cookies: Array.isArray(cookies?.lines) ? cookies.lines.join('\n') : ''
 		},
 		zod4(updateSettingCookie)
 	);
@@ -53,12 +53,18 @@ export const actions = {
 			});
 		}
 
-		const cookies = await deps.adminService.updateCookies(form.data.cookies?.split('\n') || []);
+		const cookies = await deps.adminService.updateCookies(form.data.cookies || '');
 
 		if (!cookies) {
 			return fail(500, {
 				form,
 				message: 'Failed to update cookies'
+			});
+		}
+		if (!cookies.valid) {
+			return fail(400, {
+				form,
+				message: 'Cookies format invalid'
 			});
 		}
 

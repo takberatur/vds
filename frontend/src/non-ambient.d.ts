@@ -206,7 +206,7 @@ declare global {
 	}
 
 	interface CookieItem {
-		lines: string;
+		lines: string[];
 		path: string;
 		valid: boolean;
 	}
