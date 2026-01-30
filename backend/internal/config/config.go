@@ -35,6 +35,18 @@ type Config struct {
 	CentrifugoURL         string
 	CentrifugoAPIKey      string
 	CentrifugoTokenSecret string
+	OutboundProxyURL      string
+	YTDLPImperersonate    string
+	ProxyForAll           bool
+	ProxyIncludeHosts     string
+	ProxyExcludeHosts     string
+	TwitchMaxSeconds      int
+	YTDLPJSRuntime        string
+	DisableCookiesFile    bool
+	CookiesFilePath       string
+	YoutubeUseCookies     string
+	YoutubePlayerClient   string
+	YoutubeCustomDisabled bool
 }
 
 func LoadConfig() *Config {
@@ -59,12 +71,24 @@ func LoadConfig() *Config {
 		MinioAccessKey:        getEnv("MINIO_ACCESS_KEY", "minioadmin"),
 		MinioSecretKey:        getEnv("MINIO_SECRET_KEY", "minioadmin"),
 		MinioBucket:           getEnv("MINIO_BUCKET", "videos"),
-		MinioUseSSL:           getEnv("MINIO_USE_SSL", "false") == "true",
+		MinioUseSSL:           getEnvBool("MINIO_USE_SSL", false),
 		BCryptCost:            getEnvInt("BCRYPT_COST", 10),
 		EncryptionKey:         getEnv("ENCRYPTION_KEY", "secret"),
 		CentrifugoURL:         getEnv("CENTRIFUGE_URL", "ws://infrastructure-centrifugo:8000/connection/websocket"),
 		CentrifugoAPIKey:      getEnv("CENTRIFUGO_API_KEY", ""),
 		CentrifugoTokenSecret: getEnv("CENTRIFUGO_TOKEN_SECRET", ""),
+		OutboundProxyURL:      getEnv("OUTBOUND_PROXY_URL", ""),
+		YTDLPImperersonate:    getEnv("YTDLP_IMPERSONATE", ""),
+		ProxyForAll:           getEnvBool("PROXY_FOR_ALL", false),
+		ProxyIncludeHosts:     getEnv("PROXY_INCLUDE_HOSTS", ""),
+		ProxyExcludeHosts:     getEnv("PROXY_EXCLUDE_HOSTS", ""),
+		TwitchMaxSeconds:      getEnvInt("TWITCH_MAX_SECONDS", 300),
+		YTDLPJSRuntime:        getEnv("YTDLP_JS_RUNTIME", ""),
+		DisableCookiesFile:    getEnvBool("DISABLE_COOKIES_FILE", false),
+		CookiesFilePath:       getEnv("COOKIES_FILE_PATH", "/app/cookies.txt"),
+		YoutubeUseCookies:     getEnv("YOUTUBE_USE_COOKIES", ""),
+		YoutubePlayerClient:   getEnv("YOUTUBE_PLAYER_CLIENT", ""),
+		YoutubeCustomDisabled: getEnvBool("YOUTUBE_CUSTOM_DISABLED", false),
 	}
 }
 
@@ -79,6 +103,15 @@ func getEnvInt(key string, fallback int) int {
 	if value, exists := os.LookupEnv(key); exists {
 		if intValue, err := strconv.Atoi(value); err == nil {
 			return intValue
+		}
+	}
+	return fallback
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	if value, exists := os.LookupEnv(key); exists {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
 		}
 	}
 	return fallback

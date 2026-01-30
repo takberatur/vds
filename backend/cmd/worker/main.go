@@ -246,8 +246,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	isTiktok := strings.ToLower(task.PlatformType) == "tiktok" ||
 		strings.Contains(strings.ToLower(task.OriginalURL), "tiktok.com")
 
-	if strings.ToLower(task.PlatformType) == "youtube" ||
-		strings.ToLower(task.PlatformType) == "facebook" ||
+	if strings.ToLower(task.PlatformType) == "facebook" ||
 		isTwitter ||
 		isInstagram ||
 		isTiktok {
@@ -470,7 +469,15 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 	// Or just download the best one first as requested, and then handle others if needed.
 	// The user wants "pilihan semua format jika ada".
 	// Let's filter formats to get unique resolutions (e.g. 1080p, 720p, 480p, 360p)
+	isSnapchat := strings.Contains(strings.ToLower(task.OriginalURL), "snapchat.com") || strings.EqualFold(task.PlatformType, "snapchat")
+	isYouTube := strings.Contains(strings.ToLower(task.OriginalURL), "youtube.com") || strings.Contains(strings.ToLower(task.OriginalURL), "youtu.be") || strings.EqualFold(task.PlatformType, "youtube")
 	selectedFormats := pickFormatsToDownload(info.Formats)
+	if isSnapchat {
+		selectedFormats = []infrastructure.FormatInfo{{Ext: "mp4"}}
+	}
+	if isYouTube {
+		selectedFormats = []infrastructure.FormatInfo{{Ext: "mp4"}}
+	}
 
 	// If no formats found but we have a download URL, use it
 	if len(selectedFormats) == 0 && info.DownloadURL != "" {
@@ -510,7 +517,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		defer os.Remove(tempPath)
 
 		downloadURL := task.OriginalURL
-		if fmtInfo.URL != "" && strings.TrimSpace(fmtInfo.FormatID) == "" {
+		if !isSnapchat && fmtInfo.URL != "" && strings.TrimSpace(fmtInfo.FormatID) == "" {
 			downloadURL = fmtInfo.URL
 		}
 		err = downloader.DownloadToPath(ctx, downloadURL, fmtInfo.FormatID, tempPath, nil)
@@ -542,10 +549,11 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		if safeName == "" {
 			safeName = "best"
 		}
-		objectName := fmt.Sprintf("%s/%s/%s.%s", task.PlatformType, task.ID.String(), safeName, fmtInfo.Ext)
+		extForObject := extForFile
+		objectName := fmt.Sprintf("%s/%s/%s.%s", task.PlatformType, task.ID.String(), safeName, extForObject)
 
 		contentType := "video/mp4"
-		if fmtInfo.Ext == "webm" {
+		if extForObject == "webm" {
 			contentType = "video/webm"
 		}
 
@@ -558,7 +566,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		downloadedAny = true
 
 		// 6. Save to download_files
-		ext := fmtInfo.Ext
+		ext := extForObject
 		size := fi.Size()
 		// For DB, we can store the resolution as format_id if actual ID is complex selector
 		fID := safeName

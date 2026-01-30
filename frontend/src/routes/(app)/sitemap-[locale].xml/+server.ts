@@ -7,7 +7,7 @@ let pages: string[] = [
 	'faq',
 	'privacy',
 	'terms',
-	'mp3'
+	'mp3',
 ];
 
 const sitemap = (site: string, pages: string[]) => `<?xml version="1.0" encoding="UTF-8" ?>
