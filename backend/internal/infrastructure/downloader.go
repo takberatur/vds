@@ -119,7 +119,7 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	// Check if cookies.txt exists and use it
-	cookiePath := "/app/cookies.txt"
+	cookiePath := os.Getenv("COOKIES_FILE_PATH")
 	if shouldUseCookiesFile(cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
@@ -514,7 +514,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 			if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--proxy", proxyURL, legacyArgs[len(legacyArgs)-1])
 			}
-			cookiePath := "/app/cookies.txt"
+			cookiePath := os.Getenv("COOKIES_FILE_PATH")
 			if shouldUseCookiesFile(cookiePath) {
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", cookiePath, legacyArgs[len(legacyArgs)-1])
 			} else if _, err := os.Stat("cookies.txt"); err == nil {

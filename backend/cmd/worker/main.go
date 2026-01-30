@@ -874,8 +874,8 @@ func processTwitchLimitedTask(ctx context.Context, downloadRepo repository.Downl
 	if outboundProxy != "" {
 		args = append(args, "--proxy", outboundProxy)
 	}
-	if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") && !strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
-		args = append(args, "--cookies", "/app/cookies.txt")
+	if infrastructure.IsValidNetscapeCookiesFile(os.Getenv("COOKIES_FILE_PATH")) && !strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
+		args = append(args, "--cookies", os.Getenv("COOKIES_FILE_PATH"))
 	}
 	args = append(args, task.OriginalURL)
 

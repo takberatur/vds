@@ -69,7 +69,7 @@ func (v *VimeoStrategy) fetchVideoInfo(videoID string) (*VideoInfo, error) {
 	req.Header.Set("Origin", "https://vimeo.com")
 	req.Header.Set("Accept", "application/json, text/plain, */*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	if cookieHeader := readNetscapeCookiesForDomain("/app/cookies.txt", "vimeo.com"); cookieHeader != "" {
+	if cookieHeader := readNetscapeCookiesForDomain(os.Getenv("COOKIES_FILE_PATH"), "vimeo.com"); cookieHeader != "" {
 		req.Header.Set("Cookie", cookieHeader)
 	}
 
