@@ -476,22 +476,11 @@ func (r *downloadRepository) FindOldAndCompleted(ctx context.Context, cutoff tim
 		WHERE created_at < $1
 		LIMIT $2
 	`
-	// We only need ID and platform_type for deletion
-	// But let's reuse struct.
+
 	var tasks []*model.DownloadTask
-	rows, err := r.db.Query(subCtx, query, cutoff, limit)
+	err := pgxscan.Select(subCtx, r.db, &tasks, query, cutoff, limit)
 	if err != nil {
 		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var task model.DownloadTask
-		err := rows.Scan(&task.ID, &task.PlatformType, &task.Status, &task.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		tasks = append(tasks, &task)
 	}
 
 	return tasks, nil

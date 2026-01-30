@@ -13,6 +13,7 @@
 	import { LightSwitch } from '@/components/ui-extras/light-switch';
 	import { LanguageSwitcher } from '$lib/components/ui-extras/language-switcher/index.js';
 	import { ClientMobileSidebar } from '$lib/components/client';
+	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
 	import Icon from '@iconify/svelte';
 	import { smoothScroll } from '$lib/stores';
@@ -107,7 +108,12 @@
 	<div class="container mx-auto flex h-16 items-center justify-between px-4 md:max-w-7xl md:px-6">
 		<a href={localizeHref('/')} class="flex items-center gap-2">
 			<div class="flex h-10 w-10 items-center justify-center rounded-xl">
-				<img src={logo} alt={webSetting?.site_name} class="h-full w-full rounded-xl" />
+				<Avatar.Root>
+					<Avatar.Image src={logo} alt={webSetting?.site_name} />
+					<Avatar.Fallback>
+						{webSetting?.site_name?.slice(0, 2)}
+					</Avatar.Fallback>
+				</Avatar.Root>
 			</div>
 			<span
 				class="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-xl font-bold text-transparent dark:bg-linear-to-r dark:from-purple-400 dark:to-blue-400"

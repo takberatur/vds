@@ -92,11 +92,11 @@ func main() {
 }
 
 func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepository, storageClient infrastructure.StorageClient, bucketName string) {
-	// Run every 10 minutes
-	ticker := time.NewTicker(10 * time.Minute)
+	// Run every 5 minutes
+	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
-	log.Info().Msg("Cleanup cron job initialized (interval: 10m, retention: 30m)")
+	log.Info().Msg("Cleanup cron job initialized (interval: 5m, retention: 10m)")
 
 	for {
 		select {
@@ -104,8 +104,8 @@ func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepos
 			return
 		case <-ticker.C:
 			log.Info().Msg("Starting cleanup cron job execution")
-			// Cleanup tasks older than 30 minutes
-			cutoff := time.Now().Add(-30 * time.Minute)
+			// Cleanup tasks older than 10 minutes
+			cutoff := time.Now().Add(-10 * time.Minute)
 
 			// Fetch in batches
 			for {

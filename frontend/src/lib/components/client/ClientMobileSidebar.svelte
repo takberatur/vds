@@ -11,6 +11,7 @@
 		isLocale
 	} from '@/paraglide/runtime';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Avatar from '$lib/components/ui/avatar';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
@@ -115,7 +116,12 @@
 	<Sheet.Content side="left">
 		<a href={localizeHref('/')} class="flex items-center gap-2 px-6 py-3">
 			<div class="flex h-10 w-10 items-center justify-center rounded-xl">
-				<img src={logo} alt={webSetting?.site_name} class="h-full w-full rounded-xl" />
+				<Avatar.Root>
+					<Avatar.Image src={logo} alt={webSetting?.site_name} />
+					<Avatar.Fallback>
+						{webSetting?.site_name?.slice(0, 2)}
+					</Avatar.Fallback>
+				</Avatar.Root>
 			</div>
 			<span
 				class="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-xl font-bold text-transparent dark:bg-linear-to-r dark:from-purple-400 dark:to-blue-400"
