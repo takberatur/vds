@@ -192,6 +192,13 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 10).Msg("failed to publish progress event (start)")
 	}
 
+	if strings.Contains(strings.ToLower(task.OriginalURL), "twitch.tv") {
+		if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
+			log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (twitch)")
+		}
+		return processTwitchLimitedTask(ctx, downloadRepo, redisClient, centrifugoClient, storageClient, bucketName, task)
+	}
+
 	// 1. Get Video Info
 	info, err := downloader.GetVideoInfo(ctx, task.OriginalURL)
 	if err != nil {
@@ -883,6 +890,9 @@ func processTwitchLimitedTask(ctx context.Context, downloadRepo repository.Downl
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
+		if strings.Contains(stderr.String(), "not currently live") {
+			return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, fmt.Errorf("twitch channel is not live; use VOD/clip URL"))
+		}
 		return markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, fmt.Errorf("twitch yt-dlp failed: %w, stderr: %s", err, stderr.String()))
 	}
 

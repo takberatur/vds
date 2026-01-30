@@ -426,10 +426,11 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	// Check if cookies.txt exists and use it
 	cookiePath := "/app/cookies.txt"
-	if shouldUseCookiesFile(cookiePath) {
+	isYouTube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
+	if shouldUseCookiesFile(cookiePath) && (!isYouTube || strings.EqualFold(sanitizeEnvString(os.Getenv("YOUTUBE_USE_COOKIES")), "true")) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if shouldUseCookiesFile("cookies.txt") {
+		if shouldUseCookiesFile("cookies.txt") && (!isYouTube || strings.EqualFold(sanitizeEnvString(os.Getenv("YOUTUBE_USE_COOKIES")), "true")) {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
@@ -451,8 +452,10 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		args = append(args, "--referer", "https://rumble.com/")
 	}
 
-	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		args = append(args, "--extractor-args", "youtube:player_client=tv")
+	if isYouTube {
+		if client := sanitizeEnvString(os.Getenv("YOUTUBE_PLAYER_CLIENT")); client != "" {
+			args = append(args, "--extractor-args", "youtube:player_client="+client)
+		}
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
@@ -460,6 +463,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	if strings.Contains(url, "snapchat.com") {
+		args = append(args, "--allow-untrusted-extensions")
 		if formatID == "" {
 			args = append(args, "-f", "best[ext=mp4]/best")
 		}
