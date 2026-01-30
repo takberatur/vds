@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"sort"
 	"strconv"
@@ -36,9 +37,59 @@ type YoutubeFormatInfo struct {
 }
 
 func NewYoutubeDownloader() *YoutubeDownloader {
-	return &YoutubeDownloader{
-		client: youtube.Client{},
+	ua := strings.TrimSpace(os.Getenv("YOUTUBE_HTTP_USER_AGENT"))
+	if ua == "" {
+		ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
 	}
+
+	cookieHeader := ""
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("YOUTUBE_USE_COOKIES")), "true") {
+		cookiePath := strings.TrimSpace(os.Getenv("YOUTUBE_COOKIES_FILE_PATH"))
+		if cookiePath == "" {
+			cookiePath = strings.TrimSpace(os.Getenv("COOKIES_FILE_PATH"))
+		}
+		if cookiePath == "" {
+			cookiePath = "/app/cookies.txt"
+		}
+		cookieHeader = netscapeCookiesToHeader(cookiePath, []string{"youtube.com", "google.com", "accounts.google.com"})
+	}
+
+	httpClient := &http.Client{
+		Timeout: 25 * time.Second,
+		Transport: &headerRoundTripper{
+			base:         http.DefaultTransport,
+			userAgent:    ua,
+			cookieHeader: cookieHeader,
+		},
+	}
+
+	return &YoutubeDownloader{
+		client: youtube.Client{HTTPClient: httpClient},
+	}
+}
+
+type headerRoundTripper struct {
+	base         http.RoundTripper
+	userAgent    string
+	cookieHeader string
+}
+
+func (rt *headerRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	r := req.Clone(req.Context())
+	if rt.userAgent != "" && r.Header.Get("User-Agent") == "" {
+		r.Header.Set("User-Agent", rt.userAgent)
+	}
+	if r.Header.Get("Accept-Language") == "" {
+		r.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	}
+	if rt.cookieHeader != "" {
+		r.Header.Set("Cookie", rt.cookieHeader)
+	}
+	base := rt.base
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	return base.RoundTrip(r)
 }
 
 func (yd *YoutubeDownloader) GetVideoDetails(videoURL string) (*VideoDetails, error) {
@@ -226,6 +277,57 @@ func (yd *YoutubeDownloader) getBestMuxedMP4Format(video *youtube.Video) *youtub
 		return mp4[i].Bitrate > mp4[j].Bitrate
 	})
 	return &mp4[0]
+}
+
+func netscapeCookiesToHeader(path string, domainSuffixes []string) string {
+	if path == "" {
+		return ""
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	lines := strings.Split(string(b), "\n")
+	m := make(map[string]string, 64)
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Split(line, "\t")
+		if len(fields) < 7 {
+			continue
+		}
+		domain := strings.TrimSpace(fields[0])
+		domain = strings.TrimPrefix(domain, ".")
+		ok := false
+		for _, suf := range domainSuffixes {
+			if strings.HasSuffix(domain, suf) {
+				ok = true
+				break
+			}
+		}
+		if !ok {
+			continue
+		}
+		name := strings.TrimSpace(fields[5])
+		val := strings.TrimSpace(fields[6])
+		if name == "" || val == "" {
+			continue
+		}
+		if _, exists := m[name]; !exists {
+			m[name] = val
+		}
+	}
+	if len(m) == 0 {
+		return ""
+	}
+	parts := make([]string, 0, len(m))
+	for k, v := range m {
+		parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, "; ")
 }
 func (yd *YoutubeDownloader) ListFormats(videoURL string) ([]YoutubeFormatInfo, error) {
 	video, err := yd.client.GetVideo(videoURL)
