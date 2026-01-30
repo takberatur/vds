@@ -42,6 +42,7 @@ services:
       - PROXY_INCLUDE_HOSTS=${PROXY_INCLUDE_HOSTS}
       - PROXY_EXCLUDE_HOSTS=${PROXY_EXCLUDE_HOSTS}
       - TWITCH_MAX_SECONDS=${TWITCH_MAX_SECONDS}
+      - DISABLE_COOKIES_FILE=${DISABLE_COOKIES_FILE}
     networks:
       - video_download_network
       - shared-network
@@ -111,6 +112,7 @@ services:
       - PROXY_INCLUDE_HOSTS=${PROXY_INCLUDE_HOSTS}
       - PROXY_EXCLUDE_HOSTS=${PROXY_EXCLUDE_HOSTS}
       - TWITCH_MAX_SECONDS=${TWITCH_MAX_SECONDS}
+      - DISABLE_COOKIES_FILE=${DISABLE_COOKIES_FILE}
     networks:
       - video_download_network
       - shared-network

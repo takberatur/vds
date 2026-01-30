@@ -382,6 +382,36 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 			return e
 		}
 
+		{
+			b, err := os.ReadFile(tempPath)
+			if err == nil {
+				n := 128
+				if len(b) < n {
+					n = len(b)
+				}
+				head := b[:n]
+				s := strings.ToLower(strings.TrimSpace(string(head)))
+				if strings.HasPrefix(s, "<!doctype") || strings.HasPrefix(s, "<html") || strings.HasPrefix(s, "#extm3u") {
+					e := fmt.Errorf("downloaded file is not mp4")
+					task.Status = "failed"
+					msg := e.Error()
+					task.ErrorMessage = &msg
+					_ = downloadRepo.Update(ctx, task)
+					_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, e)
+					return e
+				}
+				if len(head) >= 12 && string(head[4:8]) != "ftyp" {
+					e := fmt.Errorf("downloaded file is not mp4")
+					task.Status = "failed"
+					msg := e.Error()
+					task.ErrorMessage = &msg
+					_ = downloadRepo.Update(ctx, task)
+					_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, e)
+					return e
+				}
+			}
+		}
+
 		f, err := os.Open(tempPath)
 		if err != nil {
 			return err
@@ -844,7 +874,7 @@ func processTwitchLimitedTask(ctx context.Context, downloadRepo repository.Downl
 	if outboundProxy != "" {
 		args = append(args, "--proxy", outboundProxy)
 	}
-	if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") {
+	if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") && !strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
 		args = append(args, "--cookies", "/app/cookies.txt")
 	}
 	args = append(args, task.OriginalURL)
@@ -1374,7 +1404,7 @@ func processTikTokEncryptedTask(ctx context.Context, downloadRepo repository.Dow
 				if outboundProxy != "" {
 					args = append(args, "--proxy", outboundProxy)
 				}
-				if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") {
+				if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") && !strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
 					args = append(args, "--cookies", "/app/cookies.txt")
 				}
 				args = append(args, task.OriginalURL)

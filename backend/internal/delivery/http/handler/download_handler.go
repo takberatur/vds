@@ -653,7 +653,7 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 				if outboundProxy != "" {
 					quickArgs = append(quickArgs, "--proxy", outboundProxy)
 				}
-				if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") {
+				if infrastructure.IsValidNetscapeCookiesFile("/app/cookies.txt") && !strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
 					quickArgs = append(quickArgs, "--cookies", "/app/cookies.txt")
 				}
 				quickArgs = append(quickArgs, targetURL)

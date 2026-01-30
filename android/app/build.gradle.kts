@@ -133,12 +133,9 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.gson)
     implementation(libs.glide)
-    // Websocket
+    // Websocket and other
     implementation(libs.centrifuge.java)
-    // Alternative: Scarlet WebSocket
-//    implementation("com.tinder.scarlet:scarlet:0.1.12")
-//    implementation("com.tinder.scarlet:websocket-okhttp:0.1.12")
-//    implementation("com.tinder.scarlet:message-adapter-gson:0.1.12")
-//    implementation("com.tinder.scarlet:stream-adapter-coroutines:0.1.12")
-//    implementation("com.tinder.scarlet:lifecycle-android:0.1.12")
+    implementation(libs.yt.dlp.library)
+    implementation(libs.yt.dlp.ffmpeg)
+    implementation(libs.yt.dlp.aria2c)
 }

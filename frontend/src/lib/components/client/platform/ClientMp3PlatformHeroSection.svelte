@@ -278,26 +278,13 @@
 
 		errorMessage = null;
 		successMessage = null;
-		ws.state.update((current) => {
-			const updatedTasks: Record<string, DownloadTaskView> = { ...current.tasks };
-			if (updatedTasks[taskId]) {
-				delete updatedTasks[taskId];
-			}
-			return {
-				...current,
-				tasks: updatedTasks
-			};
-		});
+		ws.removeTask(taskId);
 	};
 
 	const clearAllTasks = () => {
 		errorMessage = null;
 		successMessage = null;
-
-		ws.state.update((current) => ({
-			...current,
-			tasks: {}
-		}));
+		ws.clearAll();
 	};
 
 	const platformIconItems = [

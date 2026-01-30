@@ -53,6 +53,13 @@ type ytDlpClient struct {
 	executablePath string
 }
 
+func shouldUseCookiesFile(path string) bool {
+	if strings.EqualFold(sanitizeEnvString(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
+		return false
+	}
+	return IsValidNetscapeCookiesFile(path)
+}
+
 func NewDownloaderClient() DownloaderClient {
 	return &ytDlpClient{
 		executablePath: "python3",
@@ -113,10 +120,10 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 
 	// Check if cookies.txt exists and use it
 	cookiePath := "/app/cookies.txt"
-	if IsValidNetscapeCookiesFile(cookiePath) {
+	if shouldUseCookiesFile(cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if IsValidNetscapeCookiesFile("cookies.txt") {
+		if shouldUseCookiesFile("cookies.txt") {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
@@ -183,10 +190,10 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 					legacyArgs = append(legacyArgs, "--proxy", proxyURL)
 				}
 				cookiePath := "/app/cookies.txt"
-				if IsValidNetscapeCookiesFile(cookiePath) {
+				if shouldUseCookiesFile(cookiePath) {
 					legacyArgs = append(legacyArgs, "--cookies", cookiePath)
 				} else if _, err := os.Stat("cookies.txt"); err == nil {
-					if IsValidNetscapeCookiesFile("cookies.txt") {
+					if shouldUseCookiesFile("cookies.txt") {
 						legacyArgs = append(legacyArgs, "--cookies", "cookies.txt")
 					}
 				}
@@ -427,10 +434,10 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 
 	// Check if cookies.txt exists and use it
 	cookiePath := "/app/cookies.txt"
-	if IsValidNetscapeCookiesFile(cookiePath) {
+	if shouldUseCookiesFile(cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if IsValidNetscapeCookiesFile("cookies.txt") {
+		if shouldUseCookiesFile("cookies.txt") {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
@@ -508,10 +515,10 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--proxy", proxyURL, legacyArgs[len(legacyArgs)-1])
 			}
 			cookiePath := "/app/cookies.txt"
-			if IsValidNetscapeCookiesFile(cookiePath) {
+			if shouldUseCookiesFile(cookiePath) {
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", cookiePath, legacyArgs[len(legacyArgs)-1])
 			} else if _, err := os.Stat("cookies.txt"); err == nil {
-				if IsValidNetscapeCookiesFile("cookies.txt") {
+				if shouldUseCookiesFile("cookies.txt") {
 					legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", "cookies.txt", legacyArgs[len(legacyArgs)-1])
 				}
 			}
@@ -547,21 +554,34 @@ func IsValidNetscapeCookiesFile(path string) bool {
 	defer f.Close()
 
 	sc := bufio.NewScanner(f)
+	seenHeader := false
 	checked := 0
-	for sc.Scan() && checked < 50 {
+	for sc.Scan() && checked < 200 {
 		checked++
 		line := strings.TrimSpace(sc.Text())
 		if line == "" {
 			continue
 		}
+
 		if strings.HasPrefix(line, "# Netscape HTTP Cookie File") {
-			return true
+			seenHeader = true
+			continue
 		}
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
+
+		lower := strings.ToLower(line)
+		if strings.HasPrefix(line, "{") || strings.HasPrefix(line, "[") || strings.HasPrefix(lower, "<!doctype") || strings.HasPrefix(lower, "<html") {
+			return false
+		}
+
 		if strings.Count(line, "\t") >= 6 {
 			return true
+		}
+
+		if seenHeader {
+			return false
 		}
 		return false
 	}

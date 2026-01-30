@@ -44,16 +44,28 @@ export const createWebsocketStore = (userID?: string | null) => {
 		tasks: {}
 	});
 
+	function unsubscribe(taskId: string) {
+		const sub = subscriptions[taskId];
+		if (sub) {
+			try {
+				sub.unsubscribe();
+			} catch (_) {
+			}
+			delete subscriptions[taskId];
+		}
+	}
+
 	function applyEvent(data: any) {
 		if (!data || !data.task_id) return;
 
 		const id = String(data.task_id);
+		const status = String(data.status ?? '');
 		const progress =
 			typeof data.progress === 'number'
 				? data.progress
-				: data.status === 'completed'
+				: status === 'completed'
 					? 100
-					: data.status === 'failed'
+					: status === 'failed'
 						? 0
 						: 0;
 
@@ -67,7 +79,7 @@ export const createWebsocketStore = (userID?: string | null) => {
 					[id]: {
 						...existing,
 						id,
-						status: data.status ?? existing?.status ?? 'processing',
+						status: status || existing?.status || 'processing',
 						progress,
 						created_at: data.created_at ?? existing?.created_at ?? null,
 						file_path: payload.file_path ?? existing?.file_path ?? null,
@@ -76,6 +88,10 @@ export const createWebsocketStore = (userID?: string | null) => {
 				}
 			};
 		});
+
+		if (status === 'completed' || status === 'failed') {
+			unsubscribe(id);
+		}
 	}
 
 	async function connect() {
@@ -185,12 +201,34 @@ export const createWebsocketStore = (userID?: string | null) => {
 		state.set({ tasks: {} });
 	}
 
+	function removeTask(taskId: string) {
+		if (!taskId) return;
+		unsubscribe(taskId);
+		state.update((current) => {
+			const updatedTasks: Record<string, DownloadTaskView> = { ...current.tasks };
+			if (updatedTasks[taskId]) {
+				delete updatedTasks[taskId];
+			}
+			return {
+				...current,
+				tasks: updatedTasks
+			};
+		});
+	}
+
+	function clearAll() {
+		Object.keys(subscriptions).forEach((id) => unsubscribe(id));
+		state.set({ tasks: {} });
+	}
+
 	return {
 		state,
 		stateSubscribe: state.subscribe,
 		connect,
 		upsertTaskFromApi,
 		disconnect,
-		subscribe // Expose this
+		subscribe,
+		removeTask,
+		clearAll
 	};
 };
