@@ -90,6 +90,10 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 		return nil, errors.New("platform is not active")
 	}
 
+	normalizedType := strings.ToLower(platform.Type)
+	isYouTube := normalizedType == "youtube" || strings.Contains(strings.ToLower(req.Type), "youtube") ||
+		strings.Contains(strings.ToLower(req.URL), "youtube.com") || strings.Contains(strings.ToLower(req.URL), "youtu.be")
+
 	if typeAware, ok := s.downloader.(interface {
 		GetVideoInfoWithType(ctx context.Context, url string, downloadType string) (*infrastructure.VideoInfo, error)
 	}); ok {
@@ -104,7 +108,11 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 				Str("url", req.URL).
 				Msg("Downloader timed out while fetching video info")
 		}
-		return nil, err
+		if !isYouTube {
+			return nil, err
+		}
+		log.Warn().Err(err).Str("url", req.URL).Msg("YouTube info fetch failed; enqueueing task anyway")
+		info = &infrastructure.VideoInfo{Extractor: "youtube"}
 	}
 
 	if info != nil && len(info.Formats) > 0 {
@@ -182,17 +190,25 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 	if req.Type == "youtube-to-mp3" {
 		format = "mp3"
 	}
-	title := info.Title
-	thumbnailURL := info.Thumbnail
-	filePath := info.DownloadURL
+	title := ""
+	thumbnailURL := ""
+	filePath := ""
+	if info != nil {
+		title = info.Title
+		thumbnailURL = info.Thumbnail
+		filePath = info.DownloadURL
+	}
 
 	var duration *int
-	if info.Duration != nil && *info.Duration > 0 {
+	if info != nil && info.Duration != nil && *info.Duration > 0 {
 		dur := int(*info.Duration)
 		duration = &dur
 	}
 
-	fileSize := info.Filesize
+	var fileSize *int64
+	if info != nil {
+		fileSize = info.Filesize
+	}
 
 	task := &model.DownloadTask{
 		UserID:       userID,

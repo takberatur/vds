@@ -119,11 +119,15 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	}
 
 	// Check if cookies.txt exists and use it
-	cookiePath := os.Getenv("COOKIES_FILE_PATH")
-	if shouldUseCookiesFile(cookiePath) {
+	isYouTube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
+	cookiePath := sanitizeEnvString(os.Getenv("COOKIES_FILE_PATH"))
+	if cookiePath == "" {
+		cookiePath = "/app/cookies.txt"
+	}
+	if shouldUseCookiesFile(cookiePath) && !isYouTube {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if shouldUseCookiesFile("cookies.txt") {
+		if shouldUseCookiesFile("cookies.txt") && !isYouTube {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
@@ -137,9 +141,10 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 		args = append(args, "--add-header", "Accept-Language: en-US,en;q=0.9")
 	}
 
-	if strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be") {
-		// Switch to tv client which is often less restricted
-		args = append(args, "--extractor-args", "youtube:player_client=tv")
+	if isYouTube {
+		if client := sanitizeEnvString(os.Getenv("YOUTUBE_PLAYER_CLIENT")); client != "" && !strings.EqualFold(client, "tv") {
+			args = append(args, "--extractor-args", "youtube:player_client="+client)
+		}
 	}
 
 	if strings.Contains(url, "dailymotion.com") || strings.Contains(url, "dai.ly") {
@@ -427,10 +432,10 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	// Check if cookies.txt exists and use it
 	cookiePath := "/app/cookies.txt"
 	isYouTube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
-	if shouldUseCookiesFile(cookiePath) && (!isYouTube || strings.EqualFold(sanitizeEnvString(os.Getenv("YOUTUBE_USE_COOKIES")), "true")) {
+	if shouldUseCookiesFile(cookiePath) && !isYouTube {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if shouldUseCookiesFile("cookies.txt") && (!isYouTube || strings.EqualFold(sanitizeEnvString(os.Getenv("YOUTUBE_USE_COOKIES")), "true")) {
+		if shouldUseCookiesFile("cookies.txt") && !isYouTube {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
@@ -453,7 +458,7 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	if isYouTube {
-		if client := sanitizeEnvString(os.Getenv("YOUTUBE_PLAYER_CLIENT")); client != "" {
+		if client := sanitizeEnvString(os.Getenv("YOUTUBE_PLAYER_CLIENT")); client != "" && !strings.EqualFold(client, "tv") {
 			args = append(args, "--extractor-args", "youtube:player_client="+client)
 		}
 	}
@@ -463,10 +468,6 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	if strings.Contains(url, "snapchat.com") {
-		args = append(args, "--allow-untrusted-extensions")
-		if formatID == "" {
-			args = append(args, "-f", "best[ext=mp4]/best")
-		}
 		args = append(args, "--merge-output-format", "mp4")
 	}
 

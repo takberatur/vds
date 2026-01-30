@@ -199,6 +199,71 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		return processTwitchLimitedTask(ctx, downloadRepo, redisClient, centrifugoClient, storageClient, bucketName, task)
 	}
 
+	if strings.EqualFold(task.PlatformType, "youtube") || strings.Contains(strings.ToLower(task.OriginalURL), "youtube.com") || strings.Contains(strings.ToLower(task.OriginalURL), "youtu.be") {
+		if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
+			log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (youtube)")
+		}
+
+		tempFile, err := os.CreateTemp("", "youtube-*.mp4")
+		if err != nil {
+			return err
+		}
+		tempPath := tempFile.Name()
+		tempFile.Close()
+		_ = os.Remove(tempPath)
+		defer os.Remove(tempPath)
+
+		if err := downloader.DownloadToPath(ctx, task.OriginalURL, "", tempPath, nil); err != nil {
+			return err
+		}
+
+		f, err := os.Open(tempPath)
+		if err != nil {
+			return err
+		}
+		fi, _ := f.Stat()
+		if fi == nil || fi.Size() == 0 {
+			f.Close()
+			return fmt.Errorf("downloaded file is empty")
+		}
+
+		objectName := fmt.Sprintf("%s/%s/%s.%s", "youtube", task.ID.String(), "best", "mp4")
+		minioURL, err := storageClient.UploadFile(ctx, bucketName, objectName, f, fi.Size(), "video/mp4")
+		f.Close()
+		if err != nil {
+			return err
+		}
+
+		size := fi.Size()
+		ext := "mp4"
+		fID := "best"
+		res := "best"
+		downloadFile := &model.DownloadFile{
+			DownloadID:    task.ID,
+			URL:           minioURL,
+			FormatID:      &fID,
+			Resolution:    &res,
+			Extension:     &ext,
+			FileSize:      &size,
+			EncryptedData: nil,
+		}
+		_ = downloadRepo.AddFile(ctx, downloadFile)
+
+		task.FilePath = &minioURL
+		task.FileSize = &size
+		task.Format = &fID
+		task.Status = "completed"
+		if err := downloadRepo.Update(ctx, task); err != nil {
+			log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to completed")
+		}
+		task.DownloadFiles = []model.DownloadFile{*downloadFile}
+		if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+			log.Error().Err(err).Msg("failed to publish complete event")
+		}
+
+		return nil
+	}
+
 	// 1. Get Video Info
 	info, err := downloader.GetVideoInfo(ctx, task.OriginalURL)
 	if err != nil {
