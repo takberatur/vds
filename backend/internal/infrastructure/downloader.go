@@ -189,14 +189,6 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 				if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
 					legacyArgs = append(legacyArgs, "--proxy", proxyURL)
 				}
-				cookiePath := "/app/cookies.txt"
-				if shouldUseCookiesFile(cookiePath) {
-					legacyArgs = append(legacyArgs, "--cookies", cookiePath)
-				} else if _, err := os.Stat("cookies.txt"); err == nil {
-					if shouldUseCookiesFile("cookies.txt") {
-						legacyArgs = append(legacyArgs, "--cookies", "cookies.txt")
-					}
-				}
 				legacyArgs = append(legacyArgs, "--verbose", url)
 				if out2, err2 := tryRun(legacyArgs); err2 == nil {
 					output = out2
@@ -513,14 +505,6 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 			}
 			if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
 				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--proxy", proxyURL, legacyArgs[len(legacyArgs)-1])
-			}
-			cookiePath := os.Getenv("COOKIES_FILE_PATH")
-			if shouldUseCookiesFile(cookiePath) {
-				legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", cookiePath, legacyArgs[len(legacyArgs)-1])
-			} else if _, err := os.Stat("cookies.txt"); err == nil {
-				if shouldUseCookiesFile("cookies.txt") {
-					legacyArgs = append(legacyArgs[:len(legacyArgs)-1], "--cookies", "cookies.txt", legacyArgs[len(legacyArgs)-1])
-				}
 			}
 			if stderr2, err2 := run(legacyArgs); err2 != nil {
 				return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err2, stderr2)

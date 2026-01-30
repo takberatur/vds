@@ -190,6 +190,14 @@ export const createWebsocketStore = (userID?: string | null) => {
 				}
 			};
 		});
+
+		const status = String(task.status ?? '').toLowerCase();
+		if (status === 'pending' || status === 'processing' || status === 'queued') {
+			if (!centrifuge) {
+				void connect();
+			}
+			subscribe(id);
+		}
 	}
 
 	function disconnect() {

@@ -23,11 +23,11 @@ export const load = async ({ locals, url, parent }) => {
 		settings
 	);
 
-	const cookies = await locals.deps.adminService.getCookies();
+	const cookies = await locals.deps.adminService.getCookies() as CookieItem;
 
 	const form = await superValidate(
 		{
-			cookies: cookies.join('\n')
+			cookies: Array.isArray(cookies?.lines) ? cookies.lines.join('\n') : (cookies?.lines || '')
 		},
 		zod4(updateSettingCookie)
 	);
@@ -36,7 +36,8 @@ export const load = async ({ locals, url, parent }) => {
 		pageMetaTags,
 		settings,
 		user,
-		form
+		form,
+		cookies
 	};
 };
 

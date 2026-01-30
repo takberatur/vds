@@ -43,16 +43,24 @@ export class AdminServiceImpl extends BaseService implements AdminService {
 		}
 	}
 
-	async getCookies(): Promise<string[]> {
+	async getCookies(): Promise<CookieItem> {
 		try {
-			const response = await this.api.authRequest('GET', '/protected-admin/cookies');
+			const response = await this.api.authRequest<CookieItem>('GET', '/protected-admin/cookies');
 			if (!response.success) {
 				throw new Error(response.message || 'Failed to get cookies');
 			}
-			return response.data as string[] || [];
+			return response.data || {
+				lines: '',
+				path: '',
+				valid: false,
+			};
 		} catch (error) {
 			console.error('Error fetching cookies:', error);
-			return [];
+			return {
+				lines: '',
+				path: '',
+				valid: false,
+			}
 		}
 	}
 

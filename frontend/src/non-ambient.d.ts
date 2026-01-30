@@ -204,6 +204,12 @@ declare global {
 		date_from: Date | string;
 		date_to: Date | string;
 	}
+
+	interface CookieItem {
+		lines: string;
+		path: string;
+		valid: boolean;
+	}
 }
 
 export { };

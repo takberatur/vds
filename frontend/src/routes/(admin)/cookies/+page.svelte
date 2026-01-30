@@ -9,7 +9,7 @@
 	import { Spinner } from '@/components/ui/spinner/index.js';
 	import * as Field from '$lib/components/ui/field/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import * as Alert from '$lib/components/ui/alert/index.js';
 	import Icon from '@iconify/svelte';
 
 	let { data } = $props();
@@ -54,6 +54,18 @@
 			</div>
 		</div>
 		<div class="space-y-4 rounded-md border border-neutral-300 px-3 py-5 dark:border-neutral-700">
+			{#if !data.cookies.valid}
+				<Alert.Root variant="destructive">
+					<Icon icon="material-symbols:info" />
+					<Alert.Title>Invalid Cookies Format</Alert.Title>
+					<Alert.Description>
+						<ul class="list-inside list-disc text-sm">
+							<li>Cookies must be in the format: name=value;domain=example.com;path=/</li>
+							<li>Netscape HTTP Cookie File</li>
+						</ul>
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
 			<form method="POST" class="relative space-y-6" use:enhance>
 				<Field.Group>
 					<Field.Set>
