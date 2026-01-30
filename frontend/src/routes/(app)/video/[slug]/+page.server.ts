@@ -25,6 +25,7 @@ export async function load({ locals, url, params, parent }) {
 	const alternates = await parent().then((data) => data.alternates || []);
 
 	const title = await deps.languageHelper.singleTranslate(`Download ${platform.name} Video Without Watermark Full HD Free`, lang) as SingleResponse;
+	const titlePlatform = await deps.languageHelper.singleTranslate(`${platform.name} Video Downloader`, lang) as SingleResponse;
 	const siteName = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_name || '', lang) as SingleResponse;
 	const tagline = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_tagline || '', lang) as SingleResponse;
 	const description = await deps.languageHelper.singleTranslate(settings?.WEBSITE?.site_description || '', lang) as SingleResponse;
@@ -32,7 +33,7 @@ export async function load({ locals, url, params, parent }) {
 
 	const pageMetaTags = defaultMetaTags({
 		path_url: defaultOrigin,
-		title: `${capitalizeFirstLetter(title.data.target.text || '')} - ${capitalizeFirstLetter(siteName.data.target.text || '')}`,
+		title: `${capitalizeFirstLetter(title.data.target.text || '')} - ${capitalizeFirstLetter(titlePlatform.data.target.text || '')} ${capitalizeFirstLetter(siteName.data.target.text || '')}`,
 		tagline: capitalizeFirstLetter(tagline.data.target.text || ''),
 		description: capitalizeFirstLetter(description.data.target.text || ''),
 		keywords: keywords.map((keyword: SingleResponse) => capitalizeFirstLetter(keyword.data.target.text || '')),
