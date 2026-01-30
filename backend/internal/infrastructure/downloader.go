@@ -14,6 +14,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
+	"github.com/user/video-downloader-backend/internal/infrastructure/scrapper"
 )
 
 type VideoInfo struct {
@@ -51,6 +52,7 @@ type DownloaderClient interface {
 
 type ytDlpClient struct {
 	executablePath string
+	ytDownService  *scrapper.YTDownService
 }
 
 func shouldUseCookiesFile(path string) bool {
@@ -61,8 +63,10 @@ func shouldUseCookiesFile(path string) bool {
 }
 
 func NewDownloaderClient() DownloaderClient {
+	ytDownService := scrapper.NewYTDownService()
 	return &ytDlpClient{
 		executablePath: "python3",
+		ytDownService:  ytDownService,
 	}
 }
 

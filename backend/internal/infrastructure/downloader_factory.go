@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/kkdai/youtube/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
+	"github.com/user/video-downloader-backend/internal/infrastructure/scrapper"
 )
 
 type DownloaderStrategy interface {
@@ -122,11 +125,127 @@ func (s *YoutubeCustomStrategy) Name() string {
 	return "youtube-custom"
 }
 
+type YTDownStrategy struct {
+	client *scrapper.YTDownService
+}
+
+func (s *YTDownStrategy) GetVideoInfo(ctx context.Context, url string) (*VideoInfo, error) {
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("YTDOWN_DISABLED")), "true") {
+		return nil, fmt.Errorf("ytdown disabled")
+	}
+
+	resp, _, err := s.client.Fetch(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+
+	best := pickBestYTDownItem(resp.API.MediaItems)
+	downloadURL := ""
+	thumb := strings.TrimSpace(resp.API.ImagePreview)
+	if thumb == "" {
+		thumb = strings.TrimSpace(resp.API.PreviewURL)
+	}
+
+	var dur *float64
+	if best != nil {
+		downloadURL = strings.TrimSpace(best.MediaURL)
+		if downloadURL == "" {
+			downloadURL = strings.TrimSpace(best.MediaPreviewURL)
+		}
+		if seconds := parseDurationSeconds(best.MediaDuration); seconds > 0 {
+			dur = &seconds
+		}
+	}
+
+	formats := make([]FormatInfo, 0, len(resp.API.MediaItems))
+	seen := make(map[string]struct{}, 64)
+	for _, item := range resp.API.MediaItems {
+		u := strings.TrimSpace(item.MediaURL)
+		if u == "" {
+			u = strings.TrimSpace(item.MediaPreviewURL)
+		}
+		if u == "" {
+			continue
+		}
+		ext := strings.ToLower(strings.TrimSpace(item.MediaExtension))
+		if ext == "" {
+			ext = "mp4"
+		}
+		height := parseHeightFromString(item.MediaQuality)
+		if height == 0 {
+			if res, ok := item.MediaRes.(string); ok {
+				height = parseHeightFromString(res)
+			}
+		}
+		formatID := "best"
+		if height > 0 {
+			formatID = fmt.Sprintf("%dp", height)
+		}
+
+		key := formatID + "|" + ext
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+
+		var hPtr *int
+		if height > 0 {
+			h := height
+			hPtr = &h
+		}
+
+		acodec := ""
+		vcodec := ""
+		lt := strings.ToLower(item.Type)
+		if strings.Contains(lt, "audio") {
+			vcodec = "none"
+			if ext == "mp4" {
+				acodec = "aac"
+			} else if ext == "webm" {
+				acodec = "opus"
+			}
+		} else {
+			if ext == "mp4" {
+				vcodec = "h264"
+				acodec = "aac"
+			} else if ext == "webm" {
+				vcodec = "vp9"
+				acodec = "opus"
+			}
+		}
+
+		formats = append(formats, FormatInfo{
+			URL:      u,
+			FormatID: formatID,
+			Ext:      ext,
+			Acodec:   acodec,
+			Vcodec:   vcodec,
+			Height:   hPtr,
+		})
+	}
+
+	return &VideoInfo{
+		ID:          extractYouTubeID(url),
+		Title:       strings.TrimSpace(resp.API.Title),
+		Duration:    dur,
+		Thumbnail:   thumb,
+		WebpageURL:  url,
+		Extractor:   "youtube",
+		DownloadURL: downloadURL,
+		Formats:     formats,
+	}, nil
+}
+
+func (s *YTDownStrategy) Name() string {
+	return "ytdown"
+}
+
 type FallbackDownloader struct {
 	strategies []DownloaderStrategy
 }
 
 func NewFallbackDownloader() *FallbackDownloader {
+	ytDown := &YTDownStrategy{client: scrapper.NewYTDownService()}
 	ytDlp := &YtDlpStrategy{client: &ytDlpClient{executablePath: "python3"}}
 	ytCustom := &YoutubeCustomStrategy{downloader: NewYoutubeDownloader()}
 	ytGo := &YoutubeGoStrategy{client: youtube.Client{}}
@@ -137,7 +256,7 @@ func NewFallbackDownloader() *FallbackDownloader {
 
 	return &FallbackDownloader{
 		// Global default order: yt-dlp -> lux -> custom strategies -> chromedp (fallback)
-		strategies: []DownloaderStrategy{ytCustom, ytDlp, luxStrat, ytGo, rumbleStrat, vimeoStrat, chromedpStrat},
+		strategies: []DownloaderStrategy{ytDown, ytCustom, ytDlp, luxStrat, ytGo, rumbleStrat, vimeoStrat, chromedpStrat},
 	}
 }
 
@@ -166,28 +285,28 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 
 	// Filter and prioritize strategies
 	if isYoutube {
-		// Requested order: youtube-custom -> yt-dlp -> lux -> chromedp
-		var ytCustomStrat, ytDlpStrat, luxStrat, chromedpStrat DownloaderStrategy
+		// Requested order: ytdown -> yt-dlp -> youtube-custom -> chromedp
+		var ytDownStrat, ytDlpStrat, ytCustomStrat, chromedpStrat DownloaderStrategy
 		for _, strategy := range f.strategies {
-			if strategy.Name() == "youtube-custom" {
-				ytCustomStrat = strategy
+			if strategy.Name() == "ytdown" {
+				ytDownStrat = strategy
 			} else if strategy.Name() == "yt-dlp" {
 				ytDlpStrat = strategy
-			} else if strategy.Name() == "lux" {
-				luxStrat = strategy
+			} else if strategy.Name() == "youtube-custom" {
+				ytCustomStrat = strategy
 			} else if strategy.Name() == "chromedp" {
 				chromedpStrat = strategy
 			}
 		}
 
-		if ytCustomStrat != nil {
-			strategies = append(strategies, ytCustomStrat)
+		if ytDownStrat != nil {
+			strategies = append(strategies, ytDownStrat)
 		}
 		if ytDlpStrat != nil {
 			strategies = append(strategies, ytDlpStrat)
 		}
-		if luxStrat != nil {
-			strategies = append(strategies, luxStrat)
+		if ytCustomStrat != nil {
+			strategies = append(strategies, ytCustomStrat)
 		}
 		if chromedpStrat != nil {
 			strategies = append(strategies, chromedpStrat)
@@ -289,7 +408,7 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 	} else {
 		// For non-YouTube URLs, exclude YouTube-specific strategies
 		for _, strategy := range f.strategies {
-			if strategy.Name() == "kkdai/youtube" || strategy.Name() == "youtube-custom" {
+			if strategy.Name() == "kkdai/youtube" || strategy.Name() == "youtube-custom" || strategy.Name() == "ytdown" {
 				continue
 			}
 			strategies = append(strategies, strategy)
@@ -319,15 +438,135 @@ func (f *FallbackDownloader) DownloadVideo(ctx context.Context, url string) (*Vi
 
 func (f *FallbackDownloader) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string, cookies map[string]string) error {
 	isYoutube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
-	if isYoutube && !strings.EqualFold(strings.TrimSpace(os.Getenv("YOUTUBE_CUSTOM_DISABLED")), "true") {
-		yd := NewYoutubeDownloader()
-		if _, err := yd.DownloadToPath(ctx, url, formatID, outputPath); err == nil {
-			return nil
-		} else {
-			log.Error().Err(err).Str("strategy", "youtube-custom").Msg("Strategy failed, falling back to yt-dlp")
+	if isYoutube {
+		if !strings.EqualFold(strings.TrimSpace(os.Getenv("YTDOWN_DISABLED")), "true") {
+			yt := scrapper.NewYTDownService()
+			if err := yt.DownloadToPath(ctx, url, outputPath, ""); err == nil {
+				return nil
+			}
 		}
+
+		client := &ytDlpClient{executablePath: "python3"}
+		if err := client.DownloadToPath(ctx, url, formatID, outputPath, cookies); err == nil {
+			return nil
+		}
+
+		if !strings.EqualFold(strings.TrimSpace(os.Getenv("YOUTUBE_CUSTOM_DISABLED")), "true") {
+			yd := NewYoutubeDownloader()
+			if _, err := yd.DownloadToPath(ctx, url, formatID, outputPath); err == nil {
+				return nil
+			}
+		}
+
+		if chromedp := NewChromedpStrategy(); chromedp != nil {
+			if info, err := chromedp.GetVideoInfo(ctx, url); err == nil {
+				direct := strings.TrimSpace(info.DownloadURL)
+				if direct != "" && !strings.HasPrefix(strings.ToLower(direct), "blob:") {
+					client := &ytDlpClient{executablePath: "python3"}
+					return client.DownloadToPath(ctx, direct, "", outputPath, cookies)
+				}
+			}
+		}
+		return fmt.Errorf("all YouTube download strategies failed")
 	}
 
 	client := &ytDlpClient{executablePath: "python3"}
 	return client.DownloadToPath(ctx, url, formatID, outputPath, cookies)
+}
+
+func pickBestYTDownItem(items []scrapper.YTDownMediaItem) *scrapper.YTDownMediaItem {
+	var best *scrapper.YTDownMediaItem
+	bestScore := -1
+	for i := range items {
+		it := &items[i]
+		lt := strings.ToLower(it.Type)
+		if strings.Contains(lt, "audio") {
+			continue
+		}
+		ext := strings.ToLower(strings.TrimSpace(it.MediaExtension))
+		score := 0
+		if strings.Contains(lt, "video") {
+			score += 10
+		}
+		if ext == "mp4" {
+			score += 5
+		}
+		height := parseHeightFromString(it.MediaQuality)
+		if height == 0 {
+			if res, ok := it.MediaRes.(string); ok {
+				height = parseHeightFromString(res)
+			}
+		}
+		score += height
+		if score > bestScore {
+			best = it
+			bestScore = score
+		}
+	}
+	if best != nil {
+		return best
+	}
+	if len(items) > 0 {
+		return &items[0]
+	}
+	return nil
+}
+
+func parseHeightFromString(s string) int {
+	s = strings.ToLower(strings.TrimSpace(s))
+	re := regexp.MustCompile(`(\d{3,4})p`)
+	m := re.FindStringSubmatch(s)
+	if len(m) < 2 {
+		return 0
+	}
+	n, err := strconv.Atoi(m[1])
+	if err != nil {
+		return 0
+	}
+	return n
+}
+
+func parseDurationSeconds(s string) float64 {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0
+	}
+	parts := strings.Split(s, ":")
+	if len(parts) < 2 || len(parts) > 3 {
+		return 0
+	}
+	secPart := strings.TrimSpace(parts[len(parts)-1])
+	minPart := strings.TrimSpace(parts[len(parts)-2])
+	hourPart := "0"
+	if len(parts) == 3 {
+		hourPart = strings.TrimSpace(parts[0])
+	}
+	h, errH := strconv.Atoi(hourPart)
+	m, errM := strconv.Atoi(minPart)
+	sec, errS := strconv.Atoi(secPart)
+	if errH != nil || errM != nil || errS != nil {
+		return 0
+	}
+	if h < 0 || m < 0 || sec < 0 {
+		return 0
+	}
+	return float64(h*3600 + m*60 + sec)
+}
+
+func extractYouTubeID(videoURL string) string {
+	patterns := []string{
+		`(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})`,
+		`youtu\.be\/([a-zA-Z0-9_-]{11})`,
+		`youtube\.com\/v\/([a-zA-Z0-9_-]{11})`,
+		`youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})`,
+		`[?&]v=([^&#]{11})`,
+	}
+	for _, p := range patterns {
+		re := regexp.MustCompile(p)
+		m := re.FindStringSubmatch(videoURL)
+		if len(m) > 1 {
+			return m[1]
+		}
+	}
+	return ""
 }

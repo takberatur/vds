@@ -9,23 +9,18 @@ export const GET = async ({ url, request }) => {
 		const staticPath = join(process.cwd(), 'static', 'ads.txt');
 		let adsContent: string;
 
-		let origin = url.origin || request.headers.get('origin') || '';
-		if (origin.startsWith('http://')) {
-			origin = origin.replace('http://', 'https://');
-		}
-
 		if (existsSync(staticPath)) {
 			adsContent = readFileSync(staticPath, 'utf-8');
 		} else {
-			adsContent = generateDefaultAdsTxt(origin);
+			adsContent = generateDefaultAdsTxt();
 
 			writeFileSync(staticPath, adsContent, 'utf-8');
 		}
 
-		return text(adsContent, {
+		return new Response(adsContent, {
 			headers: {
 				'Content-Type': 'text/plain; charset=utf-8',
-				'Cache-Control': 'public, max-age=3600' // Cache 1 hour
+				// 'Cache-Control': 'public, max-age=3600' // Cache 1 hour
 			}
 		});
 
@@ -34,7 +29,7 @@ export const GET = async ({ url, request }) => {
 
 		const fallbackContent = generateDefaultAdsTxt(origin);
 
-		return text(fallbackContent, {
+		return new Response(fallbackContent, {
 			status: 500,
 			headers: {
 				'Content-Type': 'text/plain; charset=utf-8'
