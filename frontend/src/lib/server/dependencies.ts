@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { ApiClientHandler, AuthHelper, QueryHelper, LanguageHelper } from '@/helpers';
+import { ApiClientHandler, AuthHelper, QueryHelper, LanguageHelper, PostHelper } from '@/helpers';
 import {
 	AuthServiceImpl,
 	SettingServiceImpl,
@@ -17,6 +17,7 @@ export class Dependencies {
 	public readonly queryHelper: QueryHelper;
 	public readonly languageHelper: LanguageHelper;
 	public readonly authHelper: AuthHelper;
+	public readonly postHelper: PostHelper;
 
 	public readonly authService: AuthServiceImpl;
 	public readonly settingService: SettingServiceImpl;
@@ -33,6 +34,7 @@ export class Dependencies {
 		this.queryHelper = new QueryHelper(event);
 		this.languageHelper = new LanguageHelper(event);
 		this.authHelper = new AuthHelper(event);
+		this.postHelper = new PostHelper(event);
 
 		this.authService = new AuthServiceImpl(event, this.apiClient);
 		this.settingService = new SettingServiceImpl(event, this.apiClient);

@@ -1,9 +1,41 @@
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { mdsvex, escapeSvelte } from 'mdsvex';
+import { createHighlighter } from 'shiki';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
+const theme = 'github-dark';
+const highlighter = await createHighlighter({
+	themes: [theme],
+	langs: ['javascript', 'typescript', 'ts', 'js', 'html', 'css', 'bash']
+});
+
+/** @type {import('mdsvex').MdsvexOptions} */
+const mdsvexOptions = {
+	extensions: ['.svx', '.md'],
+	layout: {
+		blog: './src/lib/components/blog/BlogLayout.svelte'
+	},
+	remarkPlugins: [remarkMath],
+	rehypePlugins: [rehypeKatex],
+	highlight: {
+		highlighter: async (code, lang = 'text') => {
+			const shiki = await getShiki();
+			const html = escapeSvelte(shiki.codeToHtml(code, { lang, theme }));
+			return html;
+		}
+	}
+};
+
+async function getShiki() {
+	return highlighter;
+}
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	preprocess: vitePreprocess(),
+	extensions: ['.svelte', '.svx', '.md'],
+	preprocess: [mdsvex(mdsvexOptions), vitePreprocess()],
 	kit: {
 		adapter: adapter({
 			out: 'build',

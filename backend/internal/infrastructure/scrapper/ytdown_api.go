@@ -3,13 +3,16 @@ package scrapper
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -91,9 +94,11 @@ type YTDownMediaItem struct {
 }
 
 func NewYTDownService() *YTDownService {
+	jar, _ := cookiejar.New(nil)
 	return &YTDownService{
 		httpClient: &http.Client{
 			Timeout: 60 * time.Second,
+			Jar:     jar,
 			Transport: &http.Transport{
 				DisableKeepAlives: false,
 				MaxIdleConns:      10,
@@ -276,7 +281,15 @@ func (yt *YTDownService) DownloadToPath(ctx context.Context, videoURL, outputPat
 		}
 	}
 
-	return yt.downloadFile(ctx, selectedOption.URL, outputPath)
+	if err := yt.downloadFile(ctx, selectedOption.URL, outputPath); err != nil {
+		return err
+	}
+	if fi, err := os.Stat(outputPath); err == nil {
+		if fi.Size() < 1024 {
+			return fmt.Errorf("downloaded file too small (%d bytes)", fi.Size())
+		}
+	}
+	return nil
 }
 
 func (yt *YTDownService) downloadFile(ctx context.Context, downloadURL, outputPath string) error {
@@ -293,6 +306,7 @@ func (yt *YTDownService) downloadFile(ctx context.Context, downloadURL, outputPa
 	req.Header.Set("Sec-Fetch-Dest", "video")
 	req.Header.Set("Sec-Fetch-Mode", "no-cors")
 	req.Header.Set("Sec-Fetch-Site", "cross-site")
+	req.Header.Set("Range", "bytes=0-")
 
 	resp, err := yt.httpClient.Do(req)
 	if err != nil {
@@ -315,10 +329,49 @@ func (yt *YTDownService) downloadFile(ctx context.Context, downloadURL, outputPa
 	}
 	defer file.Close()
 
+	buf := make([]byte, 8192)
+	n, readErr := io.ReadAtLeast(resp.Body, buf, 1)
+	if readErr != nil {
+		if errors.Is(readErr, io.EOF) {
+			return fmt.Errorf("empty response body")
+		}
+		if errors.Is(readErr, io.ErrUnexpectedEOF) {
+			n = maxInt(n, 0)
+		} else {
+			return fmt.Errorf("failed to read response: %v", readErr)
+		}
+	}
+	buf = buf[:n]
+
+	ct := strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Type")))
+	if looksLikeBlockedOrHTML(ct, buf) {
+		preview := strings.TrimSpace(string(buf))
+		if len(preview) > 300 {
+			preview = preview[:300]
+		}
+		return fmt.Errorf("unexpected content (content-type=%q) preview=%q", ct, preview)
+	}
+	if looksLikePlaylist(buf) {
+		preview := strings.TrimSpace(string(buf))
+		if len(preview) > 300 {
+			preview = preview[:300]
+		}
+		return fmt.Errorf("got playlist content preview=%q", preview)
+	}
+	if !looksLikeVideoHeader(buf) {
+		preview := strings.TrimSpace(string(buf))
+		if len(preview) > 300 {
+			preview = preview[:300]
+		}
+		return fmt.Errorf("unknown content header (content-type=%q) preview=%q", ct, preview)
+	}
+
+	if _, err := file.Write(buf); err != nil {
+		return fmt.Errorf("write error: %v", err)
+	}
 	if _, err := io.Copy(file, resp.Body); err != nil {
 		return fmt.Errorf("failed to save file: %v", err)
 	}
-
 	return nil
 }
 func (yt *YTDownService) extractYtDownVideoID(videoURL string) string {
@@ -400,6 +453,76 @@ func parseHeightFromString(s string) int {
 		n = n*10 + int(ch-'0')
 	}
 	return n
+}
+
+func looksLikeBlockedOrHTML(contentType string, head []byte) bool {
+	if strings.Contains(contentType, "text/html") || strings.Contains(contentType, "application/json") {
+		return true
+	}
+	s := strings.ToLower(strings.TrimSpace(string(head)))
+	if strings.HasPrefix(s, "<!doctype") || strings.HasPrefix(s, "<html") || strings.Contains(s, "access denied") {
+		return true
+	}
+	return false
+}
+
+func looksLikePlaylist(head []byte) bool {
+	s := strings.TrimSpace(string(head))
+	return strings.HasPrefix(s, "#EXTM3U")
+}
+
+func looksLikeVideoHeader(head []byte) bool {
+	if len(head) >= 12 {
+		if string(head[4:8]) == "ftyp" {
+			return true
+		}
+	}
+	if len(head) >= 4 {
+		if head[0] == 0x1A && head[1] == 0x45 && head[2] == 0xDF && head[3] == 0xA3 {
+			return true
+		}
+	}
+	return false
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func parseNumericOrClockDurationSeconds(s string) int {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0
+	}
+	if n, err := strconv.Atoi(s); err == nil {
+		if n < 0 {
+			return 0
+		}
+		return n
+	}
+	parts := strings.Split(s, ":")
+	if len(parts) < 2 || len(parts) > 3 {
+		return 0
+	}
+	secPart := strings.TrimSpace(parts[len(parts)-1])
+	minPart := strings.TrimSpace(parts[len(parts)-2])
+	hourPart := "0"
+	if len(parts) == 3 {
+		hourPart = strings.TrimSpace(parts[0])
+	}
+	h, errH := strconv.Atoi(hourPart)
+	m, errM := strconv.Atoi(minPart)
+	sec, errS := strconv.Atoi(secPart)
+	if errH != nil || errM != nil || errS != nil {
+		return 0
+	}
+	if h < 0 || m < 0 || sec < 0 {
+		return 0
+	}
+	return h*3600 + m*60 + sec
 }
 
 func firstNonEmpty(values ...string) string {

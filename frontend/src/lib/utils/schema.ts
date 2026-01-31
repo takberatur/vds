@@ -278,6 +278,23 @@ export const updateApplicationSchema = registerAppSchema.extend({
 	id: z.string({ error: 'ID is required' }).nonempty('ID is required'),
 });
 
+// Blog Post
+export const PostSchema = z.object({
+	title: z.string(),
+	slug: z.string().nonempty('Slug is required'),
+	description: z.string(),
+	publishedDate: z.string(),
+	lastUpdatedDate: z.string().optional(),
+	tags: z.array(z.string()).optional(),
+	status: z.enum(['draft', 'published']),
+	series: z
+		.object({
+			order: z.number(),
+			title: z.string()
+		})
+		.optional()
+});
+
 
 export type LoginSchema = z.infer<typeof loginSchema>;
 export type AuthGoogleSchema = z.infer<typeof authGoogleSchema>;
@@ -306,3 +323,6 @@ export type UpdatePlatformSchema = z.infer<typeof updatePlatformSchema>;
 // Applications
 export type RegisterAppSchema = z.infer<typeof registerAppSchema>;
 export type UpdateApplicationSchema = z.infer<typeof updateApplicationSchema>;
+
+// Blog Post
+export type PostSchema = z.infer<typeof PostSchema>;
