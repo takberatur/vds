@@ -5,6 +5,7 @@
 	let { data, children } = $props();
 
 	let systemSetting = $derived(data?.settings?.SYSTEM);
+	let monetizeSetting = $derived(data?.settings?.MONETIZE);
 
 	onMount(() => {
 		const histatstCode = systemSetting?.histats_tracking_code;
@@ -54,6 +55,12 @@
 				lang: lang || 'en'
 			});
 		</script>
+	{/if}
+	{#if monetizeSetting?.type_monetize === 'adsense' && monetizeSetting?.publisher_id}
+		<script
+			async
+			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${monetizeSetting?.publisher_id}"
+		></script>
 	{/if}
 </svelte:head>
 

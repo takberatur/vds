@@ -223,6 +223,8 @@ func mapMonetizeSetting(target *model.SettingMonetize, s model.Setting) {
 		target.EnableMonetize = s.Value == "true"
 	case "type_monetize":
 		target.TypeMonetize = s.Value
+	case "publisher_id":
+		target.PublisherID = s.Value
 	case "enable_popup_ad":
 		target.EnablePopupAd = s.Value == "true"
 	case "enable_socialbar_ad":

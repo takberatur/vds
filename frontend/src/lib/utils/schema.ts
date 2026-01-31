@@ -98,6 +98,7 @@ export const updateSettingSystem = z.object({
 export const updateSettingMonetization = z.object({
 	enable_monetize: z.boolean().optional().default(false),
 	type_monetize: z.enum(['adsense', 'revenuecat', 'adsterra']).optional().default('adsense'),
+	publisher_id: z.string().optional().or(z.literal('')),
 	enable_popup_ad: z.boolean().optional().default(false),
 	auto_ad_code: z.string().optional().or(z.literal('')),
 	popup_ad_code: z.string().optional().or(z.literal('')),

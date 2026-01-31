@@ -290,6 +290,7 @@ declare global {
 	type SettingMonetize = {
 		enable_monetize?: boolean;
 		type_monetize?: 'adsense' | 'revenuecat' | 'adsterra';
+		publisher_id?: string;
 		enable_popup_ad?: boolean;
 		enable_socialbar_ad?: boolean;
 		auto_ad_code?: string;

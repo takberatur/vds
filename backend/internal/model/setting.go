@@ -62,6 +62,7 @@ type SettingSystem struct {
 type SettingMonetize struct {
 	EnableMonetize         bool   `json:"enable_monetize"`
 	TypeMonetize           string `json:"type_monetize"` // 'adsense' | 'revenuecat' | 'adsterra'
+	PublisherID            string `json:"publisher_id"`
 	EnablePopupAd          bool   `json:"enable_popup_ad"`
 	EnableSocialbarAd      bool   `json:"enable_socialbar_ad"`
 	AutoAdCode             string `json:"auto_ad_code"`

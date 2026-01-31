@@ -231,6 +231,7 @@ INSERT INTO settings (key, value, description, group_name) VALUES
 -- MONETIZE Group
 ('enable_monetize', 'false', 'Enable Monetization Features', 'MONETIZE'),
 ('type_monetize', 'adsense', 'Monetization Type (adsense, revenuecat, adsterra)', 'MONETIZE'),
+('publisher_id', '', 'Adsense Publisher ID', 'MONETIZE'),
 ('enable_popup_ad', 'false', 'Enable Popup Ad', 'MONETIZE'),
 ('enable_socialbar_ad', 'false', 'Enable Social Bar Ad', 'MONETIZE'),
 ('popup_ad_code', '', 'Popup Ad Code', 'MONETIZE'),

@@ -124,6 +124,27 @@
 								<Field.Error>{$errors.type_monetize}</Field.Error>
 							{/if}
 						</Field.Field>
+						<Field.Field>
+							<Field.Label for="publisher_id">
+								Publisher ID <span class="text-red-500 dark:text-red-400">*</span>
+							</Field.Label>
+							<div class="relative">
+								<Icon icon="mdi:account" class="absolute top-1/2 left-3 -translate-y-1/2" />
+								<Input
+									bind:value={$form.publisher_id}
+									name="publisher_id"
+									type="text"
+									class="ps-10"
+									placeholder="Example: ca-pub-1234567890123456"
+									aria-invalid={!!$errors.publisher_id}
+									autocomplete="on"
+									disabled={$submitting || !$form.enable_monetize}
+								/>
+							</div>
+							{#if $errors.publisher_id}
+								<Field.Error>{$errors.publisher_id}</Field.Error>
+							{/if}
+						</Field.Field>
 						<Field.Field orientation="horizontal">
 							<Field.Content>
 								<Field.Label for="enable_popup_ad">

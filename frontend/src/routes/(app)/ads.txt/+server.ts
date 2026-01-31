@@ -1,6 +1,5 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { text } from '@sveltejs/kit';
 
 
 export const GET = async ({ url, request }) => {

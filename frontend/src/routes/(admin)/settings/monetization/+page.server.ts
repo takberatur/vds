@@ -28,6 +28,7 @@ export const load = async ({ locals, url, parent }) => {
 		{
 			enable_monetize: settings?.MONETIZE.enable_monetize ?? false,
 			type_monetize: settings?.MONETIZE.type_monetize ?? 'adsense',
+			publisher_id: settings?.MONETIZE.publisher_id ?? '',
 			enable_popup_ad: settings?.MONETIZE.enable_popup_ad ?? false,
 			auto_ad_code: settings?.MONETIZE.auto_ad_code ?? '',
 			popup_ad_code: settings?.MONETIZE.popup_ad_code ?? '',
@@ -62,6 +63,7 @@ export const actions = {
 		const settingsToUpdate = [
 			{ key: 'enable_monetize', value: String(form.data.enable_monetize), group_name: 'MONETIZE' },
 			{ key: 'type_monetize', value: form.data.type_monetize, group_name: 'MONETIZE' },
+			{ key: 'publisher_id', value: form.data.publisher_id, group_name: 'MONETIZE' },
 			{ key: 'enable_popup_ad', value: String(form.data.enable_popup_ad), group_name: 'MONETIZE' },
 			{ key: 'auto_ad_code', value: form.data.auto_ad_code, group_name: 'MONETIZE' },
 			{ key: 'popup_ad_code', value: form.data.popup_ad_code, group_name: 'MONETIZE' },
