@@ -362,3 +362,28 @@ export function createDownloadManager() {
 		}
 	});
 }
+
+export function createBlogPostManager() {
+	const end = new Date();
+	const start = new Date();
+	start.setDate(end.getDate() - 30);
+	return createUrlStateManager({
+		defaults: {
+			search: '',
+			status: 'ALL',
+			tag: '',
+			series: '',
+			page: 1,
+			limit: 10,
+			sort_by: 'created_at',
+			order_by: 'desc' as 'asc' | 'desc',
+			year: '',
+			month: '',
+		},
+		validators: {
+			page: (v) => Math.max(1, Number(v) || 1),
+			limit: (v) => Math.min(Math.max(1, Number(v) || 10), 100),
+			order_by: (v) => (v === 'asc' ? 'asc' : 'desc')
+		}
+	});
+}

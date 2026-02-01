@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { onMount } from 'svelte';
 	import { ClientFooter, ClientHeader } from '@/components/client/index.js';
 	import { type Locale } from '@/paraglide/runtime';
 
@@ -21,6 +20,8 @@
 
 <div class="min-h-screen">
 	<ClientHeader {user} {setting} lang={lang as Locale} />
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 	<ClientFooter {setting} {platforms} lang={lang as Locale} />
 </div>

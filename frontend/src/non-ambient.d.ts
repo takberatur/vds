@@ -1,3 +1,6 @@
+import { PostSchema } from '@/utils/schema.js';
+import { SvelteComponent } from 'svelte';
+
 declare global {
 	interface Window {
 		gc: NodeJS.GCFunction | undefined;
@@ -175,6 +178,12 @@ declare global {
 		date_from?: Date | string;
 		date_to?: Date | string;
 		extra?: Record<string, any>;
+		// for blog post
+		tag?: string;
+		series?: string;
+		year?: number;
+		month?: number;
+		include_deleted?: boolean;
 	}
 	interface PaginatedResult<T> {
 		data: T[];
@@ -185,6 +194,8 @@ declare global {
 			has_next: boolean;
 			has_prev: boolean;
 			limit: number;
+			next_page?: number;
+			prev_page?: number;
 		};
 	}
 	interface QueryBuilderOptions<T> {
@@ -204,12 +215,19 @@ declare global {
 		date_from: Date | string;
 		date_to: Date | string;
 	}
-
 	interface CookieItem {
 		lines: string[];
 		path: string;
 		valid: boolean;
 	}
+	interface BlogPost {
+		meta: PostSchema
+		component?: SvelteComponent<Record<string, any>, any, any>;
+		path: string
+		readingTime: string
+		words: number
+	}
+
 }
 
 export { };

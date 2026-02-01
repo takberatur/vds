@@ -90,5 +90,7 @@
 	aria-roledescription="carousel"
 	{...restProps}
 >
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 </div>

@@ -19,20 +19,12 @@
 		langStore,
 		createWebsocketStore
 	} from '$lib/stores';
-	import {
-		locales,
-		localizeHref,
-		setLocale,
-		overwriteGetLocale,
-		overwriteSetLocale,
-		type Locale
-	} from '@/paraglide/runtime';
+	import { locales, localizeHref, overwriteGetLocale, type Locale } from '@/paraglide/runtime';
 
 	let { data, children } = $props();
 
 	// svelte-ignore state_referenced_locally
 	overwriteGetLocale(() => data.lang as Locale);
-	overwriteSetLocale((locale) => setLocale(locale));
 
 	const trackedMethods = ['post', 'patch', 'put', 'delete'];
 	let originalFetch: typeof window.fetch;
@@ -304,7 +296,9 @@
 <ToastContent />
 
 <main class="font-roboto bg-background text-foreground antialiased">
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 </main>
 <div style="display:none">
 	{#each locales as locale}

@@ -10,7 +10,7 @@ export const config = {
 };
 
 export const load = async ({ locals, url }) => {
-	const { user, settings, lang } = locals;
+	const { user, settings, lang, deps } = locals;
 
 	const defaultOrigin = url.origin;
 	let canonicalUrl = defaultOrigin;
@@ -27,13 +27,33 @@ export const load = async ({ locals, url }) => {
 		href: normalizeUrl(alt.href)
 	}));
 
-	return {
-		user,
-		settings,
-		lang,
-		canonicalUrl,
-		alternates: normalizedAlternates,
-	};
+	try {
+		const platforms = await deps.platformService.GetAll();
+		if (platforms instanceof Error) {
+			throw platforms
+		}
+		return {
+			user,
+			settings,
+			lang,
+			canonicalUrl,
+			alternates: normalizedAlternates,
+			platforms,
+		};
+	} catch (error) {
+		console.error('Error fetching platforms:', error);
+		return {
+			user,
+			settings,
+			lang,
+			canonicalUrl,
+			alternates: normalizedAlternates,
+			platforms: [],
+		};
+
+	}
+
+
 }
 
 function normalizeUrl(urlString: string): string {

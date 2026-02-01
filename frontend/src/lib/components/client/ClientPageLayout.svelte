@@ -18,5 +18,7 @@
 </script>
 
 <ClientLayout {user} {setting} {platforms} {lang}>
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 </ClientLayout>

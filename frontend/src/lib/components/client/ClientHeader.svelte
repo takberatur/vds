@@ -17,6 +17,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import Icon from '@iconify/svelte';
 	import { smoothScroll } from '$lib/stores';
+	import { LanguageLabels } from '@/utils/localize-path.js';
 	import { cn } from '@/utils';
 	import * as i18n from '@/paraglide/messages.js';
 
@@ -36,27 +37,9 @@
 	);
 	let isMp3Path = $derived(page.url.pathname.startsWith(localizeHref('/mp3', { locale: lang })));
 
-	const languageLabels: Partial<Record<Locale, string>> = {
-		en: 'English',
-		es: 'Español',
-		de: 'German',
-		pt: 'Português',
-		fr: 'Français',
-		id: 'Bahasa Indonesia',
-		hi: 'हिन्दी',
-		ar: 'العربية',
-		zh: '中文',
-		ru: 'Русский',
-		ja: '日本語',
-		tr: 'Türkçe',
-		vi: 'Tiếng Việt',
-		th: 'ไทย',
-		el: 'Ελληνικά',
-		it: 'Italiano'
-	};
 	const languages = availableLocales.map((code) => ({
 		code,
-		label: languageLabels[code] ?? code.toUpperCase()
+		label: LanguageLabels[code] ?? code.toUpperCase()
 	}));
 	let currentLang = $derived(getLocale());
 	let menuHidden = $derived(() => {

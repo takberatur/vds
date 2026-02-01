@@ -4,6 +4,8 @@ import { mdsvex, escapeSvelte } from 'mdsvex';
 import { createHighlighter } from 'shiki';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeSlug from 'rehype-slug';
+import remarkToc from 'remark-toc';
 
 const theme = 'github-dark';
 const highlighter = await createHighlighter({
@@ -17,7 +19,7 @@ const mdsvexOptions = {
 	layout: {
 		blog: './src/lib/components/blog/BlogLayout.svelte'
 	},
-	remarkPlugins: [remarkMath],
+	remarkPlugins: [remarkMath, rehypeSlug, [remarkToc, { heading: 'toc' }]],
 	rehypePlugins: [rehypeKatex],
 	highlight: {
 		highlighter: async (code, lang = 'text') => {

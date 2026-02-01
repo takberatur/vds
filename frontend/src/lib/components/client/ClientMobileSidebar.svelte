@@ -18,6 +18,7 @@
 	import { LightSwitch } from '@/components/ui-extras/light-switch';
 	import { LanguageSwitcher } from '$lib/components/ui-extras/language-switcher/index.js';
 	import Icon from '@iconify/svelte';
+	import { LanguageLabels } from '@/utils/localize-path.js';
 	import { smoothScroll } from '$lib/stores';
 	import * as i18n from '@/paraglide/messages.js';
 
@@ -47,27 +48,9 @@
 	});
 	let isOpen = $state(false);
 
-	const languageLabels: Partial<Record<Locale, string>> = {
-		en: 'English',
-		es: 'Español',
-		de: 'German',
-		pt: 'Português',
-		fr: 'Français',
-		id: 'Bahasa Indonesia',
-		hi: 'हिन्दी',
-		ar: 'العربية',
-		zh: '中文',
-		ru: 'Русский',
-		ja: '日本語',
-		tr: 'Türkçe',
-		vi: 'Tiếng Việt',
-		th: 'ไทย',
-		el: 'Ελληνικά',
-		it: 'Italiano'
-	};
 	const languages = availableLocales.map((code) => ({
 		code,
-		label: languageLabels[code] ?? code.toUpperCase()
+		label: LanguageLabels[code] ?? code.toUpperCase()
 	}));
 	let currentLang = $derived(getLocale());
 	let isMp3Path = $derived(page.url.pathname.startsWith(localizeHref('/mp3', { locale: lang })));

@@ -64,6 +64,11 @@ export async function GET({ url, request, locals, params }) {
 		pages.push(...platformPages);
 	});
 
+	const slugPosts = await locals.deps.postHelper.getAllSlugNames() as string[];
+	slugPosts.forEach((slug) => {
+		pages.push(`blog/${slug}`);
+	});
+
 	const body = sitemap(`${origin}/${locale}`, pages);
 	const response = new Response(body);
 	response.headers.set('Cache-Control', 'max-age=0, s-maxage=3600');

@@ -24,7 +24,9 @@
 </script>
 
 <ClientLayout {user} {setting} {platforms} {lang}>
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 	<ClientMp3FeatureSection />
 	<ClientMp3HowToUseSection {lang} />
 	<ClientMp3SupportFormatSection />

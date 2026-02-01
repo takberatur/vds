@@ -9,5 +9,7 @@
 	<h1>{post?.title}</h1>
 	<p class="text-gray-500">{post?.description}</p>
 
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 </article>

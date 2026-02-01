@@ -42,5 +42,7 @@
 	class={cn('max-w-58', className)}
 	onValueChange={state.onValueChange}
 >
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 </CommandPrimitive.Root>

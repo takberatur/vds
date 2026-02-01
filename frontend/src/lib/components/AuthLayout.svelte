@@ -32,7 +32,9 @@
 					</h2>
 				</div>
 
-				{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 			</div>
 		</div>
 	</div>

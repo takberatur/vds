@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
+import fs from 'fs';
 
 export default defineConfig({
 	logLevel: 'info',
@@ -14,8 +15,18 @@ export default defineConfig({
 		allowedHosts: [
 			'client.giuadiario.info',
 			'compositely-sanguinolent-cari.ngrok-free.dev',
-			'simontokz.com'
+			'simontokz.com',
+			'agcforge.local'
 		],
+		host:
+			process.env.NODE_ENV === "development"
+				? 'agcforge.local'
+				: undefined,
+		port: process.env.NODE_ENV === "development" ? 5173 : undefined,
+		https: {
+      key: fs.readFileSync('./agcforge.local-key.pem'),
+      cert: fs.readFileSync('./agcforge.local.pem'),
+    }
 		// hmr: {
 		// 	protocol: process.env.NODE_ENV === "development" ? 'wss' : undefined,
 		// 	port: process.env.NODE_ENV === "development" ? 5173 : undefined,

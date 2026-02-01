@@ -26,7 +26,9 @@
 	data-collapsed={collapsed}
 	class={cn('relative overflow-y-hidden data-[collapsed=true]:max-h-75', className)}
 >
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 	{#if collapsed}
 		<div
 			class="absolute bottom-0 left-0 z-10 h-full w-full bg-linear-to-t from-background to-transparent"

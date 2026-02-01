@@ -282,6 +282,7 @@ export const updateApplicationSchema = registerAppSchema.extend({
 export const PostSchema = z.object({
 	title: z.string(),
 	slug: z.string().nonempty('Slug is required'),
+	thumbnail: z.string().nonempty('Thumbnail is required'),
 	description: z.string(),
 	publishedDate: z.string(),
 	lastUpdatedDate: z.string().optional(),

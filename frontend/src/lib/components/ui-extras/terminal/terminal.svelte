@@ -27,5 +27,7 @@
 </script>
 
 <Window class={cn('font-mono text-sm font-light', className)}>
-	{@render children?.()}
+		{#if children}
+			{@render children()}
+		{/if}
 </Window>

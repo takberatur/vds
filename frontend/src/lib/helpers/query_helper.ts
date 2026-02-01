@@ -256,7 +256,7 @@ export class QueryHelper<T = any> extends BaseHelper {
 
 		const defaultDateRange = this.getDefaultDateRange();
 
-		return {
+		const calculateParams = {
 			page: parseInt(params.get('page') || '1'),
 			limit: parseInt(params.get('limit') || '10'),
 			search: params.get('search') || undefined,
@@ -264,8 +264,21 @@ export class QueryHelper<T = any> extends BaseHelper {
 			order_by: (params.get('order_by') as 'asc' | 'desc') || 'desc',
 			date_from: params.get('date_from') || defaultDateRange.start,
 			date_to: params.get('date_to') || defaultDateRange.end,
-			extra: {}
+			extra: {},
+			// For Blog Post
+			tag: params.get('tag') || undefined,
+			series: params.get('series') || undefined,
+			year: params.get('year') ? parseInt(params.get('year') || '0') : undefined,
+			month: params.get('month') ? parseInt(params.get('month') || '0') : undefined
 		};
+
+		// if (calculateParams.page < 1) calculateParams.page = 1;
+		// if (calculateParams.limit < 1) calculateParams.limit = 10;
+		// if (calculateParams.limit > 100) calculateParams.limit = 100;
+		// if (calculateParams?.year < 0) calculateParams.year = undefined;
+		// if (calculateParams?.month < 0 || calculateParams?.month > 12) calculateParams.month = undefined;
+
+		return calculateParams;
 	}
 
 	getDefaultDateRange() {

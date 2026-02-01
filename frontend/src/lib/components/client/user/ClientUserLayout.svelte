@@ -10,6 +10,7 @@
 		locales as availableLocales,
 		isLocale
 	} from '@/paraglide/runtime';
+	import { LanguageLabels } from '@/utils/localize-path.js';
 	import { LightSwitch } from '@/components/ui-extras/light-switch';
 	import { LanguageSwitcher } from '$lib/components/ui-extras/language-switcher/index.js';
 
@@ -21,27 +22,9 @@
 		setting?: SettingsValue | null;
 	} = $props();
 
-	const languageLabels: Partial<Record<Locale, string>> = {
-		en: 'English',
-		es: 'Español',
-		de: 'German',
-		pt: 'Português',
-		fr: 'Français',
-		id: 'Bahasa Indonesia',
-		hi: 'हिन्दी',
-		ar: 'العربية',
-		zh: '中文',
-		ru: 'Русский',
-		ja: '日本語',
-		tr: 'Türkçe',
-		vi: 'Tiếng Việt',
-		th: 'ไทย',
-		el: 'Ελληνικά',
-		it: 'Italiano'
-	};
 	const languages = availableLocales.map((code) => ({
 		code,
-		label: languageLabels[code] ?? code.toUpperCase()
+		label: LanguageLabels[code] ?? code.toUpperCase()
 	}));
 	let currentLang = $derived(getLocale());
 
@@ -69,7 +52,9 @@
 	class="min-h-screen bg-linear-to-br from-blue-600 to-purple-600 pt-10 text-white dark:bg-linear-to-br dark:from-neutral-950 dark:to-neutral-700 dark:text-white"
 >
 	<div class="m-auto w-full">
-		{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 	</div>
 	<div class="fixed top-2 right-2 z-50 rounded-md p-1">
 		<div class="flex items-center gap-2 text-neutral-900 dark:text-neutral-50">

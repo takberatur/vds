@@ -3,6 +3,7 @@
 	import * as DropdownMenu from '$lib/components/ui-extras/dropdown-menu';
 	import { buttonVariants } from '$lib/components/ui-extras/button';
 	import { cn } from '$lib/utils.js';
+	import { LanguageLabels } from '@/utils/localize-path.js';
 	import type { LanguageSwitcherProps } from './types';
 
 	let {
@@ -45,7 +46,15 @@
 		class={cn(buttonVariants({ variant, size: 'icon' }), className)}
 		aria-label="Change language"
 	>
-		<GlobeIcon class="size-4" />
+		{#if value}
+			<img
+				src={setFlagUrl(value)}
+				alt={LanguageLabels[value as keyof typeof LanguageLabels] || value.toUpperCase()}
+				class="size-4"
+			/>
+		{:else}
+			<GlobeIcon class="size-4" />
+		{/if}
 		<span class="sr-only">Change language</span>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content {align}>

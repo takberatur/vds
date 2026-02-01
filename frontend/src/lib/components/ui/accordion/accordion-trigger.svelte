@@ -24,7 +24,9 @@
 		)}
 		{...restProps}
 	>
-		{@render children?.()}
+		{#if children}
+			{@render children()}
+		{/if}
 		<ChevronDownIcon
 			class="pointer-events-none size-4 shrink-0 translate-y-0.5 text-muted-foreground transition-transform duration-200"
 		/>

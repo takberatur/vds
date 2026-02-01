@@ -1,8 +1,6 @@
 import type { MetaTagsProps, MetaTag, LinkTag } from 'svelte-meta-tags';
 import { defaultSettings } from '@/constants';
 
-
-
 export const defaultMetaTags = (
 	options?: PageMetaProps,
 	setting?: SettingsValue | null
@@ -86,6 +84,11 @@ export const defaultMetaTags = (
 			hreflang: alt.lang,
 			href: alt.href
 		})),
+		{
+			rel: 'alternate',
+			hreflang: 'application/rss+xml',
+			href: `/rss-${options?.language || 'en'}.xml`
+		},
 		{
 			rel: 'icon',
 			type: 'image/x-icon',

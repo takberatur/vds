@@ -27,7 +27,9 @@
 
 <div {...rest} bind:this={ref} class={cn(codeVariants({ variant }), className)}>
 	{@html codeState.highlighted}
-	{@render children?.()}
+		{#if children}
+			{@render children()}
+		{/if}
 </div>
 
 <style>

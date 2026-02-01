@@ -20,5 +20,7 @@
 	class={cn('px-2 py-1.5 text-sm font-semibold data-inset:pl-8', className)}
 	{...restProps}
 >
-	{@render children?.()}
+	{#if children}
+		{@render children()}
+	{/if}
 </div>

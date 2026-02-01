@@ -40,7 +40,8 @@ export async function load({ locals, url, params, parent }) {
 		robots: 'index, follow',
 		canonical: defaultOrigin,
 		alternates,
-		graph_type: 'website'
+		graph_type: 'website',
+		language: lang,
 	}, settings);
 
 	const form = await superValidate({

@@ -60,7 +60,7 @@
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content
-		class="w-[300px] p-0"
+		class="w-75 p-0"
 		onCloseAutoFocus={(e) => {
 			if (selectedValue) {
 				selectedValue = false;

@@ -1,4 +1,4 @@
-// export const prerender = true;
+
 
 export const load = async ({ data }) => {
 	const { user, settings, lang, canonicalUrl, alternates } = data;

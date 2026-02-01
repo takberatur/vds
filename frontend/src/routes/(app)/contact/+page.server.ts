@@ -31,7 +31,8 @@ export const load = async ({ locals, url, parent }) => {
 			canonical: defaultOrigin,
 			alternates,
 			graph_type: 'website',
-			use_tagline: false
+			use_tagline: false,
+			language: lang,
 		},
 		settings
 	);

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ClassValue } from 'svelte/elements';
 	import { tick } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { Button } from '@/components/ui/button';
@@ -13,7 +14,9 @@
 		options,
 		selectedValue = $bindable(new SvelteSet<string>([])),
 		title = $bindable(''),
-		onchange
+		onchange,
+		class: className = '',
+		variant = 'outline'
 	}: {
 		options: {
 			label: string;
@@ -22,6 +25,8 @@
 		selectedValue?: SvelteSet<string>;
 		title?: string;
 		onchange: (value: SvelteSet<string>) => Promise<void>;
+		class?: ClassValue;
+		variant?: 'link' | 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost';
 	} = $props();
 
 	let openFilter = $state(false);
@@ -39,9 +44,9 @@
 		{#snippet child({ props })}
 			<Button
 				{...props}
-				variant="outline"
+				{variant}
 				size="sm"
-				class="h-8 w-full border-dashed px-2 lg:w-auto"
+				class={cn('h-8 w-full border-dashed px-2 lg:w-auto', className)}
 			>
 				<CirclePlusIcon />
 				{title || 'Filter'}

@@ -10,7 +10,7 @@
 		children,
 		...restProps
 	}: DrawerPrimitive.ContentProps & {
-		portalProps?: DrawerPrimitive.PortalProps;
+		portalProps?: DrawerPrimitive.;
 	} = $props();
 </script>
 
@@ -32,6 +32,8 @@
 		<div
 			class="mx-auto mt-4 hidden h-2 w-25 shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block"
 		></div>
-		{@render children?.()}
+		{#if children}
+			{@render children()}
+		{/if}
 	</DrawerPrimitive.Content>
 </DrawerPrimitive.Portal>
