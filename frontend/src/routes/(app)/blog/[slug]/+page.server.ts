@@ -40,7 +40,7 @@ export const load = async ({ locals, url, parent, params }) => {
 		user,
 		settings,
 		lang,
-		posts: postsTranslated,
+		posts,
 		pageMetaTags,
 	};
 }

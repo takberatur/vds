@@ -5,6 +5,9 @@ import readingTime from 'reading-time';
 import matter from 'gray-matter';
 import fs from 'fs/promises';
 import path from 'path';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import { toc } from 'mdast-util-toc';
 
 export class PostHelper extends BaseHelper {
 	constructor(event: RequestEvent) {
@@ -35,24 +38,34 @@ export class PostHelper extends BaseHelper {
 
 		let posts: BlogPost[] = [];
 
-		for (const [path, file] of postEntries) {
+		for (const [filePath, file] of postEntries) {
 			const metadata = (file as any).metadata as PostSchema;
 
 			if (!metadata || !metadata.slug) continue;
 
-			const pathParts = path.split('/');
+			const pathParts = filePath.split('/');
 			const slugFromPath = pathParts[pathParts.length - 1].replace('.md', '');
 
 			const finalSlug = metadata.slug || slugFromPath;
+
+			const raw = await fs.readFile(
+				path.resolve('src/routes/content', `${finalSlug}.md`),
+				'utf-8'
+			);
+
+			const { content, data } = matter(raw);
+			const stats = readingTime(content);
+
 
 			posts.push({
 				meta: {
 					...metadata,
 					slug: finalSlug
 				},
-				path: path.replace('/src/routes/content/', '').replace('.md', ''),
-				readingTime: readingTime(metadata.description || '').text,
-				words: readingTime(metadata.description || '').words
+				path: filePath.replace('/src/routes/content/', '').replace('.md', ''),
+				readingTime: Math.ceil(stats.minutes),
+				words: stats.words,
+				headings: this.extractHeadings(content)
 			});
 		}
 
@@ -161,8 +174,7 @@ export class PostHelper extends BaseHelper {
 			'utf-8'
 		);
 
-		const { content, data } = matter(raw);
-		const stats = readingTime(content);
+		const { data } = matter(raw);
 
 		const parsed = PostSchema.parse(data);
 
@@ -171,10 +183,12 @@ export class PostHelper extends BaseHelper {
 
 		return {
 			meta: parsed,
-			component: currentPost?.component,
-			readingTime: stats.text,
-			words: stats.words,
-			path: currentPost?.path || ''
+			// @ts-expect-error
+			component: currentPost?.default,
+			readingTime: currentPost?.readingTime || 0,
+			words: currentPost?.words || 0,
+			path: currentPost?.path || '',
+			headings: currentPost?.headings || []
 		};
 	}
 	/**
@@ -206,8 +220,9 @@ export class PostHelper extends BaseHelper {
 
 		return posts.map(post => ({
 			...post,
-			readingTime: readingTime(post.meta.description || '').text,
-			words: readingTime(post.meta.description || '').words
+			readingTime: post.readingTime,
+			words: post.words,
+			headings: post.headings
 		}));
 	}
 
@@ -257,8 +272,9 @@ export class PostHelper extends BaseHelper {
 
 		return posts.map(post => ({
 			...post,
-			readingTime: readingTime(post.meta.description || '').text,
-			words: readingTime(post.meta.description || '').words
+			readingTime: post.readingTime,
+			words: post.words,
+			headings: post.headings
 		}));
 	}
 
@@ -310,5 +326,53 @@ export class PostHelper extends BaseHelper {
 		}
 
 		return normalized;
+	}
+
+	/**
+	 * Extract headings from markdown content
+	 * @param markdown - The markdown content to extract headings from
+	 * @returns Array<{ depth: number; value: string; slug: string }>
+	 */
+	private extractHeadings(markdown: string) {
+		const tree = unified().use(remarkParse).parse(markdown);
+
+		const result = toc(tree, {
+			heading: null,
+			maxDepth: 3
+		});
+
+		if (!result.map) return [];
+
+		const headings: {
+			value: string;
+			depth: number;
+			slug: string;
+		}[] = [];
+
+		function walk(node: any, depth = 0) {
+			if (node.type === 'listItem') {
+				const textNode = node.children?.[0]?.children?.[0];
+				const text = textNode?.value;
+
+				const link = node.children?.[0]?.children?.[1];
+				const slug = link?.url?.replace('#', '');
+
+				if (text && slug) {
+					headings.push({
+						value: text,
+						depth,
+						slug
+					});
+				}
+			}
+
+			if (node.children) {
+				node.children.forEach((child: any) => walk(child, depth + 1));
+			}
+		}
+
+		walk(result.map);
+
+		return headings;
 	}
 }

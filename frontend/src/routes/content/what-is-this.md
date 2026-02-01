@@ -1,6 +1,6 @@
 ---
 title: 'What is this starter?'
-slug: 'what-is-this-starter'
+slug: 'what-is-this'
 thumbnail: 'https://kneadrisebake.com/wp-content/uploads/2020/08/What-Is-Mature-Starter.jpg'
 publishedDate: '2023-07-05'
 lastUpdatedDate: '2023-07-05'

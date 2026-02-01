@@ -75,7 +75,7 @@ You can deploy the project with [Vercel](https://vercel.com/) or any other hosti
 
 ### Fonts
 
-This project uses [Inter](https://rsms.me/inter/) as the default font. You can change it on `app/layout.tsx` using the `next/fonts` package.
+This project uses [Inter](https://rsms.me/inter/) as the default font. You can change it on `app/layout.svelte` using the `next/fonts` package.
 
 ### Colors
 
@@ -83,7 +83,7 @@ The project uses Tailwind colors and @shadcn/ui config. Customize the colors on 
 
 ### Signature
 
-There's a signature component to use in the footer. You can edit the signature on `components/signature.tsx`. I used Figma to write the signature with `Caveat` font and exported it as SVG. You can do the same and update the SVG in the component.
+There's a signature component to use in the footer. You can edit the signature on `components/signature.svelte`. I used Figma to write the signature with `Caveat` font and exported it as SVG. You can do the same and update the SVG in the component.
 
 ### Images
 
@@ -126,7 +126,7 @@ _WIP_ as I'm still deciding which email tools to support. Feel free to open an i
 
 ### Hero section
 
-You can choose between 3 different hero variants to use in `app/(site)/page.tsx` by changing the imported hero component.
+You can choose between 3 different hero variants to use in `app/(site)/page.svelte` by changing the imported hero component.
 
 1. `HeroSimple` - A simple centered hero section with image, title, and subtitle.
 2. `HeroVideo` - 2 column hero section with Videoask embed on one side and title and subtitle on the other.

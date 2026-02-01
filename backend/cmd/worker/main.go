@@ -188,6 +188,9 @@ func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.Downlo
 }
 
 func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
+	forceYouTubeDirect := strings.EqualFold(strings.TrimSpace(os.Getenv("YOUTUBE_FORCE_DIRECT")), "true")
+	isYouTubeTask := strings.EqualFold(task.PlatformType, "youtube") || strings.Contains(strings.ToLower(task.OriginalURL), "youtube.com") || strings.Contains(strings.ToLower(task.OriginalURL), "youtu.be")
+
 	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 10); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 10).Msg("failed to publish progress event (start)")
 	}
@@ -199,7 +202,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 		return processTwitchLimitedTask(ctx, downloadRepo, redisClient, centrifugoClient, storageClient, bucketName, task)
 	}
 
-	if strings.EqualFold(task.PlatformType, "youtube") || strings.Contains(strings.ToLower(task.OriginalURL), "youtube.com") || strings.Contains(strings.ToLower(task.OriginalURL), "youtu.be") {
+	if isYouTubeTask && !forceYouTubeDirect {
 		if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
 			log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (youtube)")
 		}
@@ -292,6 +295,11 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 
 	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish progress event (metadata)")
+	}
+
+	if isYouTubeTask && forceYouTubeDirect {
+		log.Info().Str("task_id", task.ID.String()).Str("url", task.OriginalURL).Msg("Processing YouTube as direct download (forced)")
+		return processDirectLinkTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, task, info, encryptionKey)
 	}
 
 	isDailymotion := strings.Contains(strings.ToLower(task.OriginalURL), "dailymotion.com") || strings.Contains(strings.ToLower(task.OriginalURL), "dai.ly")

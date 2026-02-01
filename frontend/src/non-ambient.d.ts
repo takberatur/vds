@@ -222,10 +222,15 @@ declare global {
 	}
 	interface BlogPost {
 		meta: PostSchema
-		component?: SvelteComponent<Record<string, any>, any, any>;
+		component?: any;
 		path: string
-		readingTime: string
+		readingTime: number
 		words: number
+		headings: {
+			depth: number;
+			value: string;
+			slug: string;
+		}[]
 	}
 
 }
