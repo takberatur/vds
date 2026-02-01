@@ -258,7 +258,7 @@
 																type="button"
 																variant="ghost"
 																size="sm"
-																class="bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:hover:text-white hidden"
+																class="bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:hover:text-white "
 																onclick={() => handleDownloadFormat(task, format)}
 															>
 																{i18n.text_download()}
@@ -268,8 +268,7 @@
 																variant="ghost"
 																size="sm"
 																class={cn(
-																	'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white',
-																	excludeUrlType(format.url) ? 'hidden' : ''
+																	'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white hidden',
 																)}
 																onclick={() => handleOpenFile(format.url, task.type)}
 															>

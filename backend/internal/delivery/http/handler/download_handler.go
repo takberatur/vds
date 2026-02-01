@@ -65,12 +65,29 @@ func resolveYTContentFileURL(ctx context.Context, rawURL string) string {
 		return ""
 	}
 
-	client := &http.Client{Timeout: 20 * time.Second}
+	outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
+	outboundProxy = strings.TrimSpace(strings.Trim(strings.Trim(strings.Trim(outboundProxy, "`"), "\""), "'"))
+	var transport http.RoundTripper = http.DefaultTransport
+	if outboundProxy != "" {
+		if p, err := url.Parse(outboundProxy); err == nil && p.Host != "" {
+			transport = &http.Transport{
+				Proxy:               http.ProxyURL(p),
+				DisableKeepAlives:   false,
+				MaxIdleConns:        10,
+				IdleConnTimeout:     30 * time.Second,
+				TLSHandshakeTimeout: 15 * time.Second,
+			}
+		}
+	}
+	client := &http.Client{Timeout: 25 * time.Second, Transport: transport}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
 		return ""
 	}
-	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Accept", "application/json, text/plain, */*")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req.Header.Set("Origin", "https://ytdown.to")
+	req.Header.Set("Referer", "https://ytdown.to/")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
 
 	resp, err := client.Do(req)
