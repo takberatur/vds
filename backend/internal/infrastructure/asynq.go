@@ -11,11 +11,13 @@ import (
 
 const (
 	TypeVideoDownload    = "video:download"
+	TypeMp3Download      = "mp3:download"
 	DownloadEventChannel = "download:events"
 )
 
 type TaskClient interface {
 	EnqueueVideoDownload(task *model.DownloadTask) error
+	EnqueueMp3Download(task *model.DownloadTask) error
 }
 
 type asynqTaskClient struct {
@@ -56,6 +58,17 @@ func (c *asynqTaskClient) EnqueueVideoDownload(task *model.DownloadTask) error {
 	}
 
 	t := asynq.NewTask(TypeVideoDownload, payload)
+	_, err = c.client.Enqueue(t)
+	return err
+}
+
+func (c *asynqTaskClient) EnqueueMp3Download(task *model.DownloadTask) error {
+	payload, err := json.Marshal(task)
+	if err != nil {
+		return err
+	}
+
+	t := asynq.NewTask(TypeMp3Download, payload)
 	_, err = c.client.Enqueue(t)
 	return err
 }

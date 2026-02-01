@@ -25,6 +25,7 @@ type DownloadService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	BulkDelete(ctx context.Context, ids []uuid.UUID) error
 	GetTaskCookies(ctx context.Context, taskID uuid.UUID) (map[string]string, error)
+	ProcessDownloadMp3(ctx context.Context, req model.DownloadRequest, userID *uuid.UUID, ip string) (*model.DownloadTask, error)
 }
 
 type downloadService struct {
@@ -55,6 +56,284 @@ func NewDownloadService(
 }
 
 func (s *downloadService) ProcessDownload(ctx context.Context, req model.DownloadRequest, userID *uuid.UUID, ip string) (*model.DownloadTask, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 60*time.Second)
+	defer cancel()
+
+	var info *infrastructure.VideoInfo
+	var formats []model.DownloadFormat
+	var err error
+
+	var appID *uuid.UUID
+	if req.AppID != nil && *req.AppID != "" {
+		id, err := uuid.Parse(*req.AppID)
+		if err != nil {
+			return nil, err
+		}
+		appPtr, err := s.appRepo.FindByID(subCtx, id)
+		if err != nil {
+			return nil, err
+		}
+		if appPtr == nil {
+			return nil, errors.New("application not found")
+		}
+		if !appPtr.IsActive {
+			return nil, errors.New("application is not active")
+		}
+		appID = &appPtr.ID
+	}
+
+	platform, err := s.platformRepo.FindByType(subCtx, req.Type)
+	if err != nil {
+		return nil, err
+	}
+
+	if !platform.IsActive {
+		return nil, errors.New("platform is not active")
+	}
+
+	normalizedType := strings.ToLower(platform.Type)
+	isYouTube := normalizedType == "youtube" || strings.Contains(strings.ToLower(req.Type), "youtube") ||
+		strings.Contains(strings.ToLower(req.URL), "youtube.com") || strings.Contains(strings.ToLower(req.URL), "youtu.be")
+
+	if typeAware, ok := s.downloader.(interface {
+		GetVideoInfoWithType(ctx context.Context, url string, downloadType string) (*infrastructure.VideoInfo, error)
+	}); ok {
+		info, err = typeAware.GetVideoInfoWithType(subCtx, req.URL, platform.Type)
+	} else {
+		info, err = s.downloader.GetVideoInfo(subCtx, req.URL)
+	}
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.Error().
+				Err(err).
+				Str("url", req.URL).
+				Msg("Downloader timed out while fetching video info")
+		}
+		if !isYouTube {
+			return nil, err
+		}
+		log.Warn().Err(err).Str("url", req.URL).Msg("YouTube info fetch failed; enqueueing task anyway")
+		info = &infrastructure.VideoInfo{Extractor: "youtube"}
+	}
+
+	if info != nil && len(info.Formats) > 0 {
+		// Filter formats logic
+		var formatsToProcess []infrastructure.FormatInfo
+
+		isTwitter := strings.ToLower(platform.Type) == "twitter" ||
+			strings.ToLower(platform.Type) == "x" ||
+			strings.Contains(strings.ToLower(req.URL), "twitter.com") ||
+			strings.Contains(strings.ToLower(req.URL), "x.com") ||
+			strings.Contains(strings.ToLower(req.URL), "twimg.com")
+
+		isTiktok := strings.ToLower(platform.Type) == "tiktok" ||
+			strings.Contains(strings.ToLower(req.URL), "tiktok.com")
+
+		if strings.ToLower(platform.Type) == "youtube" ||
+			strings.ToLower(platform.Type) == "facebook" ||
+			isTwitter ||
+			isTiktok {
+			var validFormats []infrastructure.FormatInfo
+			for _, f := range info.Formats {
+				// Relaxed check: empty string often means "present but unknown"
+				hasVideo := f.Vcodec != "none"
+				hasAudio := f.Acodec != "none"
+
+				if f.Vcodec == "" && f.Acodec == "" && f.Ext == "mp4" {
+					hasVideo = true
+					hasAudio = true
+				}
+
+				// Special case for TikTok
+				if isTiktok && (strings.HasPrefix(f.URL, "http") && !strings.Contains(f.URL, ".m3u8")) {
+					hasVideo = true
+					hasAudio = true
+				}
+
+				if hasVideo && hasAudio {
+					validFormats = append(validFormats, f)
+				}
+			}
+			if len(validFormats) > 0 {
+				formatsToProcess = validFormats
+			} else {
+				formatsToProcess = info.Formats
+			}
+		} else {
+			formatsToProcess = info.Formats
+		}
+
+		/*
+			// Update: We want ALL formats to be available for selection, especially now that Frontend supports "Video Only" / "Audio Only" badges.
+			formatsToProcess = info.Formats
+		*/
+
+		formats = make([]model.DownloadFormat, 0, len(formatsToProcess))
+		for _, f := range formatsToProcess {
+			if f.URL == "" {
+				continue
+			}
+			formats = append(formats, model.DownloadFormat{
+				URL:      f.URL,
+				Filesize: f.Filesize,
+				FormatID: f.FormatID,
+				Acodec:   f.Acodec,
+				Vcodec:   f.Vcodec,
+				Ext:      f.Ext,
+				Height:   f.Height,
+				Width:    f.Width,
+				Tbr:      f.Tbr,
+			})
+		}
+	}
+
+	format := "mp3"
+	title := ""
+	thumbnailURL := ""
+	filePath := ""
+	if info != nil {
+		title = info.Title
+		thumbnailURL = info.Thumbnail
+		filePath = info.DownloadURL
+	}
+
+	var duration *int
+	if info != nil && info.Duration != nil && *info.Duration > 0 {
+		dur := int(*info.Duration)
+		duration = &dur
+	}
+
+	var fileSize *int64
+	if info != nil {
+		fileSize = info.Filesize
+	}
+
+	task := &model.DownloadTask{
+		UserID:       userID,
+		AppID:        appID,
+		OriginalURL:  req.URL,
+		PlatformID:   platform.ID,
+		PlatformType: platform.Type,
+		Status:       "queued",
+		Title:        &title,
+		ThumbnailURL: &thumbnailURL,
+		Format:       &format,
+		FilePath:     &filePath,
+		Duration:     duration,
+		FileSize:     fileSize,
+		Formats:      nil,
+		IPAddress:    &ip,
+		CreatedAt:    time.Now(),
+	}
+
+	if err := s.repo.Create(subCtx, task); err != nil {
+		return nil, err
+	}
+
+	if s.taskClient != nil {
+		log.Info().
+			Str("task_id", task.ID.String()).
+			Str("url", task.OriginalURL).
+			Msg("Enqueuing mp3 download task")
+
+		if err := s.taskClient.EnqueueMp3Download(task); err != nil {
+			log.Error().
+				Err(err).
+				Str("task_id", task.ID.String()).
+				Msg("Failed to enqueue mp3 download task")
+			return nil, err
+		}
+
+		log.Info().
+			Str("task_id", task.ID.String()).
+			Msg("Successfully enqueued mp3 download task")
+	}
+
+	return task, nil
+}
+
+func (s *downloadService) GetUserHistory(ctx context.Context, userID uuid.UUID, page, limit int) ([]*model.DownloadTask, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+	return s.repo.FindByUserID(subCtx, userID, limit, offset)
+}
+
+func (s *downloadService) FindByID(ctx context.Context, id uuid.UUID) (*model.DownloadTask, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	return s.repo.FindByID(subCtx, id)
+}
+
+func (s *downloadService) FindAll(ctx context.Context, params model.QueryParamsRequest) (*model.DownloadTasksResponse, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	tasks, pagination, err := s.repo.FindAll(subCtx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &model.DownloadTasksResponse{
+		Data:       tasks,
+		Pagination: pagination,
+	}, nil
+}
+
+func (s *downloadService) Update(ctx context.Context, id uuid.UUID, task *model.DownloadTask) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	existing, err := s.repo.FindByID(subCtx, id)
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return errors.New("download task not found")
+	}
+	task.ID = id
+	return s.repo.Update(subCtx, task)
+}
+
+func (s *downloadService) Delete(ctx context.Context, id uuid.UUID) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	return s.repo.Delete(subCtx, id)
+}
+
+func (s *downloadService) BulkDelete(ctx context.Context, ids []uuid.UUID) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	return s.repo.BulkDelete(subCtx, ids)
+}
+
+func (s *downloadService) GetTaskCookies(ctx context.Context, taskID uuid.UUID) (map[string]string, error) {
+	key := "download:cookies:" + taskID.String()
+	val, err := s.redisClient.Get(ctx, key).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var cookies map[string]string
+	if err := json.Unmarshal([]byte(val), &cookies); err != nil {
+		return nil, err
+	}
+	return cookies, nil
+}
+
+func (s *downloadService) ProcessDownloadMp3(ctx context.Context, req model.DownloadRequest, userID *uuid.UUID, ip string) (*model.DownloadTask, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 60*time.Second)
 	defer cancel()
 
@@ -252,85 +531,4 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 	}
 
 	return task, nil
-}
-
-func (s *downloadService) GetUserHistory(ctx context.Context, userID uuid.UUID, page, limit int) ([]*model.DownloadTask, error) {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
-	defer cancel()
-
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 {
-		limit = 10
-	}
-	offset := (page - 1) * limit
-	return s.repo.FindByUserID(subCtx, userID, limit, offset)
-}
-
-func (s *downloadService) FindByID(ctx context.Context, id uuid.UUID) (*model.DownloadTask, error) {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
-	defer cancel()
-
-	return s.repo.FindByID(subCtx, id)
-}
-
-func (s *downloadService) FindAll(ctx context.Context, params model.QueryParamsRequest) (*model.DownloadTasksResponse, error) {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
-	defer cancel()
-
-	tasks, pagination, err := s.repo.FindAll(subCtx, params)
-	if err != nil {
-		return nil, err
-	}
-	return &model.DownloadTasksResponse{
-		Data:       tasks,
-		Pagination: pagination,
-	}, nil
-}
-
-func (s *downloadService) Update(ctx context.Context, id uuid.UUID, task *model.DownloadTask) error {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
-	defer cancel()
-
-	existing, err := s.repo.FindByID(subCtx, id)
-	if err != nil {
-		return err
-	}
-	if existing == nil {
-		return errors.New("download task not found")
-	}
-	task.ID = id
-	return s.repo.Update(subCtx, task)
-}
-
-func (s *downloadService) Delete(ctx context.Context, id uuid.UUID) error {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
-	defer cancel()
-
-	return s.repo.Delete(subCtx, id)
-}
-
-func (s *downloadService) BulkDelete(ctx context.Context, ids []uuid.UUID) error {
-	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
-	defer cancel()
-
-	return s.repo.BulkDelete(subCtx, ids)
-}
-
-func (s *downloadService) GetTaskCookies(ctx context.Context, taskID uuid.UUID) (map[string]string, error) {
-	key := "download:cookies:" + taskID.String()
-	val, err := s.redisClient.Get(ctx, key).Result()
-	if err != nil {
-		if err == redis.Nil {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	var cookies map[string]string
-	if err := json.Unmarshal([]byte(val), &cookies); err != nil {
-		return nil, err
-	}
-	return cookies, nil
 }

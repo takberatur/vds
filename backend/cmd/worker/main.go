@@ -86,6 +86,19 @@ func main() {
 		return nil
 	})
 
+	mux.HandleFunc(infrastructure.TypeMp3Download, func(ctx context.Context, t *asynq.Task) error {
+		var task model.DownloadTask
+		if err := json.Unmarshal(t.Payload(), &task); err != nil {
+			return err
+		}
+
+		if err := handleMp3DownloadTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, storageClient, cfg.MinioBucket, cfg.EncryptionKey, &task); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 	if err := server.Run(mux); err != nil {
 		log.Fatal().Err(err).Msg("asynq server stopped with error")
 	}
@@ -182,6 +195,168 @@ func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.Downlo
 			log.Error().Err(failErr).Str("task_id", task.ID.String()).Msg("failed to mark task as failed")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func handleMp3DownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
+	task.Status = "processing"
+	if err := downloadRepo.Update(ctx, task); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update mp3 task to processing")
+	}
+
+	if err := publishStartEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+		log.Error().Err(err).Msg("failed to publish mp3 start event")
+	}
+
+	if err := processMp3DownloadTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, storageClient, bucketName, encryptionKey, task); err != nil {
+		failErr := markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
+		if failErr != nil {
+			log.Error().Err(failErr).Str("task_id", task.ID.String()).Msg("failed to mark mp3 task as failed")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func processMp3DownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
+	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 10); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 10).Msg("failed to publish mp3 progress event (start)")
+	}
+
+	info, err := downloader.GetVideoInfo(ctx, task.OriginalURL)
+	if err == nil && info != nil {
+		if info.Title != "" {
+			t := info.Title
+			task.Title = &t
+		}
+		if info.Thumbnail != "" {
+			t := info.Thumbnail
+			task.ThumbnailURL = &t
+		}
+		if info.Duration != nil && *info.Duration > 0 {
+			d := int(*info.Duration)
+			task.Duration = &d
+		}
+		if task.Format == nil || *task.Format == "" {
+			f := "mp3"
+			task.Format = &f
+		}
+		_ = downloadRepo.Update(ctx, task)
+	}
+
+	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish mp3 progress event (metadata)")
+	}
+
+	tempFile, err := os.CreateTemp("", "audio-")
+	if err != nil {
+		return err
+	}
+	basePath := tempFile.Name()
+	tempFile.Close()
+	_ = os.Remove(basePath)
+	outputTemplate := basePath + ".%(ext)s"
+	outputPath := basePath + ".mp3"
+	defer os.Remove(outputPath)
+	defer os.Remove(basePath)
+
+	ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+
+	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
+	useProxy := strings.EqualFold(strings.TrimSpace(os.Getenv("PROXY_FOR_ALL")), "true")
+	imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
+
+	cookiesFilePath := strings.TrimSpace(os.Getenv("COOKIES_FILE_PATH"))
+	disableCookies := strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true")
+
+	args := []string{
+		"--no-warnings",
+		"--no-playlist",
+		"--force-overwrites",
+		"--no-part",
+		"--socket-timeout", "30",
+		"--extract-audio",
+		"--audio-format", "mp3",
+		"--audio-quality", "0",
+		"--add-metadata",
+		"--embed-metadata",
+		"--user-agent", ua,
+		"--referer", task.OriginalURL,
+		"-o", outputTemplate,
+	}
+
+	if imp != "" {
+		args = append(args, "--impersonate", imp)
+	}
+	if cookiesFilePath != "" && !disableCookies {
+		args = append(args, "--cookies", cookiesFilePath)
+	}
+	if outboundProxy != "" && useProxy {
+		args = append(args, "--proxy", outboundProxy)
+	}
+
+	args = append(args, task.OriginalURL)
+
+	cmd := exec.CommandContext(ctx, "yt-dlp", args...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("yt-dlp mp3 failed: %w, stderr: %s", err, stderr.String())
+	}
+
+	fi, err := os.Stat(outputPath)
+	if err != nil {
+		return err
+	}
+	if fi.Size() == 0 {
+		return fmt.Errorf("downloaded mp3 file is empty")
+	}
+
+	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 80); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 80).Msg("failed to publish mp3 progress event (downloaded)")
+	}
+
+	f, err := os.Open(outputPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	objectName := fmt.Sprintf("%s/%s/%s.%s", "mp3", task.ID.String(), "best", "mp3")
+	minioURL, err := storageClient.UploadFile(ctx, bucketName, objectName, f, fi.Size(), "audio/mpeg")
+	if err != nil {
+		return err
+	}
+
+	size := fi.Size()
+	ext := "mp3"
+	fID := "best"
+	res := "best"
+	downloadFile := &model.DownloadFile{
+		DownloadID:    task.ID,
+		URL:           minioURL,
+		FormatID:      &fID,
+		Resolution:    &res,
+		Extension:     &ext,
+		FileSize:      &size,
+		EncryptedData: nil,
+	}
+	_ = downloadRepo.AddFile(ctx, downloadFile)
+
+	task.FilePath = &minioURL
+	task.FileSize = &size
+	task.Format = &ext
+	task.Status = "completed"
+	if err := downloadRepo.Update(ctx, task); err != nil {
+		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update mp3 task to completed")
+	}
+
+	task.DownloadFiles = []model.DownloadFile{*downloadFile}
+	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
+		log.Error().Err(err).Msg("failed to publish mp3 complete event")
 	}
 
 	return nil

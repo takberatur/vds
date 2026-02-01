@@ -18,15 +18,15 @@ export default defineConfig({
 			'simontokz.com',
 			'agcforge.local'
 		],
-		host:
-			process.env.NODE_ENV === "development"
-				? 'agcforge.local'
-				: undefined,
-		port: process.env.NODE_ENV === "development" ? 5173 : undefined,
-		https: {
-      key: fs.readFileSync('./agcforge.local-key.pem'),
-      cert: fs.readFileSync('./agcforge.local.pem'),
-    }
+		// host:
+		// 	process.env.NODE_ENV === "development"
+		// 		? 'agcforge.local'
+		// 		: undefined,
+		// port: process.env.NODE_ENV === "development" ? 5173 : undefined,
+		// https: {
+		//   key: fs.readFileSync('./agcforge.local-key.pem'),
+		//   cert: fs.readFileSync('./agcforge.local.pem'),
+		// }
 		// hmr: {
 		// 	protocol: process.env.NODE_ENV === "development" ? 'wss' : undefined,
 		// 	port: process.env.NODE_ENV === "development" ? 5173 : undefined,

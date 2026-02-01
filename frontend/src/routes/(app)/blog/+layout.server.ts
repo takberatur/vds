@@ -1,13 +1,13 @@
 import { locales as SUPPORTED_LOCALES } from '@/paraglide/runtime';
 import { env } from '$env/dynamic/private';
 
-export const prerender = true
+// export const prerender = true
 
-export const config = {
-	isr: {
-		expiration: 60
-	}
-};
+// export const config = {
+// 	isr: {
+// 		expiration: 60
+// 	}
+// };
 
 export const load = async ({ locals, url }) => {
 	const { user, settings, lang, deps } = locals;

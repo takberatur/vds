@@ -210,7 +210,68 @@ func (h *DownloadHandler) DownloadVideo(c *fiber.Ctx) error {
 }
 
 func (h *DownloadHandler) DownloadVideoToMp3(c *fiber.Ctx) error {
-	return response.Success(c, "Download processed successfully", nil)
+	ctx := middleware.HandlerContext(c)
+
+	var req model.DownloadRequest
+	if err := c.BodyParser(&req); err != nil {
+		return response.Error(c, fiber.StatusBadRequest, "Invalid request body", err.Error())
+	}
+
+	if errs := utils.ValidateStruct(req); len(errs) > 0 {
+		return response.Error(c, fiber.StatusBadRequest, response.ValidationErrors{Errors: errs}.Error(), nil)
+	}
+
+	if req.URL == "" {
+		return response.Error(c, fiber.StatusBadRequest, "URL is required", nil)
+	}
+
+	log.Info().
+		Str("url", req.URL).
+		Str("type", req.Type).
+		Msg("Received mp3 download request")
+
+	var userID *uuid.UUID
+	if req.UserID != nil {
+		id, err := uuid.Parse(*req.UserID)
+		if err != nil {
+			return response.Error(c, fiber.StatusBadRequest, "Invalid user ID", err.Error())
+		}
+		user, err := h.userSvc.FindByID(ctx, id)
+		if err != nil {
+			log.Error().Err(err).Str("user_id", id.String()).Msg("Failed to find user")
+			return response.Error(c, fiber.StatusBadRequest, "Invalid user ID", err.Error())
+		}
+		userID = &user.ID
+	}
+
+	ip := c.IP()
+	start := time.Now()
+
+	result, err := h.svc.ProcessDownloadMp3(ctx, req, userID, ip)
+	if err != nil {
+		log.Error().Err(err).Str("url", req.URL).Msg("Failed to process mp3 download request")
+		return response.Error(c, fiber.StatusInternalServerError, "Failed to process download", err.Error())
+	}
+
+	log.Info().
+		Str("url", req.URL).
+		Str("task_id", result.ID.String()).
+		Dur("processing_time", time.Since(start)).
+		Msg("MP3 download request processed successfully")
+
+	event := &model.DownloadEvent{
+		Type:      "download.queued",
+		TaskID:    result.ID,
+		UserID:    result.UserID,
+		Status:    "queued",
+		CreatedAt: time.Now(),
+	}
+
+	go func(e *model.DownloadEvent) {
+		defaultDownloadEventHub.Broadcast(e)
+	}(event)
+
+	return response.Success(c, "Download processed successfully", result)
 }
 
 func (h *DownloadHandler) GetHistory(c *fiber.Ctx) error {
@@ -1378,7 +1439,71 @@ func (h *DownloadHandler) proxyDirectURL(c *fiber.Ctx) error {
 }
 
 func (h *DownloadHandler) ProxyDownloadMp3(c *fiber.Ctx) error {
-	return response.Success(c, "Download processed successfully", nil)
+	ctx := middleware.HandlerContext(c)
+
+	taskIDStr := c.Query("task_id")
+	filename := c.Query("filename")
+
+	if taskIDStr == "" {
+		return response.Error(c, fiber.StatusBadRequest, "task_id is required", nil)
+	}
+
+	id, err := uuid.Parse(taskIDStr)
+	if err != nil {
+		return response.Error(c, fiber.StatusBadRequest, "Invalid task ID", err.Error())
+	}
+
+	task, err := h.svc.FindByID(ctx, id)
+	if err != nil {
+		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch download task", err.Error())
+	}
+	if task == nil {
+		return response.Error(c, fiber.StatusNotFound, "Download task not found", nil)
+	}
+
+	if task.Status != "completed" || len(task.DownloadFiles) == 0 {
+		return response.Error(c, fiber.StatusBadRequest, "Download is not ready", nil)
+	}
+
+	targetFile := &task.DownloadFiles[0]
+	if targetFile.EncryptedData != nil {
+		cfg := config.LoadConfig()
+		decrypted, err := utils.DecryptData(*targetFile.EncryptedData, cfg.EncryptionKey)
+		if err != nil {
+			return response.Error(c, fiber.StatusInternalServerError, "Failed to decrypt audio", err.Error())
+		}
+
+		c.Set("Content-Type", "audio/mpeg")
+		c.Set("Content-Length", fmt.Sprintf("%d", len(decrypted)))
+
+		finalFilename := filename
+		if finalFilename == "" {
+			if task.Title != nil {
+				finalFilename = *task.Title
+			} else {
+				finalFilename = "download"
+			}
+		}
+		if !strings.HasSuffix(strings.ToLower(finalFilename), ".mp3") {
+			finalFilename += ".mp3"
+		}
+		finalFilename = strings.ReplaceAll(finalFilename, `"`, `\"`)
+		encodedFilename := url.QueryEscape(finalFilename)
+		c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, finalFilename, encodedFilename))
+
+		return c.Status(http.StatusOK).SendStream(bytes.NewReader(decrypted))
+	}
+
+	finalURL := strings.TrimSpace(targetFile.URL)
+	finalURL = strings.Trim(finalURL, "`")
+	finalURL = strings.ReplaceAll(finalURL, "`", "")
+	finalURL = strings.Trim(finalURL, "'")
+	finalURL = strings.Trim(finalURL, "\"")
+	finalURL = strings.TrimSpace(finalURL)
+	if resolved := resolveYTContentFileURL(ctx, finalURL); resolved != "" {
+		finalURL = resolved
+	}
+	return c.Redirect(finalURL)
 }
 
 type DownloadEventHub struct {
