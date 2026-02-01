@@ -117,8 +117,8 @@ func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepos
 			return
 		case <-ticker.C:
 			log.Info().Msg("Starting cleanup cron job execution")
-			// Cleanup tasks older than 10 minutes
-			cutoff := time.Now().Add(-10 * time.Minute)
+			// Cleanup tasks older than 5 minutes
+			cutoff := time.Now().Add(-5 * time.Minute)
 
 			// Fetch in batches
 			for {
@@ -247,6 +247,14 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 		_ = downloadRepo.Update(ctx, task)
 	}
 
+	sourceURL := task.OriginalURL
+	if info != nil {
+		direct := strings.TrimSpace(info.DownloadURL)
+		if direct != "" && strings.HasPrefix(strings.ToLower(direct), "http") && !strings.HasPrefix(strings.ToLower(direct), "blob:") {
+			sourceURL = direct
+		}
+	}
+
 	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 30); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 30).Msg("failed to publish mp3 progress event (metadata)")
 	}
@@ -264,8 +272,17 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	defer os.Remove(outputPath)
 	defer os.Remove(basePath)
 
-	if err := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err != nil {
-		return err
+	if sourceURL != task.OriginalURL {
+		if err := downloadURLToPath(ctx, sourceURL, task.OriginalURL, inputPath); err != nil {
+			log.Warn().Err(err).Str("url", sourceURL).Msg("Direct source download failed, falling back to downloader")
+			if err2 := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err2 != nil {
+				return err2
+			}
+		}
+	} else {
+		if err := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err != nil {
+			return err
+		}
 	}
 
 	fiIn, err := os.Stat(inputPath)
@@ -347,6 +364,73 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	task.DownloadFiles = []model.DownloadFile{*downloadFile}
 	if err := publishCompletionEvent(ctx, redisClient, centrifugoClient, task); err != nil {
 		log.Error().Err(err).Msg("failed to publish mp3 complete event")
+	}
+
+	return nil
+}
+
+func downloadURLToPath(ctx context.Context, fileURL string, refererURL string, outputPath string) error {
+	fileURL = strings.TrimSpace(fileURL)
+	if fileURL == "" {
+		return fmt.Errorf("empty url")
+	}
+
+	headers := http.Header{}
+	headers.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+	headers.Set("Accept", "*/*")
+	headers.Set("Accept-Language", "en-US,en;q=0.9")
+	headers.Set("Range", "bytes=0-")
+
+	ref := strings.TrimSpace(refererURL)
+	if ref != "" {
+		if u, err := url.Parse(ref); err == nil && u.Scheme != "" && u.Host != "" {
+			headers.Set("Referer", u.Scheme+"://"+u.Host+"/")
+			headers.Set("Origin", u.Scheme+"://"+u.Host)
+		}
+	}
+
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	proxyURL := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
+	if proxyURL != "" {
+		if p, err := url.Parse(proxyURL); err == nil && p.Host != "" {
+			transport.Proxy = http.ProxyURL(p)
+		}
+	}
+
+	client := &http.Client{Timeout: 20 * time.Minute, Transport: transport}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fileURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header = headers
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
+		return fmt.Errorf("http %d: %s", resp.StatusCode, strings.TrimSpace(string(b)))
+	}
+
+	f, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if _, err := io.Copy(f, resp.Body); err != nil {
+		return err
+	}
+
+	fi, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	if fi.Size() == 0 {
+		return fmt.Errorf("downloaded file is empty")
 	}
 
 	return nil
