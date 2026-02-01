@@ -93,6 +93,17 @@ type YTDownMediaItem struct {
 	MediaTask       string      `json:"mediaTask"`
 }
 
+type ytcontentStatusResponse struct {
+	Status   string          `json:"status"`
+	FileName string          `json:"fileName"`
+	Percent  string          `json:"percent"`
+	Progress json.RawMessage `json:"progress"`
+	FileURL  string          `json:"fileUrl"`
+	ViewURL  string          `json:"viewUrl"`
+	Message  string          `json:"message"`
+	Error    string          `json:"error"`
+}
+
 func NewYTDownService() *YTDownService {
 	jar, _ := cookiejar.New(nil)
 	return &YTDownService{
@@ -251,45 +262,236 @@ func (yt *YTDownService) GetDownloadURLs(videoURL string) ([]YTDownDownloadOptio
 }
 
 func (yt *YTDownService) DownloadToPath(ctx context.Context, videoURL, outputPath, preferredQuality string) error {
-	options, err := yt.GetDownloadURLs(videoURL)
-	if err != nil {
-		return err
+	clean := func(u string) string {
+		u = strings.TrimSpace(u)
+		u = strings.Trim(u, "`")
+		u = strings.Trim(u, "\"")
+		u = strings.Trim(u, "'")
+		return strings.TrimSpace(u)
 	}
 
-	var selectedOption *YTDownDownloadOption
-	for i := range options {
-		opt := &options[i]
-		isVideo := strings.Contains(strings.ToLower(opt.Type), "video") || strings.Contains(strings.ToLower(opt.Type), "mp4")
-		if preferredQuality != "" {
-			if strings.EqualFold(opt.Quality, preferredQuality) || strings.EqualFold(opt.Resolution, preferredQuality) {
+	selectOption := func(options []YTDownDownloadOption) *YTDownDownloadOption {
+		var selectedOption *YTDownDownloadOption
+		for i := range options {
+			opt := &options[i]
+			isVideo := strings.Contains(strings.ToLower(opt.Type), "video") || strings.Contains(strings.ToLower(opt.Type), "mp4")
+			if preferredQuality != "" {
+				if strings.EqualFold(opt.Quality, preferredQuality) || strings.EqualFold(opt.Resolution, preferredQuality) {
+					selectedOption = opt
+					break
+				}
+				continue
+			}
+			if isVideo {
 				selectedOption = opt
 				break
 			}
-			continue
 		}
-		if isVideo {
-			selectedOption = opt
-			break
+		if selectedOption == nil {
+			if len(options) > 0 {
+				selectedOption = &options[0]
+			}
 		}
+		return selectedOption
 	}
 
-	if selectedOption == nil {
-		if len(options) > 0 {
-			selectedOption = &options[0]
-		} else {
+	tryOnce := func() error {
+		options, err := yt.GetDownloadURLs(videoURL)
+		if err != nil {
+			return err
+		}
+		selectedOption := selectOption(options)
+		if selectedOption == nil {
 			return fmt.Errorf("no download options available")
 		}
+
+		downloadURL := clean(selectedOption.URL)
+		if downloadURL == "" {
+			return fmt.Errorf("empty download url")
+		}
+
+		if strings.Contains(downloadURL, "ytcontent.com") && strings.Contains(downloadURL, "/v5/video/") {
+			resolved, err := yt.resolveYTContentStatus(ctx, downloadURL)
+			if err != nil {
+				return err
+			}
+			downloadURL = resolved
+		}
+
+		if err := yt.downloadFile(ctx, downloadURL, outputPath); err != nil {
+			if errors.Is(err, errInvalidToken) {
+				return err
+			}
+			return err
+		}
+		return nil
 	}
 
-	if err := yt.downloadFile(ctx, selectedOption.URL, outputPath); err != nil {
+	maxAttempts := 3
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		err := tryOnce()
+		if err == nil {
+			break
+		}
+		if errors.Is(err, errInvalidToken) {
+			time.Sleep(2 * time.Second)
+			continue
+		}
 		return err
 	}
+
 	if fi, err := os.Stat(outputPath); err == nil {
 		if fi.Size() < 1024 {
 			return fmt.Errorf("downloaded file too small (%d bytes)", fi.Size())
 		}
 	}
 	return nil
+}
+
+var errInvalidToken = errors.New("ytdown invalid token")
+
+func (yt *YTDownService) resolveYTContentStatus(ctx context.Context, statusURL string) (string, error) {
+	statusURL = strings.TrimSpace(statusURL)
+	statusURL = strings.Trim(statusURL, "`")
+	statusURL = strings.Trim(statusURL, "\"")
+	statusURL = strings.Trim(statusURL, "'")
+	statusURL = strings.TrimSpace(statusURL)
+
+	deadline := time.Now().Add(60 * time.Second)
+	intervals := []time.Duration{5 * time.Second, 10 * time.Second}
+	attempt := 0
+
+	for {
+		body, parsed, err := yt.fetchYTContentStatus(ctx, statusURL)
+		if err != nil {
+			preview := strings.TrimSpace(string(body))
+			if len(preview) > 300 {
+				preview = preview[:300]
+			}
+			if preview != "" {
+				return "", fmt.Errorf("ytcontent status fetch failed: %w; body=%q", err, preview)
+			}
+			return "", fmt.Errorf("ytcontent status fetch failed: %w", err)
+		}
+
+		st := strings.ToLower(strings.TrimSpace(parsed.Status))
+		if st == "completed" {
+			fileURL := strings.TrimSpace(parsed.FileURL)
+			fileURL = strings.Trim(fileURL, "`")
+			fileURL = strings.Trim(fileURL, "\"")
+			fileURL = strings.Trim(fileURL, "'")
+			fileURL = strings.TrimSpace(fileURL)
+			if fileURL != "" {
+				if yt.isInvalidTokenURL(ctx, fileURL) {
+					if time.Now().After(deadline) {
+						return "", errInvalidToken
+					}
+					time.Sleep(intervals[attempt%len(intervals)])
+					attempt++
+					continue
+				}
+				return fileURL, nil
+			}
+			viewURL := strings.TrimSpace(parsed.ViewURL)
+			viewURL = strings.Trim(viewURL, "`")
+			viewURL = strings.Trim(viewURL, "\"")
+			viewURL = strings.Trim(viewURL, "'")
+			viewURL = strings.TrimSpace(viewURL)
+			if viewURL != "" {
+				return viewURL, nil
+			}
+			return "", fmt.Errorf("ytcontent completed but missing fileUrl")
+		}
+		if st == "error" {
+			msg := strings.TrimSpace(parsed.Message)
+			if msg == "" {
+				msg = strings.TrimSpace(parsed.Error)
+			}
+			if msg == "" {
+				msg = "ytcontent returned error"
+			}
+			return "", fmt.Errorf("ytcontent error: %s", msg)
+		}
+
+		if st == "queued" || st == "processing" {
+			if time.Now().After(deadline) {
+				return "", fmt.Errorf("ytcontent still %s", st)
+			}
+			time.Sleep(intervals[attempt%len(intervals)])
+			attempt++
+			continue
+		}
+
+		if time.Now().After(deadline) {
+			return "", fmt.Errorf("ytcontent unknown status: %s", st)
+		}
+		time.Sleep(intervals[attempt%len(intervals)])
+		attempt++
+	}
+}
+
+func (yt *YTDownService) fetchYTContentStatus(ctx context.Context, statusURL string) ([]byte, *ytcontentStatusResponse, error) {
+	client := yt.httpClient
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, statusURL, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("Accept", "application/json, text/plain, */*")
+	req.Header.Set("User-Agent", yt.userAgent())
+	req.Header.Set("Referer", "https://ytdown.to/")
+	req.Header.Set("Origin", "https://ytdown.to")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1_048_576))
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return body, nil, fmt.Errorf("http %d", resp.StatusCode)
+	}
+
+	var parsed ytcontentStatusResponse
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return body, nil, err
+	}
+	return body, &parsed, nil
+}
+
+func (yt *YTDownService) isInvalidTokenURL(ctx context.Context, downloadURL string) bool {
+	downloadURL = strings.TrimSpace(downloadURL)
+	if downloadURL == "" {
+		return true
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
+	if err != nil {
+		return false
+	}
+	req.Header.Set("Range", "bytes=0-2047")
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("User-Agent", yt.userAgent())
+	req.Header.Set("Referer", "https://ytdown.to/")
+	req.Header.Set("Origin", "https://ytdown.to")
+
+	resp, err := yt.httpClient.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	ct := strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Type")))
+	if strings.Contains(ct, "application/json") {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
+		s := strings.ToUpper(string(b))
+		if strings.Contains(s, "INVALID_TOKEN") || strings.Contains(s, "TOKEN EXPIRED") {
+			return true
+		}
+	}
+	return false
 }
 
 func (yt *YTDownService) downloadFile(ctx context.Context, downloadURL, outputPath string) error {
@@ -348,6 +550,10 @@ func (yt *YTDownService) downloadFile(ctx context.Context, downloadURL, outputPa
 		preview := strings.TrimSpace(string(buf))
 		if len(preview) > 300 {
 			preview = preview[:300]
+		}
+		up := strings.ToUpper(preview)
+		if strings.Contains(up, "INVALID_TOKEN") || strings.Contains(up, "TOKEN EXPIRED") {
+			return errInvalidToken
 		}
 		return fmt.Errorf("unexpected content (content-type=%q) preview=%q", ct, preview)
 	}

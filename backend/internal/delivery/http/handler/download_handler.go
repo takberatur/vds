@@ -203,7 +203,7 @@ func resolveYTContentFileURL(ctx context.Context, rawURL string) (string, string
 			time.Sleep(intervals[attempt%len(intervals)])
 			attempt++
 			continue
-		case "error", "failed":
+		case "error", "failed", "canceled", "ERROR":
 			return "", "error", body, nil
 		default:
 			if time.Since(start) >= deadline {

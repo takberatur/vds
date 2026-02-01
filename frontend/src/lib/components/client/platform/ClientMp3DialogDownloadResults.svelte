@@ -25,7 +25,7 @@
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
-	// console.log('download task', task);
+	console.log('download task', task);
 	const twitterRegex = /^(https?:\/\/)?(www\.)?(twitter|x|twimg)\.com\/[a-zA-Z0-9_]+$/i;
 
 	const excludeUrlType = (url?: string | null) => {

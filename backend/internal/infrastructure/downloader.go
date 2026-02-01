@@ -525,6 +525,19 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	if stderr, err := run(args); err != nil {
+		if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && !strings.Contains(strings.Join(args, " "), "--proxy") {
+			lower := strings.ToLower(stderr)
+			if strings.Contains(lower, "http error 403") || strings.Contains(lower, "403: forbidden") || strings.Contains(lower, "forbidden") || strings.Contains(lower, "http error 429") {
+				argsWithProxy := append(args[:len(args)-1], "--proxy", proxyURL)
+				argsWithProxy = append(argsWithProxy, args[len(args)-1])
+				if stderr2, err2 := run(argsWithProxy); err2 == nil {
+					_ = stderr2
+					return nil
+				} else {
+					return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err2, stderr2)
+				}
+			}
+		}
 		return fmt.Errorf("yt-dlp download failed: %w, stderr: %s", err, stderr)
 	}
 
@@ -565,7 +578,13 @@ func IsValidNetscapeCookiesFile(path string) bool {
 			continue
 		}
 
+		// Some exporters omit the header line. If the line looks like a Netscape cookie row
+		// (tab-delimited with enough columns), accept it.
 		if !seenHeader {
+			if strings.Count(line, "\t") >= 6 {
+				seenData = true
+				continue
+			}
 			return false
 		}
 
@@ -582,7 +601,7 @@ func IsValidNetscapeCookiesFile(path string) bool {
 		return false
 	}
 
-	return seenHeader && seenData
+	return seenData
 }
 
 func shouldUseProxyForURL(rawURL string) bool {
