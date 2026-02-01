@@ -28,6 +28,7 @@ android {
 
         buildConfigField("String", "BASE_URL", "\"https://api-simontok.agcforge.com/api/v1/\"")
         buildConfigField("String", "CENTRIFUGO_URL", "\"https://websocket.infrastructures.help/connection/websocket\"")
+        buildConfigField("String", "API_KEY", "\"39eb7a7c6bbd61d93bf15362e28a499ba4f72f3cacad8f326381c0a4674a2270\"")
     }
     ndkVersion = "29.0.14033849 rc4"
     buildTypes {

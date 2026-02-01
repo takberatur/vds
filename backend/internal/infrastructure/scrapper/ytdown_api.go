@@ -64,7 +64,7 @@ type YTDownResponse struct {
 			UserBio        string `json:"userBio"`
 			InternalURL    string `json:"internalUrl"`
 			ExternalURL    string `json:"externalUrl"`
-			AccountCountry string `json:"accountCountry"`
+			AccountCountry any    `json:"accountCountry"`
 			DateJoined     string `json:"dateJoined"`
 		} `json:"userInfo"`
 		MediaStats struct {
