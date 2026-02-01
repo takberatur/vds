@@ -57,6 +57,11 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to create minio bucket")
 	}
 
+	// Start Log Cleaner Cron Job
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("ENABLE_DOCKER_LOG_CLEANER")), "true") {
+		go startLogCleanerCron()
+	}
+
 	// Start Cleanup Cron Job
 	go startCleanupCron(context.Background(), downloadRepo, storageClient, cfg.MinioBucket)
 
@@ -2229,4 +2234,61 @@ func markTaskFailed(ctx context.Context, downloadRepo repository.DownloadReposit
 	}
 
 	return publishDownloadEvent(ctx, redisClient, centrifugoClient, event)
+}
+
+/**
+ * cleanLogs truncates the log files of the given containers to size 0, effectively cleaning them.
+ *
+ * @param containers - List of container names whose logs will be cleaned
+ */
+func cleanLogs(containers []string) {
+	for _, name := range containers {
+		inspectCmd := exec.Command("docker", "inspect", "--format", "{{.LogPath}}", name)
+		logPathRaw, err := inspectCmd.Output()
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to inspect log path for container: %s", name)
+			continue
+		}
+		logPath := strings.TrimSpace(string(logPathRaw))
+		if logPath == "" {
+			log.Error().Msgf("Empty log path for container: %s", name)
+			continue
+		}
+
+		truncateCmd := exec.Command("truncate", "-s", "0", logPath)
+		if err := truncateCmd.Run(); err != nil {
+			log.Error().Err(err).Msgf("Failed to clean log container: %s", name)
+		} else {
+			log.Info().Msgf("Successfully cleaned log for container: %s", name)
+		}
+	}
+}
+
+/**
+ * startLogCleanerCron schedules a cron job to clean logs of the given containers every hour.
+ *
+ * @param containerNames - List of container names whose logs will be cleaned
+ */
+func startLogCleanerCron() {
+	targetContainers := []string{
+		"video_downloader_api",
+		"video_downloader_worker",
+		"infrastructure-pgadmin",
+		"infrastructure-centrifugo",
+		"infrastructure-redis",
+		"infrastructure-postgres",
+		"infrastructure-minio",
+	}
+
+	// schedule a cron job to clean logs of the given containers every 12 hours
+	ticker := time.NewTicker(12 * time.Hour)
+
+	// run once when start the cron job
+	cleanLogs(targetContainers)
+
+	go func() {
+		for range ticker.C {
+			cleanLogs(targetContainers)
+		}
+	}()
 }

@@ -70,7 +70,7 @@ func SetupRoutes(c *RouteConfig) {
 	_ = handler.NewSubscriptionHandler(subscriptionService)
 
 	credentialLimiter := middleware.CredentialAttemptLimiter(c.Redis)
-	rateLimitDownload := middleware.RateLimitDownload()
+	rateLimitDownload := middleware.RateLimitDownloadRedis(c.Redis)
 	csrfMiddleware := middleware.NewCSRF(c.Redis)
 
 	api := c.App.Group("/api/v1")

@@ -8,6 +8,11 @@ services:
       dockerfile: Dockerfile
     container_name: video_downloader_api
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     ports:
       - "127.0.0.1:5001:5001"
     environment:
@@ -100,6 +105,11 @@ services:
       dockerfile: Dockerfile
     container_name: video_downloader_worker
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - APP_PORT=5001
       - APP_ENV=production
