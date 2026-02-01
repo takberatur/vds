@@ -27,11 +27,13 @@
 			href={localizeHref(`/blog/${post?.slug}`)}
 			class="select-rounded-md group flex w-full items-center gap-2 rounded-md border border-border p-4 leading-none no-underline transition-all outline-none hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
 		>
-			<div class="flex h-20 max-w-max items-center justify-center">
+			<div
+				class="flex h-20 max-w-max items-center justify-center rounded-md border border-blue-500 dark:border-blue-400"
+			>
 				<img
 					src={post?.thumbnail || ''}
 					alt={post?.title || ''}
-					class="h-20 w-auto rounded-md object-cover transition-all group-hover:scale-110"
+					class="h-20 w-32 rounded-md object-cover transition-all group-hover:scale-110"
 				/>
 			</div>
 			<div class="w-full space-y-2">

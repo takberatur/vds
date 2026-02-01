@@ -669,6 +669,14 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 			log.Error().Err(err).Msg("failed to publish complete event")
 		}
 	} else {
+		if isYouTube {
+			log.Warn().
+				Str("task_id", task.ID.String()).
+				Str("url", task.OriginalURL).
+				Msg("YouTube upload failed; falling back to direct link mode")
+			return processDirectLinkTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, task, info, encryptionKey)
+		}
+
 		task.Status = "failed"
 		msg := "all formats failed to download"
 		task.ErrorMessage = &msg

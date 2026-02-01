@@ -1,7 +1,7 @@
 ---
 title: 'Glassmorphism with Tailwind CSS Under 60 seconds'
 slug: 'tailwind-glassmorphism'
-thumbnail: 'https://plus.unsplash.com/premium_photo-1769010692266-885ada9b3cb1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwyfHx8ZW58MHx8fHx8'
+thumbnail: 'https://images.unsplash.com/photo-1610986603166-f78428624e76?q=80&w=1158&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 publishedDate: '2020-12-17'
 lastUpdatedDate: '2021-05-23'
 tags:
@@ -10,7 +10,7 @@ tags:
   - javascript
   - frontend
 description: Quick guide on how to make glass morph components with Tailwind (updated for latest Tailwind version)
-status: published
+status: draft
 ---
 
 Glassmorphism is an ongoing trend right now in User interfaces. The new macOS, Big Sur brings a lot of it into the OS, and Microsoft has it for years with Aero UI, then later FluentUI.

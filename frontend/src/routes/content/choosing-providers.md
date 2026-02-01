@@ -1,7 +1,7 @@
 ---
 title: 'Choosing Providers'
 slug: 'choosing-providers'
-thumbnail: 'https://plus.unsplash.com/premium_photo-1769010692266-885ada9b3cb1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwyfHx8ZW58MHx8fHx8'
+thumbnail: 'https://media.istockphoto.com/id/1772142216/id/foto/penilaian-kepuasan-kepada-penyedia-layanan-skor-kepuasan.jpg?s=2048x2048&w=is&k=20&c=p6SQpnrIREwmFBdHe5-UEYQSVjOig5G4WCCmJhWUteo='
 publishedDate: '2023-07-05'
 lastUpdatedDate: '2023-07-05'
 tags:
@@ -9,7 +9,7 @@ tags:
   - docs
   - development
 description: 'How to choose and set up Analytics, newsletter, and other providers for your blog.'
-status: published
+status: draft
 series:
   order: 2
   title: 'Using this template'

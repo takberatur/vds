@@ -1,7 +1,7 @@
 ---
 title: Setting Up Modern Developer Blog Template (Digital Garden Starter)
 slug: 'get-started'
-thumbnail: 'https://plus.unsplash.com/premium_photo-1769010692266-885ada9b3cb1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwyfHx8ZW58MHx8fHx8'
+thumbnail: 'https://images.unsplash.com/photo-1597722357072-aaa91dcb83fc?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 publishedDate: '2023-05-31'
 lastUpdatedDate: '2023-07-05'
 tags:
@@ -11,7 +11,7 @@ tags:
   - javascript
   - frontend
 description: As a developer who creates content, I want to have a blog & digital garden where I can share my thoughts and ideas with the world. Now, there's not really a "perfect solution" for this currently. With included analytics, SEO, email subscriptions, modern tooling, simple design, etc. We either have to build one from scratch, use a design template and code the features, or use a CMS/no-code tool.
-status: published
+status: draft
 series:
   order: 1
   title: 'Using this template'
