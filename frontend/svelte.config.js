@@ -12,7 +12,9 @@ import remarkToc from 'remark-toc';
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
 
-// const path_to_layout = join(__dirname, './src/components/blog/BlogLayout.svelte');
+// const path_to_layout = join(__dirname, './src/lib/components/blog/BlogLayout.svelte');
+
+// import.meta.dirname + '/src/lib/components/blog/BlogLayout.svelte'
 
 const theme = 'github-dark';
 const highlighter = await createHighlighter({
@@ -23,9 +25,9 @@ const highlighter = await createHighlighter({
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
 	extensions: ['svelte', '.svx', '.md'],
-	// layout: {
-	// 	_: import.meta.glob('/src/components/blog/BlogLayout.svelte')
-	// },
+	layout: {
+		_: import.meta.dirname + '/src/lib/components/blog/BlogLayout.svelte'
+	},
 	remarkPlugins: [remarkMath, rehypeSlug, [remarkToc, { heading: 'toc' }]],
 	rehypePlugins: [rehypeKatex],
 	highlight: {

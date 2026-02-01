@@ -49,6 +49,7 @@ services:
       - YOUTUBE_HTTP_USER_AGENT=${YOUTUBE_HTTP_USER_AGENT}
       - COOKIES_FILE_PATH=${COOKIES_FILE_PATH}
       - YOUTUBE_CUSTOM_DISABLED=${YOUTUBE_CUSTOM_DISABLED}
+      - YOUTUBE_FORCE_DIRECT=${YOUTUBE_FORCE_DIRECT}
     networks:
       - video_download_network
       - shared-network
