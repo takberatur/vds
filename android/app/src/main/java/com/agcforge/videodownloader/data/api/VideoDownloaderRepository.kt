@@ -3,6 +3,9 @@ package com.agcforge.videodownloader.data.api
 import com.agcforge.videodownloader.data.dto.AuthResponse
 import com.agcforge.videodownloader.data.dto.DownloadRequest
 import com.agcforge.videodownloader.data.dto.LoginRequest
+import com.agcforge.videodownloader.data.dto.TokenResponse
+import com.agcforge.videodownloader.data.dto.ApiResponse
+import com.agcforge.videodownloader.data.model.Application
 import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.model.Platform
 import com.agcforge.videodownloader.data.model.User
@@ -11,57 +14,99 @@ class VideoDownloaderRepository {
 
     private val api = ApiClient.apiService
 
+	private fun apiError(resp: ApiResponse<*>?, fallback: String): String {
+		val msg = resp?.message?.trim()
+		if (!msg.isNullOrEmpty()) {
+			return msg
+		}
+		val err = resp?.error
+		if (err != null) {
+			val s = err.toString().trim()
+			if (s.isNotEmpty() && s != "null") {
+				return s
+			}
+		}
+		return fallback
+	}
+
     suspend fun getPlatforms(): Result<List<Platform>> {
         return try {
             val response = api.getPlatforms()
             if (response.isSuccessful && response.body()?.success == true) {
-                Result.success(response.body()?.data?.platforms ?: emptyList())
+                Result.success(response.body()?.data ?: emptyList())
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Unknown error"))
+                Result.failure(Exception(apiError(response.body(), "Failed to fetch platforms")))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun createDownload(url: String, platformId: String? = null): Result<DownloadTask> {
+    suspend fun getApplication(): Result<Application> {
         return try {
-            val request = DownloadRequest(url, platformId)
-            val response = api.createDownload(request)
+            val response = api.getApplication()
             if (response.isSuccessful && response.body()?.success == true) {
-                response.body()?.data?.task?.let {
-                    Result.success(it)
-                } ?: Result.failure(Exception("No data returned"))
+                val app = response.body()?.data
+                if (app != null) {
+                    Result.success(app)
+                } else {
+                    Result.failure(Exception("No data returned"))
+                }
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Download failed"))
+                Result.failure(Exception(apiError(response.body(), "Failed to fetch application")))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun getDownload(id: String): Result<DownloadTask> {
+    suspend fun createDownloadVideo(url: String, type: String, platformId: String? = null): Result<DownloadTask> {
         return try {
-            val response = api.getDownload(id)
+            val request = DownloadRequest(url = url, type = type, platformId = platformId)
+            val response = api.createDownloadVideo(request)
             if (response.isSuccessful && response.body()?.success == true) {
-                response.body()?.data?.let {
-                    Result.success(it)
-                } ?: Result.failure(Exception("No data returned"))
+                response.body()?.data?.let { Result.success(it) } ?: Result.failure(Exception("No data returned"))
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Failed to fetch download"))
+                Result.failure(Exception(apiError(response.body(), "Download failed")))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
+    suspend fun createDownloadMp3(url: String, type: String, platformId: String? = null): Result<DownloadTask> {
+        return try {
+            val request = DownloadRequest(url = url, type = type, platformId = platformId)
+            val response = api.createDownloadMp3(request)
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let { Result.success(it) } ?: Result.failure(Exception("No data returned"))
+            } else {
+                Result.failure(Exception(apiError(response.body(), "Download failed")))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getDownloadTask(id: String): Result<DownloadTask> {
+        return try {
+            val response = api.getDownloadTask(id)
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let { Result.success(it) } ?: Result.failure(Exception("No data returned"))
+            } else {
+                Result.failure(Exception(apiError(response.body(), "Failed to fetch download")))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
     suspend fun getDownloads(page: Int = 1, limit: Int = 20): Result<List<DownloadTask>> {
         return try {
             val response = api.getDownloads(page, limit)
             if (response.isSuccessful && response.body()?.success == true) {
                 Result.success(response.body()?.data ?: emptyList())
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Failed to fetch downloads"))
+                Result.failure(Exception(apiError(response.body(), "Failed to fetch downloads")))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -78,7 +123,7 @@ class VideoDownloaderRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("No data returned"))
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Login failed"))
+                Result.failure(Exception(apiError(response.body(), "Login failed")))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -93,7 +138,7 @@ class VideoDownloaderRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("No data returned"))
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Registration failed"))
+                Result.failure(Exception(apiError(response.body(), "Registration failed")))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -147,7 +192,25 @@ class VideoDownloaderRepository {
                     Result.success(it)
                 } ?: Result.failure(Exception("No data returned"))
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Failed to get user"))
+                Result.failure(Exception(apiError(response.body(), "Failed to get user")))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getCentrifugoToken(): Result<TokenResponse> {
+        return try {
+            val response = api.getCentrifugoToken()
+            if (response.isSuccessful) {
+                val token = response.body()
+                if (token != null) {
+                    Result.success(token)
+                } else {
+                    Result.failure(Exception("No data returned"))
+                }
+            } else {
+                Result.failure(Exception("Failed to get centrifugo token"))
             }
         } catch (e: Exception) {
             Result.failure(e)

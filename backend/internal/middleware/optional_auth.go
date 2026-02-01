@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/user/video-downloader-backend/internal/service"
 )
 
@@ -29,8 +30,10 @@ func OptionalJWTMiddleware(tokenService service.TokenService) fiber.Handler {
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if ok {
-			if sub, ok := claims["sub"].(float64); ok {
-				c.Locals("user_id", int64(sub))
+			if sub, ok := claims["sub"].(string); ok {
+				if userID, err := uuid.Parse(sub); err == nil {
+					c.Locals("user_id", userID)
+				}
 			}
 		}
 

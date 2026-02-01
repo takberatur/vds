@@ -136,7 +136,7 @@ dependencies {
     implementation(libs.glide)
     // Websocket and other
     implementation(libs.centrifuge.java)
-    implementation(libs.yt.dlp.library)
-    implementation(libs.yt.dlp.ffmpeg)
-    implementation(libs.yt.dlp.aria2c)
+//    implementation(libs.yt.dlp.library)
+//    implementation(libs.yt.dlp.ffmpeg)
+//    implementation(libs.yt.dlp.aria2c)
 }

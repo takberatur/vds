@@ -3,6 +3,7 @@ package com.agcforge.videodownloader.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.agcforge.videodownloader.data.api.ApiClient
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.model.Platform
@@ -41,16 +42,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun initializeWebSocket() {
         viewModelScope.launch {
-            // Get user ID from preferences
-            preferenceManager.userId.collect { userId ->
-                if (!userId.isNullOrEmpty()) {
-                    // Get auth token
-                    preferenceManager.authToken.collect { token ->
-                        centrifugoManager.initialize(userId, token)
-                        centrifugoManager.connect()
-                    }
-                }
-            }
+			preferenceManager.userId
+				.combine(preferenceManager.authToken) { userId, token ->
+					Pair(userId, token)
+				}
+				.collect { (userId, token) ->
+					if (!userId.isNullOrEmpty() && !token.isNullOrEmpty()) {
+						ApiClient.setAuthToken(token)
+						val centrifugoToken = repository.getCentrifugoToken().getOrNull()?.token
+						centrifugoManager.initialize(userId, centrifugoToken)
+						centrifugoManager.connect()
+					}
+				}
         }
     }
 
@@ -82,11 +85,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun createDownload(url: String, platformId: String? = null) {
+    fun createDownload(url: String, type: String) {
         viewModelScope.launch {
             _downloadResult.value = Resource.Loading()
 
-            repository.createDownload(url, platformId)
+			val isMp3 = type.lowercase().endsWith("-to-mp3")
+			val result = if (isMp3) {
+				repository.createDownloadMp3(url, type)
+			} else {
+				repository.createDownloadVideo(url, type)
+			}
+
+			result
                 .onSuccess { task ->
                     _downloadResult.value = Resource.Success(task)
 

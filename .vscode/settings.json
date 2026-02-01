@@ -34,5 +34,18 @@
 	},
 	"html.autoClosingTags": false,
 	"prettier.configPath": "frontend/.prettierrc",
-	"prettier.ignorePath": "frontend/.prettierignore"
+	"prettier.ignorePath": "frontend/.prettierignore",
+	"kotlin.languageServer.enabled": true,
+    "kotlin.java.home": "C:/Program Files/Android/Android Studio/jbr", 
+    "java.jdt.ls.java.home": "C:/Program Files/Android/Android Studio/jbr",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "C:/Program Files/Android/Android Studio/jbr",
+            "default": true
+        }
+    ],
+    "java.project.importHint": "gradle",
+    "kotlin.indexing.enabled": true,
+    "kotlin.externalAnnotations.enabled": true
 }

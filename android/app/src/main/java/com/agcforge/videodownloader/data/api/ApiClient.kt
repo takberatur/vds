@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     private const val BASE_URL = BuildConfig.BASE_URL
+    private const val API_KEY = BuildConfig.API_KEY
 
     private var authToken: String? = null
 
@@ -23,6 +24,7 @@ object ApiClient {
             request.addHeader("Authorization", "Bearer $it")
         }
         request.addHeader("Accept", "application/json")
+        request.addHeader("X-API-Key", API_KEY)
         chain.proceed(request.build())
     }
 

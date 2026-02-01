@@ -2,6 +2,7 @@ package com.agcforge.videodownloader.data.websocket
 
 import android.content.Context
 import android.util.Log
+import com.agcforge.videodownloader.BuildConfig
 import com.agcforge.videodownloader.utils.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,7 @@ class CentrifugoManager private constructor(
     private var authToken: String? = null
 
     companion object {
-        private const val CENTRIFUGO_URL = "https://websocket.infrastructures.help/connection/websocket"
+        private val CENTRIFUGO_URL = BuildConfig.CENTRIFUGO_URL
 
         @Volatile
         private var instance: CentrifugoManager? = null

@@ -16,6 +16,34 @@ type ApplicationHandler struct {
 	svc service.ApplicationService
 }
 
+type mobileApplicationResponse struct {
+	ID                        uuid.UUID            `json:"id"`
+	Name                      string               `json:"name"`
+	PackageName               string               `json:"package_name"`
+	Version                   *string              `json:"version"`
+	Platform                  string               `json:"platform"`
+	EnableMonetization        bool                 `json:"enable_monetization"`
+	EnableAdmob               bool                 `json:"enable_admob"`
+	EnableUnityAd             bool                 `json:"enable_unity_ad"`
+	EnableStartApp            bool                 `json:"enable_start_app"`
+	EnableInAppPurchase       bool                 `json:"enable_in_app_purchase"`
+	AdmobAdUnitID             *string              `json:"admob_ad_unit_id"`
+	UnityAdUnitID             *string              `json:"unity_ad_unit_id"`
+	StartAppAdUnitID          *string              `json:"start_app_ad_unit_id"`
+	AdmobBannerAdUnitID       *string              `json:"admob_banner_ad_unit_id"`
+	AdmobInterstitialAdUnitID *string              `json:"admob_interstitial_ad_unit_id"`
+	AdmobNativeAdUnitID       *string              `json:"admob_native_ad_unit_id"`
+	AdmobRewardedAdUnitID     *string              `json:"admob_rewarded_ad_unit_id"`
+	UnityBannerAdUnitID       *string              `json:"unity_banner_ad_unit_id"`
+	UnityInterstitialAdUnitID *string              `json:"unity_interstitial_ad_unit_id"`
+	UnityNativeAdUnitID       *string              `json:"unity_native_ad_unit_id"`
+	UnityRewardedAdUnitID     *string              `json:"unity_rewarded_ad_unit_id"`
+	IsActive                  bool                 `json:"is_active"`
+	CreatedAt                 time.Time            `json:"created_at"`
+	UpdatedAt                 time.Time            `json:"updated_at"`
+	InAppProducts             []model.InAppProduct `json:"in_app_products,omitempty"`
+}
+
 func NewApplicationHandler(svc service.ApplicationService) *ApplicationHandler {
 	return &ApplicationHandler{svc: svc}
 }
@@ -160,4 +188,50 @@ func (h *ApplicationHandler) FindByID(c *fiber.Ctx) error {
 	}
 
 	return response.Success(c, "Application found successfully", app)
+}
+
+func (h *ApplicationHandler) GetCurrent(c *fiber.Ctx) error {
+	ctx := middleware.HandlerContext(c)
+	appID, ok := c.Locals("app_id").(uuid.UUID)
+	if !ok {
+		return response.Error(c, fiber.StatusUnauthorized, "Unauthorized", nil)
+	}
+
+	app, err := h.svc.FindByID(ctx, appID)
+	if err != nil {
+		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch application", err.Error())
+	}
+	if app == nil {
+		return response.Error(c, fiber.StatusNotFound, "Application not found", nil)
+	}
+
+	resp := mobileApplicationResponse{
+		ID:                        app.ID,
+		Name:                      app.Name,
+		PackageName:               app.PackageName,
+		Version:                   app.Version,
+		Platform:                  app.Platform,
+		EnableMonetization:        app.EnableMonetization,
+		EnableAdmob:               app.EnableAdmob,
+		EnableUnityAd:             app.EnableUnityAd,
+		EnableStartApp:            app.EnableStartApp,
+		EnableInAppPurchase:       app.EnableInAppPurchase,
+		AdmobAdUnitID:             app.AdmobAdUnitID,
+		UnityAdUnitID:             app.UnityAdUnitID,
+		StartAppAdUnitID:          app.StartAppAdUnitID,
+		AdmobBannerAdUnitID:       app.AdmobBannerAdUnitID,
+		AdmobInterstitialAdUnitID: app.AdmobInterstitialAdUnitID,
+		AdmobNativeAdUnitID:       app.AdmobNativeAdUnitID,
+		AdmobRewardedAdUnitID:     app.AdmobRewardedAdUnitID,
+		UnityBannerAdUnitID:       app.UnityBannerAdUnitID,
+		UnityInterstitialAdUnitID: app.UnityInterstitialAdUnitID,
+		UnityNativeAdUnitID:       app.UnityNativeAdUnitID,
+		UnityRewardedAdUnitID:     app.UnityRewardedAdUnitID,
+		IsActive:                  app.IsActive,
+		CreatedAt:                 app.CreatedAt,
+		UpdatedAt:                 app.UpdatedAt,
+		InAppProducts:             app.InAppProducts,
+	}
+
+	return response.Success(c, "Application retrieved successfully", resp)
 }

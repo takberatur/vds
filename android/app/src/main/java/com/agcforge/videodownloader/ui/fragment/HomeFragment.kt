@@ -23,6 +23,7 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var platformAdapter: PlatformAdapter
+    private var selectedPlatform: com.agcforge.videodownloader.data.model.Platform? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,6 +47,7 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView() {
         platformAdapter = PlatformAdapter { platform ->
             // Handle platform click - auto-fill platform info
+            selectedPlatform = platform
             requireContext().showToast("Selected: ${platform.name}")
         }
 
@@ -70,7 +72,14 @@ class HomeFragment : Fragment() {
             }
 
             binding.tilUrl.error = null
-            viewModel.createDownload(url)
+
+            val platform = selectedPlatform
+            if (platform == null) {
+                requireContext().showToast("Please select a platform")
+                return@setOnClickListener
+            }
+
+            viewModel.createDownload(url, platform.type)
         }
 
         binding.etUrl.setOnFocusChangeListener { _, hasFocus ->

@@ -9,8 +9,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.agcforge.videodownloader.data.model.Application
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
@@ -34,6 +36,7 @@ class PreferenceManager(private val context: Context) {
         private val USER_AVATAR_KEY = stringPreferencesKey("user_avatar")
         private val THEME_KEY = stringPreferencesKey("theme_mode")
         private val LANGUAGE_KEY = stringPreferencesKey("language_code")
+		private val APPLICATION_KEY = stringPreferencesKey("application_config")
     }
 
     // --- Flows to observe preference changes ---
@@ -45,6 +48,7 @@ class PreferenceManager(private val context: Context) {
     val userAvatar: Flow<String?> = context.dataStore.data.map { it[USER_AVATAR_KEY] }
     val theme: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
     val language: Flow<String?> = context.dataStore.data.map { it[LANGUAGE_KEY] }
+	val applicationConfig: Flow<String?> = context.dataStore.data.map { it[APPLICATION_KEY] }
 
     // --- Suspend functions to modify preferences ---
 
@@ -74,6 +78,11 @@ class PreferenceManager(private val context: Context) {
     suspend fun saveLanguage(languageCode: String) {
         context.dataStore.edit { it[LANGUAGE_KEY] = languageCode }
     }
+
+	suspend fun saveApplication(app: Application) {
+		val json = Gson().toJson(app)
+		context.dataStore.edit { it[APPLICATION_KEY] = json }
+	}
 
     suspend fun clearUserData() {
         context.dataStore.edit { it.clear() }

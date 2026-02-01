@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.agcforge.videodownloader.R
+import com.agcforge.videodownloader.data.api.ApiClient
+import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.ui.activities.auth.LoginActivity
 import com.agcforge.videodownloader.utils.PreferenceManager
 import kotlinx.coroutines.delay
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var preferenceManager: PreferenceManager
+    private val repository = VideoDownloaderRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install splash screen
@@ -34,15 +37,28 @@ class SplashActivity : AppCompatActivity() {
             // Simulate initialization
             delay(2000)
 
+			fetchAndStoreApplication()
+
             // Check if user is logged in
             checkAuthenticationState()
         }
     }
 
+	private suspend fun fetchAndStoreApplication() {
+		repository.getApplication()
+			.onSuccess { app ->
+				preferenceManager.saveApplication(app)
+			}
+			.onFailure {
+				// ignore
+			}
+	}
+
     private suspend fun checkAuthenticationState() {
         val token = preferenceManager.authToken.first()
 
         if (!token.isNullOrEmpty()) {
+            ApiClient.setAuthToken(token)
             // User is logged in, go to main
             navigateToMain()
         } else {

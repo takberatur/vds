@@ -178,6 +178,8 @@ func SetupRoutes(c *RouteConfig) {
 	protectedUserWeb.Post("/users/avatar", csrfMiddleware, userHandler.UploadAvatar)
 
 	// Mobile client
+	publicMobile.Get("/application", applicationHandler.GetCurrent)
+
 	publicMobile.Post("/auth/google", credentialLimiter, authHandler.GoogleLogin)
 	publicMobile.Post("/auth/email", credentialLimiter, authHandler.LoginEmail)
 	publicMobile.Post("/auth/forgot-password", credentialLimiter, authHandler.ForgotPassword)
@@ -185,7 +187,7 @@ func SetupRoutes(c *RouteConfig) {
 	publicMobile.Post("/auth/logout", authHandler.Logout)
 
 	publicMobile.Get("/settings/public", settingHandler.GetPublicSettings)
-	publicMobile.Get("/centrifugo/token", centrifugoHandler.GetToken)
+	publicMobile.Get("/centrifugo/token", middleware.OptionalJWTMiddleware(tokenService), centrifugoHandler.GetToken)
 	publicMobile.Post("/contact", webHandler.Contact)
 	publicMobile.Get("/platforms", platformHandler.GetAll)
 	publicMobile.Get("/platforms/:id", platformHandler.GetPlatformByID)
@@ -193,12 +195,14 @@ func SetupRoutes(c *RouteConfig) {
 	publicMobile.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
 	publicMobile.Get("/platforms/category/:category", platformHandler.GetPlatformsByCategory)
 
-	publicMobile.Post("/download/process/video", rateLimitDownload, csrfMiddleware, downloadHandler.DownloadVideo)
-	publicMobile.Post("/download/process/mp3", rateLimitDownload, csrfMiddleware, downloadHandler.DownloadVideoToMp3)
+	publicMobile.Post("/download/process/video", rateLimitDownload, downloadHandler.DownloadVideo)
+	publicMobile.Post("/download/process/mp3", rateLimitDownload, downloadHandler.DownloadVideoToMp3)
 
 	protectedUserMobile := publicMobile.Group("/protected-mobile", middleware.JWTMiddleware(tokenService))
 	protectedUserMobile.Get("/users/current", userHandler.GetCurrentUser)
-	protectedUserMobile.Put("/users/profile", csrfMiddleware, userHandler.UpdateProfile)
-	protectedUserMobile.Put("/users/password", csrfMiddleware, userHandler.UpdatePassword)
-	protectedUserMobile.Post("/users/avatar", csrfMiddleware, userHandler.UploadAvatar)
+	protectedUserMobile.Get("/downloads", downloadHandler.GetHistory)
+	protectedUserMobile.Get("/downloads/:id", downloadHandler.FindByIDForCurrentUser)
+	protectedUserMobile.Put("/users/profile", userHandler.UpdateProfile)
+	protectedUserMobile.Put("/users/password", userHandler.UpdatePassword)
+	protectedUserMobile.Post("/users/avatar", userHandler.UploadAvatar)
 }

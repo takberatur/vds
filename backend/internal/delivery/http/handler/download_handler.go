@@ -391,6 +391,34 @@ func (h *DownloadHandler) FindByID(c *fiber.Ctx) error {
 	return response.Success(c, "Download fetched successfully", task)
 }
 
+func (h *DownloadHandler) FindByIDForCurrentUser(c *fiber.Ctx) error {
+	ctx := middleware.HandlerContext(c)
+
+	userID, ok := c.Locals("user_id").(uuid.UUID)
+	if !ok {
+		return response.Error(c, fiber.StatusUnauthorized, "Unauthorized", nil)
+	}
+
+	idStr := c.Params("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		return response.Error(c, fiber.StatusBadRequest, "Invalid ID", err.Error())
+	}
+
+	task, err := h.svc.FindByID(ctx, id)
+	if err != nil {
+		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch download", err.Error())
+	}
+	if task == nil {
+		return response.Error(c, fiber.StatusNotFound, "Download not found", nil)
+	}
+	if task.UserID == nil || *task.UserID != userID {
+		return response.Error(c, fiber.StatusForbidden, "Forbidden", nil)
+	}
+
+	return response.Success(c, "Download fetched successfully", task)
+}
+
 func (h *DownloadHandler) GetDownloads(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
 

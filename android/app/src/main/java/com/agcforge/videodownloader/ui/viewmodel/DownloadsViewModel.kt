@@ -91,7 +91,7 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             _downloadDetail.value = Resource.Loading()
 
-            repository.getDownload(id)
+			repository.getDownloadTask(id)
                 .onSuccess { task ->
                     _downloadDetail.value = Resource.Success(task)
 

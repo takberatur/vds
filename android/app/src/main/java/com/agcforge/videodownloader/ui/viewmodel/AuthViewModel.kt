@@ -44,8 +44,16 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     )
 
                     // Initialize WebSocket connection
-                    centrifugoManager.initialize(authResponse.user.id, authResponse.token)
-                    centrifugoManager.connect()
+
+					repository.getCentrifugoToken()
+						.onSuccess { tokenResponse ->
+							centrifugoManager.initialize(authResponse.user.id, tokenResponse.token)
+							centrifugoManager.connect()
+						}
+						.onFailure {
+							centrifugoManager.initialize(authResponse.user.id, null)
+							centrifugoManager.connect()
+						}
                 }
                 .onFailure { error ->
                     _loginResult.value = Resource.Error(error.message ?: "Login failed")
