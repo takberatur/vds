@@ -187,7 +187,7 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 		}
 	}
 
-	format := "mp3"
+	format := "mp4"
 	title := ""
 	thumbnailURL := ""
 	filePath := ""
@@ -221,7 +221,7 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 		FilePath:     &filePath,
 		Duration:     duration,
 		FileSize:     fileSize,
-		Formats:      nil,
+		Formats:      formats,
 		IPAddress:    &ip,
 		CreatedAt:    time.Now(),
 	}
@@ -234,19 +234,19 @@ func (s *downloadService) ProcessDownload(ctx context.Context, req model.Downloa
 		log.Info().
 			Str("task_id", task.ID.String()).
 			Str("url", task.OriginalURL).
-			Msg("Enqueuing mp3 download task")
+			Msg("Enqueuing video download task")
 
-		if err := s.taskClient.EnqueueMp3Download(task); err != nil {
+		if err := s.taskClient.EnqueueVideoDownload(task); err != nil {
 			log.Error().
 				Err(err).
 				Str("task_id", task.ID.String()).
-				Msg("Failed to enqueue mp3 download task")
+				Msg("Failed to enqueue video download task")
 			return nil, err
 		}
 
 		log.Info().
 			Str("task_id", task.ID.String()).
-			Msg("Successfully enqueued mp3 download task")
+			Msg("Successfully enqueued video download task")
 	}
 
 	return task, nil
@@ -465,10 +465,7 @@ func (s *downloadService) ProcessDownloadMp3(ctx context.Context, req model.Down
 		}
 	}
 
-	format := "mp4"
-	if req.Type == "youtube-to-mp3" {
-		format = "mp3"
-	}
+	format := "mp3"
 	title := ""
 	thumbnailURL := ""
 	filePath := ""
@@ -502,7 +499,7 @@ func (s *downloadService) ProcessDownloadMp3(ctx context.Context, req model.Down
 		FilePath:     &filePath,
 		Duration:     duration,
 		FileSize:     fileSize,
-		Formats:      formats,
+		Formats:      nil,
 		IPAddress:    &ip,
 		CreatedAt:    time.Now(),
 	}
@@ -515,19 +512,19 @@ func (s *downloadService) ProcessDownloadMp3(ctx context.Context, req model.Down
 		log.Info().
 			Str("task_id", task.ID.String()).
 			Str("url", task.OriginalURL).
-			Msg("Enqueuing video download task")
+			Msg("Enqueuing mp3 download task")
 
-		if err := s.taskClient.EnqueueVideoDownload(task); err != nil {
+		if err := s.taskClient.EnqueueMp3Download(task); err != nil {
 			log.Error().
 				Err(err).
 				Str("task_id", task.ID.String()).
-				Msg("Failed to enqueue video download task")
+				Msg("Failed to enqueue mp3 download task")
 			return nil, err
 		}
 
 		log.Info().
 			Str("task_id", task.ID.String()).
-			Msg("Successfully enqueued video download task")
+			Msg("Successfully enqueued mp3 download task")
 	}
 
 	return task, nil

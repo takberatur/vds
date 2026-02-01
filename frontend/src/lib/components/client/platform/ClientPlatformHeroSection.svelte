@@ -221,6 +221,7 @@
 		try {
 			// If we have a direct URL (e.g. MinIO), use it directly
 			if (directUrl) {
+
 				const link = document.createElement('a');
 				// Clean URL (remove spaces, backticks if any)
 				const cleanUrl = directUrl

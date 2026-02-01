@@ -37,100 +37,182 @@ type DownloadHandler struct {
 	userSvc service.UserService
 }
 
-type ytcontentVideoResponse struct {
-	Status  string `json:"status"`
-	FileURL string `json:"fileUrl"`
-	ViewURL string `json:"viewUrl"`
+type ytcontentStatusResponse struct {
+	Status   string          `json:"status"`
+	FileName string          `json:"fileName"`
+	Percent  string          `json:"percent"`
+	Progress json.RawMessage `json:"progress"`
+	FileURL  string          `json:"fileUrl"`
+	ViewURL  string          `json:"viewUrl"`
+	Message  string          `json:"message"`
+	Error    string          `json:"error"`
 }
 
-func resolveYTContentFileURL(ctx context.Context, rawURL string) string {
+func resolveYTContentFileURL(ctx context.Context, rawURL string) (string, string, []byte, error) {
 	rawURL = strings.TrimSpace(rawURL)
 	rawURL = strings.Trim(rawURL, "`")
 	rawURL = strings.Trim(rawURL, "\"")
 	rawURL = strings.Trim(rawURL, "'")
 	rawURL = strings.TrimSpace(rawURL)
 	if rawURL == "" {
-		return ""
+		return "", "error", nil, nil
 	}
 
 	u, err := url.Parse(rawURL)
 	if err != nil || u.Host == "" {
-		return ""
+		return rawURL, "passthrough", nil, nil
 	}
 
 	if !strings.Contains(strings.ToLower(u.Host), "ytcontent.com") {
-		return ""
+		return rawURL, "passthrough", nil, nil
 	}
 	if !strings.Contains(u.Path, "/v5/video/") {
-		return ""
+		return rawURL, "passthrough", nil, nil
 	}
 
 	outboundProxy := strings.TrimSpace(os.Getenv("OUTBOUND_PROXY_URL"))
 	outboundProxy = strings.TrimSpace(strings.Trim(strings.Trim(strings.Trim(outboundProxy, "`"), "\""), "'"))
-	var transport http.RoundTripper = http.DefaultTransport
-	if outboundProxy != "" {
-		if p, err := url.Parse(outboundProxy); err == nil && p.Host != "" {
-			transport = &http.Transport{
-				Proxy:               http.ProxyURL(p),
-				DisableKeepAlives:   false,
-				MaxIdleConns:        10,
-				IdleConnTimeout:     30 * time.Second,
-				TLSHandshakeTimeout: 15 * time.Second,
+
+	newClient := func(timeout time.Duration) *http.Client {
+		var transport http.RoundTripper = http.DefaultTransport
+		if outboundProxy != "" {
+			if p, err := url.Parse(outboundProxy); err == nil && p.Host != "" {
+				transport = &http.Transport{
+					Proxy:               http.ProxyURL(p),
+					DisableKeepAlives:   false,
+					MaxIdleConns:        10,
+					IdleConnTimeout:     30 * time.Second,
+					TLSHandshakeTimeout: 15 * time.Second,
+				}
 			}
 		}
-	}
-	client := &http.Client{Timeout: 25 * time.Second, Transport: transport}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return ""
-	}
-	req.Header.Set("Accept", "application/json, text/plain, */*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("Origin", "https://ytdown.to")
-	req.Header.Set("Referer", "https://ytdown.to/")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return ""
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return ""
+		return &http.Client{Timeout: timeout, Transport: transport}
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return ""
-	}
+	fetch := func() ([]byte, *ytcontentStatusResponse, error) {
+		client := newClient(25 * time.Second)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+		req.Header.Set("Accept", "application/json, text/plain, */*")
+		req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+		req.Header.Set("Origin", "https://ytdown.to")
+		req.Header.Set("Referer", "https://ytdown.to/")
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
 
-	var parsed ytcontentVideoResponse
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return ""
-	}
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, nil, err
+		}
+		defer resp.Body.Close()
 
-	if strings.EqualFold(strings.TrimSpace(parsed.Status), "completed") {
-		fileURL := strings.TrimSpace(parsed.FileURL)
-		fileURL = strings.Trim(fileURL, "`")
-		fileURL = strings.Trim(fileURL, "\"")
-		fileURL = strings.Trim(fileURL, "'")
-		fileURL = strings.TrimSpace(fileURL)
-		if fileURL != "" {
-			return fileURL
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 1_048_576))
+		if err != nil {
+			return nil, nil, err
+		}
+		if resp.StatusCode != http.StatusOK {
+			return body, nil, fmt.Errorf("ytcontent status http %d", resp.StatusCode)
 		}
 
-		viewURL := strings.TrimSpace(parsed.ViewURL)
-		viewURL = strings.Trim(viewURL, "`")
-		viewURL = strings.Trim(viewURL, "\"")
-		viewURL = strings.Trim(viewURL, "'")
-		viewURL = strings.TrimSpace(viewURL)
-		if viewURL != "" {
-			return viewURL
+		var parsed ytcontentStatusResponse
+		if err := json.Unmarshal(body, &parsed); err != nil {
+			return body, nil, err
 		}
+		return body, &parsed, nil
 	}
 
-	return ""
+	cleanURL := func(u string) string {
+		u = strings.TrimSpace(u)
+		u = strings.Trim(u, "`")
+		u = strings.Trim(u, "\"")
+		u = strings.Trim(u, "'")
+		u = strings.TrimSpace(u)
+		return u
+	}
+
+	validateToken := func(downloadURL string) bool {
+		downloadURL = cleanURL(downloadURL)
+		if downloadURL == "" {
+			return false
+		}
+		client := newClient(20 * time.Second)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
+		if err != nil {
+			return true
+		}
+		req.Header.Set("Range", "bytes=0-1023")
+		req.Header.Set("Accept", "*/*")
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+		req.Header.Set("Referer", "https://ytdown.to/")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return true
+		}
+		defer resp.Body.Close()
+
+		ct := strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Type")))
+		if strings.Contains(ct, "application/json") || strings.Contains(ct, "text/") {
+			b, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
+			s := strings.ToUpper(string(b))
+			if strings.Contains(s, "INVALID_TOKEN") || strings.Contains(s, "TOKEN EXPIRED") {
+				return false
+			}
+		}
+		return true
+	}
+
+	start := time.Now()
+	deadline := 60 * time.Second
+	intervals := []time.Duration{5 * time.Second, 10 * time.Second}
+	attempt := 0
+	for {
+		body, parsed, err := fetch()
+		if err != nil {
+			return "", "error", body, err
+		}
+
+		status := strings.ToLower(strings.TrimSpace(parsed.Status))
+		switch status {
+		case "completed":
+			fileURL := cleanURL(parsed.FileURL)
+			viewURL := cleanURL(parsed.ViewURL)
+			resolved := fileURL
+			if resolved == "" {
+				resolved = viewURL
+			}
+			if resolved == "" {
+				return "", "error", body, nil
+			}
+			if strings.Contains(strings.ToLower(resolved), "ytcontent.com") && strings.Contains(resolved, "token=") {
+				if !validateToken(resolved) {
+					if time.Since(start) >= deadline {
+						return "", "error", body, nil
+					}
+					time.Sleep(intervals[attempt%len(intervals)])
+					attempt++
+					continue
+				}
+			}
+			return resolved, "completed", body, nil
+		case "queued", "processing":
+			if time.Since(start) >= deadline {
+				return "", "queued", body, nil
+			}
+			time.Sleep(intervals[attempt%len(intervals)])
+			attempt++
+			continue
+		case "error", "failed":
+			return "", "error", body, nil
+		default:
+			if time.Since(start) >= deadline {
+				return "", status, body, nil
+			}
+			time.Sleep(intervals[attempt%len(intervals)])
+			attempt++
+		}
+	}
 }
 
 func NewDownloadHandler(svc service.DownloadService, userSvc service.UserService) *DownloadHandler {
@@ -496,8 +578,22 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 							Msg("Recursive proxy URL detected in completed task, skipping redirect optimization to avoid loop")
 						// Fall through to normal processing
 					} else {
-						if resolved := resolveYTContentFileURL(ctx, finalURL); resolved != "" {
+						resolved, status, raw, rerr := resolveYTContentFileURL(ctx, finalURL)
+						if status == "completed" || status == "passthrough" {
 							finalURL = resolved
+						} else {
+							if len(raw) == 0 {
+								payload := map[string]any{"status": status, "message": "ytcontent status unresolved"}
+								if rerr != nil {
+									payload["error"] = rerr.Error()
+								}
+								raw, _ = json.Marshal(payload)
+							}
+							c.Set("Content-Type", "application/json")
+							if status == "queued" || status == "processing" {
+								return c.Status(fiber.StatusAccepted).Send(raw)
+							}
+							return c.Status(fiber.StatusBadGateway).Send(raw)
 						}
 						log.Info().
 							Str("task_id", task.ID.String()).
@@ -1500,10 +1596,22 @@ func (h *DownloadHandler) ProxyDownloadMp3(c *fiber.Ctx) error {
 	finalURL = strings.Trim(finalURL, "'")
 	finalURL = strings.Trim(finalURL, "\"")
 	finalURL = strings.TrimSpace(finalURL)
-	if resolved := resolveYTContentFileURL(ctx, finalURL); resolved != "" {
-		finalURL = resolved
+	resolved, status, raw, rerr := resolveYTContentFileURL(ctx, finalURL)
+	if status == "completed" || status == "passthrough" {
+		return c.Redirect(resolved)
 	}
-	return c.Redirect(finalURL)
+	if len(raw) == 0 {
+		payload := map[string]any{"status": status, "message": "ytcontent status unresolved"}
+		if rerr != nil {
+			payload["error"] = rerr.Error()
+		}
+		raw, _ = json.Marshal(payload)
+	}
+	c.Set("Content-Type", "application/json")
+	if status == "queued" || status == "processing" {
+		return c.Status(fiber.StatusAccepted).Send(raw)
+	}
+	return c.Status(fiber.StatusBadGateway).Send(raw)
 }
 
 type DownloadEventHub struct {

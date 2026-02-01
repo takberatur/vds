@@ -258,53 +258,39 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	basePath := tempFile.Name()
 	tempFile.Close()
 	_ = os.Remove(basePath)
-	outputTemplate := basePath + ".%(ext)s"
+	inputPath := basePath + ".mp4"
 	outputPath := basePath + ".mp3"
+	defer os.Remove(inputPath)
 	defer os.Remove(outputPath)
 	defer os.Remove(basePath)
 
-	ua := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
-
-	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
-	useProxy := strings.EqualFold(strings.TrimSpace(os.Getenv("PROXY_FOR_ALL")), "true")
-	imp := strings.TrimSpace(os.Getenv("YTDLP_IMPERSONATE"))
-
-	cookiesFilePath := strings.TrimSpace(os.Getenv("COOKIES_FILE_PATH"))
-	disableCookies := strings.EqualFold(strings.TrimSpace(os.Getenv("DISABLE_COOKIES_FILE")), "true")
-
-	args := []string{
-		"--no-warnings",
-		"--no-playlist",
-		"--force-overwrites",
-		"--no-part",
-		"--socket-timeout", "30",
-		"--extract-audio",
-		"--audio-format", "mp3",
-		"--audio-quality", "0",
-		"--add-metadata",
-		"--embed-metadata",
-		"--user-agent", ua,
-		"--referer", task.OriginalURL,
-		"-o", outputTemplate,
+	if err := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err != nil {
+		return err
 	}
 
-	if imp != "" {
-		args = append(args, "--impersonate", imp)
+	fiIn, err := os.Stat(inputPath)
+	if err != nil {
+		return err
 	}
-	if cookiesFilePath != "" && !disableCookies {
-		args = append(args, "--cookies", cookiesFilePath)
-	}
-	if outboundProxy != "" && useProxy {
-		args = append(args, "--proxy", outboundProxy)
+	if fiIn.Size() == 0 {
+		return fmt.Errorf("downloaded source file is empty")
 	}
 
-	args = append(args, task.OriginalURL)
+	ffmpegArgs := []string{
+		"-y",
+		"-loglevel", "error",
+		"-i", inputPath,
+		"-vn",
+		"-acodec", "libmp3lame",
+		"-q:a", "0",
+		outputPath,
+	}
 
-	cmd := exec.CommandContext(ctx, "yt-dlp", args...)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("yt-dlp mp3 failed: %w, stderr: %s", err, stderr.String())
+	ffmpegCmd := exec.CommandContext(ctx, "ffmpeg", ffmpegArgs...)
+	var ffmpegStderr bytes.Buffer
+	ffmpegCmd.Stderr = &ffmpegStderr
+	if err := ffmpegCmd.Run(); err != nil {
+		return fmt.Errorf("ffmpeg mp3 convert failed: %w, stderr: %s", err, ffmpegStderr.String())
 	}
 
 	fi, err := os.Stat(outputPath)
@@ -325,7 +311,11 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	}
 	defer f.Close()
 
-	objectName := fmt.Sprintf("%s/%s/%s.%s", "mp3", task.ID.String(), "best", "mp3")
+	baseFolder := strings.TrimSpace(task.PlatformType)
+	if baseFolder == "" {
+		baseFolder = "mp3"
+	}
+	objectName := fmt.Sprintf("%s/%s/%s.%s", baseFolder, task.ID.String(), "best", "mp3")
 	minioURL, err := storageClient.UploadFile(ctx, bucketName, objectName, f, fi.Size(), "audio/mpeg")
 	if err != nil {
 		return err
@@ -365,9 +355,15 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {
 	forceYouTubeDirect := strings.EqualFold(strings.TrimSpace(os.Getenv("YOUTUBE_FORCE_DIRECT")), "true")
 	isYouTubeTask := strings.EqualFold(task.PlatformType, "youtube") || strings.Contains(strings.ToLower(task.OriginalURL), "youtube.com") || strings.Contains(strings.ToLower(task.OriginalURL), "youtu.be")
+	isMp3Task := strings.HasSuffix(strings.ToLower(strings.TrimSpace(task.PlatformType)), "-to-mp3")
 
 	if err := publishProgressEvent(ctx, redisClient, centrifugoClient, task, 10); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Int("progress", 10).Msg("failed to publish progress event (start)")
+	}
+
+	if isMp3Task {
+		log.Info().Str("task_id", task.ID.String()).Str("platform", task.PlatformType).Msg("Routing task to MP3 pipeline")
+		return processMp3DownloadTask(ctx, downloadRepo, redisClient, centrifugoClient, downloader, storageClient, bucketName, encryptionKey, task)
 	}
 
 	if strings.Contains(strings.ToLower(task.OriginalURL), "twitch.tv") {

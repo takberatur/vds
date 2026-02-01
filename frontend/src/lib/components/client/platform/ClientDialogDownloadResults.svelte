@@ -7,7 +7,6 @@
 	import Icon from '@iconify/svelte';
 	import * as i18n from '@/paraglide/messages.js';
 	import { cn } from '@/utils';
-	import test from 'node:test';
 
 	let {
 		task,
@@ -25,7 +24,7 @@
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
-	// console.log('download task', task);
+	console.log('download task', task);
 	const twitterRegex = /^(https?:\/\/)?(www\.)?(twitter|x|twimg)\.com\/[a-zA-Z0-9_]+$/i;
 
 	const excludeUrlType = (url?: string | null) => {
