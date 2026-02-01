@@ -18,18 +18,6 @@
 	let { data } = $props();
 	let metaTags = $derived<MetaTagsProps | undefined>(data.pageMetaTags);
 	let postData = $derived(data.posts);
-	let PostComponent = $state<any | null>(null);
-
-	const modules = import.meta.glob('/src/routes/content/**/*.md');
-
-	onMount(async () => {
-		const importer = modules[`/src/routes/content/${data.posts.meta.slug}.md`];
-
-		if (importer) {
-			const mod = await importer();
-			PostComponent = (mod as any).default;
-		}
-	});
 
 	if (typeof window !== 'undefined') {
 		// svelte-ignore state_referenced_locally
@@ -142,9 +130,6 @@
 				<figure class="mb-4">
 					<img src={data.posts.meta.thumbnail} alt={data.posts.meta.title} class="rounded-md" />
 				</figure>
-			{/if}
-			{#if PostComponent}
-				<PostComponent />
 			{/if}
 		</article>
 	</div>

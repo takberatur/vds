@@ -6,15 +6,6 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import remarkToc from 'remark-toc';
-// import { join, dirname } from 'path';
-// import { fileURLToPath } from 'url';
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-// const path_to_layout = join(__dirname, './src/lib/components/blog/BlogLayout.svelte');
-
-// import.meta.dirname + '/src/lib/components/blog/BlogLayout.svelte'
 
 const theme = 'github-dark';
 const highlighter = await createHighlighter({
@@ -24,10 +15,7 @@ const highlighter = await createHighlighter({
 
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
-	extensions: ['svelte', '.svx', '.md'],
-	layout: {
-		_: import.meta.dirname + '/src/lib/components/blog/BlogLayout.svelte'
-	},
+	extensions: ['.svx', '.md'],
 	remarkPlugins: [remarkMath, rehypeSlug, [remarkToc, { heading: 'toc' }]],
 	rehypePlugins: [rehypeKatex],
 	highlight: {

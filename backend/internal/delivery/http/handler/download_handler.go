@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -34,6 +35,85 @@ import (
 type DownloadHandler struct {
 	svc     service.DownloadService
 	userSvc service.UserService
+}
+
+type ytcontentVideoResponse struct {
+	Status  string `json:"status"`
+	FileURL string `json:"fileUrl"`
+	ViewURL string `json:"viewUrl"`
+}
+
+func resolveYTContentFileURL(ctx context.Context, rawURL string) string {
+	rawURL = strings.TrimSpace(rawURL)
+	rawURL = strings.Trim(rawURL, "`")
+	rawURL = strings.Trim(rawURL, "\"")
+	rawURL = strings.Trim(rawURL, "'")
+	rawURL = strings.TrimSpace(rawURL)
+	if rawURL == "" {
+		return ""
+	}
+
+	u, err := url.Parse(rawURL)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+
+	if !strings.Contains(strings.ToLower(u.Host), "ytcontent.com") {
+		return ""
+	}
+	if !strings.Contains(u.Path, "/v5/video/") {
+		return ""
+	}
+
+	client := &http.Client{Timeout: 20 * time.Second}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return ""
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return ""
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	var parsed ytcontentVideoResponse
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return ""
+	}
+
+	if strings.EqualFold(strings.TrimSpace(parsed.Status), "completed") {
+		fileURL := strings.TrimSpace(parsed.FileURL)
+		fileURL = strings.Trim(fileURL, "`")
+		fileURL = strings.Trim(fileURL, "\"")
+		fileURL = strings.Trim(fileURL, "'")
+		fileURL = strings.TrimSpace(fileURL)
+		if fileURL != "" {
+			return fileURL
+		}
+
+		viewURL := strings.TrimSpace(parsed.ViewURL)
+		viewURL = strings.Trim(viewURL, "`")
+		viewURL = strings.Trim(viewURL, "\"")
+		viewURL = strings.Trim(viewURL, "'")
+		viewURL = strings.TrimSpace(viewURL)
+		if viewURL != "" {
+			return viewURL
+		}
+	}
+
+	return ""
 }
 
 func NewDownloadHandler(svc service.DownloadService, userSvc service.UserService) *DownloadHandler {
@@ -338,6 +418,9 @@ func (h *DownloadHandler) ProxyDownload(c *fiber.Ctx) error {
 							Msg("Recursive proxy URL detected in completed task, skipping redirect optimization to avoid loop")
 						// Fall through to normal processing
 					} else {
+						if resolved := resolveYTContentFileURL(ctx, finalURL); resolved != "" {
+							finalURL = resolved
+						}
 						log.Info().
 							Str("task_id", task.ID.String()).
 							Str("url", finalURL).
@@ -774,6 +857,7 @@ headers = {
   "Origin": "https://www.dailymotion.com",
   "Accept-Encoding": "identity",
 }
+
 if cookie:
   headers["Cookie"] = cookie
 

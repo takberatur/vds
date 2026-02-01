@@ -52,6 +52,7 @@
 		"country-flag-icons": "^1.6.8",
 		"d3": "^7.9.0",
 		"d3-scale": "^4.0.2",
+		"date-fns": "^4.1.0",
 		"embla-carousel-svelte": "^8.6.0",
 		"eslint": "^9.39.1",
 		"eslint-config-prettier": "^10.1.8",
