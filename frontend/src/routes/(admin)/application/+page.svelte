@@ -117,7 +117,7 @@
 					/>
 				</div>
 				<div class="flex flex-wrap items-center justify-center gap-2 lg:justify-end">
-					<Button href="/application/create" variant="default" size="sm">
+					<Button href={localizeHref('/application/create')} variant="default" size="sm">
 						<Icon icon="material-symbols:add" />
 						<span class="sr-only lg:not-sr-only"> Add Application </span>
 					</Button>

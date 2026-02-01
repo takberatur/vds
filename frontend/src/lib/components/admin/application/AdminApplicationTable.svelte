@@ -63,6 +63,7 @@
 		TrashIcon
 	} from '@lucide/svelte';
 	import { formatTimeAgo } from '@/utils/time';
+	import { localizeHref } from '@/paraglide/runtime';
 
 	let {
 		data,
@@ -640,7 +641,7 @@
 								</Empty.Header>
 								<Empty.Content>
 									<div class="flex items-center justify-center gap-2">
-										<Button href="/application/create" variant="default">Create new</Button>
+										<Button href={localizeHref('/application/create')} variant="default">Create new</Button>
 										<Button variant="outline" onclick={onreset}>Clear filters</Button>
 									</div>
 								</Empty.Content>
