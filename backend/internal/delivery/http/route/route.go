@@ -70,6 +70,7 @@ func SetupRoutes(c *RouteConfig) {
 	_ = handler.NewSubscriptionHandler(subscriptionService)
 
 	credentialLimiter := middleware.CredentialAttemptLimiter(c.Redis)
+	rateLimitDownload := middleware.RateLimitDownload()
 	csrfMiddleware := middleware.NewCSRF(c.Redis)
 
 	api := c.App.Group("/api/v1")
@@ -165,8 +166,8 @@ func SetupRoutes(c *RouteConfig) {
 	publicWeb.Get("/platforms/type/:type", platformHandler.GetPlatformByType)
 	publicWeb.Get("/platforms/slug/:slug", platformHandler.GetPlatformBySlug)
 	publicWeb.Get("/platforms/category/:category", platformHandler.GetPlatformsByCategory)
-	publicWeb.Post("/download/process/video", csrfMiddleware, downloadHandler.DownloadVideo)
-	publicWeb.Post("/download/process/mp3", csrfMiddleware, downloadHandler.DownloadVideoToMp3)
+	publicWeb.Post("/download/process/video", rateLimitDownload, csrfMiddleware, downloadHandler.DownloadVideo)
+	publicWeb.Post("/download/process/mp3", rateLimitDownload, csrfMiddleware, downloadHandler.DownloadVideoToMp3)
 	publicProxy.Get("/downloads/file/video", downloadHandler.ProxyDownload)
 	publicProxy.Get("/downloads/file/mp3", downloadHandler.ProxyDownloadMp3)
 
