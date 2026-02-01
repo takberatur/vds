@@ -15,6 +15,7 @@ import (
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
 	"github.com/user/video-downloader-backend/internal/model"
 	"github.com/user/video-downloader-backend/internal/repository"
+	"github.com/user/video-downloader-backend/pkg/utils"
 )
 
 type SettingService interface {
@@ -188,7 +189,11 @@ func mapEmailSetting(target *model.SettingEmail, s model.Setting) {
 	case "smtp_user":
 		target.SMTPUser = s.Value
 	case "smtp_password":
-		target.SMTPPassword = s.Value
+		hash, err := utils.HashPassword(s.Value)
+		if err != nil {
+			log.Error().Err(err).Str("password", s.Value).Msg("Failed to hash password")
+		}
+		target.SMTPPassword = hash
 	case "from_email":
 		target.FromEmail = s.Value
 	case "from_name":
