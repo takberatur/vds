@@ -251,12 +251,6 @@ export const registerAppSchema = z.object({
 					message: 'Unity interstitial ad unit ID is required when unity ad is enabled',
 				});
 			}
-			if (!data.unity_native_ad_unit_id) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					message: 'Unity native ad unit ID is required when unity ad is enabled',
-				});
-			}
 			if (!data.unity_rewarded_ad_unit_id) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
