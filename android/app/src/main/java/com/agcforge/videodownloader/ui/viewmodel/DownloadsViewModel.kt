@@ -2,13 +2,14 @@ package com.agcforge.videodownloader.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.websocket.CentrifugoManager
 import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
+import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val repository = VideoDownloaderRepository()
     private val centrifugoManager = CentrifugoManager.getInstance(application)
+    private val preferenceManager = PreferenceManager(application)
 
     private val _downloads = MutableStateFlow<Resource<List<DownloadTask>>>(Resource.Loading())
     val downloads: StateFlow<Resource<List<DownloadTask>>> = _downloads.asStateFlow()
@@ -69,6 +71,12 @@ class DownloadsViewModel(application: Application) : AndroidViewModel(applicatio
     fun loadDownloads(page: Int = 1, limit: Int = 20) {
         viewModelScope.launch {
             _downloads.value = Resource.Loading()
+
+			val token = preferenceManager.authToken.first()
+			if (token.isNullOrEmpty()) {
+				_downloads.value = Resource.Error("Login diperlukan untuk melihat riwayat")
+				return@launch
+			}
 
             repository.getDownloads(page, limit)
                 .onSuccess { downloadList ->

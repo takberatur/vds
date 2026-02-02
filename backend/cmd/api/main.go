@@ -117,7 +117,7 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.ClientURL, // ex: https://client.giuadiario.info
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key, X-XSRF-TOKEN",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key, X-XSRF-TOKEN, X-Session-Id, X-Timestamp, X-Nonce, X-Signature",
 		AllowCredentials: true,
 		ExposeHeaders:    "Set-Cookie",
 		MaxAge:           12 * 3600,

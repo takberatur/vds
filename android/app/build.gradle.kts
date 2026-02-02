@@ -20,13 +20,9 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
-        multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BASE_URL", "\"https://api-simontok.agcforge.com/api/v1/\"")
-        buildConfigField("String", "CENTRIFUGO_URL", "\"https://websocket.infrastructures.help/connection/websocket\"")
-        buildConfigField("String", "API_KEY", "\"39eb7a7c6bbd61d93bf15362e28a499ba4f72f3cacad8f326381c0a4674a2270\"")
     }
     ndkVersion = "29.0.14033849 rc4"
     buildTypes {
@@ -67,6 +63,12 @@ android {
         jniLibs.useLegacyPackaging = true
     }
 
+	externalNativeBuild {
+		cmake {
+			path = file("src/main/jni/CMakeLists.txt")
+		}
+	}
+
 }
 
 kotlin {
@@ -87,7 +89,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlin.stdlib)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.multidex)
     implementation(libs.work.runtime.ktx)
     implementation(libs.work.rxjava2)
     implementation(libs.work.gcm)

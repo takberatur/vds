@@ -1,14 +1,15 @@
 package com.agcforge.videodownloader.utils
 
-class AppManager private constructor() {
-    companion object {
-        @Volatile
-        private var instance: AppManager? = null
+object AppManager {
+	init {
+		System.loadLibrary("apphandler")
+	}
 
-        fun getInstance(): AppManager {
-            return instance ?: synchronized(this) {
-                instance ?: AppManager().also { instance = it }
-            }
-        }
-    }
+	external fun nativeBaseUrl(): String
+	external fun nativeCentrifugoUrl(): String
+	external fun nativeApiKey(): String
+
+	val baseUrl: String by lazy { nativeBaseUrl() }
+	val centrifugoUrl: String by lazy { nativeCentrifugoUrl() }
+	val apiKey: String by lazy { nativeApiKey() }
 }

@@ -1,7 +1,9 @@
 package com.agcforge.videodownloader.ui.fragment
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.Locale
+import androidx.core.net.toUri
 
 class SettingsFragment : Fragment() {
 
@@ -64,6 +67,11 @@ class SettingsFragment : Fragment() {
             btnClearCache.setOnClickListener { clearCache() }
             btnAbout.setOnClickListener { showAboutDialog() }
             btnLanguage.setOnClickListener { showLanguageDialog() }
+            // open browser to privacy policy
+            btnPrivacy.setOnClickListener { openBrowser(getString(R.string.privacy_policy_url)) }
+            // open browser to contact
+            btnContact.setOnClickListener { openBrowser(getString(R.string.contact_url)) }
+
         }
     }
 
@@ -148,6 +156,15 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .show()
+    }
+
+    private fun openBrowser(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            requireContext().showToast(getString(R.string.no_browser_installed))
+        }
     }
 
     private inner class LanguageAdapter(

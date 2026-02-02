@@ -59,6 +59,7 @@ func SetupRoutes(c *RouteConfig) {
 	// Handlers
 	healthHandler := handler.NewHealthHandler(c.DB.Pool, c.Redis)
 	authHandler := handler.NewAuthHandler(authService)
+	bootstrapHandler := handler.NewBootstrapHandler(c.Redis)
 	settingHandler := handler.NewSettingHandler(settingService)
 	userHandler := handler.NewUserHandler(userService)
 	platformHandler := handler.NewPlatformHandler(platformService) // Added Platform
@@ -93,6 +94,7 @@ func SetupRoutes(c *RouteConfig) {
 	publicWeb := api.Group("/web-client")
 	publicProxy := api.Group("/public-proxy")
 	publicMobile := api.Group("/mobile-client")
+	publicMobile.Use(middleware.MobileSignatureMiddleware(c.Redis))
 
 	publicAdmin.Post("/auth/google", credentialLimiter, authHandler.GoogleLogin)
 	publicAdmin.Post("/auth/email", credentialLimiter, authHandler.LoginEmail)
@@ -178,6 +180,7 @@ func SetupRoutes(c *RouteConfig) {
 	protectedUserWeb.Post("/users/avatar", csrfMiddleware, userHandler.UploadAvatar)
 
 	// Mobile client
+	publicMobile.Post("/bootstrap", bootstrapHandler.Bootstrap)
 	publicMobile.Get("/application", applicationHandler.GetCurrent)
 
 	publicMobile.Post("/auth/google", credentialLimiter, authHandler.GoogleLogin)

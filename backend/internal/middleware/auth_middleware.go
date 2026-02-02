@@ -18,6 +18,12 @@ func APIKeyMiddleware(appCache service.AppCacheService) fiber.Handler {
 			return c.Next()
 		}
 
+		if strings.HasPrefix(path, "/api/v1/mobile-client") && path != "/api/v1/mobile-client/bootstrap" {
+			if c.Get("X-Session-Id") != "" {
+				return c.Next()
+			}
+		}
+
 		apiKey := c.Get("X-API-Key")
 		if apiKey == "" {
 			return response.Error(c, fiber.StatusUnauthorized, "API Key is missing", nil)

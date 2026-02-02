@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.data.api.ApiClient
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
-import com.agcforge.videodownloader.ui.activities.auth.LoginActivity
 import com.agcforge.videodownloader.utils.PreferenceManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -39,8 +38,8 @@ class SplashActivity : AppCompatActivity() {
 
 			fetchAndStoreApplication()
 
-            // Check if user is logged in
-            checkAuthenticationState()
+			initializeAuthToken()
+			navigateToMain()
         }
     }
 
@@ -54,26 +53,15 @@ class SplashActivity : AppCompatActivity() {
 			}
 	}
 
-    private suspend fun checkAuthenticationState() {
-        val token = preferenceManager.authToken.first()
-
-        if (!token.isNullOrEmpty()) {
-            ApiClient.setAuthToken(token)
-            // User is logged in, go to main
-            navigateToMain()
-        } else {
-            // User is not logged in, go to login
-            navigateToLogin()
-        }
-    }
+	private suspend fun initializeAuthToken() {
+		val token = preferenceManager.authToken.first()
+		if (!token.isNullOrEmpty()) {
+			ApiClient.setAuthToken(token)
+		}
+	}
 
     private fun navigateToMain() {
         startActivity(Intent(this, MainActivity::class.java))
-        finish()
-    }
-
-    private fun navigateToLogin() {
-        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 }

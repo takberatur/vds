@@ -34,6 +34,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupBackPressedCallback()
 
         preferenceManager = PreferenceManager(this)
 
@@ -92,6 +93,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         lifecycleScope.launch {
             val userName = preferenceManager.userId.first() // You can store user name separately
             val userEmail = preferenceManager.authToken.first() // Get actual email from preferences
+            val token = preferenceManager.authToken.first()
+
+            val isLoggedIn = !token.isNullOrEmpty()
+            val menu = binding.navigationView.menu
+
+            menu.findItem(R.id.nav_logout).isVisible = isLoggedIn
+            menu.findItem(R.id.nav_login).isVisible = !isLoggedIn
 
             tvUserName.text = userName ?: "Guest User"
             tvUserEmail.text = userEmail ?: "guest@example.com"
@@ -122,6 +130,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             R.id.nav_logout -> {
                 showLogoutDialog()
+            }
+            R.id.nav_login -> {
+                startActivity(Intent(this, LoginActivity::class.java))
             }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)

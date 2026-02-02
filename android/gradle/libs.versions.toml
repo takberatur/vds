@@ -18,7 +18,6 @@ kotlinStdlib = "2.3.0"
 activityCompose = "1.12.3"
 composeBom = "2026.01.01"
 kotlinxDatetime = "0.7.1"
-multidex = "2.0.1"
 workRuntime = "2.11.1"
 
 # General Library
@@ -73,7 +72,6 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 work-gcm = { module = "androidx.work:work-gcm", version.ref = "workRuntime" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntime" }
 work-rxjava2 = { module = "androidx.work:work-rxjava2", version.ref = "workRuntime" }
