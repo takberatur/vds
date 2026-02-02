@@ -23,6 +23,7 @@ import com.agcforge.videodownloader.ui.viewmodel.DownloadsViewModel
 import com.agcforge.videodownloader.utils.AppManager
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
+import com.agcforge.videodownloader.utils.StorageFolderNavigator
 import com.agcforge.videodownloader.utils.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.first
@@ -66,9 +67,17 @@ class DownloadsFragment : Fragment() {
         setupRecyclerView()
         setupSwipeRefresh()
         observeViewModel()
+		binding.btnOpenStorageFolder.setOnClickListener { openStorageFolder() }
 
         viewModel.loadDownloads()
     }
+
+	private fun openStorageFolder() {
+		viewLifecycleOwner.lifecycleScope.launch {
+			val location = preferenceManager.storageLocation.first() ?: "app"
+			StorageFolderNavigator.openStorageFolder(requireContext(), location)
+		}
+	}
 
     private fun setupRecyclerView() {
         downloadAdapter = DownloadTaskAdapter(

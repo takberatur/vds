@@ -24,7 +24,7 @@
             android:id="@+id/tvDialogTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Quality"
+            android:text="@string/select_quality"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@android:color/white" />

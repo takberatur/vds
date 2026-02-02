@@ -81,6 +81,7 @@
     <string name="storage_location_app">Pasta do aplicativo</string>
     <string name="storage_location_downloads">Downloads de pastas</string>
     <string name="storage_location_saved">O local de armazenamento é salvo</string>
+    <string name="open_storage_folder">Abrir pasta de armazenamento</string>
     <string name="cache_cleared_success">Cache limpo com sucesso</string>
     <string name="cache_cleared_fail">Falha ao limpar o cache</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Nenhum navegador instalado</string>
     <string name="site">Site</string>
     <string name="paste">Colar</string>
+    <string name="audio_only">Apenas áudio</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Selecione a qualidade</string>
 </resources>

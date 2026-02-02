@@ -81,6 +81,7 @@
     <string name="storage_location_app">애플리케이션 폴더</string>
     <string name="storage_location_downloads">폴더 다운로드</string>
     <string name="storage_location_saved">저장 위치가 저장되었습니다</string>
+    <string name="open_storage_folder">저장 폴더 열기</string>
     <string name="cache_cleared_success">캐시가 성공적으로 지워졌습니다.</string>
     <string name="cache_cleared_fail">캐시를 지우지 못했습니다.</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">브라우저가 설치되지 않았습니다.</string>
     <string name="site">사이트</string>
     <string name="paste">붙여넣기</string>
+    <string name="audio_only">오디오만</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">품질 선택</string>
 </resources>

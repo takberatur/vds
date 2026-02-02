@@ -81,6 +81,7 @@
     <string name="storage_location_app">Applicatiemap</string>
     <string name="storage_location_downloads">Mapdownloads</string>
     <string name="storage_location_saved">De opslaglocatie wordt opgeslagen</string>
+    <string name="open_storage_folder">Open opslagmap</string>
     <string name="cache_cleared_success">Cache is succesvol gewist</string>
     <string name="cache_cleared_fail">Kan de cache niet wissen</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Geen browser geïnstalleerd</string>
     <string name="site">Site</string>
     <string name="paste">Plakken</string>
+    <string name="audio_only">Audio alleen</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Kies kwaliteit</string>
 </resources>

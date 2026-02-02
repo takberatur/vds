@@ -81,6 +81,7 @@
     <string name="storage_location_app">مجلد التطبيق</string>
     <string name="storage_location_downloads">تنزيلات المجلدات</string>
     <string name="storage_location_saved">يتم حفظ موقع التخزين</string>
+    <string name="open_storage_folder">فتح مجلد التخزين</string>
     <string name="cache_cleared_success">تم مسح ذاكرة التخزين المؤقت بنجاح</string>
     <string name="cache_cleared_fail">فشل في مسح ذاكرة التخزين المؤقت</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">لم يتم تثبيت أي متصفح</string>
     <string name="site">موقع</string>
     <string name="paste">الصق</string>
+    <string name="audio_only">صوت فقط</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">اختر جودة</string>
 </resources>

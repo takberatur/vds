@@ -81,6 +81,7 @@
     <string name="storage_location_app">Bewerbungsmappe</string>
     <string name="storage_location_downloads">Ordner-Downloads</string>
     <string name="storage_location_saved">Der Speicherort wird gespeichert</string>
+    <string name="open_storage_folder">Öffnen Sie den Speicherort</string>
     <string name="cache_cleared_success">Cache erfolgreich geleert</string>
     <string name="cache_cleared_fail">Cache konnte nicht geleert werden</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Kein Browser installiert</string>
     <string name="site">Webseite</string>
     <string name="paste">Einfügen</string>
+    <string name="audio_only">Nur Audio</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Qualität auswählen</string>
 </resources>

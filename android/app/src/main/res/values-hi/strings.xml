@@ -81,6 +81,7 @@
     <string name="storage_location_app">एप्लिकेशन फ़ोल्डर</string>
     <string name="storage_location_downloads">फ़ोल्डर डाउनलोड</string>
     <string name="storage_location_saved">भंडारण स्थान सहेजा गया है</string>
+    <string name="open_storage_folder">भंडारण फ़ोल्डर खोलें</string>
     <string name="cache_cleared_success">कैश सफलतापूर्वक साफ़ हो गया</string>
     <string name="cache_cleared_fail">कैश साफ़ करने में विफल</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">कोई ब्राउज़र स्थापित नहीं है</string>
     <string name="site">साइट</string>
     <string name="paste">पेस्ट</string>
+    <string name="audio_only">ऑडियो केवल</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">गुणवत्ता चुनें</string>
 </resources>

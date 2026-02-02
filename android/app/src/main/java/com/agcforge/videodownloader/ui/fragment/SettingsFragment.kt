@@ -21,6 +21,7 @@ import com.agcforge.videodownloader.ui.activities.MainActivity
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.applyTheme
 import com.agcforge.videodownloader.utils.showToast
+import com.agcforge.videodownloader.utils.StorageFolderNavigator
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -69,6 +70,7 @@ class SettingsFragment : Fragment() {
         binding.apply {
             btnQualitySettings.setOnClickListener { showQualitySettings() }
             btnStorageSettings.setOnClickListener { showStorageSettings() }
+			btnOpenStorageFolder.setOnClickListener { openStorageFolder() }
             btnClearCache.setOnClickListener { clearCache() }
             btnAbout.setOnClickListener { showAboutDialog() }
             btnLanguage.setOnClickListener { showLanguageDialog() }
@@ -79,6 +81,13 @@ class SettingsFragment : Fragment() {
 
         }
     }
+
+	private fun openStorageFolder() {
+		lifecycleScope.launch {
+			val location = preferenceManager.storageLocation.first() ?: "app"
+			StorageFolderNavigator.openStorageFolder(requireContext(), location)
+		}
+	}
 
     private fun showQualitySettings() {
         val qualities = arrayOf("Auto", "1080p", "720p", "480p", "360p")

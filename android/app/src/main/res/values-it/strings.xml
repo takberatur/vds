@@ -81,6 +81,7 @@
     <string name="storage_location_app">Cartella dell\'applicazione</string>
     <string name="storage_location_downloads">Download delle cartelle</string>
     <string name="storage_location_saved">La posizione di archiviazione viene salvata</string>
+    <string name="open_storage_folder">Apri la cartella di archiviazione</string>
     <string name="cache_cleared_success">La cache è stata svuotata correttamente</string>
     <string name="cache_cleared_fail">Impossibile svuotare la cache</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Nessun browser installato</string>
     <string name="site">Sito web</string>
     <string name="paste">Incollare</string>
+    <string name="audio_only">Audio solo</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Seleziona qualità</string>
 </resources>

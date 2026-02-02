@@ -81,6 +81,7 @@
     <string name="storage_location_app">アプリケーションフォルダー</string>
     <string name="storage_location_downloads">フォルダーのダウンロード</string>
     <string name="storage_location_saved">保存場所が保存されました</string>
+    <string name="open_storage_folder">保管場所を開く</string>
     <string name="cache_cleared_success">キャッシュが正常にクリアされました</string>
     <string name="cache_cleared_fail">キャッシュのクリアに失敗しました</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">ブラウザがインストールされていません</string>
     <string name="site">サイト</string>
     <string name="paste">ペースト</string>
+    <string name="audio_only">オーディオのみ</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">品質を選択</string>
 </resources>

@@ -81,6 +81,7 @@
     <string name="storage_location_app">Thư mục ứng dụng</string>
     <string name="storage_location_downloads">Tải xuống thư mục</string>
     <string name="storage_location_saved">Vị trí lưu trữ đã được lưu</string>
+    <string name="open_storage_folder">Mở thư mục lưu trữ</string>
     <string name="cache_cleared_success">Đã xóa bộ nhớ đệm thành công</string>
     <string name="cache_cleared_fail">Không xóa được bộ nhớ đệm</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Chưa cài đặt trình duyệt</string>
     <string name="site">Trang web</string>
     <string name="paste">Dán</string>
+    <string name="audio_only">Chỉ tải xuống âm thanh</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Chọn chất lượng</string>
 </resources>

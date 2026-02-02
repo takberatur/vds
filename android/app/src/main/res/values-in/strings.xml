@@ -79,8 +79,9 @@
     <string name="storage_settings_soon">Pengaturan penyimpanan akan segera tersedia</string>
     <string name="storage_location_dialog_title">Pilih lokasi penyimpanan</string>
     <string name="storage_location_app">Folder aplikasi</string>
-    <string name="storage_location_downloads">Unduhan Folder</string>
+    <string name="storage_location_downloads">Folder Downloads</string>
     <string name="storage_location_saved">Lokasi penyimpanan disimpan</string>
+    <string name="open_storage_folder">Buka folder penyimpanan</string>
     <string name="cache_cleared_success">Cache berhasil dibersihkan</string>
     <string name="cache_cleared_fail">Gagal menghapus cache</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Tidak ada browser yang terpasang</string>
     <string name="site">Situs</string>
     <string name="paste">Tempel</string>
+    <string name="audio_only">Hanya Audio</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Pilih Kualitas</string>
 </resources>

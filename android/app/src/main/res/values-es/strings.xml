@@ -81,6 +81,7 @@
     <string name="storage_location_app">Carpeta de aplicaciones</string>
     <string name="storage_location_downloads">Descargas de carpetas</string>
     <string name="storage_location_saved">La ubicación de almacenamiento se guarda.</string>
+    <string name="open_storage_folder">Abrir carpeta de almacenamiento</string>
     <string name="cache_cleared_success">Caché borrado exitosamente</string>
     <string name="cache_cleared_fail">No se pudo borrar el caché</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Ningún navegador instalado</string>
     <string name="site">Sitio web</string>
     <string name="paste">Pegar</string>
+    <string name="audio_only">Solo audio</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Seleccionar calidad</string>
 </resources>

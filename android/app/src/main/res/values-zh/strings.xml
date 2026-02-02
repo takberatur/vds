@@ -81,6 +81,7 @@
     <string name="storage_location_app">应用程序文件夹</string>
     <string name="storage_location_downloads">文件夹下载</string>
     <string name="storage_location_saved">存储位置已保存</string>
+    <string name="open_storage_folder">打开存储文件夹</string>
     <string name="cache_cleared_success">缓存清除成功</string>
     <string name="cache_cleared_fail">清除缓存失败</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">没有安装浏览器</string>
     <string name="site">网站</string>
     <string name="paste">粘贴</string>
+    <string name="audio_only">仅音频</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">选择质量</string>
 </resources>

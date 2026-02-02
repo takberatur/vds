@@ -81,6 +81,7 @@
     <string name="storage_location_app">Folder ng aplikasyon</string>
     <string name="storage_location_downloads">Mga Pag-download ng Folder</string>
     <string name="storage_location_saved">Ang lokasyon ng imbakan ay nai-save</string>
+    <string name="open_storage_folder">I-buka ang folder ng imbakan</string>
     <string name="cache_cleared_success">Matagumpay na na-clear ang cache</string>
     <string name="cache_cleared_fail">Nabigong i-clear ang cache</string>
     <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
@@ -94,4 +95,7 @@
     <string name="no_browser_installed">Walang naka-install na browser</string>
     <string name="site">Situs</string>
     <string name="paste">Tempel</string>
+    <string name="audio_only">Hanya Audio</string>
+    <string name="mp3">MP3</string>
+    <string name="select_quality">Pilih Kualiti</string>
 </resources>
