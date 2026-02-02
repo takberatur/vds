@@ -29,6 +29,7 @@ class CentrifugoClient(
     }
 
     private fun setupClient() {
+		Log.d(TAG, "Creating Centrifugo client, url=${config.url}")
         val options = Options().apply {
             // Set connection token if available
             config.token?.let { token = it }
@@ -36,9 +37,9 @@ class CentrifugoClient(
             // Timeout settings
             setTimeout(10000) // 10 seconds
 
-            // Enable debug logging
-            // setDebug(true)
         }
+
+		ensureWebSocketSubprotocol(options)
 
         client = Client(config.url, options, object : EventListener() {
             override fun onConnecting(client: Client, event: ConnectingEvent) {
@@ -70,6 +71,37 @@ class CentrifugoClient(
             }
         })
     }
+
+	private fun ensureWebSocketSubprotocol(options: Options) {
+		runCatching {
+			val protocolHeader = "Sec-WebSocket-Protocol"
+			val protocolValue = "centrifuge-protobuf"
+
+			val headersGetter = options.javaClass.methods.firstOrNull { m ->
+				m.name == "getHeaders" && m.parameterTypes.isEmpty()
+			}
+			val headersSetter = options.javaClass.methods.firstOrNull { m ->
+				m.name == "setHeaders" && m.parameterTypes.size == 1
+			}
+			val current = (headersGetter?.invoke(options) as? Map<*, *>)
+				?.entries
+				?.mapNotNull { (k, v) ->
+					val key = k?.toString() ?: return@mapNotNull null
+					val value = v?.toString() ?: return@mapNotNull null
+					key to value
+				}
+				?.toMap()
+				?: emptyMap()
+
+			val merged = current.toMutableMap().apply { put(protocolHeader, protocolValue) }
+			if (headersSetter != null) {
+				headersSetter.invoke(options, merged)
+				Log.d(TAG, "Set WebSocket subprotocol header: $protocolValue")
+			}
+		}.onFailure {
+			Log.d(TAG, "Unable to set WebSocket subprotocol header")
+		}
+	}
 
     fun connect() {
         try {
@@ -290,35 +322,65 @@ class CentrifugoClient(
 
     private fun handleDownloadChannelMessage(message: String) {
         try {
-            val data = gson.fromJson(message, CentrifugoData::class.java)
+			val backend = gson.fromJson(message, BackendDownloadEvent::class.java)
+			val taskId = backend.taskId ?: backend.payload?.id
+			val status = backend.status ?: backend.payload?.status
+			val progress = backend.progress ?: backend.payload?.progress
+			val err = backend.error
+				?: backend.message
+				?: backend.payload?.let { null }
 
-            when (data.event) {
-                "progress" -> {
-                    val progress = gson.fromJson(
-                        gson.toJson(data.payload),
-                        DownloadProgress::class.java
-                    )
-                    _downloadTaskEvents.value = DownloadTaskEvent.ProgressUpdate(
-                        progress.taskId,
-                        progress.progress,
-                        progress.downloadedBytes,
-                        progress.totalBytes
-                    )
-                }
+			if (!taskId.isNullOrBlank() && !status.isNullOrBlank()) {
+				when (status) {
+					"processing" -> {
+						val p = progress ?: 0
+						_downloadTaskEvents.value = DownloadTaskEvent.StatusChanged(taskId, status, p, null)
+						_downloadTaskEvents.value = DownloadTaskEvent.ProgressUpdate(taskId, p, 0L, 0L)
+					}
+					"queued", "pending" -> {
+						_downloadTaskEvents.value = DownloadTaskEvent.StatusChanged(taskId, status, progress, null)
+					}
+					"completed" -> {
+						_downloadTaskEvents.value = DownloadTaskEvent.StatusChanged(taskId, status, 100, null)
+					}
+					"failed" -> {
+						_downloadTaskEvents.value = DownloadTaskEvent.Failed(taskId, err ?: "Download failed")
+					}
+					else -> {
+						_downloadTaskEvents.value = DownloadTaskEvent.StatusChanged(taskId, status, progress, err)
+					}
+				}
+				return
+			}
 
-                "status" -> {
-                    val update = gson.fromJson(
-                        gson.toJson(data.payload),
-                        DownloadStatusUpdate::class.java
-                    )
-                    _downloadTaskEvents.value = DownloadTaskEvent.StatusChanged(
-                        update.taskId,
-                        update.status,
-                        update.progress,
-                        update.errorMessage
-                    )
-                }
-            }
+			val data = gson.fromJson(message, CentrifugoData::class.java)
+			when (data.event) {
+				"progress" -> {
+					val progressData = gson.fromJson(
+						gson.toJson(data.payload),
+						DownloadProgress::class.java
+					)
+					_downloadTaskEvents.value = DownloadTaskEvent.ProgressUpdate(
+						progressData.taskId,
+						progressData.progress,
+						progressData.downloadedBytes,
+						progressData.totalBytes
+					)
+				}
+
+				"status" -> {
+					val update = gson.fromJson(
+						gson.toJson(data.payload),
+						DownloadStatusUpdate::class.java
+					)
+					_downloadTaskEvents.value = DownloadTaskEvent.StatusChanged(
+						update.taskId,
+						update.status,
+						update.progress,
+						update.errorMessage
+					)
+				}
+			}
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse download channel message", e)
         }

@@ -23,11 +23,11 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/splash_gradient_background_5"
+                android:background="@color/primary"
                 app:title="@string/app_name"
                 app:titleTextColor="@android:color/white"
-                app:navigationIconTint="@color/white"
-                app:navigationIcon="@drawable/ic_menu" />
+                app:navigationIcon="@drawable/ic_menu"
+                app:navigationIconTint="@android:color/white" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -47,7 +47,11 @@
             android:id="@+id/bottomNavigation"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?android:attr/colorBackground"
+            android:background="@color/primary"
+            android:backgroundTint="@color/primary_dark"
+            app:itemTextColor="@color/white"
+            app:itemIconTint="@color/white"
+            android:focusableInTouchMode="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

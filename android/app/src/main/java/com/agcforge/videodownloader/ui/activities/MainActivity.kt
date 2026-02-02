@@ -42,16 +42,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupBackPressedCallback()
 
         // Enable edge-to-edge layout
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // Apply system bar colors
-        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
+        // window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        // window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
 
         // Handle icon contrast (light/dark)
-        val insetsController = WindowInsetsControllerCompat(window, window.decorView)
-        insetsController.isAppearanceLightStatusBars = false   // dark text/icons on light bar
-        insetsController.isAppearanceLightNavigationBars = false // light icons on dark bar
+        // val insetsController = WindowInsetsControllerCompat(window, window.decorView)
+        // insetsController.isAppearanceLightStatusBars = false   // dark text/icons on light bar
+        // nsetsController.isAppearanceLightNavigationBars = false // light icons on dark bar
 
         preferenceManager = PreferenceManager(this)
 
@@ -64,6 +64,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
+        binding.toolbar.setNavigationIcon(R.drawable.ic_menu)
+        binding.toolbar.setNavigationIconTint(ContextCompat.getColor(this, R.color.white))
     }
 
     private fun setupNavigation() {

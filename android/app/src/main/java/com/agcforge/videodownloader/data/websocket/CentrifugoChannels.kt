@@ -6,7 +6,7 @@ object CentrifugoChannels {
     const val PLATFORM_UPDATES = "platform:updates"
 
     fun userChannel(userId: String) = "user:$userId"
-    fun downloadChannel(downloadId: String) = "download:$downloadId"
+	fun downloadChannel(downloadId: String) = "download:progress:$downloadId"
     fun globalChannel() = "global"
 
 

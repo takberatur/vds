@@ -37,4 +37,27 @@ data class DownloadFormat(
             else -> "${bytes / (1024 * 1024)} MB"
         }
     }
+
+    fun getCodecInfo(): String {
+        return when {
+            acodec != null && vcodec != null -> "$acodec + $vcodec"
+            acodec != null -> "Audio: $acodec"
+            vcodec != null -> "Video: $vcodec"
+            else -> "Unknown codec"
+        }
+    }
+
+    fun getVideoCodecInfo(): String {
+        return when {
+            vcodec != null -> "Video: $vcodec"
+            else -> "Unknown video codec"
+        }
+    }
+
+   fun getTbrInfo(): String {
+        return when {
+            tbr != null -> "TBR: ${tbr} Mbps"
+            else -> "Unknown TBR"
+        }
+    }
 }

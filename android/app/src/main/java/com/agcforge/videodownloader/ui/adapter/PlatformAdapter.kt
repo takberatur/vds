@@ -76,7 +76,9 @@ class PlatformAdapter(
         private val tvType: TextView = itemView.findViewById(R.id.tvPlatformType)
         private val ivPremium: ImageView = itemView.findViewById(R.id.ivPremiumBadge)
 
-        private val selectedColor = ContextCompat.getColor(itemView.context, R.color.primary_dark)
+        private val ivBadgeMp3: ImageView = itemView.findViewById(R.id.ivBadgeMp3)
+
+        private val selectedColor = ContextCompat.getColor(itemView.context, R.color.primary)
         private val defaultColor = ContextCompat.getColor(itemView.context, R.color.surface)
 
         fun bind(platform: Platform, isSelected: Boolean) {
@@ -103,6 +105,7 @@ class PlatformAdapter(
             tvName.text = platform.name
             tvType.text = platform.type.uppercase()
             ivPremium.visibility = if (platform.isPremium) View.VISIBLE else View.GONE
+            ivBadgeMp3.visibility = if (platform.category === "audio" || platform.type.endsWith("to-mp3")) View.VISIBLE else View.GONE
 
             itemView.setOnClickListener {
                 onItemClick(platform)

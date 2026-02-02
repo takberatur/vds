@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+
         <ImageView
             android:id="@+id/ivPlatformThumbnail"
             android:layout_width="48dp"
@@ -27,6 +28,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_video" />
+
+        <ImageView
+            android:id="@+id/ivBadgeMp3"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_audio_file_fill"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="@+id/ivPlatformThumbnail"
+            app:layout_constraintTop_toTopOf="@+id/ivPlatformThumbnail"
+            android:layout_marginStart="-6dp"
+            android:layout_marginTop="-6dp"
+            android:visibility="visible"/>
+
 
         <TextView
             android:id="@+id/tvPlatformName"

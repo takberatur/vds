@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class CentrifugoManager private constructor(
     private val context: Context
@@ -43,6 +44,18 @@ class CentrifugoManager private constructor(
         }
     }
 
+	private fun normalizeWebSocketUrl(url: String): String {
+		val trimmed = url.trim()
+		val lower = trimmed.lowercase(Locale.ROOT)
+		return when {
+			lower.startsWith("wss://") -> trimmed
+			lower.startsWith("ws://") -> trimmed
+			lower.startsWith("https://") -> "wss://${trimmed.substring(8)}"
+			lower.startsWith("http://") -> "ws://${trimmed.substring(7)}"
+			else -> trimmed
+		}
+	}
+
     fun initialize(userId: String, token: String? = null) {
         if (client != null && currentUserId == userId) {
             Log.d(TAG, "Already initialized for user: $userId")
@@ -54,8 +67,11 @@ class CentrifugoManager private constructor(
         currentUserId = userId
         authToken = token
 
+        val normalizedUrl = normalizeWebSocketUrl(CENTRIFUGO_URL)
+		Log.d(TAG, "Centrifugo URL raw=$CENTRIFUGO_URL normalized=$normalizedUrl")
+
         val config = CentrifugoConfig(
-            url = CENTRIFUGO_URL,
+            url = normalizedUrl,
             token = token,
             userId = userId
         )

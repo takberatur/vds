@@ -22,9 +22,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.agcforge.videodownloader.R
+import com.agcforge.videodownloader.data.model.DownloadFormat
+import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.model.Platform
 import com.agcforge.videodownloader.databinding.FragmentHomeBinding
 import com.agcforge.videodownloader.ui.adapter.PlatformAdapter
+import com.agcforge.videodownloader.ui.component.FormatSelectionDialog
 import com.agcforge.videodownloader.ui.viewmodel.HomeViewModel
 import com.agcforge.videodownloader.utils.AppManager
 import com.agcforge.videodownloader.utils.PreferenceManager
@@ -223,27 +226,28 @@ class HomeFragment : Fragment() {
 		binding.btnDownload.isEnabled = enabled
 	}
 
-    private fun showFormatSelectionDialog(task: com.agcforge.videodownloader.data.model.DownloadTask) {
-        val formats = task.formats ?: return
-        val formatNames = formats.map { it.getFormatDescription() }.toTypedArray()
+    private fun showFormatSelectionDialog(task: DownloadTask) {
+        val formats = task.formats
+        if (formats.isNullOrEmpty()) {
+            requireContext().showToast("No formats available")
+            return
+        }
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Select Quality")
-            .setItems(formatNames) { dialog, which ->
-                val selectedFormat = formats[which]
-				enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
-				requireContext().showToast("Download dimulai")
+        FormatSelectionDialog.Builder(requireContext())
+            .setTask(task)
+            .setOnFormatSelected { selectedFormat ->
+                // Handle format selected
+                enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
+                requireContext().showToast("Download started")
                 binding.etUrl.text?.clear()
-				updateDownloadButtonState()
-                dialog.dismiss()
+                updateDownloadButtonState()
             }
-            .setNegativeButton("Cancel", null)
             .show()
     }
 
 	private fun buildProxyVideoUrl(
-		task: com.agcforge.videodownloader.data.model.DownloadTask,
-		format: com.agcforge.videodownloader.data.model.DownloadFormat
+		task: DownloadTask,
+		format: DownloadFormat
 	): String {
 		val base = AppManager.baseUrl
 		val endpoint = if (base.endsWith("/")) {
@@ -309,5 +313,21 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun handleFormatSelection(task: DownloadTask, selectedFormat: DownloadFormat) {
+        val downloadUrl = buildProxyVideoUrl(task, selectedFormat)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Confirm Download")
+            .setMessage("Download ${selectedFormat.getQualityLabel()} - ${selectedFormat.getFormatDescription()}?")
+            .setPositiveButton("Yes") { _, _ ->
+                enqueueDownload(downloadUrl)
+                requireContext().showToast("Download started")
+                binding.etUrl.text?.clear()
+                updateDownloadButtonState()
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 }

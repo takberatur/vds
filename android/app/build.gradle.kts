@@ -23,6 +23,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		ndk {
+			//noinspection ChromeOsAbiSupport
 			abiFilters += listOf("armeabi-v7a", "arm64-v8a")
 		}
 

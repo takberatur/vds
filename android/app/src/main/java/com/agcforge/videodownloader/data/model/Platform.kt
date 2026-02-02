@@ -10,6 +10,7 @@ data class Platform(
     @SerializedName("name") val name: String,
     @SerializedName("slug") val slug: String,
     @SerializedName("type") val type: String,
+    @SerializedName("category") val category: String,
     @SerializedName("thumbnail_url") val thumbnailUrl: String,
     @SerializedName("url_pattern") val urlPattern: String? = null,
     @SerializedName("is_active") val isActive: Boolean,
