@@ -1,6 +1,9 @@
 package com.agcforge.videodownloader.data.api
 
+import com.agcforge.videodownloader.App
+import com.agcforge.videodownloader.BuildConfig
 import com.agcforge.videodownloader.utils.AppManager
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okio.Buffer
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -85,6 +88,19 @@ object ApiClient {
     }
 
     private val okHttpClient = OkHttpClient.Builder()
+		.dns(
+			FallbackDns(
+				fallbackIpByHost = mapOf(
+					"api-simontok.agcforge.com" to "174.138.75.37",
+					"websocket.infrastructures.help" to "174.138.75.37"
+				)
+			)
+		)
+		.apply {
+			if (BuildConfig.DEBUG) {
+				addInterceptor(ChuckerInterceptor(App.getInstance()))
+			}
+		}
         .addInterceptor(authInterceptor)
         .addInterceptor(signatureInterceptor)
         .addInterceptor(loggingInterceptor)

@@ -137,8 +137,11 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.gson)
     implementation(libs.glide)
+	debugImplementation(libs.chucker)
+	releaseImplementation(libs.chucker.no.op)
     // Websocket and other
     implementation(libs.centrifuge.java)
+    implementation(libs.lottie)
 //    implementation(libs.yt.dlp.library)
 //    implementation(libs.yt.dlp.ffmpeg)
 //    implementation(libs.yt.dlp.aria2c)

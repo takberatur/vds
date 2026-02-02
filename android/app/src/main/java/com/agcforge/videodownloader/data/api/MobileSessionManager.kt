@@ -1,8 +1,11 @@
 package com.agcforge.videodownloader.data.api
 
+import com.agcforge.videodownloader.App
+import com.agcforge.videodownloader.BuildConfig
 import com.agcforge.videodownloader.data.dto.ApiResponse
 import com.agcforge.videodownloader.data.dto.BootstrapResponse
 import com.agcforge.videodownloader.utils.AppManager
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -23,6 +26,19 @@ object MobileSessionManager {
 	private val gson = Gson()
 
 	private val client: OkHttpClient = OkHttpClient.Builder()
+		.dns(
+			FallbackDns(
+				fallbackIpByHost = mapOf(
+					"api-simontok.agcforge.com" to "174.138.75.37",
+					"websocket.infrastructures.help" to "174.138.75.37"
+				)
+			)
+		)
+		.apply {
+			if (BuildConfig.DEBUG) {
+				addInterceptor(ChuckerInterceptor(App.getInstance()))
+			}
+		}
 		.connectTimeout(15, TimeUnit.SECONDS)
 		.readTimeout(15, TimeUnit.SECONDS)
 		.writeTimeout(15, TimeUnit.SECONDS)

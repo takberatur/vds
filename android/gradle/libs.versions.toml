@@ -56,10 +56,12 @@ okhttp = "5.3.2"
 glide = "5.0.5"
 gson = "2.13.2"
 retrofit = "3.0.0"
+chucker = "4.2.0"
 
 # Websocket & other
 centrifugeJava = "0.5.0"
 ytDlpLibrary = "0.18.1"
+lottie = "6.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -121,9 +123,12 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
+chucker-no-op = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 
 # Websocket & other
 centrifuge-java = { module = "io.github.centrifugal:centrifuge-java", version.ref = "centrifugeJava" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 # https://github.com/yausername/youtubedl-android
 yt-dlp-library = { module = "io.github.junkfood02.youtubedl-android:library", version.ref = "ytDlpLibrary" }
 yt-dlp-ffmpeg = { module = "io.github.junkfood02.youtubedl-android:ffmpeg", version.ref = "ytDlpLibrary" }
