@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Video Downloader</string>
     <string name="action_settings">Settings</string>
@@ -79,9 +80,13 @@
     <string name="quality_dialog_title">Select Download Quality</string>
     <string name="quality_set_toast">Download quality set to %s</string>
     <string name="storage_settings_soon">Storage settings will be available soon</string>
+	<string name="storage_location_dialog_title">Pilih lokasi penyimpanan</string>
+	<string name="storage_location_app">Folder aplikasi</string>
+	<string name="storage_location_downloads">Folder Downloads</string>
+	<string name="storage_location_saved">Lokasi penyimpanan disimpan</string>
     <string name="cache_cleared_success">Cache cleared successfully</string>
     <string name="cache_cleared_fail">Failed to clear cache</string>
-    <string name="about_dialog_message">This app was created by [Your Name] as a fun project. It uses the [insert any relevant libraries or APIs] to download videos from supported platforms.</string>
+    <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
     <string name="ok">OK</string>
     <string name="email_is_required">Email is required</string>
     <string name="invalid_format_email">Invalid email format</string>
@@ -89,5 +94,5 @@
     <string name="failed_to_send_reset_link">Failed to send reset link</string>
     <string name="check_your_email">Check Your Email</string>
     <string name="cancel">Cancel</string>
-    <string name="no_browser_installed" translatable="false">No browser installed</string>
+    <string name="no_browser_installed">No browser installed</string>
 </resources>

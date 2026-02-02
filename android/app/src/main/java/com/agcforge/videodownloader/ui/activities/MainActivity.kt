@@ -1,5 +1,6 @@
 package com.agcforge.videodownloader.ui.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -91,8 +92,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val tvUserEmail = headerView.findViewById<android.widget.TextView>(R.id.tvUserEmail)
 
         lifecycleScope.launch {
-            val userName = preferenceManager.userId.first() // You can store user name separately
-            val userEmail = preferenceManager.authToken.first() // Get actual email from preferences
+            val userName = preferenceManager.userName.first() // You can store user name separately
+            val userEmail = preferenceManager.userName.first() // Get actual email from preferences
+            val avatarUrl = preferenceManager.userAvatar.first()
             val token = preferenceManager.authToken.first()
 
             val isLoggedIn = !token.isNullOrEmpty()
@@ -104,8 +106,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             tvUserName.text = userName ?: "Guest User"
             tvUserEmail.text = userEmail ?: "guest@example.com"
 
-            // Load avatar if available
-            // ivAvatar.loadImage(avatarUrl)
+            if (avatarUrl != null && avatarUrl.isNotEmpty()) {
+                ivAvatar.loadImage(avatarUrl)
+            }
         }
     }
 
@@ -139,10 +142,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true
     }
 
+    @SuppressLint("StringFormatInvalid")
     private fun showAboutDialog() {
+        val appCreator = "AgcForge Team"
+        val librariesUsed = "Jetpack, Retrofit, and many other open source libraries"
+        val formattedMessage = getString(R.string.about_dialog_message, appCreator, librariesUsed)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.about)
-            .setMessage(R.string.about_dialog_message)
+            .setMessage(formattedMessage)
             .setPositiveButton(R.string.ok, null)
             .show()
     }

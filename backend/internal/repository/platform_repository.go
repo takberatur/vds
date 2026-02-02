@@ -43,7 +43,7 @@ func (r *platformRepository) GetAll(ctx context.Context) ([]model.Platform, erro
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT * FROM platforms`
+	query := `SELECT * FROM platforms WHERE is_active = true`
 
 	var platforms []model.Platform
 	err := pgxscan.Select(subCtx, r.db, &platforms, query)
@@ -63,7 +63,7 @@ func (r *platformRepository) FindAll(ctx context.Context, params model.QueryPara
 
 	qb := NewQueryBuilder(`
 		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
-		FROM platforms
+		FROM platforms WHERE is_active = true
 	`)
 
 	// 1. Filtering
@@ -151,7 +151,7 @@ func (r *platformRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 	defer cancel()
 	query := `
 		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
-		FROM platforms WHERE id = $1
+		FROM platforms WHERE id = $1 AND is_active = true
 	`
 	var p model.Platform
 	err := r.db.QueryRow(subCtx, query, id).Scan(
@@ -167,10 +167,10 @@ func (r *platformRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 func (r *platformRepository) FindBySlug(ctx context.Context, slug string) (*model.Platform, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
-
+	// Add active filter to FindBySlug query to ensure only active platforms are returned
 	query := `
 		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
-		FROM platforms WHERE slug = $1
+		FROM platforms WHERE slug = $1 AND is_active = true
 	`
 	var p model.Platform
 	err := r.db.QueryRow(subCtx, query, slug).Scan(
@@ -189,7 +189,7 @@ func (r *platformRepository) FindByType(ctx context.Context, type_ string) (*mod
 
 	query := `
 		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
-		FROM platforms WHERE type = $1
+		FROM platforms WHERE type = $1 AND is_active = true
 	`
 	var p model.Platform
 	err := r.db.QueryRow(subCtx, query, type_).Scan(
@@ -207,7 +207,7 @@ func (r *platformRepository) FindByCategory(ctx context.Context, category string
 
 	query := `
 		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
-		FROM platforms WHERE category = $1
+		FROM platforms WHERE category = $1 AND is_active = true
 	`
 	var platforms []model.Platform
 	rows, err := r.db.Query(subCtx, query, category)
@@ -284,7 +284,7 @@ func (r *platformRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `DELETE FROM platforms WHERE id = $1`
+	query := `DELETE FROM platforms WHERE id = $1 AND is_active = false`
 	args := []interface{}{
 		id,
 	}
@@ -302,7 +302,7 @@ func (r *platformRepository) BulkDelete(ctx context.Context, ids []uuid.UUID) er
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `DELETE FROM platforms WHERE id = ANY($1)`
+	query := `DELETE FROM platforms WHERE id = ANY($1) AND is_active = true`
 	args := []interface{}{
 		ids,
 	}

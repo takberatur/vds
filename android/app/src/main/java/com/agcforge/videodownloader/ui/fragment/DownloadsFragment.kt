@@ -1,11 +1,18 @@
 package com.agcforge.videodownloader.ui.fragment
 
+import android.Manifest
+import android.app.DownloadManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -13,9 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.agcforge.videodownloader.databinding.FragmentDownloadsBinding
 import com.agcforge.videodownloader.ui.adapter.DownloadTaskAdapter
 import com.agcforge.videodownloader.ui.viewmodel.DownloadsViewModel
+import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
 import com.agcforge.videodownloader.utils.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class DownloadsFragment : Fragment() {
@@ -25,6 +34,20 @@ class DownloadsFragment : Fragment() {
 
     private val viewModel: DownloadsViewModel by viewModels()
     private lateinit var downloadAdapter: DownloadTaskAdapter
+	private lateinit var preferenceManager: PreferenceManager
+	private var pendingDownloadUrl: String? = null
+
+	private val storagePermissionLauncher = registerForActivityResult(
+		ActivityResultContracts.RequestPermission()
+	) { granted ->
+		val url = pendingDownloadUrl
+		pendingDownloadUrl = null
+		if (granted && url != null) {
+			enqueueDownload(url)
+		} else if (!granted) {
+			requireContext().showToast("Izin penyimpanan ditolak")
+		}
+	}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +60,7 @@ class DownloadsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+		preferenceManager = PreferenceManager(requireContext())
 
         setupRecyclerView()
         setupSwipeRefresh()
@@ -165,13 +189,49 @@ class DownloadsFragment : Fragment() {
     }
 
     private fun downloadFile(url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
-        } catch (e: Exception) {
-            requireContext().showToast("Failed to open download link")
-        }
+		enqueueDownload(url)
     }
+
+	private fun enqueueDownload(url: String) {
+		viewLifecycleOwner.lifecycleScope.launch {
+			val storageLocation = preferenceManager.storageLocation.first() ?: "app"
+			val uri = Uri.parse(url)
+			val fileName = (uri.lastPathSegment?.takeIf { it.isNotBlank() } ?: "video_${System.currentTimeMillis()}.mp4")
+				.let { if (it.contains('.')) it else "$it.mp4" }
+
+			if (storageLocation == "downloads" && android.os.Build.VERSION.SDK_INT < 29) {
+				val granted = ContextCompat.checkSelfPermission(
+					requireContext(),
+					Manifest.permission.WRITE_EXTERNAL_STORAGE
+				) == PackageManager.PERMISSION_GRANTED
+				if (!granted) {
+					pendingDownloadUrl = url
+					storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+					return@launch
+				}
+			}
+
+			val dm = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+			val request = DownloadManager.Request(uri)
+				.setTitle(fileName)
+				.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+				.setAllowedOverMetered(true)
+				.setAllowedOverRoaming(true)
+
+			if (storageLocation == "downloads") {
+				request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+			} else {
+				request.setDestinationInExternalFilesDir(requireContext(), Environment.DIRECTORY_DOWNLOADS, fileName)
+			}
+
+			try {
+				dm.enqueue(request)
+				requireContext().showToast("Download dimulai")
+			} catch (e: Exception) {
+				requireContext().showToast(e.message ?: "Gagal memulai download")
+			}
+		}
+	}
 
     private fun openFile(path: String) {
         try {

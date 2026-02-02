@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -30,19 +31,24 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _loginResult.value = Resource.Loading()
 
-            repository.login(email, password)
-                .onSuccess { authResponse ->
-                    _loginResult.value = Resource.Success(authResponse)
+			val result = withTimeoutOrNull(30_000) {
+				repository.login(email, password)
+			}
+			if (result == null) {
+				_loginResult.value = Resource.Error("Login timeout")
+				return@launch
+			}
 
-                    // Save auth data
-                    preferenceManager.saveAuthToken(authResponse.token)
-                    preferenceManager.saveUserInfo(
-                        authResponse.user.id,
-                        authResponse.user.email,
-                        authResponse.user.fullName
-                    )
+			result
+				.onSuccess { authResponse ->
+					_loginResult.value = Resource.Success(authResponse)
 
-                    // Initialize WebSocket connection
+					preferenceManager.saveAuthToken(authResponse.token)
+					preferenceManager.saveUserInfo(
+						authResponse.user.id,
+						authResponse.user.email,
+						authResponse.user.fullName
+					)
 
 					repository.getCentrifugoToken()
 						.onSuccess { tokenResponse ->
@@ -53,10 +59,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 							centrifugoManager.initialize(authResponse.user.id, null)
 							centrifugoManager.connect()
 						}
-                }
-                .onFailure { error ->
-                    _loginResult.value = Resource.Error(error.message ?: "Login failed")
-                }
+				}
+				.onFailure { error ->
+					_loginResult.value = Resource.Error(error.message ?: "Login failed")
+				}
         }
     }
 
@@ -64,7 +70,15 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _loginResult.value = Resource.Loading()
 
-			repository.loginGoogle(credential)
+			val result = withTimeoutOrNull(30_000) {
+				repository.loginGoogle(credential)
+			}
+			if (result == null) {
+				_loginResult.value = Resource.Error("Google login timeout")
+				return@launch
+			}
+
+			result
 				.onSuccess { authResponse ->
 					_loginResult.value = Resource.Success(authResponse)
 
@@ -90,6 +104,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 				}
         }
     }
+
+	fun resetLoginResult() {
+		_loginResult.value = Resource.Idle()
+	}
 
     fun getCurrentUser() {
         viewModelScope.launch {

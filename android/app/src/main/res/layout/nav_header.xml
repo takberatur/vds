@@ -3,16 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="176dp"
-    android:background="@color/primary"
+    android:background="@drawable/splash_gradient_background_5"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
+    android:fitsSystemWindows="true"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
         android:id="@+id/ivAvatar"
         android:layout_width="64dp"
         android:layout_height="64dp"
+        android:layout_marginStart="10dp"
         android:contentDescription="@string/user_avatar"
         android:src="@drawable/ic_account_circle" />
 
@@ -21,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginStart="10dp"
         android:text="@string/guest_user"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/white"
@@ -31,6 +34,8 @@
         android:id="@+id/tvUserEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
         android:text="@string/guest_example_com"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="@android:color/white" />

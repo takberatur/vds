@@ -1,5 +1,6 @@
 package com.agcforge.videodownloader.ui.fragment
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -33,8 +34,11 @@ class SettingsFragment : Fragment() {
 
     private lateinit var preferenceManager: PreferenceManager
 
-    private val languages = arrayOf("English", "Indonesia", "Español", "Français", "Português", "中文", "日本語", "العربية", "Deutsch", "हिन्दी", "Русский")
-    private val languageCodes = arrayOf("en", "in", "es", "fr", "pt", "zh", "ja", "ar", "de", "hi", "ru")
+    private val languages = arrayOf("English", "Indonesia", "Español", "Français", "Português", "中文",
+        "日本語", "العربية", "Deutsch", "हिन्दी", "Русский", "Dutch", "Italiano", "Türkçe", "Tiếng Việt", "ไทย", "Ελληνικά", "한국어"
+    , "Malay", "Filipino")
+    private val languageCodes = arrayOf("en", "in", "es", "fr", "pt", "zh", "ja", "ar",
+        "de", "hi", "ru", "nl", "it", "tr", "vi", "th", "el", "ko", "ms", "fil")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +58,7 @@ class SettingsFragment : Fragment() {
         setupListeners()
         setupThemeSwitch()
         setupLanguage()
+		setupStorageLocation()
     }
 
     private fun setupViews() {
@@ -88,7 +93,29 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showStorageSettings() {
-        requireContext().showToast(getString(R.string.storage_settings_soon))
+		val options = arrayOf(
+			getString(R.string.storage_location_app),
+			getString(R.string.storage_location_downloads)
+		)
+
+		lifecycleScope.launch {
+			val current = preferenceManager.storageLocation.first() ?: "app"
+			val checked = if (current == "downloads") 1 else 0
+
+			AlertDialog.Builder(requireContext())
+				.setTitle(getString(R.string.storage_location_dialog_title))
+				.setSingleChoiceItems(options, checked) { dialog, which ->
+					val selected = if (which == 1) "downloads" else "app"
+					lifecycleScope.launch {
+						preferenceManager.saveStorageLocation(selected)
+						updateStorageLocationText(selected)
+						requireContext().showToast(getString(R.string.storage_location_saved))
+						dialog.dismiss()
+					}
+				}
+				.setNegativeButton(getString(R.string.cancel), null)
+				.show()
+		}
     }
 
     private fun clearCache() {
@@ -100,10 +127,14 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @SuppressLint("StringFormatMatches")
     private fun showAboutDialog() {
+        val appCreator = "AgcForge Team"
+        val librariesUsed = "Jetpack, Retrofit, and many other open source libraries"
+        val formattedMessage = getString(R.string.about_dialog_message, appCreator, librariesUsed)
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.about))
-            .setMessage(getString(R.string.about_dialog_message))
+            .setMessage(formattedMessage)
             .setPositiveButton(getString(R.string.ok), null)
             .show()
     }
@@ -132,6 +163,19 @@ class SettingsFragment : Fragment() {
             }
         }
     }
+
+	private fun setupStorageLocation() {
+		lifecycleScope.launch {
+			val current = preferenceManager.storageLocation.first() ?: "app"
+			updateStorageLocationText(current)
+		}
+	}
+
+	private fun updateStorageLocationText(location: String) {
+		binding.tvCurrentStorage.text =
+			if (location == "downloads") getString(R.string.storage_location_downloads)
+			else getString(R.string.storage_location_app)
+	}
 
     private fun showLanguageDialog() {
         val currentLangCode = runBlocking { preferenceManager.language.first() } ?: Locale.getDefault().language

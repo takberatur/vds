@@ -41,6 +41,8 @@ class RegisterActivity : AppCompatActivity() {
 
         setupToolbar()
         setupListeners()
+		viewModel.resetLoginResult()
+		showLoading(false)
 		observeViewModel()
     }
 
@@ -195,6 +197,7 @@ class RegisterActivity : AppCompatActivity() {
 		lifecycleScope.launch {
 			viewModel.loginResult.collect { resource ->
 				when (resource) {
+					is Resource.Idle -> showLoading(false)
 					is Resource.Loading -> showLoading(true)
 					is Resource.Success -> {
 						showLoading(false)
@@ -202,13 +205,13 @@ class RegisterActivity : AppCompatActivity() {
 							flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 						})
 						finish()
+						viewModel.resetLoginResult()
 					}
 					is Resource.Error -> {
 						showLoading(false)
 						showToast(resource.message ?: "Google login failed")
+						viewModel.resetLoginResult()
 					}
-
-                    else -> {}
                 }
 			}
 		}

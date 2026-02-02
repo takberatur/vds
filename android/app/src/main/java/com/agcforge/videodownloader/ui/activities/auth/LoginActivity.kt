@@ -22,6 +22,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 class LoginActivity : AppCompatActivity() {
 
@@ -37,20 +38,20 @@ class LoginActivity : AppCompatActivity() {
 
         preferenceManager = PreferenceManager(this)
 
-        // Check if already logged in
-        checkIfLoggedIn()
-
         setupListeners()
         observeViewModel()
+		viewModel.resetLoginResult()
+		showLoading(false)
+
+		checkIfLoggedIn()
     }
 
     private fun checkIfLoggedIn() {
         lifecycleScope.launch {
-            preferenceManager.authToken.collect { token ->
-                if (!token.isNullOrEmpty()) {
-                    navigateToMain()
-                }
-            }
+			val token = preferenceManager.authToken.first()
+			if (!token.isNullOrEmpty()) {
+				navigateToMain()
+			}
         }
     }
 
@@ -132,11 +133,13 @@ class LoginActivity : AppCompatActivity() {
                             )
 
                             navigateToMain()
+						viewModel.resetLoginResult()
                         }
                     }
                     is Resource.Error -> {
                         showLoading(false)
                         showToast(resource.message ?: "Login failed")
+					viewModel.resetLoginResult()
                     }
                 }
             }

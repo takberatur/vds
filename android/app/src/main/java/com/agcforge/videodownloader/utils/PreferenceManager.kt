@@ -36,6 +36,7 @@ class PreferenceManager(private val context: Context) {
         private val USER_AVATAR_KEY = stringPreferencesKey("user_avatar")
         private val THEME_KEY = stringPreferencesKey("theme_mode")
         private val LANGUAGE_KEY = stringPreferencesKey("language_code")
+		private val STORAGE_LOCATION_KEY = stringPreferencesKey("storage_location")
 		private val APPLICATION_KEY = stringPreferencesKey("application_config")
     }
 
@@ -48,6 +49,7 @@ class PreferenceManager(private val context: Context) {
     val userAvatar: Flow<String?> = context.dataStore.data.map { it[USER_AVATAR_KEY] }
     val theme: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
     val language: Flow<String?> = context.dataStore.data.map { it[LANGUAGE_KEY] }
+	val storageLocation: Flow<String?> = context.dataStore.data.map { it[STORAGE_LOCATION_KEY] }
 	val applicationConfig: Flow<String?> = context.dataStore.data.map { it[APPLICATION_KEY] }
 
     // --- Suspend functions to modify preferences ---
@@ -78,6 +80,10 @@ class PreferenceManager(private val context: Context) {
     suspend fun saveLanguage(languageCode: String) {
         context.dataStore.edit { it[LANGUAGE_KEY] = languageCode }
     }
+
+	suspend fun saveStorageLocation(location: String) {
+		context.dataStore.edit { it[STORAGE_LOCATION_KEY] = location }
+	}
 
 	suspend fun saveApplication(app: Application) {
 		val json = Gson().toJson(app)
