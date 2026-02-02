@@ -2,10 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.services)
-    alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
 }
@@ -70,6 +68,7 @@ android {
     }
 
 }
+
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
@@ -125,6 +124,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     // Messaging, Database & Ads
     implementation(libs.play.services.ads)
+    implementation(libs.play.services.auth)
     implementation(libs.unity.ads)
     implementation(libs.inapp.sdk)
     implementation(libs.billing)

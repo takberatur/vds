@@ -18,6 +18,7 @@ import (
 type AuthService interface {
 	VerifyGoogleToken(ctx context.Context, idToken string) (*model.User, string, error)
 	LoginEmail(ctx context.Context, email, password string) (*model.User, string, error)
+	RegisterEmail(ctx context.Context, fullName, email, password string) (*model.User, string, error)
 	Logout(ctx context.Context, userID uuid.UUID) error
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, token, newPassword string) error
@@ -113,6 +114,49 @@ func (s *authService) LoginEmail(ctx context.Context, email, password string) (*
 	}
 
 	_ = s.userRepo.UpdateLastLogin(subCtx, user.ID)
+
+	accessToken, err := s.tokenService.GenerateAccessToken(user)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return user, accessToken, nil
+}
+
+func (s *authService) RegisterEmail(ctx context.Context, fullName, email, password string) (*model.User, string, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	existing, err := s.userRepo.FindByEmail(subCtx, email)
+	if err != nil {
+		return nil, "", err
+	}
+	if existing != nil {
+		return nil, "", fmt.Errorf("email already registered")
+	}
+
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return nil, "", err
+	}
+
+	user := &model.User{
+		Email:    email,
+		FullName: fullName,
+		RoleID:   nil,
+		IsActive: true,
+	}
+	if err := s.userRepo.Create(subCtx, user, hashedPassword); err != nil {
+		return nil, "", err
+	}
+
+	fullUser, err := s.userRepo.FindByID(subCtx, user.ID)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to fetch user details after creation: %w", err)
+	}
+	if fullUser != nil {
+		user = fullUser
+	}
 
 	accessToken, err := s.tokenService.GenerateAccessToken(user)
 	if err != nil {

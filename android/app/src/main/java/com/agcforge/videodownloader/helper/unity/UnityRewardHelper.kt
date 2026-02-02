@@ -1,4 +1,6 @@
 package com.agcforge.videodownloader.helper.unity
 
-class UnityRewardHelper {
+import android.app.Activity
+
+class UnityRewardHelper constructor(private val activity: Activity) {
 }

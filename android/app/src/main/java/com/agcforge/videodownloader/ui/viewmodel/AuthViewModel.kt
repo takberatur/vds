@@ -61,6 +61,37 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun loginGoogle(credential: String) {
+        viewModelScope.launch {
+            _loginResult.value = Resource.Loading()
+
+			repository.loginGoogle(credential)
+				.onSuccess { authResponse ->
+					_loginResult.value = Resource.Success(authResponse)
+
+					preferenceManager.saveAuthToken(authResponse.token)
+					preferenceManager.saveUserInfo(
+						authResponse.user.id,
+						authResponse.user.email,
+						authResponse.user.fullName
+					)
+
+					repository.getCentrifugoToken()
+						.onSuccess { tokenResponse ->
+							centrifugoManager.initialize(authResponse.user.id, tokenResponse.token)
+							centrifugoManager.connect()
+						}
+						.onFailure {
+							centrifugoManager.initialize(authResponse.user.id, null)
+							centrifugoManager.connect()
+						}
+				}
+				.onFailure { error ->
+					_loginResult.value = Resource.Error(error.message ?: "Google login failed")
+				}
+        }
+    }
+
     fun getCurrentUser() {
         viewModelScope.launch {
             _currentUser.value = Resource.Loading()

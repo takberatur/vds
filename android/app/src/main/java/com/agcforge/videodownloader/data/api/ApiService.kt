@@ -42,14 +42,14 @@ interface ApiService {
     @POST("mobile-client/auth/email")
     suspend fun login(@Body request: LoginRequest): Response<ApiResponse<AuthResponse>>
 
+    @POST("mobile-client/auth/google")
+    suspend fun loginGoogle(@Body request: Map<String, String>): Response<ApiResponse<AuthResponse>>
+
     @POST("mobile-client/auth/forgot-password")
     suspend fun forgotPassword(@Body request: Map<String, String>): Response<ApiResponse<Any>>
 
     @POST("mobile-client/auth/reset-password")
     suspend fun resetPassword(@Body request: Map<String, String>): Response<ApiResponse<Any>>
-
-    @POST("mobile-client/auth/resend-verification")
-    suspend fun resendVerificationEmail(@Body request: Map<String, String>): Response<ApiResponse<Any>>
 
     @POST("mobile-client/auth/register")
     suspend fun register(@Body request: Map<String, String>): Response<ApiResponse<AuthResponse>>
@@ -57,7 +57,7 @@ interface ApiService {
     @GET("mobile-client/protected-mobile/users/current")
     suspend fun getCurrentUser(): Response<ApiResponse<User>>
 
-    @POST("mobile-client/auth/logout")
+    @POST("mobile-client/protected-mobile/auth/logout")
     suspend fun logout(): Response<ApiResponse<Any>>
 
     @GET("mobile-client/centrifugo/token")

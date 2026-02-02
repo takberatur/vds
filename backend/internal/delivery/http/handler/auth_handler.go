@@ -72,6 +72,29 @@ func (h *AuthHandler) LoginEmail(c *fiber.Ctx) error {
 	})
 }
 
+func (h *AuthHandler) RegisterEmail(c *fiber.Ctx) error {
+	ctx := middleware.HandlerContext(c)
+
+	var req model.RegisterEmailRequest
+	if err := c.BodyParser(&req); err != nil {
+		return response.Error(c, fiber.StatusBadRequest, "Invalid request body", err.Error())
+	}
+
+	if errs := utils.ValidateStruct(req); len(errs) > 0 {
+		return response.Error(c, fiber.StatusBadRequest, response.ValidationErrors{Errors: errs}.Error(), nil)
+	}
+
+	user, accessToken, err := h.authService.RegisterEmail(ctx, req.FullName, req.Email, req.Password)
+	if err != nil {
+		return response.Error(c, fiber.StatusBadRequest, "Registration failed: "+err.Error(), nil)
+	}
+
+	return response.Success(c, "Registration successful", fiber.Map{
+		"access_token": accessToken,
+		"user":         user,
+	})
+}
+
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
 

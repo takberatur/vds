@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,10 @@ import com.agcforge.videodownloader.ui.viewmodel.AuthViewModel
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
 import com.agcforge.videodownloader.utils.showToast
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -21,6 +26,25 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: AuthViewModel by viewModels()
     private lateinit var preferenceManager: PreferenceManager
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+	private val googleSignInLauncher = registerForActivityResult(
+		ActivityResultContracts.StartActivityForResult()
+	) { result ->
+		val data = result.data
+		val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+		try {
+			val account = task.getResult(ApiException::class.java)
+			val credential = account.idToken
+			if (!credential.isNullOrEmpty()) {
+				viewModel.loginGoogle(credential)
+			} else {
+				showToast("Google login failed")
+			}
+		} catch (e: Exception) {
+			showToast(e.message ?: "Google login failed")
+		}
+	}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +52,12 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         preferenceManager = PreferenceManager(this)
+
+		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+			.requestIdToken(getString(com.agcforge.videodownloader.R.string.google_web_client_id))
+			.requestEmail()
+			.build()
+		googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         // Check if already logged in
         checkIfLoggedIn()
@@ -66,13 +96,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             btnGoogleLogin.setOnClickListener {
-                // TODO: Implement Google OAuth
-                showToast("Google login coming soon")
-            }
-
-            btnFacebookLogin.setOnClickListener {
-                // TODO: Implement Facebook OAuth
-                showToast("Facebook login coming soon")
+				googleSignInLauncher.launch(googleSignInClient.signInIntent)
             }
         }
     }
@@ -141,7 +165,6 @@ class LoginActivity : AppCompatActivity() {
             progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             btnLogin.isEnabled = !isLoading
             btnGoogleLogin.isEnabled = !isLoading
-            btnFacebookLogin.isEnabled = !isLoading
         }
     }
 

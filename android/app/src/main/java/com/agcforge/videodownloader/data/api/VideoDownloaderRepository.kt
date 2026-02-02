@@ -130,11 +130,28 @@ class VideoDownloaderRepository {
         }
     }
 
+    suspend fun loginGoogle(credential: String): Result<AuthResponse> {
+        return try {
+            val response = api.loginGoogle(mapOf("credential" to credential))
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let {
+                    ApiClient.setAuthToken(it.token)
+                    Result.success(it)
+                } ?: Result.failure(Exception("No data returned"))
+            } else {
+                Result.failure(Exception(apiError(response.body(), "Google login failed")))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun register(request: Map<String, String>): Result<AuthResponse> {
         return try {
             val response = api.register(request)
             if (response.isSuccessful && response.body()?.success == true) {
                 response.body()?.data?.let {
+					ApiClient.setAuthToken(it.token)
                     Result.success(it)
                 } ?: Result.failure(Exception("No data returned"))
             } else {
@@ -148,10 +165,10 @@ class VideoDownloaderRepository {
     suspend fun forgotPassword(request: Map<String, String>): Result<Unit> {
         return try {
             val response = api.forgotPassword(request)
-            if (response.isSuccessful) {
+            if (response.isSuccessful && response.body()?.success == true) {
                 Result.success(Unit)
             } else {
-                Result.failure(Exception("Failed to send reset link"))
+				Result.failure(Exception(apiError(response.body(), "Failed to send reset link")))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -161,23 +178,10 @@ class VideoDownloaderRepository {
     suspend fun resetPassword(request: Map<String, String>): Result<Unit> {
         return try {
             val response = api.resetPassword(request)
-            if (response.isSuccessful) {
+            if (response.isSuccessful && response.body()?.success == true) {
                 Result.success(Unit)
             } else {
-                Result.failure(Exception("Failed to reset password"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun resendVerificationEmail(request: Map<String, String>): Result<Unit> {
-        return try {
-            val response = api.resendVerificationEmail(request)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Failed to resend email"))
+				Result.failure(Exception(apiError(response.body(), "Failed to reset password")))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -220,11 +224,11 @@ class VideoDownloaderRepository {
     suspend fun logout(): Result<Unit> {
         return try {
             val response = api.logout()
-            if (response.isSuccessful) {
+			if (response.isSuccessful && response.body()?.success == true) {
                 ApiClient.setAuthToken(null)
                 Result.success(Unit)
             } else {
-                Result.failure(Exception("Logout failed"))
+				Result.failure(Exception(apiError(response.body(), "Logout failed")))
             }
         } catch (e: Exception) {
             Result.failure(e)

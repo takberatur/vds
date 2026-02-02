@@ -1,4 +1,6 @@
 package com.agcforge.videodownloader.helper.admob
 
-class AdmobRewardHelper {
+import android.app.Activity
+
+class AdmobRewardHelper constructor(private val activity: Activity) {
 }

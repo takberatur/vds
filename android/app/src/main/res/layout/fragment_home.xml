@@ -17,11 +17,25 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <RelativeLayout
+                android:id="@+id/adsBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <include
+                    android:id="@+id/regular_banner_ad"
+                    layout="@layout/ads_layout_banner"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
             <!-- Download Input Section -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                android:layout_marginTop="5dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
@@ -70,6 +84,18 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <RelativeLayout
+            android:id="@+id/adsNative"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <include
+                android:id="@+id/regular_native_ad"
+                layout="@layout/ads_google_small_native"
+                android:visibility="visible" />
+
+        </RelativeLayout>
             <!-- Supported Platforms Section -->
             <TextView
                 android:layout_width="match_parent"

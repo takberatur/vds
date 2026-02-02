@@ -182,9 +182,9 @@ func SetupRoutes(c *RouteConfig) {
 
 	publicMobile.Post("/auth/google", credentialLimiter, authHandler.GoogleLogin)
 	publicMobile.Post("/auth/email", credentialLimiter, authHandler.LoginEmail)
+	publicMobile.Post("/auth/register", credentialLimiter, authHandler.RegisterEmail)
 	publicMobile.Post("/auth/forgot-password", credentialLimiter, authHandler.ForgotPassword)
 	publicMobile.Post("/auth/reset-password", credentialLimiter, authHandler.ResetPassword)
-	publicMobile.Post("/auth/logout", authHandler.Logout)
 
 	publicMobile.Get("/settings/public", settingHandler.GetPublicSettings)
 	publicMobile.Get("/centrifugo/token", middleware.OptionalJWTMiddleware(tokenService), centrifugoHandler.GetToken)
@@ -202,6 +202,7 @@ func SetupRoutes(c *RouteConfig) {
 	protectedUserMobile.Get("/users/current", userHandler.GetCurrentUser)
 	protectedUserMobile.Get("/downloads", downloadHandler.GetHistory)
 	protectedUserMobile.Get("/downloads/:id", downloadHandler.FindByIDForCurrentUser)
+	protectedUserMobile.Post("/auth/logout", authHandler.Logout)
 	protectedUserMobile.Put("/users/profile", userHandler.UpdateProfile)
 	protectedUserMobile.Put("/users/password", userHandler.UpdatePassword)
 	protectedUserMobile.Post("/users/avatar", userHandler.UploadAvatar)

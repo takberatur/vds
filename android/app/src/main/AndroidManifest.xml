@@ -127,24 +127,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Verify Email Activity -->
-        <activity
-            android:name=".ui.activities.auth.VerifyEmailActivity"
-            android:exported="true"
-            android:screenOrientation="fullSensor"
-            android:windowSoftInputMode="adjustResize">
-            <!-- Deep link untuk email verification -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="api-simontok.agcforge.com"
-                    android:pathPrefix="/verify-email" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="false"

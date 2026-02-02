@@ -47,5 +47,6 @@
     ],
     "java.project.importHint": "gradle",
     "kotlin.indexing.enabled": true,
-    "kotlin.externalAnnotations.enabled": true
+		"kotlin.externalAnnotations.enabled": true,
+		"java.configuration.updateBuildConfiguration": "interactive"
 }

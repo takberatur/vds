@@ -4,23 +4,57 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.agcforge.videodownloader.data.api.ApiClient
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.databinding.ActivityRegisterBinding
-import com.agcforge.videodownloader.utils.Resource
+import com.agcforge.videodownloader.ui.activities.MainActivity
+import com.agcforge.videodownloader.ui.viewmodel.AuthViewModel
+import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.showToast
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private val repository = VideoDownloaderRepository()
+    private lateinit var preferenceManager: PreferenceManager
+
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    private val viewModel: AuthViewModel by viewModels()
+
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val credential = account.idToken
+            if (!credential.isNullOrEmpty()) {
+                viewModel.loginGoogle(credential)
+            } else {
+                showToast("Google login failed")
+            }
+        } catch (e: Exception) {
+            showToast(e.message ?: "Google login failed")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+		preferenceManager = PreferenceManager(this)
 
         setupToolbar()
         setupListeners()
@@ -48,7 +82,9 @@ class RegisterActivity : AppCompatActivity() {
                     }
                 }
             }
-
+            btnGoogleLogin.setOnClickListener {
+                googleSignInLauncher.launch(googleSignInClient.signInIntent)
+            }
             tvSignIn.setOnClickListener {
                 finish()
             }
@@ -133,11 +169,18 @@ class RegisterActivity : AppCompatActivity() {
                     showLoading(false)
                     showToast("Registration successful!")
 
-                    // Navigate to verify email
-                    startActivity(Intent(this@RegisterActivity, VerifyEmailActivity::class.java).apply {
-                        putExtra("email", email)
-                    })
-                    finish()
+					ApiClient.setAuthToken(authResponse.token)
+					preferenceManager.saveAuthToken(authResponse.token)
+					preferenceManager.saveUserInfo(
+						authResponse.user.id,
+						authResponse.user.email,
+						authResponse.user.fullName
+					)
+
+					startActivity(Intent(this@RegisterActivity, MainActivity::class.java).apply {
+						flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+					})
+					finish()
                 }.onFailure { error ->
                     showLoading(false)
                     showToast(error.message ?: "Registration failed")
@@ -154,6 +197,7 @@ class RegisterActivity : AppCompatActivity() {
         binding.apply {
             progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             btnRegister.isEnabled = !isLoading
+            btnGoogleLogin.isEnabled = !isLoading
             etFullName.isEnabled = !isLoading
             etEmail.isEnabled = !isLoading
             etPassword.isEnabled = !isLoading

@@ -20,4 +20,11 @@
     <color name="status_processing">#FF9800</color>
     <color name="status_failed">#F44336</color>
     <color name="status_pending">#9E9E9E</color>
+
+    <color name="colorlightdark">#FFFFFF</color>
+
+    <color name="ads_text">#000000</color>
+
+    <color name="black_ads">#1a1a1a</color>
+    <color name="gray_ads">#4c4c4c</color>
 </resources>

@@ -11,6 +11,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.agcforge.videodownloader.R
+import com.agcforge.videodownloader.data.api.ApiClient
+import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.data.websocket.CentrifugoEvent
 import com.agcforge.videodownloader.data.websocket.CentrifugoManager
 import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
@@ -27,6 +29,7 @@ class WebSocketService : Service() {
 
     private lateinit var centrifugoManager: CentrifugoManager
     private lateinit var notificationManager: NotificationManager
+    private val repository = VideoDownloaderRepository()
 
     companion object {
         private const val NOTIFICATION_ID = 1001
@@ -71,8 +74,18 @@ class WebSocketService : Service() {
         val token = intent?.getStringExtra("token")
 
         if (userId != null) {
-            centrifugoManager.initialize(userId, token)
-            centrifugoManager.connect()
+			if (!token.isNullOrEmpty()) {
+				ApiClient.setAuthToken(token)
+			}
+			scope.launch {
+				val wsToken = if (!token.isNullOrEmpty()) {
+					repository.getCentrifugoToken().getOrNull()?.token
+				} else {
+					null
+				}
+				centrifugoManager.initialize(userId, wsToken)
+				centrifugoManager.connect()
+			}
         }
 
         return START_STICKY

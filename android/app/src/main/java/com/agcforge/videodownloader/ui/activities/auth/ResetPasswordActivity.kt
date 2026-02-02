@@ -135,7 +135,7 @@ class ResetPasswordActivity : AppCompatActivity() {
             try {
                 val requestBody = mapOf(
                     "token" to resetToken!!,
-                    "password" to newPassword
+					"new_password" to newPassword
                 )
 
                 val result = repository.resetPassword(requestBody)
