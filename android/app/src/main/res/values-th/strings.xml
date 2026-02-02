@@ -92,4 +92,6 @@
     <string name="check_your_email">ตรวจสอบอีเมลของคุณ</string>
     <string name="cancel">ยกเลิก</string>
     <string name="no_browser_installed">ไม่มีการติดตั้งเบราว์เซอร์</string>
+    <string name="site">เว็บไซต์</string>
+    <string name="paste">วาง</string>
 </resources>

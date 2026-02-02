@@ -92,4 +92,6 @@
     <string name="check_your_email">Überprüfen Sie Ihre E-Mail</string>
     <string name="cancel">Stornieren</string>
     <string name="no_browser_installed">Kein Browser installiert</string>
+    <string name="site">Webseite</string>
+    <string name="paste">Einfügen</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="check_your_email">メールを確認してください</string>
     <string name="cancel">キャンセル</string>
     <string name="no_browser_installed">ブラウザがインストールされていません</string>
+    <string name="site">サイト</string>
+    <string name="paste">ペースト</string>
 </resources>

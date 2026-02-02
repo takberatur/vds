@@ -2,10 +2,14 @@ package com.agcforge.videodownloader.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -36,6 +40,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupBackPressedCallback()
+
+        // Enable edge-to-edge layout
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Apply system bar colors
+        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
+
+        // Handle icon contrast (light/dark)
+        val insetsController = WindowInsetsControllerCompat(window, window.decorView)
+        insetsController.isAppearanceLightStatusBars = false   // dark text/icons on light bar
+        insetsController.isAppearanceLightNavigationBars = false // light icons on dark bar
 
         preferenceManager = PreferenceManager(this)
 
@@ -136,6 +152,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             R.id.nav_login -> {
                 startActivity(Intent(this, LoginActivity::class.java))
+            }
+            R.id.nav_site -> {
+                val siteUrl = getString(R.string.site_url)
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(siteUrl))
+                startActivity(intent)
             }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)

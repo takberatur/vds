@@ -92,4 +92,6 @@
     <string name="check_your_email">Revisa tu correo electrónico</string>
     <string name="cancel">Cancelar</string>
     <string name="no_browser_installed">Ningún navegador instalado</string>
+    <string name="site">Sitio web</string>
+    <string name="paste">Pegar</string>
 </resources>

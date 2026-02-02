@@ -92,4 +92,6 @@
     <string name="check_your_email">Проверьте свою электронную почту</string>
     <string name="cancel">Отмена</string>
     <string name="no_browser_installed">Браузер не установлен</string>
+    <string name="site">Сайт</string>
+    <string name="paste">Вставить</string>
 </resources>

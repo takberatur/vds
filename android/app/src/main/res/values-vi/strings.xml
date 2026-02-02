@@ -92,4 +92,6 @@
     <string name="check_your_email">Kiểm tra email của bạn</string>
     <string name="cancel">Hủy bỏ</string>
     <string name="no_browser_installed">Chưa cài đặt trình duyệt</string>
+    <string name="site">Trang web</string>
+    <string name="paste">Dán</string>
 </resources>

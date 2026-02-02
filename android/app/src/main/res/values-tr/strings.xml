@@ -92,4 +92,6 @@
     <string name="check_your_email">E-postanızı Kontrol Edin</string>
     <string name="cancel">İptal etmek</string>
     <string name="no_browser_installed">Tarayıcı yüklü değil</string>
+    <string name="site">Site</string>
+    <string name="paste">Yapıştırmak</string>
 </resources>

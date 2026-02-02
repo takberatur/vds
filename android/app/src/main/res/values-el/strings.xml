@@ -92,4 +92,6 @@
     <string name="check_your_email">Ελέγξτε το email σας</string>
     <string name="cancel">Ματαίωση</string>
     <string name="no_browser_installed">Δεν υπάρχει εγκατεστημένο πρόγραμμα περιήγησης</string>
+    <string name="site">Ιστότοπος</string>
+    <string name="paste">Επικόλληση</string>
 </resources>

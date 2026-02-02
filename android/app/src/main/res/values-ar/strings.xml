@@ -92,4 +92,6 @@
     <string name="check_your_email">تحقق من بريدك الإلكتروني</string>
     <string name="cancel">يلغي</string>
     <string name="no_browser_installed">لم يتم تثبيت أي متصفح</string>
+    <string name="site">موقع</string>
+    <string name="paste">الصق</string>
 </resources>

@@ -92,4 +92,6 @@
     <string name="check_your_email">Periksa Email Anda</string>
     <string name="cancel">Membatalkan</string>
     <string name="no_browser_installed">Tidak ada browser yang terpasang</string>
+    <string name="site">Situs</string>
+    <string name="paste">Tempel</string>
 </resources>

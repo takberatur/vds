@@ -24,7 +24,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _platforms = MutableStateFlow<Resource<List<Platform>>>(Resource.Loading())
     val platforms: StateFlow<Resource<List<Platform>>> = _platforms.asStateFlow()
 
-    private val _downloadResult = MutableStateFlow<Resource<DownloadTask>>(Resource.Loading())
+    private val _downloadResult = MutableStateFlow<Resource<DownloadTask>>(Resource.Idle())
     val downloadResult: StateFlow<Resource<DownloadTask>> = _downloadResult.asStateFlow()
 
     // WebSocket connection state

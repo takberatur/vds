@@ -92,4 +92,6 @@
     <string name="check_your_email">अपने ईमेल की जाँच करें</string>
     <string name="cancel">रद्द करना</string>
     <string name="no_browser_installed">कोई ब्राउज़र स्थापित नहीं है</string>
+    <string name="site">साइट</string>
+    <string name="paste">पेस्ट</string>
 </resources>

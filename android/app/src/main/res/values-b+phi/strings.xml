@@ -92,4 +92,6 @@
     <string name="check_your_email">Suriin ang Iyong Email</string>
     <string name="cancel">Kanselahin</string>
     <string name="no_browser_installed">Walang naka-install na browser</string>
+    <string name="site">Situs</string>
+    <string name="paste">Tempel</string>
 </resources>

@@ -22,6 +22,9 @@ android {
         versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+		ndk {
+			abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+		}
 
     }
     ndkVersion = "29.0.14033849 rc4"

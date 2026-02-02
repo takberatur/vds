@@ -92,4 +92,6 @@
     <string name="check_your_email">检查您的电子邮件</string>
     <string name="cancel">取消</string>
     <string name="no_browser_installed">没有安装浏览器</string>
+    <string name="site">网站</string>
+    <string name="paste">粘贴</string>
 </resources>

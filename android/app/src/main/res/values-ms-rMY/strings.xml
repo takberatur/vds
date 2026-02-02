@@ -92,4 +92,6 @@
     <string name="check_your_email">Semak E-mel Anda</string>
     <string name="cancel">Batal</string>
     <string name="no_browser_installed">Tiada pelayar dipasang</string>
+    <string name="site">Situs</string>
+    <string name="paste">Tempel</string>
 </resources>

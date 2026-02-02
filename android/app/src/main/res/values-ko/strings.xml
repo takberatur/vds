@@ -92,4 +92,6 @@
     <string name="check_your_email">이메일을 확인하세요</string>
     <string name="cancel">취소</string>
     <string name="no_browser_installed">브라우저가 설치되지 않았습니다.</string>
+    <string name="site">사이트</string>
+    <string name="paste">붙여넣기</string>
 </resources>

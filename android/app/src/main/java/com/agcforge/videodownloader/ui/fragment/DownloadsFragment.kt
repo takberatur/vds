@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.agcforge.videodownloader.databinding.FragmentDownloadsBinding
 import com.agcforge.videodownloader.ui.adapter.DownloadTaskAdapter
 import com.agcforge.videodownloader.ui.viewmodel.DownloadsViewModel
+import com.agcforge.videodownloader.utils.AppManager
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
 import com.agcforge.videodownloader.utils.showToast
@@ -181,12 +182,38 @@ class DownloadsFragment : Fragment() {
             .setTitle("Select Download Quality")
             .setItems(formatNames) { dialog, which ->
                 val selectedFormat = formats[which]
-                downloadFile(selectedFormat.url)
+				val url = buildProxyVideoUrl(task, selectedFormat)
+				downloadFile(url)
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
+
+	private fun buildProxyVideoUrl(
+		task: com.agcforge.videodownloader.data.model.DownloadTask,
+		format: com.agcforge.videodownloader.data.model.DownloadFormat
+	): String {
+		val base = AppManager.baseUrl
+		val endpoint = if (base.endsWith("/")) {
+			"${base}public-proxy/downloads/file/video"
+		} else {
+			"$base/public-proxy/downloads/file/video"
+		}
+
+		val formatId = format.formatId
+		val resolution = format.height?.let { "${it}p" }
+		val effectiveFormat = formatId ?: resolution
+
+		val filename = task.title?.takeIf { it.isNotBlank() } ?: "download"
+		val uriBuilder = Uri.parse(endpoint).buildUpon()
+			.appendQueryParameter("task_id", task.id)
+			.appendQueryParameter("filename", filename)
+		if (!effectiveFormat.isNullOrBlank()) {
+			uriBuilder.appendQueryParameter("format_id", effectiveFormat)
+		}
+		return uriBuilder.build().toString()
+	}
 
     private fun downloadFile(url: String) {
 		enqueueDownload(url)
