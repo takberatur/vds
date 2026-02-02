@@ -28,16 +28,13 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install splash screen
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
 
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         preferenceManager = PreferenceManager(this)
-
-        // Keep the splash screen visible for this Activity
-        splashScreen.setKeepOnScreenCondition { true }
 
         setupAnimations()
         startSplashSequence()
@@ -106,12 +103,6 @@ class SplashActivity : AppCompatActivity() {
 
     private fun animateTextElements() {
         // Animate app name
-        ObjectAnimator.ofFloat(binding.tvAppName, View.ALPHA, 0f, 1f).apply {
-            duration = 600
-            interpolator = AccelerateDecelerateInterpolator()
-            start()
-        }
-
         ObjectAnimator.ofFloat(binding.tvAppName, View.ALPHA, 0f, 1f).apply {
             duration = 600
             startDelay = 200

@@ -113,6 +113,9 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.loginResult.collect { resource ->
                 when (resource) {
+                    is Resource.Idle -> {
+                        showLoading(false)
+                    }
                     is Resource.Loading -> {
                         showLoading(true)
                     }

@@ -104,6 +104,8 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
                         requireContext().showToast(resource.message ?: "Failed to load platforms")
                     }
+
+                    else -> {}
                 }
             }
         }
@@ -134,6 +136,8 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
                         requireContext().showToast(resource.message ?: "Download failed")
                     }
+
+                    else -> {}
                 }
             }
         }

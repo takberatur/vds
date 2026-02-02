@@ -207,7 +207,9 @@ class RegisterActivity : AppCompatActivity() {
 						showLoading(false)
 						showToast(resource.message ?: "Google login failed")
 					}
-				}
+
+                    else -> {}
+                }
 			}
 		}
 	}

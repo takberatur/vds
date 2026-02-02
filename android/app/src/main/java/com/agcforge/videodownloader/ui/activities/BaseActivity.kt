@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.applyTheme
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -15,6 +16,7 @@ import java.util.Locale
 abstract class BaseActivity : AppCompatActivity() {
 
     private lateinit var preferenceManager: PreferenceManager
+	private var appliedLanguageCode: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preferenceManager = PreferenceManager(this)
@@ -32,15 +34,25 @@ abstract class BaseActivity : AppCompatActivity() {
     }
     private fun observeLanguage() {
         lifecycleScope.launch {
-            preferenceManager.language.collect { languageCode ->
-                restartActivity()
-            }
+			preferenceManager.language
+				.distinctUntilChanged()
+				.collect { languageCode ->
+					if (appliedLanguageCode == null) {
+						appliedLanguageCode = languageCode
+						return@collect
+					}
+					if (appliedLanguageCode != languageCode) {
+						appliedLanguageCode = languageCode
+						recreate()
+					}
+				}
         }
     }
 
     override fun attachBaseContext(newBase: Context) {
         preferenceManager = PreferenceManager(newBase)
         val languageCode = runBlocking { preferenceManager.language.first() }
+		appliedLanguageCode = languageCode
         val context = updateBaseContextLocale(newBase, languageCode)
         super.attachBaseContext(context)
     }
@@ -59,7 +71,6 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     fun restartActivity() {
-        finish()
-        startActivity(intent)
+		recreate()
     }
 }

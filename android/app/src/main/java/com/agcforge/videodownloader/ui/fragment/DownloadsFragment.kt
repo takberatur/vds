@@ -96,6 +96,8 @@ class DownloadsFragment : Fragment() {
                         binding.tvEmpty.visibility = View.VISIBLE
                         requireContext().showToast(resource.message ?: "Failed to load downloads")
                     }
+
+                    else -> {}
                 }
             }
         }

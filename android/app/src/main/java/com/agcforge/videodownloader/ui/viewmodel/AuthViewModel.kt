@@ -2,7 +2,6 @@ package com.agcforge.videodownloader.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.data.dto.AuthResponse
@@ -21,10 +20,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val centrifugoManager = CentrifugoManager.getInstance(application)
     private val preferenceManager = PreferenceManager(application)
 
-    private val _loginResult = MutableStateFlow<Resource<AuthResponse>>(Resource.Loading())
+    private val _loginResult = MutableStateFlow<Resource<AuthResponse>>(Resource.Idle())
     val loginResult: StateFlow<Resource<AuthResponse>> = _loginResult.asStateFlow()
 
-    private val _currentUser = MutableStateFlow<Resource<User>>(Resource.Loading())
+    private val _currentUser = MutableStateFlow<Resource<User>>(Resource.Idle())
     val currentUser: StateFlow<Resource<User>> = _currentUser.asStateFlow()
 
     fun login(email: String, password: String) {
