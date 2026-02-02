@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -15,10 +14,13 @@ import com.agcforge.videodownloader.ui.viewmodel.AuthViewModel
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
 import com.agcforge.videodownloader.utils.showToast
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -26,25 +28,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: AuthViewModel by viewModels()
     private lateinit var preferenceManager: PreferenceManager
-    private lateinit var googleSignInClient: GoogleSignInClient
-
-	private val googleSignInLauncher = registerForActivityResult(
-		ActivityResultContracts.StartActivityForResult()
-	) { result ->
-		val data = result.data
-		val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-		try {
-			val account = task.getResult(ApiException::class.java)
-			val credential = account.idToken
-			if (!credential.isNullOrEmpty()) {
-				viewModel.loginGoogle(credential)
-			} else {
-				showToast("Google login failed")
-			}
-		} catch (e: Exception) {
-			showToast(e.message ?: "Google login failed")
-		}
-	}
+	private val credentialManager by lazy { CredentialManager.create(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,12 +36,6 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         preferenceManager = PreferenceManager(this)
-
-		val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-			.requestIdToken(getString(com.agcforge.videodownloader.R.string.google_web_client_id))
-			.requestEmail()
-			.build()
-		googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         // Check if already logged in
         checkIfLoggedIn()
@@ -96,7 +74,9 @@ class LoginActivity : AppCompatActivity() {
             }
 
             btnGoogleLogin.setOnClickListener {
-				googleSignInLauncher.launch(googleSignInClient.signInIntent)
+				lifecycleScope.launch {
+					startGoogleSignIn()
+				}
             }
         }
     }
@@ -159,6 +139,35 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
+	private suspend fun startGoogleSignIn() {
+		try {
+			val googleIdOption = GetGoogleIdOption.Builder()
+				.setServerClientId(getString(com.agcforge.videodownloader.R.string.google_web_client_id))
+				.setFilterByAuthorizedAccounts(false)
+				.setAutoSelectEnabled(true)
+				.build()
+
+			val request = GetCredentialRequest.Builder()
+				.addCredentialOption(googleIdOption)
+				.build()
+
+			val result = credentialManager.getCredential(this, request)
+			val cred = result.credential
+			if (cred is CustomCredential && cred.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+				val googleCred = GoogleIdTokenCredential.createFrom(cred.data)
+				viewModel.loginGoogle(googleCred.idToken)
+				return
+			}
+			showToast("Google login failed")
+		} catch (e: GoogleIdTokenParsingException) {
+			showToast(e.message ?: "Google login failed")
+		} catch (e: GetCredentialException) {
+			showToast(e.message ?: "Google login cancelled")
+		} catch (e: Exception) {
+			showToast(e.message ?: "Google login failed")
+		}
+	}
 
     private fun showLoading(isLoading: Boolean) {
         binding.apply {

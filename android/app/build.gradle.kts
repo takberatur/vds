@@ -125,7 +125,9 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     // Messaging, Database & Ads
     implementation(libs.play.services.ads)
-    implementation(libs.play.services.auth)
+	implementation(libs.androidx.credentials)
+	implementation(libs.androidx.credentials.play.services.auth)
+	implementation(libs.googleid)
     implementation(libs.unity.ads)
     implementation(libs.inapp.sdk)
     implementation(libs.billing)

@@ -61,7 +61,7 @@ object MobileSessionManager {
 			.build()
 
 		client.newCall(request).execute().use { resp ->
-			val payload = resp.body?.string().orEmpty()
+			val payload = resp.body.string()
 			if (!resp.isSuccessful) {
 				throw IllegalStateException("bootstrap failed: ${resp.code}")
 			}
@@ -74,4 +74,3 @@ object MobileSessionManager {
 		}
 	}
 }
-

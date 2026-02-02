@@ -47,7 +47,8 @@ coreSplashscreen = "1.2.0"
 
 # Messaging, Database & Ads
 playServicesAds = "24.9.0"
-playServicesAuth = "21.5.0"
+androidxCredentials = "1.5.0"
+googleId = "1.2.0"
 inappSdk = "5.3.0"
 unityAds = "4.16.6"
 billing = "8.3.0"
@@ -108,7 +109,9 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 
 # Messaging, Database & Ads
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidxCredentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "androidxCredentials" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleId" }
 unity-ads = { module = "com.unity3d.ads:unity-ads", version.ref = "unityAds" }
 inapp-sdk = { module = "com.startapp:inapp-sdk", version.ref = "inappSdk" }
 billing = { module = "com.android.billingclient:billing", version.ref = "billing" }
