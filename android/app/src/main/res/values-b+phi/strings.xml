@@ -128,4 +128,16 @@
     <string name="audio">Audio</string>
     <string name="open_with">Buka dengan</string>
     <string name="no_application_player_installed">Tidak ada pemutar aplikasi yang terpasang</string>
+    <string name="storage_permission_denied">Izin penyimpanan ditolak</string>
+    <string name="download_started">Unduhan dimulai</string>
+    <string name="download_failed">Unduhan gagal</string>
+    <string name="download_completed">Unduhan selesai</string>
+    <string name="download_cancelled">Unduhan dibatalkan</string>
+    <string name="download_error">Kesalahan unduhan</string>
+    <string name="no_format_available_to_download">Tidak ada format yang tersedia untuk unduhan</string>
+    <string name="confirm_download">Konfirmasi Unduhan</string>
+    <string name="confirm_download_message">Unduh %1$s - %2$s?</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="history">Riwayat</string>
 </resources>

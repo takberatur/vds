@@ -128,4 +128,16 @@
     <string name="audio">Âm thanh</string>
     <string name="open_with">Mở với</string>
     <string name="no_application_player_installed">Chưa cài đặt trình phát ứng dụng</string>
+    <string name="storage_permission_denied">Truy cập bộ nhớ bị từ chối</string>
+    <string name="download_started">Bắt đầu tải xuống</string>
+    <string name="download_failed">Tải xuống thất bại</string>
+    <string name="download_completed">Tải xuống hoàn tất</string>
+    <string name="download_cancelled">Hủy tải xuống</string>
+    <string name="download_error">Lỗi tải xuống</string>
+    <string name="no_format_available_to_download">Không có định dạng tải xuống nào khả dụng</string>
+    <string name="confirm_download">Xác nhận tải xuống</string>
+    <string name="confirm_download_message">Bạn có chắc chắn muốn tải xuống %1$s - %2$s không?</string>
+    <string name="yes">Có</string>
+    <string name="no">Không</string>
+    <string name="history">Lịch sử tải xuống</string>
 </resources>

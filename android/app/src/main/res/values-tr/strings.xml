@@ -128,4 +128,16 @@
     <string name="audio">Ses</string>
     <string name="open_with">Açmak için</string>
     <string name="no_application_player_installed">Uygulama oynatıcı yüklü değil</string>
+    <string name="storage_permission_denied">Depolama izni reddedildi</string>
+    <string name="download_started">İndirme başladı</string>
+    <string name="download_failed">İndirme başarısız</string>
+    <string name="download_completed">İndirme tamamlandı</string>
+    <string name="download_cancelled">İndirme iptal edildi</string>
+    <string name="download_error">İndirme hatası</string>
+    <string name="no_format_available_to_download">Yüklenebilir format bulunamadı</string>
+    <string name="confirm_download">Yüklenmeyi onayla</string>
+    <string name="confirm_download_message">%1$s - %2$s\'yi indirmek istediğinizden emin misiniz?</string>
+    <string name="yes">Evet</string>
+    <string name="no">Hayır</string>
+    <string name="history">İndirme geçmişi</string>
 </resources>

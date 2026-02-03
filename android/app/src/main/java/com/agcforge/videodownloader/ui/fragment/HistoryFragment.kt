@@ -1,4 +1,74 @@
 package com.agcforge.videodownloader.ui.fragment
 
-class HistoryFragment {
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.agcforge.videodownloader.R
+import com.agcforge.videodownloader.databinding.FragmentHistoryBinding
+import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
+import com.agcforge.videodownloader.utils.PreferenceManager
+import kotlinx.coroutines.launch
+
+class HistoryFragment : Fragment() {
+
+    private var _binding: FragmentHistoryBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var preferenceManager: PreferenceManager
+    private lateinit var historyAdapter: HistoryAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        preferenceManager = PreferenceManager(requireContext())
+
+        setupRecyclerView()
+        observeHistory()
+    }
+
+    private fun setupRecyclerView() {
+        historyAdapter = HistoryAdapter {
+            // Pass the selected URL back to HomeFragment
+            findNavController().previousBackStackEntry?.savedStateHandle?.set("history_url", it)
+            findNavController().popBackStack()
+        }
+
+        binding.rvHistory.apply {
+            adapter = historyAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+    }
+
+    private fun observeHistory() {
+        lifecycleScope.launch {
+            preferenceManager.history.collect {
+                if (it.isEmpty()) {
+                    binding.tvEmpty.visibility = View.VISIBLE
+                    binding.rvHistory.visibility = View.GONE
+                } else {
+                    binding.tvEmpty.visibility = View.GONE
+                    binding.rvHistory.visibility = View.VISIBLE
+                    historyAdapter.submitList(it.reversed()) // Show the most recent items at the top
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

@@ -100,7 +100,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.homeFragment, R.id.downloadsFragment, R.id.settingsFragment -> {
+                R.id.homeFragment, R.id.downloadsFragment, R.id.settingsFragment, R.id.historyFragment -> {
                     binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_menu)
                 }
                 else -> {
@@ -160,6 +160,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_home -> navController.navigate(R.id.homeFragment)
             R.id.nav_downloads -> navController.navigate(R.id.downloadsFragment)
             R.id.nav_settings -> navController.navigate(R.id.settingsFragment)
+            R.id.nav_history -> navController.navigate(R.id.historyFragment)
             R.id.nav_about -> {
                 showAboutDialog()
             }
@@ -222,7 +223,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return if (navController.currentDestination?.id in setOf(
                 R.id.homeFragment,
                 R.id.downloadsFragment,
-                R.id.settingsFragment
+                R.id.settingsFragment,
+                R.id.historyFragment
             )) {
             if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 binding.drawerLayout.closeDrawer(GravityCompat.START)

@@ -128,4 +128,16 @@
     <string name="audio">音频</string>
     <string name="open_with">用以下应用打开</string>
     <string name="no_application_player_installed">没有安装应用程序播放器</string>
+    <string name="storage_permission_denied">存储权限被拒绝</string>
+    <string name="download_started">下载已开始</string>
+    <string name="download_failed">下载失败</string>
+    <string name="download_completed">下载完成</string>
+    <string name="download_cancelled">下载已取消</string>
+    <string name="download_error">下载错误</string>
+    <string name="no_format_available_to_download">没有可用的下载格式</string>
+    <string name="confirm_download">确认下载</string>
+    <string name="confirm_download_message">确认下载 %1$s - %2$s？</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="history">下载历史</string>
 </resources>

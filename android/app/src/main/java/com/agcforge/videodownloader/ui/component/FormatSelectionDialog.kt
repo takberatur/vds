@@ -16,6 +16,8 @@ import com.agcforge.videodownloader.data.model.DownloadFormat
 import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.ui.adapter.FormatSelectionAdapter
 import com.bumptech.glide.Glide
+import java.util.Locale
+import java.util.Locale.getDefault
 
 class FormatSelectionDialog(
     context: Context,
@@ -103,7 +105,16 @@ class FormatSelectionDialog(
                 .thenByDescending { it.filesize ?: 0 }
         )
 
-        val adapter = FormatSelectionAdapter(sortedFormats) { selectedFormat ->
+        var mediaType = FormatSelectionAdapter.MediaType.VIDEO
+
+        if (task.platform?.category == FormatSelectionAdapter.MediaType.AUDIO.name.lowercase(
+                getDefault()
+            )
+        ) {
+            mediaType = FormatSelectionAdapter.MediaType.AUDIO
+        }
+
+        val adapter = FormatSelectionAdapter(sortedFormats, mediaType) { selectedFormat ->
             onFormatSelected(selectedFormat)
             dismiss()
         }

@@ -128,4 +128,16 @@
     <string name="audio">Audio</string>
     <string name="open_with">Öffnen mit</string>
     <string name="no_application_player_installed">Kein Anwendungsplayer installiert</string>
+    <string name="storage_permission_denied">Speicherberechtigung verweigert</string>
+    <string name="download_started">Download gestartet</string>
+    <string name="download_failed">Download fehlgeschlagen</string>
+    <string name="download_completed">Download abgeschlossen</string>
+    <string name="download_cancelled">Download abgebrochen</string>
+    <string name="download_error">Downloadfehler</string>
+    <string name="no_format_available_to_download">Kein verfügbarer Downloadformat</string>
+    <string name="confirm_download">Bestätigen Sie den Download</string>
+    <string name="confirm_download_message">Download %1$s - %2$s?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="history">Verlauf</string>
 </resources>

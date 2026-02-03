@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.data.model.DownloadFormat
@@ -58,7 +59,7 @@ class HomeFragment : Fragment() {
 		if (granted && url != null) {
 			enqueueDownload(url)
 		} else if (!granted) {
-			requireContext().showToast("Izin penyimpanan ditolak")
+			requireContext().showToast(getString(R.string.storage_permission_denied))
 		}
 	}
 
@@ -78,9 +79,18 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupListeners()
         observeViewModel()
+        observeHistoryNavigation()
 
         viewModel.loadPlatforms()
 		updateDownloadButtonState()
+    }
+
+    private fun observeHistoryNavigation() {
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("history_url")
+            ?.observe(viewLifecycleOwner) { url ->
+                binding.etUrl.setText(url)
+                findNavController().currentBackStackEntry?.savedStateHandle?.remove<String>("history_url")
+            }
     }
 
     @SuppressLint("SetTextI18n")
@@ -117,6 +127,7 @@ class HomeFragment : Fragment() {
 
 			binding.tilUrl.error = null
             viewModel.createDownload(url, platform.type)
+            addToHistory(url)
         }
 
 		binding.etUrl.addTextChangedListener(object : TextWatcher {
@@ -187,9 +198,16 @@ class HomeFragment : Fragment() {
                             if (!task.formats.isNullOrEmpty()) {
                                 showFormatSelectionDialog(task)
                             } else {
-                                requireContext().showToast("Download started!")
-                                binding.etUrl.text?.clear()
-							updateDownloadButtonState()
+							val directUrl = task.filePath?.let { sanitizeApiUrl(it) }
+							if (!directUrl.isNullOrBlank() && isUrlValid(directUrl)) {
+								enqueueDownload(directUrl)
+								requireContext().showToast(getString(R.string.download_started))
+								binding.etUrl.text?.clear()
+								updateDownloadButtonState()
+							} else {
+								requireContext().showToast(getString(R.string.no_format_available_to_download))
+								updateDownloadButtonState()
+							}
                             }
                         }
                     }
@@ -197,7 +215,7 @@ class HomeFragment : Fragment() {
 						isSubmitting = false
                         binding.btnDownload.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        requireContext().showToast(resource.message ?: "Download failed")
+                        requireContext().showToast(resource.message ?: getString(R.string.download_failed))
 						updateDownloadButtonState()
                     }
 					is Resource.Idle -> {
@@ -216,6 +234,14 @@ class HomeFragment : Fragment() {
 		return runCatching { url.toUri() }.isSuccess
 	}
 
+	private fun sanitizeApiUrl(raw: String): String {
+		return raw.trim()
+			.trim('`')
+			.trim('"')
+			.trim('\'')
+			.trim()
+	}
+
 	private fun updateDownloadButtonState() {
 		if (isSubmitting) {
 			binding.btnDownload.isEnabled = false
@@ -230,7 +256,7 @@ class HomeFragment : Fragment() {
     private fun showFormatSelectionDialog(task: DownloadTask) {
         val formats = task.formats
         if (formats.isNullOrEmpty()) {
-            requireContext().showToast("No formats available")
+            requireContext().showToast(getString(R.string.no_format_available_to_download))
             return
         }
 
@@ -239,7 +265,7 @@ class HomeFragment : Fragment() {
             .setOnFormatSelected { selectedFormat ->
                 // Handle format selected
                 enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
-                requireContext().showToast("Download started")
+                requireContext().showToast(getString(R.string.download_started))
                 binding.etUrl.text?.clear()
                 updateDownloadButtonState()
             }
@@ -261,7 +287,7 @@ class HomeFragment : Fragment() {
 		val resolution = format.height?.let { "${it}p" }
 		val effectiveFormat = formatId ?: resolution
 
-		val filename = task.title?.takeIf { it.isNotBlank() } ?: "download"
+		val filename = task.title?.takeIf { it.isNotBlank() } ?: getString(R.string.download)
 		val uriBuilder = endpoint.toUri().buildUpon()
 			.appendQueryParameter("task_id", task.id)
 			.appendQueryParameter("filename", filename)
@@ -306,7 +332,7 @@ class HomeFragment : Fragment() {
 			try {
 				dm.enqueue(request)
 			} catch (e: Exception) {
-				requireContext().showToast(e.message ?: "Gagal memulai download")
+				requireContext().showToast(e.message ?: getString(R.string.download_failed))
 			}
 		}
 	}
@@ -320,15 +346,21 @@ class HomeFragment : Fragment() {
         val downloadUrl = buildProxyVideoUrl(task, selectedFormat)
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Confirm Download")
-            .setMessage("Download ${selectedFormat.getQualityLabel()} - ${selectedFormat.getFormatDescription()}?")
-            .setPositiveButton("Yes") { _, _ ->
+            .setTitle(getString(R.string.confirm_download))
+            .setMessage(getString(R.string.confirm_download_message, selectedFormat.getQualityLabel(), selectedFormat.getFormatDescription()))
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 enqueueDownload(downloadUrl)
-                requireContext().showToast("Download started")
+                requireContext().showToast(getString(R.string.download_started))
                 binding.etUrl.text?.clear()
                 updateDownloadButtonState()
             }
-            .setNegativeButton("No", null)
+            .setNegativeButton(getString(R.string.no), null)
             .show()
+    }
+
+    private fun addToHistory(url: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            preferenceManager.addToHistory(url)
+        }
     }
 }

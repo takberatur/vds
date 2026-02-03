@@ -132,4 +132,16 @@
     <string name="audio">Audio</string>
     <string name="open_with">Open With</string>
     <string name="no_application_player_installed">No application player installed</string>
+    <string name="storage_permission_denied">Storage permission denied</string>
+    <string name="download_started">Download started</string>
+    <string name="download_failed">Download failed</string>
+    <string name="download_completed">Download completed</string>
+    <string name="download_cancelled">Download cancelled</string>
+    <string name="download_error">Download error</string>
+    <string name="no_format_available_to_download">No format available to download</string>
+    <string name="confirm_download">Confirm Download</string>
+    <string name="confirm_download_message">Download %1$s - %2$s?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="history">History</string>
 </resources>

@@ -128,4 +128,16 @@
     <string name="audio">Аудио</string>
     <string name="open_with">Открыть с помощью</string>
     <string name="no_application_player_installed">Нет установленных проигрывателей приложений</string>
+    <string name="storage_permission_denied">Отказано в разрешении на доступ к хранилищу</string>
+    <string name="download_started">Загрузка начата</string>
+    <string name="download_failed">Загрузка не удалась</string>
+    <string name="download_completed">Загрузка завершена</string>
+    <string name="download_cancelled">Загрузка отменена</string>
+    <string name="download_error">Ошибка загрузки</string>
+    <string name="no_format_available_to_download">Нет доступных форматов для загрузки</string>
+    <string name="confirm_download">Подтвердить загрузку</string>
+    <string name="confirm_download_message">Подтвердите загрузку %1$s - %2$s?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="history">История загрузок</string>
 </resources>

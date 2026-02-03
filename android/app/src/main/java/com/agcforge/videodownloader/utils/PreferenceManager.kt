@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,6 +39,9 @@ class PreferenceManager(private val context: Context) {
         private val LANGUAGE_KEY = stringPreferencesKey("language_code")
 		private val STORAGE_LOCATION_KEY = stringPreferencesKey("storage_location")
 		private val APPLICATION_KEY = stringPreferencesKey("application_config")
+
+        private val HISTORY_KEY = stringPreferencesKey("history")
+
     }
 
     // --- Flows to observe preference changes ---
@@ -51,6 +55,10 @@ class PreferenceManager(private val context: Context) {
     val language: Flow<String?> = context.dataStore.data.map { it[LANGUAGE_KEY] }
 	val storageLocation: Flow<String?> = context.dataStore.data.map { it[STORAGE_LOCATION_KEY] }
 	val applicationConfig: Flow<String?> = context.dataStore.data.map { it[APPLICATION_KEY] }
+    val history: Flow<List<String>> = context.dataStore.data.map {
+        it[HISTORY_KEY]?.split(",")?.mapNotNull { item ->
+            item.trim().ifEmpty { null } } ?: emptyList()
+    }
 
     // --- Suspend functions to modify preferences ---
 
@@ -92,6 +100,26 @@ class PreferenceManager(private val context: Context) {
 
     suspend fun clearUserData() {
         context.dataStore.edit { it.clear() }
+    }
+
+    suspend fun addToHistory(url: String) {
+        val currentHistory = history.first().toMutableList()
+
+        // Remove the URL if it already exists to move it to the end (most recent)
+        currentHistory.remove(url)
+
+        // Add the new URL to the end of the list
+        currentHistory.add(url)
+
+        // Ensure the history list doesn't exceed the max size (e.g., 10)
+        while (currentHistory.size > 10) {
+            currentHistory.removeAt(0)
+        }
+
+        // Save the updated list back to DataStore
+        context.dataStore.edit { preferences ->
+            preferences[HISTORY_KEY] = currentHistory.joinToString(",")
+        }
     }
 }
 
@@ -135,7 +163,12 @@ fun Long.formatDate(outputFormat: String = "MMM dd, yyyy"): String {
 		val output = SimpleDateFormat(outputFormat, Locale.getDefault())
 		output.format(Date(this))
 	} catch (e: Exception) {
-		toString()
+		try {
+			val output = SimpleDateFormat(outputFormat, Locale.getDefault())
+			output.format(Date(this))
+		} catch (e: Exception) {
+			toString()
+		}
 	}
 }
 

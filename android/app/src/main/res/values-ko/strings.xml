@@ -128,4 +128,16 @@
     <string name="audio">오디오</string>
     <string name="open_with">열기 위해</string>
     <string name="no_application_player_installed">애플리케이션 플레이어가 설치되지 않았습니다.</string>
+    <string name="storage_permission_denied">저장소 권한이 거부되었습니다.</string>
+    <string name="download_started">다운로드가 시작되었습니다.</string>
+    <string name="download_failed">다운로드가 실패했습니다.</string>
+    <string name="download_completed">다운로드가 완료되었습니다.</string>
+    <string name="download_cancelled">다운로드가 취소되었습니다.</string>
+    <string name="download_error">다운로드 오류</string>
+    <string name="no_format_available_to_download">다운로드할 수 있는 형식이 없습니다.</string>
+    <string name="confirm_download">다운로드 확인</string>
+    <string name="confirm_download_message">%1$s - %2$s 를 다운로드하시겠습니까?</string>
+    <string name="yes">예</string>
+    <string name="no">아니오</string>
+    <string name="history">다운로드 이력</string>
 </resources>

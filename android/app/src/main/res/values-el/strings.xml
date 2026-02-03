@@ -128,4 +128,16 @@
     <string name="audio">Ήχος</string>
     <string name="open_with">Άνοιγμα με</string>
     <string name="no_application_player_installed">Δεν έχει εγκατασταθεί κανένα εφαρμογικό παύλο</string>
+    <string name="storage_permission_denied">Απορρίφθηκε η άδεια αποθήκευσης</string>
+    <string name="download_started">Έναρξη λήψης</string>
+    <string name="download_failed">Αποτυχία λήψης</string>
+    <string name="download_completed">Τέλος λήψης</string>
+    <string name="download_cancelled">Ακύρωση λήψης</string>
+    <string name="download_error">Σφάλμα λήψης</string>
+    <string name="no_format_available_to_download">Δεν υπάρχει διαθέσιμος μορφής για λήψη</string>
+    <string name="confirm_download">Επιβεβαίωση Λήψης</string>
+    <string name="confirm_download_message">Λήψη %1$s - %2$s?</string>
+    <string name="yes">Ναι</string>
+    <string name="no">Όχι</string>
+    <string name="history">Ιστορικό</string>
 </resources>

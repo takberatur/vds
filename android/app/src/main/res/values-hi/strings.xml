@@ -128,4 +128,16 @@
     <string name="audio">ऑडियो</string>
     <string name="open_with">ऑपनर साथ</string>
     <string name="no_application_player_installed">कोई अनुप्रयोग प्लेयर नstalled</string>
+    <string name="storage_permission_denied">स्टोरेज पermisison नदी गई</string>
+    <string name="download_started">डाउनलोड शुरू हुआ</string>
+    <string name="download_failed">डाउनलोड विफल</string>
+    <string name="download_completed">डाउनलोड पूरा हुआ</string>
+    <string name="download_cancelled">डाउनलोड रद्द कर दिया गया</string>
+    <string name="download_error">डाउनलोड त्रुटि</string>
+    <string name="no_format_available_to_download">डाउनलोड करने के लिए कोई उपलब्ध फॉर्मेट नहीं है</string>
+    <string name="confirm_download">डाउनलोड की पुष्टि करें</string>
+    <string name="confirm_download_message">डाउनलोड %1$s - %2$s?</string>
+    <string name="yes">हाँ</string>
+    <string name="no">नहीं</string>
+    <string name="history">इतिहास</string>
 </resources>

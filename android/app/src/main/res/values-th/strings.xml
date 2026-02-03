@@ -128,4 +128,16 @@
     <string name="audio">เสียง</string>
     <string name="open_with">เปิดด้วย</string>
     <string name="no_application_player_installed">ไม่มีผู้เล่นแอปพลิเคชัน</string>
+    <string name="storage_permission_denied">ไม่ได้รับอนุญาตให้เข้าถึงการจัดเก็บ</string>
+    <string name="download_started">การดาวน์โหลดเริ่มต้น</string>
+    <string name="download_failed">การดาวน์โหลดล้มเหลว</string>
+    <string name="download_completed">การดาวน์โหลดเสร็จสมบูรณ์</string>
+    <string name="download_cancelled">การดาวน์โหลดถูกยกเลิก</string>
+    <string name="download_error">ข้อผิดพลาดในการดาวน์โหลด</string>
+    <string name="no_format_available_to_download">ไม่มีรูปแบบการดาวน์โหลดที่พร้อมใช้งาน</string>
+    <string name="confirm_download">ยืนยันการดาวน์โหลด</string>
+    <string name="confirm_download_message">ต้องการดาวน์โหลด %1$s - %2$s หรือไม่?</string>
+    <string name="yes">ใช่</string>
+    <string name="no">ไม่</string>
+    <string name="history">ประวัติการดาวน์โหลด</string>
 </resources>

@@ -128,4 +128,16 @@
     <string name="audio">Audio</string>
     <string name="open_with">Open met</string>
     <string name="no_application_player_installed">Geen toepassingsafspeler geïnstalleerd</string>
+    <string name="storage_permission_denied">Opslagmachtiging geweigerd</string>
+    <string name="download_started">Download gestart</string>
+    <string name="download_failed">Download mislukt</string>
+    <string name="download_completed">Download voltooid</string>
+    <string name="download_cancelled">Download geannuleerd</string>
+    <string name="download_error">Downloadfout</string>
+    <string name="no_format_available_to_download">Geen beschikbare downloadformaten</string>
+    <string name="confirm_download">Bevestig download</string>
+    <string name="confirm_download_message">Weet u zeker dat u %1$s - %2$s wilt downloaden?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nee</string>
+    <string name="history">Downloadgeschiedenis</string>
 </resources>

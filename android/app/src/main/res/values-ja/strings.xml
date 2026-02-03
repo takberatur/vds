@@ -128,4 +128,16 @@
     <string name="audio">オーディオ</string>
     <string name="open_with">開くには</string>
     <string name="no_application_player_installed">アプリケーションプレーヤーがインストールされていません</string>
+    <string name="storage_permission_denied">ストレージ権限が拒否されました</string>
+    <string name="download_started">ダウンロードが開始されました</string>
+    <string name="download_failed">ダウンロードが失敗しました</string>
+    <string name="download_completed">ダウンロードが完了しました</string>
+    <string name="download_cancelled">ダウンロードがキャンセルされました</string>
+    <string name="download_error">ダウンロードエラー</string>
+    <string name="no_format_available_to_download">ダウンロード可能な形式がありません</string>
+    <string name="confirm_download">ダウンロードを確認</string>
+    <string name="confirm_download_message">%1$s - %2$s をダウンロードしますか？</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
+    <string name="history">ダウンロード履歴</string>
 </resources>
