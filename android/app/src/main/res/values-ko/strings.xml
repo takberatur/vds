@@ -146,4 +146,12 @@
     <string name="password_is_required">비밀번호가 필요합니다</string>
     <string name="password_must_be_at_least_6_characters">비밀번호는 최소 6자 이상이어야 합니다</string>
     <string name="no_history_yet">다운로드 이력이 없습니다</string>
+    <string name="clear_history">이력 삭제</string>
+    <string name="delete_file">파일 삭제</string>
+    <string name="title_dialog_delete_file">\'%1$s\' 을(를) 삭제하시겠습니까?</string>
+    <string name="delete_file_success">파일이 성공적으로 삭제되었습니다</string>
+    <string name="delete_file_failed">파일 삭제에 실패했습니다</string>
+    <string name="error">오류: %s</string>
+    <string name="no_media_files_found">미디어 파일이 없습니다</string>
+    <string name="failed_to_load_downloads">다운로드 불러오기 실패: %s</string>
 </resources>

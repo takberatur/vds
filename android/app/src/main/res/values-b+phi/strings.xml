@@ -146,4 +146,12 @@
     <string name="password_is_required">Password diperlukan</string>
     <string name="password_must_be_at_least_6_characters">Password harus memiliki setidaknya 6 karakter</string>
     <string name="no_history_yet">Tidak ada riwayat unduhan</string>
+    <string name="clear_history">Hapus Riwayat</string>
+    <string name="delete_file">Hapus File</string>
+    <string name="title_dialog_delete_file">Apakah Anda yakin ingin menghapus \'%1$s\'?</string>
+    <string name="delete_file_success">File berhasil dihapus</string>
+    <string name="delete_file_failed">Gagal menghapus file</string>
+    <string name="error">Kesalahan: %s</string>
+    <string name="no_media_files_found">Tidak ada file media yang ditemukan</string>
+    <string name="failed_to_load_downloads">Gagal memuat unduhan: %s</string>
 </resources>
