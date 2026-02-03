@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.LruCache
 import androidx.core.database.getStringOrNull
 import com.agcforge.videodownloader.data.model.LocalDownloadItem
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,12 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 object LocalDownloadsScanner {
+
+    data class PagedResult(
+        val items: List<LocalDownloadItem>,
+        val hasMore: Boolean,
+        val nextOffset: Int
+    )
 
     data class MediaInfo(
         val thumbnail: ByteArray? = null,
@@ -65,6 +72,35 @@ object LocalDownloadsScanner {
         }
     }
 
+    object ThumbnailCache {
+
+        private const val MAX_MEMORY = 20 * 1024 * 1024
+        private val memoryCache = object : LruCache<Long, ByteArray>(MAX_MEMORY) {
+            override fun sizeOf(key: Long, value: ByteArray): Int {
+                return value.size
+            }
+        }
+
+        fun put(itemId: Long, thumbnail: ByteArray) {
+            memoryCache.put(itemId, thumbnail)
+        }
+
+        fun get(itemId: Long): ByteArray? = memoryCache.get(itemId)
+
+        fun remove(itemId: Long) {
+            memoryCache.remove(itemId)
+        }
+
+        fun clear() {
+            memoryCache.evictAll()
+        }
+
+        fun getSize(): Int = memoryCache.size()
+
+        fun getMaxSize(): Int = memoryCache.maxSize()
+    }
+
+
     suspend fun scan(context: Context, location: String): List<LocalDownloadItem> {
         return withContext(Dispatchers.IO) {
             when (location) {
@@ -74,6 +110,324 @@ object LocalDownloadsScanner {
             }
         }
     }
+
+    suspend fun scanPaged(
+        context: Context,
+        location: String,
+        limit: Int = 20,
+        offset: Int = 0
+    ): PagedResult {
+        return withContext(Dispatchers.IO) {
+            when (location) {
+                "downloads" -> scanDownloadsFolderPaged(context, limit, offset)
+                "app" -> scanAppStoragePaged(context, limit, offset)
+                else -> PagedResult(emptyList(), false, 0)
+            }
+        }
+    }
+
+    private suspend fun scanDownloadsFolderPaged(
+        context: Context,
+        limit: Int,
+        offset: Int
+    ): PagedResult {
+        return withContext(Dispatchers.IO) {
+            val items = mutableListOf<LocalDownloadItem>()
+            var totalCount = 0
+
+            try {
+                val contentResolver = context.contentResolver
+
+                val countProjection = arrayOf("COUNT(*)")
+                val countSelection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
+                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
+                val countArgs = arrayOf("video/%", "audio/%")
+
+                val projection = arrayOf(
+                    MediaStore.Files.FileColumns._ID,
+                    MediaStore.Files.FileColumns.DISPLAY_NAME,
+                    MediaStore.Files.FileColumns.SIZE,
+                    MediaStore.Files.FileColumns.MIME_TYPE,
+                    MediaStore.Files.FileColumns.DATE_ADDED,
+                    MediaStore.Files.FileColumns.DATA
+                )
+
+                val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
+                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
+                val selectionArgs = arrayOf("video/%", "audio/%")
+                val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+
+                contentResolver.query(
+                    MediaStore.Files.getContentUri("external"),
+                    projection,
+                    selection,
+                    selectionArgs,
+                    sortOrder
+                )?.use { cursor ->
+                    totalCount = cursor.count
+
+                    if (!cursor.moveToPosition(offset)) {
+                        return@use
+                    }
+
+                    var processedCount = 0
+
+                    do {
+                        try {
+                            if (processedCount >= limit) break
+
+                            val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
+                            val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
+                                ?: continue
+                            val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
+                            val mimeType = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
+                            val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED))
+                            val data = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
+
+                            val uri = ContentUris.withAppendedId(
+                                MediaStore.Files.getContentUri("external"),
+                                id
+                            )
+
+                            val mediaInfo = if (offset == 0) {
+                                extractMediaMetadataLazy(context, uri, data, true)
+                            } else {
+                                extractMediaMetadataLazy(context, uri, data, false)
+                            }
+
+                            val item = LocalDownloadItem(
+                                id = id,
+                                displayName = displayName,
+                                size = size,
+                                mimeType = mimeType,
+                                dateAdded = dateAdded,
+                                uri = uri,
+                                filePath = data,
+                                duration = mediaInfo.duration,
+                                thumbnail = mediaInfo.thumbnail,
+                                width = mediaInfo.width,
+                                height = mediaInfo.height
+                            )
+
+                            items.add(item)
+                            processedCount++
+                        } catch (e: Exception) {
+                            continue
+                        }
+                    } while (cursor.moveToNext())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            val hasMore = (offset + limit) < totalCount
+            val nextOffset = if (hasMore) offset + limit else offset
+
+            PagedResult(items, hasMore, nextOffset)
+        }
+    }
+
+    private suspend fun scanAppStoragePaged(
+        context: Context,
+        limit: Int,
+        offset: Int
+    ): PagedResult {
+        return withContext(Dispatchers.IO) {
+            val items = mutableListOf<LocalDownloadItem>()
+
+            try {
+                val appDir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                } else {
+                    File(Environment.getExternalStorageDirectory(), "Download")
+                }
+
+                appDir?.let { directory ->
+                    if (directory.exists() && directory.isDirectory) {
+                        val allFiles = directory.listFiles()?.filter { file ->
+                            isMediaFile(file.name, null) && file.isFile
+                        }?.sortedByDescending { it.lastModified() } ?: emptyList()
+
+                        val totalCount = allFiles.size
+                        val startIndex = offset.coerceAtMost(totalCount - 1)
+                        val endIndex = (offset + limit).coerceAtMost(totalCount)
+
+                        for (i in startIndex until endIndex) {
+                            try {
+                                val file = allFiles[i]
+                                val uri = Uri.fromFile(file)
+
+                                // Lazy metadata extraction
+                                val mediaInfo = if (offset == 0 && i < 10) {
+                                    extractMediaMetadataLazy(context, uri, file.absolutePath, true)
+                                } else {
+                                    extractMediaMetadataLazy(context, uri, file.absolutePath, false)
+                                }
+
+                                val item = LocalDownloadItem(
+                                    id = file.hashCode().toLong(),
+                                    displayName = file.name,
+                                    size = file.length(),
+                                    mimeType = getMimeType(file.name),
+                                    dateAdded = file.lastModified() / 1000,
+                                    uri = uri,
+                                    filePath = file.absolutePath,
+                                    duration = mediaInfo.duration,
+                                    thumbnail = mediaInfo.thumbnail,
+                                    width = mediaInfo.width,
+                                    height = mediaInfo.height
+                                )
+
+                                items.add(item)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            val hasMore = (offset + items.size) < items.size
+            val nextOffset = if (hasMore) offset + items.size else offset
+
+            PagedResult(items, hasMore, nextOffset)
+        }
+    }
+
+     suspend fun extractMediaMetadataLazy(
+        context: Context,
+        uri: Uri,
+        filePath: String?,
+        extractThumbnail: Boolean
+    ): MediaInfo = withContext(Dispatchers.IO) {
+        if (!extractThumbnail) {
+            return@withContext extractDurationOnly(context, uri, filePath)
+        }
+
+        val retriever = MediaMetadataRetriever()
+
+        try {
+            if (filePath != null && File(filePath).exists()) {
+                retriever.setDataSource(filePath)
+            } else {
+                retriever.setDataSource(context, uri)
+            }
+
+            val durationStr = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_DURATION
+            )
+            val widthStr = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
+            )
+            val heightStr = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT
+            )
+
+            val thumbnailBitmap = retriever.getFrameAtTime(
+                1000000,
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+            )
+
+            val thumbnailByteArray = thumbnailBitmap?.let {
+                val stream = ByteArrayOutputStream()
+                it.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+                stream.toByteArray()
+            }
+
+            MediaInfo(
+                thumbnail = thumbnailByteArray,
+                duration = durationStr?.toLongOrNull() ?: 0,
+                width = widthStr?.toIntOrNull() ?: 0,
+                height = heightStr?.toIntOrNull() ?: 0
+            )
+
+        } catch (e: Exception) {
+            MediaInfo()
+        } finally {
+            try {
+                retriever.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private suspend fun extractDurationOnly(
+        context: Context,
+        uri: Uri,
+        filePath: String?
+    ): MediaInfo = withContext(Dispatchers.IO) {
+        val retriever = MediaMetadataRetriever()
+
+        try {
+            if (filePath != null && File(filePath).exists()) {
+                retriever.setDataSource(filePath)
+            } else {
+                retriever.setDataSource(context, uri)
+            }
+
+            val durationStr = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_DURATION
+            )
+
+            MediaInfo(duration = durationStr?.toLongOrNull() ?: 0)
+
+        } catch (e: Exception) {
+            MediaInfo()
+        } finally {
+            try {
+                retriever.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun loadThumbnailForItem(
+        context: Context,
+        item: LocalDownloadItem
+    ): ByteArray? = withContext(Dispatchers.IO) {
+
+        ThumbnailCache.get(item.id)?.let { return@withContext it }
+
+        val retriever = MediaMetadataRetriever()
+
+        try {
+            if (item.filePath != null && File(item.filePath).exists()) {
+                retriever.setDataSource(item.filePath)
+            } else {
+                retriever.setDataSource(context, item.uri)
+            }
+
+            val thumbnailBitmap = retriever.getFrameAtTime(
+                1000000,
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+            )
+
+            val thumbnailByteArray = thumbnailBitmap?.let {
+                val stream = ByteArrayOutputStream()
+                it.compress(Bitmap.CompressFormat.JPEG, 70, stream)
+                stream.toByteArray()
+            }
+
+            thumbnailByteArray?.let {
+                ThumbnailCache.put(item.id, it)
+            }
+
+            thumbnailByteArray ?: item.thumbnail
+        } catch (e: Exception) {
+            null
+        } finally {
+            try {
+                retriever.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 	private fun File.hasSupportedExtension(): Boolean = name.hasSupportedExtension()
 
 	private fun String.hasSupportedExtension(): Boolean {
@@ -96,6 +450,8 @@ object LocalDownloadsScanner {
         return withContext(Dispatchers.IO) {
             val items = mutableListOf<LocalDownloadItem>()
 
+            println("DEBUG [Scanner]: Starting scanDownloadsFolder")
+
             try {
                 val contentResolver = context.contentResolver
                 val projection = arrayOf(
@@ -108,20 +464,12 @@ object LocalDownloadsScanner {
                 )
 
                 val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
-                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
-                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
-                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
                         "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
-
-                val selectionArgs = arrayOf(
-                    "video/%",
-                    "audio/%",
-                    "application/mp4",
-                    "application/x-mpegURL",
-                    "application/octet-stream"
-                )
+                val selectionArgs = arrayOf("video/%", "audio/%")
 
                 val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+
+                println("DEBUG [Scanner]: Querying MediaStore...")
 
                 contentResolver.query(
                     MediaStore.Files.getContentUri("external"),
@@ -130,6 +478,8 @@ object LocalDownloadsScanner {
                     selectionArgs,
                     sortOrder
                 )?.use { cursor ->
+                    println("DEBUG [Scanner]: Cursor count: ${cursor.count}")
+
                     val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
                     val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
                     val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
@@ -146,15 +496,12 @@ object LocalDownloadsScanner {
                             val dateAdded = cursor.getLong(dateColumn)
                             val data = cursor.getStringOrNull(dataColumn)
 
-                            // Filter only valid media files
-                            if (!isMediaFile(displayName, mimeType)) continue
+                            println("DEBUG [Scanner]: Found file: $displayName, mime: $mimeType, path: $data")
 
                             val uri = ContentUris.withAppendedId(
                                 MediaStore.Files.getContentUri("external"),
                                 id
                             )
-
-                            val mediaInfo = extractMediaMetadata(context, uri, data)
 
                             val item = LocalDownloadItem(
                                 id = id,
@@ -164,23 +511,25 @@ object LocalDownloadsScanner {
                                 dateAdded = dateAdded,
                                 uri = uri,
                                 filePath = data,
-                                duration = mediaInfo.duration,
-                                thumbnail = mediaInfo.thumbnail,
-                                width = mediaInfo.width,
-                                height = mediaInfo.height
+                                duration = 0,
+                                thumbnail = null,
+                                width = 0,
+                                height = 0
                             )
 
                             items.add(item)
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            println("DEBUG [Scanner]: Error processing row: ${e.message}")
                             continue
                         }
                     }
                 }
             } catch (e: Exception) {
+                println("DEBUG [Scanner]: Exception in scanDownloadsFolder: ${e.message}")
                 e.printStackTrace()
             }
 
+            println("DEBUG [Scanner]: Total items found: ${items.size}")
             items
         }
     }

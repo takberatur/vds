@@ -146,4 +146,12 @@
     <string name="password_is_required">Απαιτείται κωδικός πρόσβασης</string>
     <string name="password_must_be_at_least_6_characters">Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 6 χαρακτήρες</string>
     <string name="no_history_yet">Δεν υπάρχει ιστορικό</string>
+    <string name="clear_history">Καθαρισμός Ιστορικού</string>
+    <string name="delete_file">Διαγραφή Αρχείου</string>
+    <string name="title_dialog_delete_file">Είστε σίγουροι ότι θέλετε να διαγράψετε \'%1$s\'?</string>
+    <string name="delete_file_success">Αρχείο διαγραφεί με επιτυχία</string>
+    <string name="delete_file_failed">Αποτυχία διαγραφής αρχείου</string>
+    <string name="error">Σφάλμα: %s</string>
+    <string name="no_media_files_found">Δεν βρέθηκαν αρχεία πολυμέσων</string>
+    <string name="failed_to_load_downloads">Αποτυχία φόρτωσης λήψεων: %s</string>
 </resources>

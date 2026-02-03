@@ -146,4 +146,12 @@
     <string name="password_is_required">Şifre gereklidir</string>
     <string name="password_must_be_at_least_6_characters">Şifre en az 6 karakter olmalıdır</string>
     <string name="no_history_yet">Henüz indirme geçmişi yok</string>
+    <string name="clear_history">Geçmişi temizlemek</string>
+    <string name="delete_file">Dosyayı silmek</string>
+    <string name="title_dialog_delete_file">\'%1$s\' dosyasını silmek istediğinizden emin misiniz?</string>
+    <string name="delete_file_success">Dosya başarıyla silindi</string>
+    <string name="delete_file_failed">Dosya silinemedi</string>
+    <string name="error">Hata: %s</string>
+    <string name="no_media_files_found">Medya dosyası bulunamadı</string>
+    <string name="failed_to_load_downloads">Indirme yüklemesi başarısız: %s</string>
 </resources>

@@ -146,4 +146,12 @@
     <string name="password_is_required">パスワードが必要です</string>
     <string name="password_must_be_at_least_6_characters">パスワードは6文字以上である必要があります</string>
     <string name="no_history_yet">ダウンロード履歴がありません</string>
+    <string name="clear_history">履歴をクリア</string>
+    <string name="delete_file">ファイルを削除</string>
+    <string name="title_dialog_delete_file">\'%1$s\' を削除しますか？</string>
+    <string name="delete_file_success">ファイルが正常に削除されました</string>
+    <string name="delete_file_failed">ファイルの削除に失敗しました</string>
+    <string name="error">エラー: %s</string>
+    <string name="no_media_files_found">メディアファイルが見つかりませんでした</string>
+    <string name="failed_to_load_downloads">ダウンロードの読み込みに失敗しました: %s</string>
 </resources>
