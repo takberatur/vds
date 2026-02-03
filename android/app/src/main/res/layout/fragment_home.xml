@@ -84,6 +84,7 @@
                         app:backgroundTint="@color/primary"
                         android:textColor="@color/white"
                         app:icon="@drawable/ic_download"
+                        app:iconTint="@color/white"
                         app:iconGravity="textStart" />
 
                     <com.google.android.material.button.MaterialButton

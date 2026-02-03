@@ -140,4 +140,10 @@
     <string name="yes">Sim</string>
     <string name="no">Não</string>
     <string name="history">Histórico de downloads</string>
+    <string name="please_enter_valid_url">Insira um URL válido</string>
+    <string name="please_select_a_platform">Selecione uma plataforma</string>
+    <string name="failed_to_load_platform">Falha ao carregar a plataforma</string>
+    <string name="password_is_required">A senha é obrigatória</string>
+    <string name="password_must_be_at_least_6_characters">A senha deve ter pelo menos 6 caracteres</string>
+    <string name="no_history_yet">Nenhum histórico de download disponível</string>
 </resources>

@@ -2,6 +2,7 @@ package com.agcforge.videodownloader
 
 import android.annotation.SuppressLint
 import android.app.Application
+import com.agcforge.videodownloader.utils.DownloadManagerCleaner
 
 class App : Application() {
 
@@ -31,5 +32,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         mInstance = this
+		DownloadManagerCleaner.clearFailedDownloads(this)
     }
 }

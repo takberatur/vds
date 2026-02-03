@@ -18,6 +18,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
+import com.agcforge.videodownloader.R
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -87,10 +88,10 @@ class LoginActivity : AppCompatActivity() {
 
         // Validate email
         if (email.isEmpty()) {
-            binding.tilEmail.error = "Email is required"
+            binding.tilEmail.error = getString(R.string.email_is_required)
             isValid = false
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.tilEmail.error = "Invalid email format"
+            binding.tilEmail.error = getString(R.string.invalid_format_email)
             isValid = false
         } else {
             binding.tilEmail.error = null
@@ -98,10 +99,10 @@ class LoginActivity : AppCompatActivity() {
 
         // Validate password
         if (password.isEmpty()) {
-            binding.tilPassword.error = "Password is required"
+            binding.tilPassword.error = getString(R.string.password_is_required)
             isValid = false
         } else if (password.length < 6) {
-            binding.tilPassword.error = "Password must be at least 6 characters"
+            binding.tilPassword.error = getString(R.string.password_must_be_at_least_6_characters)
             isValid = false
         } else {
             binding.tilPassword.error = null

@@ -13,7 +13,8 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvHistory"
@@ -21,7 +22,7 @@
             android:layout_height="match_parent"
             android:padding="8dp"
             android:clipToPadding="false"
-            tools:listitem="@layout/item_download_task" />
+            tools:listitem="@layout/item_download_url" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -29,7 +30,7 @@
         android:id="@+id/tvEmpty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_downloads_yet"
+        android:text="@string/no_history_yet"
         android:textSize="16sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

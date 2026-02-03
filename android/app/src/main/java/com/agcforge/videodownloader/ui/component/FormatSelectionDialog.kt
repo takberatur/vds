@@ -102,19 +102,11 @@ class FormatSelectionDialog(
         // Sort formats by quality (height) descending
         val sortedFormats = formats.sortedWith(
             compareByDescending<DownloadFormat> { it.height ?: 0 }
-                .thenByDescending { it.filesize ?: 0 }
+                .thenByDescending { it.filesize ?: 0L }
         )
 
-        var mediaType = FormatSelectionAdapter.MediaType.VIDEO
 
-        if (task.platform?.category == FormatSelectionAdapter.MediaType.AUDIO.name.lowercase(
-                getDefault()
-            )
-        ) {
-            mediaType = FormatSelectionAdapter.MediaType.AUDIO
-        }
-
-        val adapter = FormatSelectionAdapter(sortedFormats, mediaType) { selectedFormat ->
+        val adapter = FormatSelectionAdapter(sortedFormats, task) { selectedFormat ->
             onFormatSelected(selectedFormat)
             dismiss()
         }

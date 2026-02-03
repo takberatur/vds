@@ -140,4 +140,10 @@
     <string name="yes">はい</string>
     <string name="no">いいえ</string>
     <string name="history">ダウンロード履歴</string>
+    <string name="please_enter_valid_url">有効なURLを入力してください</string>
+    <string name="please_select_a_platform">プラットフォームを選択してください</string>
+    <string name="failed_to_load_platform">プラットフォームの読み込みに失敗しました</string>
+    <string name="password_is_required">パスワードが必要です</string>
+    <string name="password_must_be_at_least_6_characters">パスワードは6文字以上である必要があります</string>
+    <string name="no_history_yet">ダウンロード履歴がありません</string>
 </resources>

@@ -31,6 +31,7 @@ import com.agcforge.videodownloader.ui.adapter.PlatformAdapter
 import com.agcforge.videodownloader.ui.component.FormatSelectionDialog
 import com.agcforge.videodownloader.ui.viewmodel.HomeViewModel
 import com.agcforge.videodownloader.utils.AppManager
+import com.agcforge.videodownloader.utils.DownloadManagerCleaner
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.Resource
 import com.agcforge.videodownloader.utils.showToast
@@ -114,14 +115,14 @@ class HomeFragment : Fragment() {
         binding.btnDownload.setOnClickListener {
             val url = binding.etUrl.text.toString().trim()
 			if (!isUrlValid(url)) {
-				binding.tilUrl.error = "Masukkan URL yang valid"
+				binding.tilUrl.error = getString(R.string.please_enter_valid_url)
 				updateDownloadButtonState()
 				return@setOnClickListener
 			}
 
             val platform = selectedPlatform
             if (platform == null) {
-                requireContext().showToast("Please select a platform")
+                requireContext().showToast(getString(R.string.please_select_a_platform))
                 return@setOnClickListener
             }
 
@@ -172,7 +173,7 @@ class HomeFragment : Fragment() {
                     }
                     is Resource.Error -> {
                         binding.progressBar.visibility = View.GONE
-                        requireContext().showToast(resource.message ?: "Failed to load platforms")
+                        requireContext().showToast(resource.message ?: getString(R.string.failed_to_load_platform))
                     }
 
                     else -> {}
@@ -299,10 +300,10 @@ class HomeFragment : Fragment() {
 
 	private fun enqueueDownload(url: String) {
 		viewLifecycleOwner.lifecycleScope.launch {
+			DownloadManagerCleaner.clearFailedDownloads(requireContext())
 			val storageLocation = preferenceManager.storageLocation.first() ?: "app"
-			val uri = Uri.parse(url)
-			val fileName = (uri.lastPathSegment?.takeIf { it.isNotBlank() } ?: "video_${System.currentTimeMillis()}.mp4")
-				.let { if (it.contains('.')) it else "$it.mp4" }
+			val uri = url.toUri()
+			val fileName = deriveDownloadFileName(uri)
 
 			if (storageLocation == "downloads" && android.os.Build.VERSION.SDK_INT < 29) {
 				val granted = ContextCompat.checkSelfPermission(
@@ -331,10 +332,43 @@ class HomeFragment : Fragment() {
 
 			try {
 				dm.enqueue(request)
+				requireContext().showToast(getString(R.string.download_started))
 			} catch (e: Exception) {
 				requireContext().showToast(e.message ?: getString(R.string.download_failed))
 			}
 		}
+	}
+
+	private fun deriveDownloadFileName(uri: android.net.Uri): String {
+		val defaultBase = "video_${System.currentTimeMillis()}"
+		val filenameParam = uri.getQueryParameter("filename")?.takeIf { it.isNotBlank() }
+		val lastSegment = uri.lastPathSegment?.takeIf { it.isNotBlank() }
+		val baseNameRaw = filenameParam ?: lastSegment ?: defaultBase
+		val taskIdSuffix = uri.getQueryParameter("task_id")?.takeIf { it.isNotBlank() }?.take(8)
+
+		val extFromBase = baseNameRaw.substringAfterLast('.', missingDelimiterValue = "").lowercase()
+		val expectedExt = when {
+			uri.path?.endsWith("/mp3", ignoreCase = true) == true -> "mp3"
+			extFromBase == "mp3" || extFromBase == "mp4" -> extFromBase
+			else -> "mp4"
+		}
+
+		val baseWithoutExt = if (baseNameRaw.contains('.')) baseNameRaw.substringBeforeLast('.') else baseNameRaw
+		val safeBase = baseWithoutExt
+			.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+			.replace(Regex("\n|\r|\t"), " ")
+			.trim()
+			.ifBlank { defaultBase }
+			.let { base ->
+				if (!taskIdSuffix.isNullOrBlank()) {
+					"${base}_$taskIdSuffix"
+				} else {
+					base
+				}
+			}
+			.take(80)
+
+		return "$safeBase.$expectedExt"
 	}
 
     override fun onDestroyView() {

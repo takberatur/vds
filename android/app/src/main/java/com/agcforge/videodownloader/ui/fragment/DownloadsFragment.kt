@@ -1,6 +1,7 @@
 package com.agcforge.videodownloader.ui.fragment
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -51,6 +52,7 @@ class DownloadsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 		preferenceManager = PreferenceManager(requireContext())

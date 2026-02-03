@@ -9,18 +9,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.data.model.DownloadFormat
+import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.ui.component.PlayerSelectionDialog.PlayerType
+import com.bumptech.glide.Glide
 
 class FormatSelectionAdapter(
     private val formats: List<DownloadFormat>,
-    private val type: MediaType = MediaType.VIDEO,
+    private val task: DownloadTask? = null,
     private val onFormatSelected: (DownloadFormat) -> Unit
 ) : RecyclerView.Adapter<FormatSelectionAdapter.FormatViewHolder>() {
-
-    enum class MediaType {
-        VIDEO,
-        AUDIO
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FormatViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -31,8 +28,7 @@ class FormatSelectionAdapter(
     override fun onBindViewHolder(holder: FormatViewHolder, position: Int) {
         val format = formats[position]
         val context = holder.itemView.context
-        val playerType = if (type == MediaType.VIDEO) PlayerType.VIDEO else PlayerType.AUDIO
-        holder.bind(format, context)
+        holder.bind(context, format, task)
     }
 
     override fun getItemCount(): Int {
@@ -42,14 +38,16 @@ class FormatSelectionAdapter(
     inner class FormatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val formatNameTextView: TextView = itemView.findViewById(R.id.tvFormatLabel)
         private val tvExtension: TextView = itemView.findViewById(R.id.tvExtension)
+        private val ivThumbnail: ImageView = itemView.findViewById(R.id.ivThumbnail)
 
-        fun bind(format: DownloadFormat, context: Context) {
+        fun bind(context: Context, format: DownloadFormat, task: DownloadTask?) {
             formatNameTextView.text = format.getFormatDescription()
-            if(type == MediaType.AUDIO) {
-                tvExtension.text = context.getString(R.string.audio)
-            } else {
-                tvExtension.text = context.getString(R.string.mp3)
-            }
+            tvExtension.text = task?.format ?: "MP4"
+            Glide.with(context)
+                .load(task?.thumbnailUrl)
+                .placeholder(R.drawable.ic_media_play)
+                .error(R.drawable.ic_media_play)
+                .into(ivThumbnail)
 
             itemView.setOnClickListener {
                 onFormatSelected(format)

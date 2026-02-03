@@ -140,4 +140,10 @@
     <string name="yes">हाँ</string>
     <string name="no">नहीं</string>
     <string name="history">इतिहास</string>
+    <string name="please_enter_valid_url">कृपया एक मान्य URL दर्ज करें</string>
+    <string name="please_select_a_platform">कृपया एक प्लेटफॉर्म चुनें</string>
+    <string name="failed_to_load_platform">प्लेटफॉर्म लोड करने में विफल</string>
+    <string name="password_is_required">पासवर्ड आवश्यक है</string>
+    <string name="password_must_be_at_least_6_characters">पासवर्ड कम से कम 6 अक्षर होना चाहिए</string>
+    <string name="no_history_yet">कोई इतिहास उपलब्ध नहीं है</string>
 </resources>

@@ -140,4 +140,10 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="history">История загрузок</string>
+    <string name="please_enter_valid_url">Введите действительный URL</string>
+    <string name="please_select_a_platform">Выберите платформу</string>
+    <string name="failed_to_load_platform">Не удалось загрузить платформу</string>
+    <string name="password_is_required">Требуется пароль</string>
+    <string name="password_must_be_at_least_6_characters">Пароль должен быть не менее 6 символов</string>
+    <string name="no_history_yet">Нет доступной истории загрузок</string>
 </resources>
