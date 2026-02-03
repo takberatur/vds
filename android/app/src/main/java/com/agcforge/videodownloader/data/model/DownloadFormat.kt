@@ -61,3 +61,35 @@ data class DownloadFormat(
         }
     }
 }
+
+data class AudioMetadata(
+    val title: String,
+    val artist: String,
+    val album: String,
+    val duration: Long,
+    val albumArt: ByteArray?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AudioMetadata
+
+        if (duration != other.duration) return false
+        if (title != other.title) return false
+        if (artist != other.artist) return false
+        if (album != other.album) return false
+        if (!albumArt.contentEquals(other.albumArt)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = duration.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + artist.hashCode()
+        result = 31 * result + album.hashCode()
+        result = 31 * result + (albumArt?.contentHashCode() ?: 0)
+        return result
+    }
+}

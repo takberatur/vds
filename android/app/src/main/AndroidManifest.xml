@@ -39,6 +39,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <uses-feature
@@ -141,6 +143,18 @@
             android:exported="false"
             android:screenOrientation="fullSensor"
             android:windowSoftInputMode="adjustResize"/>
+
+        <activity
+            android:name=".ui.activities.player.VideoPlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.VideoDownloader.Player" />
+
+        <!-- Audio Player Activity -->
+        <activity
+            android:name=".ui.activities.player.AudioPlayerActivity"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.VideoDownloader.Player" />
 
         <service
             android:name=".service.WebSocketService"

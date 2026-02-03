@@ -130,6 +130,15 @@ fun Long.formatFileSize(): String {
     }
 }
 
+fun Long.formatDate(outputFormat: String = "MMM dd, yyyy"): String {
+	return try {
+		val output = SimpleDateFormat(outputFormat, Locale.getDefault())
+		output.format(Date(this))
+	} catch (e: Exception) {
+		toString()
+	}
+}
+
 fun applyTheme(theme: String?) {
     when (theme) {
         "Light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)

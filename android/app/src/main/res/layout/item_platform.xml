@@ -40,7 +40,7 @@
             app:layout_constraintTop_toTopOf="@+id/ivPlatformThumbnail"
             android:layout_marginStart="-6dp"
             android:layout_marginTop="-6dp"
-            android:visibility="visible"/>
+            android:visibility="invisible"/>
 
 
         <TextView

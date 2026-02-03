@@ -28,7 +28,7 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer">
+            app:cardBackgroundColor="@color/bg_menu_primary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -36,23 +36,24 @@
                 android:orientation="vertical"
                 android:gravity="center">
 
-                <TextView
+                <ImageView
                     android:id="@+id/tvQuality"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    tools:text="1080p" />
+                    android:src="@drawable/ic_media_play"
+                    android:contentDescription="@string/quality"
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/tvExtension"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
-                    android:textColor="?attr/colorOnPrimaryContainer"
                     android:alpha="0.7"
-                    tools:text="mp4" />
+                    app:tint="@color/white"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="@string/video" />
 
             </LinearLayout>
 
@@ -108,8 +109,8 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_download"
-            android:tint="?attr/colorPrimary"
-            android:contentDescription="Download" />
+            app:tint="@color/bg_menu_primary"
+            android:contentDescription="@string/download" />
 
     </LinearLayout>
 

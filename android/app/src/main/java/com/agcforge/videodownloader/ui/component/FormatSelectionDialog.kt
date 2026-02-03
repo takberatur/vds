@@ -1,5 +1,6 @@
 package com.agcforge.videodownloader.ui.component
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
@@ -79,6 +80,7 @@ class FormatSelectionDialog(
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun populateData() {
         // Set video title
         tvVideoTitle.text = task.title ?: "Unknown Title"

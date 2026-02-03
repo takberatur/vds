@@ -30,17 +30,17 @@ class FormatSelectionAdapter(
 
     inner class FormatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val formatNameTextView: TextView = itemView.findViewById(R.id.tvFormatLabel)
-        private  val tvQuality: TextView = itemView.findViewById(R.id.tvQuality)
-        private val tvFileSize: TextView = itemView.findViewById(R.id.tvFileSize)
-        private val tvCodecInfo: TextView = itemView.findViewById(R.id.tvCodecInfo)
+//        private  val tvQuality: TextView = itemView.findViewById(R.id.tvQuality)
+//        private val tvFileSize: TextView = itemView.findViewById(R.id.tvFileSize)
+//        private val tvCodecInfo: TextView = itemView.findViewById(R.id.tvCodecInfo)
 
 
 
         fun bind(format: DownloadFormat) {
             formatNameTextView.text = format.getFormatDescription()
-            tvQuality.text = format.getQualityLabel()
-            tvFileSize.text = format.getFormatDescription()
-            tvCodecInfo.text = format.getCodecInfo()
+//            tvQuality.text = format.getQualityLabel()
+//            tvFileSize.text = format.getFormatDescription()
+//            tvCodecInfo.text = format.getCodecInfo()
             itemView.setOnClickListener {
                 onFormatSelected(format)
             }

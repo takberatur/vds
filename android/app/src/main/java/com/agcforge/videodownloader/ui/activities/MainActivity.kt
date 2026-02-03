@@ -2,29 +2,30 @@ package com.agcforge.videodownloader.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.databinding.ActivityMainBinding
+import com.agcforge.videodownloader.databinding.NavHeaderBinding
 import com.agcforge.videodownloader.service.WebSocketService
 import com.agcforge.videodownloader.ui.activities.auth.LoginActivity
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.loadImage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -35,23 +36,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var preferenceManager: PreferenceManager
 
+    private var isDarkMode: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupBackPressedCallback()
-
-        // Enable edge-to-edge layout
-        // WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // Apply system bar colors
-        // window.statusBarColor = ContextCompat.getColor(this, R.color.white)
-        // window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
-
-        // Handle icon contrast (light/dark)
-        // val insetsController = WindowInsetsControllerCompat(window, window.decorView)
-        // insetsController.isAppearanceLightStatusBars = false   // dark text/icons on light bar
-        // nsetsController.isAppearanceLightNavigationBars = false // light icons on dark bar
 
         preferenceManager = PreferenceManager(this)
 
@@ -62,10 +53,41 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         startWebSocketService()
     }
 
+    private fun observeThemeChanges() {
+        lifecycleScope.launch {
+            preferenceManager.theme.collect { themeValue ->
+                isDarkMode = themeValue?.toIntOrNull() == AppCompatDelegate.MODE_NIGHT_YES
+
+                val backgroundRes = if (isDarkMode) {
+                    R.color.bg_menu_primary
+                } else {
+                    R.color.bg_menu_primary
+                }
+
+                binding.toolbar.setBackgroundColor(ContextCompat.getColor(this@MainActivity, backgroundRes))
+                binding.bottomNavigation.setBackgroundColor(ContextCompat.getColor(this@MainActivity, backgroundRes))
+
+                val headerView = binding.navigationView.getHeaderView(0)
+                val headerBinding = NavHeaderBinding.bind(headerView)
+
+                headerBinding.headerNavigationView.setBackgroundColor(ContextCompat.getColor(this@MainActivity, backgroundRes))
+            }
+        }
+    }
+
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
-        binding.toolbar.setNavigationIcon(R.drawable.ic_menu)
+
+        binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_menu)
         binding.toolbar.setNavigationIconTint(ContextCompat.getColor(this, R.color.white))
+
+        binding.toolbar.setNavigationOnClickListener {
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                binding.drawerLayout.openDrawer(GravityCompat.START)
+            }
+        }
     }
 
     private fun setupNavigation() {
@@ -76,30 +98,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Setup bottom navigation
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Setup app bar configuration
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.homeFragment,
-                R.id.downloadsFragment,
-                R.id.settingsFragment
-            ),
-            binding.drawerLayout
-        )
-
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.homeFragment, R.id.downloadsFragment, R.id.settingsFragment -> {
+                    binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_menu)
+                }
+                else -> {
+                    binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+                    binding.toolbar.setNavigationOnClickListener {
+                        navController.navigateUp()
+                    }
+                }
+            }
+        }
     }
 
     private fun setupDrawer() {
-        val toggle = androidx.appcompat.app.ActionBarDrawerToggle(
-            this,
-            binding.drawerLayout,
-            binding.toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
         binding.navigationView.setNavigationItemSelectedListener(this)
     }
 
@@ -110,8 +124,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val tvUserEmail = headerView.findViewById<android.widget.TextView>(R.id.tvUserEmail)
 
         lifecycleScope.launch {
-            val userName = preferenceManager.userName.first() // You can store user name separately
-            val userEmail = preferenceManager.userName.first() // Get actual email from preferences
+            val userName = preferenceManager.userName.first()
+            val userEmail = preferenceManager.userName.first()
             val avatarUrl = preferenceManager.userAvatar.first()
             val token = preferenceManager.authToken.first()
 
@@ -205,7 +219,20 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return if (navController.currentDestination?.id in setOf(
+                R.id.homeFragment,
+                R.id.downloadsFragment,
+                R.id.settingsFragment
+            )) {
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                binding.drawerLayout.openDrawer(GravityCompat.START)
+            }
+            true
+        } else {
+            navController.navigateUp()
+        }
     }
 
     private fun setupBackPressedCallback() {

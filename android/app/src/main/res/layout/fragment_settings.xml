@@ -174,7 +174,9 @@
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchTheme"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/bg_menu_primary"
+                        app:trackTint="@color/bg_menu_secondary" />
 
                 </LinearLayout>
 

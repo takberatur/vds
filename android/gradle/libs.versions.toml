@@ -5,7 +5,7 @@ coreKtx = "1.17.0"
 google-services = "4.4.4"
 devtools-ksp = "2.3.2"
 kotlin-serialization = "2.3.0"
-kotlin-parcelize = "2.3.20-Beta1"
+kotlin-parcelize = "2.3.20-Beta2"
 
 # dependiences
 junit = "4.13.2"
@@ -56,12 +56,17 @@ okhttp = "5.3.2"
 glide = "5.0.5"
 gson = "2.13.2"
 retrofit = "3.0.0"
-chucker = "4.2.0"
+chucker = "4.3.0"
 
 # Websocket & other
 centrifugeJava = "0.5.0"
 ytDlpLibrary = "0.18.1"
 lottie = "6.7.1"
+
+# ============= MEDIA PLAYERS =============
+exoPlayer = "1.9.1"
+audioVisualizer = "2.2.7"
+permissionx = "1.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -129,10 +134,15 @@ chucker-no-op = { module = "com.github.chuckerteam.chucker:library-no-op", versi
 # Websocket & other
 centrifuge-java = { module = "io.github.centrifugal:centrifuge-java", version.ref = "centrifugeJava" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
-# https://github.com/yausername/youtubedl-android
-yt-dlp-library = { module = "io.github.junkfood02.youtubedl-android:library", version.ref = "ytDlpLibrary" }
-yt-dlp-ffmpeg = { module = "io.github.junkfood02.youtubedl-android:ffmpeg", version.ref = "ytDlpLibrary" }
-yt-dlp-aria2c = { module = "io.github.junkfood02.youtubedl-android:aria2c", version.ref = "ytDlpLibrary" }
+
+# ============= MEDIA PLAYERS =============
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoPlayer" }
+androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "exoPlayer" }
+androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "exoPlayer" }
+androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "exoPlayer" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoPlayer" }
+audio-visualizer = { module = "io.github.gautamchibde:audiovisualizer", version.ref = "audioVisualizer" }
+permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

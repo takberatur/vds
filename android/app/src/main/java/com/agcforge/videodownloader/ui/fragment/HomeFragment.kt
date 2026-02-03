@@ -36,6 +36,7 @@ import com.agcforge.videodownloader.utils.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 class HomeFragment : Fragment() {
 
@@ -212,7 +213,7 @@ class HomeFragment : Fragment() {
 	private fun isUrlValid(url: String): Boolean {
 		if (url.isBlank()) return false
 		if (!url.startsWith("http://") && !url.startsWith("https://")) return false
-		return runCatching { android.net.Uri.parse(url) }.isSuccess
+		return runCatching { url.toUri() }.isSuccess
 	}
 
 	private fun updateDownloadButtonState() {
@@ -261,7 +262,7 @@ class HomeFragment : Fragment() {
 		val effectiveFormat = formatId ?: resolution
 
 		val filename = task.title?.takeIf { it.isNotBlank() } ?: "download"
-		val uriBuilder = Uri.parse(endpoint).buildUpon()
+		val uriBuilder = endpoint.toUri().buildUpon()
 			.appendQueryParameter("task_id", task.id)
 			.appendQueryParameter("filename", filename)
 		if (!effectiveFormat.isNullOrBlank()) {

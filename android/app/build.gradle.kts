@@ -146,7 +146,15 @@ dependencies {
     // Websocket and other
     implementation(libs.centrifuge.java)
     implementation(libs.lottie)
-//    implementation(libs.yt.dlp.library)
-//    implementation(libs.yt.dlp.ffmpeg)
-//    implementation(libs.yt.dlp.aria2c)
+    // ============= MEDIA PLAYERS =============
+    // ExoPlayer for Video (Media3)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.session)
+    // Audio Visualizer (optional - for audio visualization)
+    implementation(libs.audio.visualizer)
+    // Permission handling
+    implementation(libs.permissionx)
 }

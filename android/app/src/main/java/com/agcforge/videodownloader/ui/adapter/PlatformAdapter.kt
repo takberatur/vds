@@ -95,17 +95,24 @@ class PlatformAdapter(
                 tvType.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
             }
 
-            Glide.with(itemView.context)
-                .load(platform.thumbnailUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_video)
-                .error(R.drawable.ic_error_rectangle)
-                .into(ivThumbnail)
+            if (platform.category === "audio" || platform.type.endsWith("to-mp3")) {
+                Glide.with(itemView.context)
+                    .load(platform.thumbnailUrl)
+                    .placeholder(R.drawable.ic_video)
+                    .error(R.drawable.ic_error_rectangle)
+                    .into(ivThumbnail)
+            } else {
+                Glide.with(itemView.context)
+                    .load(platform.thumbnailUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_video)
+                    .error(R.drawable.ic_error_rectangle)
+                    .into(ivThumbnail)
+            }
 
             tvName.text = platform.name
             tvType.text = platform.type.uppercase()
             ivPremium.visibility = if (platform.isPremium) View.VISIBLE else View.GONE
-            ivBadgeMp3.visibility = if (platform.category === "audio" || platform.type.endsWith("to-mp3")) View.VISIBLE else View.GONE
 
             itemView.setOnClickListener {
                 onItemClick(platform)
