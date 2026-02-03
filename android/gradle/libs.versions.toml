@@ -3,7 +3,6 @@ agp = "9.0.0"
 kotlin = "2.3.0"
 coreKtx = "1.17.0"
 google-services = "4.4.4"
-devtools-ksp = "2.3.2"
 kotlin-serialization = "2.3.0"
 kotlin-parcelize = "2.3.20-Beta2"
 
@@ -60,7 +59,6 @@ chucker = "4.3.0"
 
 # Websocket & other
 centrifugeJava = "0.5.0"
-ytDlpLibrary = "0.18.1"
 lottie = "6.7.1"
 
 # ============= MEDIA PLAYERS =============
@@ -146,9 +144,7 @@ permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = 
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = {id = 'com.google.gms.google-services', version.ref = 'google-services'}
-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-parcelize" }

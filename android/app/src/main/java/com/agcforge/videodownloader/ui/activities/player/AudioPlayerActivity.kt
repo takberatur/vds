@@ -80,9 +80,13 @@ class AudioPlayerActivity : AppCompatActivity() {
         binding = ActivityAudioPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Get audio info
-        audioUri = intent.getStringExtra(KEY_AUDIO_URI)?.toUri() ?: Uri.EMPTY
-        audioTitle = intent.getStringExtra(KEY_AUDIO_TITLE) ?: "Unknown"
+        if (intent.action == Intent.ACTION_VIEW) {
+            audioUri = intent.data ?: Uri.EMPTY
+            audioTitle = audioUri.lastPathSegment ?: "External Audio"
+        } else {
+            audioUri = intent.getStringExtra(KEY_AUDIO_URI)?.toUri() ?: Uri.EMPTY
+            audioTitle = intent.getStringExtra(KEY_AUDIO_TITLE) ?: getString(R.string.app_name)
+        }
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_POSITION, 0)

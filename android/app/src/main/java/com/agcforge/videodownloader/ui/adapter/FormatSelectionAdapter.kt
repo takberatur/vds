@@ -45,6 +45,7 @@ class FormatSelectionAdapter(
             tvExtension.text = task?.format ?: "MP4"
             Glide.with(context)
                 .load(task?.thumbnailUrl)
+                .centerCrop()
                 .placeholder(R.drawable.ic_media_play)
                 .error(R.drawable.ic_media_play)
                 .into(ivThumbnail)

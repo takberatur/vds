@@ -154,4 +154,5 @@
     <string name="error">ข้อผิดพลาด: %s</string>
     <string name="no_media_files_found">ไม่มีไฟล์ 미디า</string>
     <string name="failed_to_load_downloads">ไม่สามารถโหลดการดาวน์โหลดได้: %s</string>
+    <string name="history_cleared">ประวัติการดาวน์โหลดถูกล้างแล้ว</string>
 </resources>

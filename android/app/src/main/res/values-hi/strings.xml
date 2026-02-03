@@ -154,4 +154,5 @@
     <string name="error">त्रुटि: %s</string>
     <string name="no_media_files_found">कोई मीडिया फ़ाइल नहीं मिली</string>
     <string name="failed_to_load_downloads">डाउनलोड लोड करने में विफल: %s</string>
+    <string name="history_cleared">इतिहास साफ़ किया गया</string>
 </resources>

@@ -154,4 +154,5 @@
     <string name="error">오류: %s</string>
     <string name="no_media_files_found">미디어 파일이 없습니다</string>
     <string name="failed_to_load_downloads">다운로드 불러오기 실패: %s</string>
+    <string name="history_cleared">다운로드 이력이 성공적으로 삭제되었습니다</string>
 </resources>

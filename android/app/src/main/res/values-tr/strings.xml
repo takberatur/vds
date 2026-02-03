@@ -154,4 +154,5 @@
     <string name="error">Hata: %s</string>
     <string name="no_media_files_found">Medya dosyası bulunamadı</string>
     <string name="failed_to_load_downloads">Indirme yüklemesi başarısız: %s</string>
+    <string name="history_cleared">İndirme geçmişi başarıyla temizlendi</string>
 </resources>

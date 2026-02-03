@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.agcforge.videodownloader.databinding.ItemDownloadUrlBinding
 
+
 class HistoryAdapter(
     private val onItemClick: (String) -> Unit
 ) : ListAdapter<String, HistoryAdapter.ViewHolder>(StringDiffCallback()) {
@@ -27,7 +28,7 @@ class HistoryAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: String) {
-            binding.tvTitle.text = item
+            binding.tvUrl.text = item
             binding.root.setOnClickListener {
                 onItemClick(item)
             }

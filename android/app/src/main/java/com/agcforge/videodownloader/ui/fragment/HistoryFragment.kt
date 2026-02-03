@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -12,6 +13,8 @@ import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.databinding.FragmentHistoryBinding
 import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.utils.PreferenceManager
+import com.agcforge.videodownloader.utils.showToast
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class HistoryFragment : Fragment() {
@@ -35,6 +38,7 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         preferenceManager = PreferenceManager(requireContext())
 
+        setupActionButtonVisibility()
         setupRecyclerView()
         observeHistory()
     }
@@ -71,4 +75,16 @@ class HistoryFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun setupActionButtonVisibility() {
+        lifecycleScope.launch {
+            val isEmptyHistory = preferenceManager.history.first()
+            if (isEmptyHistory.isEmpty()) {
+                binding.btnClearHistory.visibility = View.GONE
+            } else {
+                binding.btnClearHistory.visibility = View.VISIBLE
+            }
+        }
+    }
+
 }

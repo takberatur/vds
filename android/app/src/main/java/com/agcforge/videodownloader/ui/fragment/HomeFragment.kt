@@ -320,6 +320,7 @@ class HomeFragment : Fragment() {
 			val dm = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 			val request = DownloadManager.Request(uri)
 				.setTitle(fileName)
+				.setMimeType(if (fileName.lowercase().endsWith(".mp3")) "audio/mpeg" else "video/mp4")
 				.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 				.setAllowedOverMetered(true)
 				.setAllowedOverRoaming(true)

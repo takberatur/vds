@@ -158,4 +158,5 @@
     <string name="error">Error: %s</string>
     <string name="no_media_files_found">No media files found</string>
     <string name="failed_to_load_downloads">Failed to load downloads: %s</string>
+    <string name="history_cleared">History cleared</string>
 </resources>

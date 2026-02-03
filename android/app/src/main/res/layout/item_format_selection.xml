@@ -39,21 +39,10 @@
 
                 <ImageView
                     android:id="@+id/ivThumbnail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:src="@drawable/ic_media_play"
-                    android:contentDescription="@string/quality"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:id="@+id/tvExtension"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:alpha="0.7"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:text="@string/video" />
+                    android:contentDescription="@string/quality" />
 
             </LinearLayout>
 
@@ -76,14 +65,32 @@
                 android:textColor="?attr/colorOnSurface"
                 tools:text="Full HD Video" />
 
-            <TextView
-                android:id="@+id/tvFileSize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="14sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                tools:text="45 MB" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="start">
+
+                <TextView
+                    android:id="@+id/tvFileSize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="45 MB" />
+
+                <TextView
+                    android:id="@+id/tvExtension"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:alpha="0.7"
+                    android:textColor="@android:color/holo_red_light"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="@string/video" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"

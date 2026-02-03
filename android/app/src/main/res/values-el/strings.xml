@@ -154,4 +154,5 @@
     <string name="error">Σφάλμα: %s</string>
     <string name="no_media_files_found">Δεν βρέθηκαν αρχεία πολυμέσων</string>
     <string name="failed_to_load_downloads">Αποτυχία φόρτωσης λήψεων: %s</string>
+    <string name="history_cleared">Ιστορικό διαγραφεί με επιτυχία</string>
 </resources>

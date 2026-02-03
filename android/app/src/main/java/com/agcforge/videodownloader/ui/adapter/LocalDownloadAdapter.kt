@@ -2,6 +2,7 @@ package com.agcforge.videodownloader.ui.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -44,10 +45,12 @@ class LocalDownloadAdapter(
 
     private val glideOptions = RequestOptions()
         .transform(RoundedCorners(12))
-        .diskCacheStrategy(DiskCacheStrategy.NONE)
-        .skipMemoryCache(true)
+        .diskCacheStrategy(DiskCacheStrategy.ALL)
+        .override(300, 300)
+        .centerCrop()
         .placeholder(R.drawable.ic_media_play)
         .error(R.drawable.ic_media_play)
+        .frame(1000000)
 
     fun addItems(newItems: List<LocalDownloadItem>) {
         val startPosition = items.size
@@ -213,7 +216,7 @@ class LocalDownloadAdapter(
                 if (item.isVideo()) R.drawable.ic_video else R.drawable.ic_audiotrack
             )
 
-            handleThumbnail(item, position)
+            handleThumbnailWithGlide(item)
 
             itemView.setOnClickListener { onOpenClick(item) }
             btnOpen.setOnClickListener { onOpenClick(item) }
@@ -221,7 +224,7 @@ class LocalDownloadAdapter(
             btnDelete.visibility = if (item.filePath != null) View.VISIBLE else View.GONE
         }
 
-        private fun handleThumbnail(item: LocalDownloadItem, position: Int) {
+        private fun handleThumbnailWithBytes(item: LocalDownloadItem, position: Int) {
             when {
                 item.thumbnail != null -> {
                     showThumbnailFromBytes(item.thumbnail!!)
@@ -242,48 +245,81 @@ class LocalDownloadAdapter(
             }
         }
 
+        private fun handleThumbnailWithGlide(item: LocalDownloadItem) {
+            progressBar.visibility = View.VISIBLE
+
+            Glide.with(itemView.context)
+                .asBitmap() // Ambil sebagai bitmap
+                .load(item.uri ?: item.filePath)
+                .apply(adapter.glideOptions)
+                .listener(object : RequestListener<Bitmap> {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>, isFirstResource: Boolean): Boolean {
+                        progressBar.visibility = View.GONE
+                        return false
+                    }
+
+                    override fun onResourceReady(resource: Bitmap, model: Any?, target: Target<Bitmap>, dataSource: DataSource, isFirstResource: Boolean): Boolean {
+                        progressBar.visibility = View.GONE
+                        return false
+                    }
+                })
+                .into(ivThumbnail)
+        }
+
         private fun showThumbnailFromBytes(thumbnailBytes: ByteArray) {
             try {
                 println("DEBUG [Adapter]: Showing thumbnail, size: ${thumbnailBytes.size} bytes")
 
                 val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(thumbnailBytes))
-                println("DEBUG [Adapter]: Bitmap decoded: ${bitmap.width}x${bitmap.height}")
+                println("DEBUG [Adapter]: Bitmap decoded: ${bitmap.width}x${bitmap.height}, hasAlpha: ${bitmap.hasAlpha()}")
 
-                Glide.with(itemView.context)
-                    .load(bitmap)
-                    .apply(adapter.glideOptions)
-                    .listener(object : RequestListener<Drawable> {
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable?>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            println("DEBUG [Adapter]: Glide load failed: ${e?.message}")
-                            return false
-                        }
+                // Coba tampilkan langsung tanpa Glide dulu untuk test
+                ivThumbnail.post {
+                    println("DEBUG [Adapter]: ImageView dimensions: ${ivThumbnail.width}x${ivThumbnail.height}")
+                    println("DEBUG [Adapter]: ImageView visibility: ${ivThumbnail.visibility}")
+                    println("DEBUG [Adapter]: ImageView scaleType: ${ivThumbnail.scaleType}")
 
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable?>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            println("DEBUG [Adapter]: Glide load successful")
-                            return false
-                        }
+                    // Test 1: Tampilkan langsung
+                    ivThumbnail.setImageBitmap(bitmap)
+                    ivThumbnail.invalidate()
 
-                    })
-                    .into(ivThumbnail)
+                    // Tunggu 1 detik, lalu coba dengan Glide
+                    ivThumbnail.postDelayed({
+                        println("DEBUG [Adapter]: Trying with Glide...")
+                        Glide.with(itemView.context)
+                            .load(bitmap)
+                            .apply(adapter.glideOptions)
+                            .listener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(
+                                    e: GlideException?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    println("DEBUG [Adapter]: Glide load failed: ${e?.message}")
+                                    e?.logRootCauses("DEBUG [Adapter]")
+                                    return false
+                                }
+
+                                override fun onResourceReady(
+                                    resource: Drawable?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    println("DEBUG [Adapter]: Glide load successful, drawable: $resource")
+                                    println("DEBUG [Adapter]: Drawable bounds: ${resource?.bounds}")
+                                    return false
+                                }
+                            })
+                            .into(ivThumbnail)
+                    }, 1000)
+                }
 
             } catch (e: Exception) {
-                val placeholder = if (currentItem?.isVideo() == true) {
-                    R.drawable.ic_media_play
-                } else {
-                    R.drawable.ic_media_play
-                }
-                ivThumbnail.setImageResource(placeholder)
+                println("DEBUG [Adapter]: Error showing thumbnail: ${e.message}")
+                showPlaceholder(currentItem ?: return)
             }
         }
 

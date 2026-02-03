@@ -154,4 +154,5 @@
     <string name="error">Kesalahan: %s</string>
     <string name="no_media_files_found">Tiada file media yang ditemukan</string>
     <string name="failed_to_load_downloads">Gagal memuat unduhan: %s</string>
+    <string name="history_cleared">Riwayat unduhan berhasil dihapus</string>
 </resources>

@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.agcforge.videodownloader.data.model.Application
+import com.agcforge.videodownloader.data.model.Platform
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.gson.Gson
@@ -39,9 +40,8 @@ class PreferenceManager(private val context: Context) {
         private val LANGUAGE_KEY = stringPreferencesKey("language_code")
 		private val STORAGE_LOCATION_KEY = stringPreferencesKey("storage_location")
 		private val APPLICATION_KEY = stringPreferencesKey("application_config")
-
         private val HISTORY_KEY = stringPreferencesKey("history")
-
+        private val PLATFORMS_KEY = stringPreferencesKey("platforms")
     }
 
     // --- Flows to observe preference changes ---
@@ -59,9 +59,7 @@ class PreferenceManager(private val context: Context) {
         it[HISTORY_KEY]?.split(",")?.mapNotNull { item ->
             item.trim().ifEmpty { null } } ?: emptyList()
     }
-
     // --- Suspend functions to modify preferences ---
-
     suspend fun saveAuthToken(token: String) {
         context.dataStore.edit { it[TOKEN_KEY] = token }
     }
@@ -121,6 +119,11 @@ class PreferenceManager(private val context: Context) {
             preferences[HISTORY_KEY] = currentHistory.joinToString(",")
         }
     }
+
+    suspend fun clearHistory() {
+        context.dataStore.edit { it[HISTORY_KEY] = "" }
+    }
+
 }
 
 // --- General-purpose Utility Functions ---

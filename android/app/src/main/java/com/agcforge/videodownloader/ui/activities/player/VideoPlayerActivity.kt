@@ -59,9 +59,14 @@ class VideoPlayerActivity : AppCompatActivity() {
 
         setupBackPressedCallback()
 
-        // Get video info from intent
-        videoUri = intent.getStringExtra(KEY_VIDEO_URI)?.toUri()
-        videoTitle = intent.getStringExtra(KEY_VIDEO_TITLE) ?: "Video Player"
+        if (intent.action == Intent.ACTION_VIEW) {
+            videoUri = intent.data
+            videoTitle = videoUri?.lastPathSegment ?: "External Video"
+        } else {
+            videoUri = intent.getStringExtra(KEY_VIDEO_URI)?.toUri()
+            videoTitle = intent.getStringExtra(KEY_VIDEO_TITLE) ?: getString(R.string.app_name)
+        }
+
 
         if (savedInstanceState != null) {
             currentPlaybackPosition = savedInstanceState.getLong(KEY_PLAYBACK_POSITION, 0)
@@ -94,7 +99,21 @@ class VideoPlayerActivity : AppCompatActivity() {
             .setTrackSelector(trackSelector!!)
             .build()
             .also { exoPlayer ->
+                // IMPORTANT: Bind player to PlayerView first
                 binding.playerView.player = exoPlayer
+
+                // Configure PlayerView
+                binding.playerView.apply {
+                    // Show controls
+                    controllerShowTimeoutMs = 3000 // Hide after 3 seconds
+                    controllerHideOnTouch = true
+
+                    // Use default controller (it handles duration properly)
+                    useController = true
+
+                    setFullscreenButtonState(true)
+
+                }
 
                 // Set media item
                 videoUri?.let { uri ->
@@ -120,15 +139,14 @@ class VideoPlayerActivity : AppCompatActivity() {
                             Player.STATE_READY -> {
                                 binding.progressLoading.visibility = View.GONE
                                 binding.llError.visibility = View.GONE
+
+                                // Debug log
+                                android.util.Log.d("VideoPlayer", "Duration: ${exoPlayer.duration}ms = ${formatDuration(exoPlayer.duration)}")
+                                android.util.Log.d("VideoPlayer", "Current position: ${exoPlayer.currentPosition}ms")
                             }
                             Player.STATE_ENDED -> {
-                                // Video ended
-                                exoPlayer.seekTo(0)
-                                exoPlayer.pause()
-                            }
-
-                            Player.STATE_IDLE -> {
-                                TODO()
+                                // Video ended - show replay option
+                                showToast("Video ended")
                             }
                         }
                     }
@@ -136,7 +154,14 @@ class VideoPlayerActivity : AppCompatActivity() {
                     override fun onPlayerError(error: PlaybackException) {
                         showError("Failed to play video: ${error.message}")
                     }
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        // Show/hide loading based on playing state
+                        if (isPlaying) {
+                            binding.progressLoading.visibility = View.GONE
+                        }
+                    }
                 })
+
             }
     }
 
@@ -154,26 +179,34 @@ class VideoPlayerActivity : AppCompatActivity() {
         // Retry button
         binding.btnRetry.setOnClickListener {
             binding.llError.visibility = View.GONE
+            releasePlayer()
             setupPlayer()
         }
 
-        // Quality button (from custom controls)
-        binding.playerView.findViewById<View>(com.agcforge.videodownloader.R.id.btnQuality)?.setOnClickListener {
+        // Get custom control buttons from PlayerView
+        val playerControlView = binding.playerView
+
+        playerControlView.setFullscreenButtonClickListener {
+            toggleFullscreen()
+        }
+
+        // Quality button
+        playerControlView.findViewById<View>(R.id.btnQuality)?.setOnClickListener {
             showQualityDialog()
         }
 
         // Speed button
-        binding.playerView.findViewById<View>(com.agcforge.videodownloader.R.id.btnSpeed)?.setOnClickListener {
+        playerControlView.findViewById<View>(R.id.btnSpeed)?.setOnClickListener {
             showSpeedDialog()
         }
 
         // Fullscreen button
-        binding.playerView.findViewById<View>(com.agcforge.videodownloader.R.id.btnFullscreen)?.setOnClickListener {
+        playerControlView.findViewById<View>(R.id.btnFullscreen)?.setOnClickListener {
             toggleFullscreen()
         }
 
         // Subtitle button
-        binding.playerView.findViewById<View>(com.agcforge.videodownloader.R.id.btnSubtitle)?.setOnClickListener {
+        playerControlView.findViewById<View>(R.id.btnSubtitle)?.setOnClickListener {
             showToast("Subtitle feature coming soon")
         }
     }
@@ -184,16 +217,18 @@ class VideoPlayerActivity : AppCompatActivity() {
         if (isLocked) {
             // Hide all controls except lock button
             binding.playerView.hideController()
+            binding.playerView.useController = false
             binding.btnBack.visibility = View.GONE
             binding.tvVideoTitle.visibility = View.GONE
-            binding.btnLock.setImageResource(com.agcforge.videodownloader.R.drawable.ic_lock_white)
+            binding.btnLock.setImageResource(R.drawable.ic_lock_white)
             showToast("Controls locked")
         } else {
             // Show controls
+            binding.playerView.useController = true
             binding.playerView.showController()
             binding.btnBack.visibility = View.VISIBLE
             binding.tvVideoTitle.visibility = View.VISIBLE
-            binding.btnLock.setImageResource(com.agcforge.videodownloader.R.drawable.ic_lock_open_white)
+            binding.btnLock.setImageResource(R.drawable.ic_lock_open_white)
             showToast("Controls unlocked")
         }
     }
@@ -226,13 +261,17 @@ class VideoPlayerActivity : AppCompatActivity() {
         val speeds = arrayOf("0.25x", "0.5x", "0.75x", "1.0x", "1.25x", "1.5x", "1.75x", "2.0x")
         val speedValues = floatArrayOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
 
+        val currentSpeed = player?.playbackParameters?.speed ?: 1.0f
+        val currentIndex = speedValues.indexOfFirst { it == currentSpeed }.takeIf { it >= 0 } ?: 3
+
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.playback_speed))
-            .setItems(speeds) { dialog, which ->
+            .setSingleChoiceItems(speeds, currentIndex) { dialog, which ->
                 player?.setPlaybackSpeed(speedValues[which])
-                binding.playerView.findViewById<android.widget.TextView>(
-                    com.agcforge.videodownloader.R.id.btnSpeed
-                )?.text = speeds[which]
+
+                // Update speed text in controls if exists
+                binding.playerView.findViewById<android.widget.TextView>(R.id.btnSpeed)?.text = speeds[which]
+
                 showToast("Speed set to ${speeds[which]}")
                 dialog.dismiss()
             }
@@ -250,6 +289,21 @@ class VideoPlayerActivity : AppCompatActivity() {
         WindowInsetsControllerCompat(window, binding.root).let { controller ->
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
+    private fun formatDuration(durationMs: Long): String {
+        if (durationMs <= 0) return "00:00"
+
+        val totalSeconds = durationMs / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+
+        return if (hours > 0) {
+            String.format("%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format("%d:%02d", minutes, seconds)
         }
     }
 

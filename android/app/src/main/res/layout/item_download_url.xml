@@ -20,7 +20,7 @@
         <ImageView
             android:id="@+id/ivIcon"
             android:layout_width="48dp"
-            android:layout_height="match_parent"
+            android:layout_height="48dp"
             android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -28,7 +28,7 @@
             app:tint="@color/teal_700"/>
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvUrl"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"

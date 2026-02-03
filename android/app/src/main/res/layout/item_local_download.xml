@@ -31,8 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_media_play"
-                app:tint="@color/primary"/>
+/>
 
             <ProgressBar
                 android:id="@+id/progressBar"

@@ -39,9 +39,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
-        tools:ignore="ForegroundServicesPolicy" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="AllFilesAccessPolicy,ScopedStorage" />
+
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -103,28 +104,28 @@
         <activity
             android:name=".ui.activities.auth.LoginActivity"
             android:exported="false"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Register Activity -->
         <activity
             android:name=".ui.activities.auth.RegisterActivity"
             android:exported="false"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Forgot Password Activity -->
         <activity
             android:name=".ui.activities.auth.ForgotPasswordActivity"
             android:exported="false"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Reset Password Activity -->
         <activity
             android:name=".ui.activities.auth.ResetPasswordActivity"
             android:exported="true"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <!-- Deep link untuk reset password -->
             <intent-filter android:autoVerify="true">
@@ -141,20 +142,46 @@
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="false"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity
             android:name=".ui.activities.player.VideoPlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="sensorLandscape"
-            android:theme="@style/Theme.VideoDownloader.Player" />
+            android:exported="true"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.VideoDownloader.Player" >
+            <intent-filter android:label="Putar dengan Video Downloader">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+
+                <data android:mimeType="video/*" />
+
+            </intent-filter>
+        </activity>
 
         <!-- Audio Player Activity -->
         <activity
             android:name=".ui.activities.player.AudioPlayerActivity"
+            android:exported="true"
             android:screenOrientation="fullSensor"
-            android:theme="@style/Theme.VideoDownloader.Player" />
+            android:theme="@style/Theme.VideoDownloader.Player" >
+
+            <intent-filter android:label="Putar dengan Video Downloader">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".service.WebSocketService"

@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.LruCache
+import android.webkit.MimeTypeMap
 import androidx.core.database.getStringOrNull
 import com.agcforge.videodownloader.data.model.LocalDownloadItem
 import kotlinx.coroutines.Dispatchers
@@ -101,6 +102,11 @@ object LocalDownloadsScanner {
     }
 
 
+    private val MEDIA_EXTENSIONS = arrayOf(
+        "%.mp4", "%.mkv", "%.webm", "%.avi", "%.3gp", "%.mov", "%.ts",
+        "%.mp3", "%.wav", "%.ogg", "%.m4a", "%.aac", "%.flac"
+    )
+
     suspend fun scan(context: Context, location: String): List<LocalDownloadItem> {
         return withContext(Dispatchers.IO) {
             when (location) {
@@ -138,10 +144,21 @@ object LocalDownloadsScanner {
             try {
                 val contentResolver = context.contentResolver
 
+                val extensionSelection = MEDIA_EXTENSIONS.joinToString(" OR ") {
+                    "${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE ?"
+                }
+
+                val selection = "(${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
+                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR $extensionSelection)"
+
                 val countProjection = arrayOf("COUNT(*)")
                 val countSelection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
                         "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
                 val countArgs = arrayOf("video/%", "audio/%")
+
+                val selectionArgs = arrayOf("video/%", "audio/%") + MEDIA_EXTENSIONS
+
+                val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
 
                 val projection = arrayOf(
                     MediaStore.Files.FileColumns._ID,
@@ -152,17 +169,12 @@ object LocalDownloadsScanner {
                     MediaStore.Files.FileColumns.DATA
                 )
 
-                val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR " +
-                        "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
-                val selectionArgs = arrayOf("video/%", "audio/%")
-                val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
-
                 contentResolver.query(
                     MediaStore.Files.getContentUri("external"),
                     projection,
                     selection,
                     selectionArgs,
-                    sortOrder
+                    "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
                 )?.use { cursor ->
                     totalCount = cursor.count
 
@@ -180,14 +192,24 @@ object LocalDownloadsScanner {
                             val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
                                 ?: continue
                             val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
-                            val mimeType = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
+                            var mimeType = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
+                            if (mimeType == null || mimeType == "application/octet-stream") {
+                                mimeType = getMimeType(displayName)
+                            }
                             val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED))
                             val data = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
 
-                            val uri = ContentUris.withAppendedId(
-                                MediaStore.Files.getContentUri("external"),
-                                id
-                            )
+//                            val uri = ContentUris.withAppendedId(
+//                                MediaStore.Files.getContentUri("external"),
+//                                id
+//                            )
+
+                            val dataPath = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
+                            val uri = if (dataPath != null) {
+                                Uri.fromFile(File(dataPath))
+                            } else {
+                                ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), id)
+                            }
 
                             val mediaInfo = if (offset == 0) {
                                 extractMediaMetadataLazy(context, uri, data, true)
@@ -234,6 +256,7 @@ object LocalDownloadsScanner {
     ): PagedResult {
         return withContext(Dispatchers.IO) {
             val items = mutableListOf<LocalDownloadItem>()
+            var totalCount = 0
 
             try {
                 val appDir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -245,10 +268,10 @@ object LocalDownloadsScanner {
                 appDir?.let { directory ->
                     if (directory.exists() && directory.isDirectory) {
                         val allFiles = directory.listFiles()?.filter { file ->
-                            isMediaFile(file.name, null) && file.isFile
+                            file.isFile && (isMediaFile(file.name, null) || hasMediaExtension(file.name))
                         }?.sortedByDescending { it.lastModified() } ?: emptyList()
 
-                        val totalCount = allFiles.size
+                        totalCount = allFiles.size
                         val startIndex = offset.coerceAtMost(totalCount - 1)
                         val endIndex = (offset + limit).coerceAtMost(totalCount)
 
@@ -256,6 +279,7 @@ object LocalDownloadsScanner {
                             try {
                                 val file = allFiles[i]
                                 val uri = Uri.fromFile(file)
+                                val mimeType = getMimeType(file.name) ?: "video/mp4"
 
                                 // Lazy metadata extraction
                                 val mediaInfo = if (offset == 0 && i < 10) {
@@ -264,11 +288,12 @@ object LocalDownloadsScanner {
                                     extractMediaMetadataLazy(context, uri, file.absolutePath, false)
                                 }
 
+
                                 val item = LocalDownloadItem(
                                     id = file.hashCode().toLong(),
                                     displayName = file.name,
                                     size = file.length(),
-                                    mimeType = getMimeType(file.name),
+                                    mimeType = mimeType,
                                     dateAdded = file.lastModified() / 1000,
                                     uri = uri,
                                     filePath = file.absolutePath,
@@ -596,25 +621,32 @@ object LocalDownloadsScanner {
         }
     }
 
-    private fun getMimeType(fileName: String): String {
-        return when (fileName.substringAfterLast('.', "").lowercase(Locale.getDefault())) {
-            "mp4", "m4v" -> "video/mp4"
-            "mkv" -> "video/x-matroska"
-            "avi" -> "video/x-msvideo"
-            "mov" -> "video/quicktime"
-            "wmv" -> "video/x-ms-wmv"
-            "flv" -> "video/x-flv"
-            "3gp" -> "video/3gpp"
-            "webm" -> "video/webm"
-            "mp3" -> "audio/mpeg"
-            "wav" -> "audio/wav"
-            "aac" -> "audio/aac"
-            "flac" -> "audio/flac"
-            "ogg" -> "audio/ogg"
-            "m4a" -> "audio/mp4"
-            "wma" -> "audio/x-ms-wma"
-            else -> "application/octet-stream"
+    private fun getMimeType(fileName: String): String? {
+        val extension = MimeTypeMap.getFileExtensionFromUrl(fileName)
+        return if (extension.isNotEmpty()) {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.lowercase())
+        } else {
+            "video/mp4"
         }
+
+//        return when (fileName.substringAfterLast('.', "").lowercase(Locale.getDefault())) {
+//            "mp4", "m4v" -> "video/mp4"
+//            "mkv" -> "video/x-matroska"
+//            "avi" -> "video/x-msvideo"
+//            "mov" -> "video/quicktime"
+//            "wmv" -> "video/x-ms-wmv"
+//            "flv" -> "video/x-flv"
+//            "3gp" -> "video/3gpp"
+//            "webm" -> "video/webm"
+//            "mp3" -> "audio/mpeg"
+//            "wav" -> "audio/wav"
+//            "aac" -> "audio/aac"
+//            "flac" -> "audio/flac"
+//            "ogg" -> "audio/ogg"
+//            "m4a" -> "audio/mp4"
+//            "wma" -> "audio/x-ms-wma"
+//            else -> "application/octet-stream"
+//        }
     }
 
     private suspend fun extractMediaMetadata(
@@ -703,5 +735,14 @@ object LocalDownloadsScanner {
     fun formatDate(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
         return sdf.format(timestamp * 1000)
+    }
+
+    private fun hasMediaExtension(fileName: String): Boolean {
+        val extensions = arrayOf(
+            "mp4", "mkv", "webm", "avi", "3gp", "mov", "ts", "m3u8",
+            "mp3", "wav", "ogg", "m4a", "aac", "flac"
+        )
+        val fileExtension = fileName.substringAfterLast('.', "").lowercase()
+        return extensions.contains(fileExtension)
     }
 }

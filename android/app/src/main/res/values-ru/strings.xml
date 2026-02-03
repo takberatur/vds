@@ -154,4 +154,5 @@
     <string name="error">Ошибка: %s</string>
     <string name="no_media_files_found">Нет доступных медиа-файлов</string>
     <string name="failed_to_load_downloads">Не удалось загрузить загрузки: %s</string>
+    <string name="history_cleared">История загрузок успешно очищена</string>
 </resources>

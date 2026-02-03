@@ -154,4 +154,5 @@
     <string name="error">Erreur : %s</string>
     <string name="no_media_files_found">Aucun fichier multimédia trouvé</string>
     <string name="failed_to_load_downloads">Échec du chargement des téléchargements : %s</string>
+    <string name="history_cleared">Histoire effacée</string>
 </resources>
