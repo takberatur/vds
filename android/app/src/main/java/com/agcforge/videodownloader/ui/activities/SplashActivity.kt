@@ -13,8 +13,11 @@ import androidx.lifecycle.lifecycleScope
 import com.agcforge.videodownloader.data.api.ApiClient
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.databinding.ActivitySplashBinding
+import com.agcforge.videodownloader.helper.AdsConfig
+import com.agcforge.videodownloader.helper.AdsConfigManager
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.airbnb.lottie.LottieAnimationView
+import com.onesignal.OneSignal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -67,6 +70,14 @@ class SplashActivity : AppCompatActivity() {
                 fetchAndStoreApplication()
 
                 initializeAuthToken()
+
+                AdsConfig.initialize(this@SplashActivity)
+                val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
+                if (enableOneSignal) OneSignal.initWithContext(this@SplashActivity, AdsConfig.ONESIGNAL_ID!!)
+                if (enableOneSignal) {
+                    OneSignal.Notifications.requestPermission(true)
+                }
+
                 navigateToMain()
             }
         }

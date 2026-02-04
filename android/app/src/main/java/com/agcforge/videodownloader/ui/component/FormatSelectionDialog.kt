@@ -14,10 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.data.model.DownloadFormat
 import com.agcforge.videodownloader.data.model.DownloadTask
+import com.agcforge.videodownloader.data.model.FormatMerger
 import com.agcforge.videodownloader.ui.adapter.FormatSelectionAdapter
 import com.bumptech.glide.Glide
-import java.util.Locale
-import java.util.Locale.getDefault
 
 class FormatSelectionDialog(
     context: Context,
@@ -96,23 +95,44 @@ class FormatSelectionDialog(
         // Set video duration
         tvVideoDuration.text = "Duration: ${task.getFormattedDuration()}"
 
-        // Setup formats adapter
-        val formats = task.formats ?: emptyList()
-
-        // Sort formats by quality (height) descending
-        val sortedFormats = formats.sortedWith(
-            compareByDescending<DownloadFormat> { it.height ?: 0 }
-                .thenByDescending { it.filesize ?: 0L }
-        )
-
-
-        val adapter = FormatSelectionAdapter(sortedFormats, task) { selectedFormat ->
+        val mergedFormats = buildFormatList(task)
+        val adapter = FormatSelectionAdapter(mergedFormats, task) { selectedFormat ->
             onFormatSelected(selectedFormat)
             dismiss()
         }
 
         rvFormats.adapter = adapter
     }
+
+	private fun buildFormatList(task: DownloadTask): List<DownloadFormat> {
+		val out = mutableListOf<DownloadFormat>()
+		task.formats.orEmpty().forEach { f ->
+			val cleanUrl = normalizeUrl(f.url)
+			val withHeight = if (f.height == null) f.copy(height = f.extractHeight()) else f
+			out.add(withHeight.copy(url = cleanUrl))
+		}
+
+		val fp = task.filePath?.let { normalizeUrl(it) }
+		if (!fp.isNullOrBlank()) {
+			out.add(FormatMerger.createFormatFromTask(task, fp))
+		}
+
+		return out
+			.filter { it.url.isNotBlank() }
+			.distinctBy { it.url }
+			.sortedWith(
+				compareByDescending<DownloadFormat> { if (it.formatId.equals("best", ignoreCase = true)) Int.MAX_VALUE else (it.height ?: it.extractHeight() ?: 0) }
+					.thenByDescending { it.filesize ?: 0L }
+			)
+	}
+
+	private fun normalizeUrl(raw: String): String {
+		return raw.trim()
+			.trim('`')
+			.trim('"')
+			.trim('\'')
+			.trim()
+	}
 
     /**
      * Builder pattern for easier dialog creation

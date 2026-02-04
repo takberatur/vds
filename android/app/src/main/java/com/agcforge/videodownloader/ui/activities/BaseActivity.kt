@@ -5,6 +5,10 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.agcforge.videodownloader.helper.BannerAdsHelper
+import com.agcforge.videodownloader.helper.InterstitialHelper
+import com.agcforge.videodownloader.helper.NativeAdsHelper
+import com.agcforge.videodownloader.helper.RewardAdsHelper
 import com.agcforge.videodownloader.utils.PreferenceManager
 import com.agcforge.videodownloader.utils.applyTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -18,11 +22,31 @@ abstract class BaseActivity : AppCompatActivity() {
     private lateinit var preferenceManager: PreferenceManager
 	private var appliedLanguageCode: String? = null
 
+    private lateinit var interstitialHelper: InterstitialHelper
+    private lateinit var rewardAdsHelper: RewardAdsHelper
+    private lateinit var bannerAdsHelper: BannerAdsHelper
+    private lateinit var nativeAdsHelper: NativeAdsHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         preferenceManager = PreferenceManager(this)
         observeTheme()
         observeLanguage()
         super.onCreate(savedInstanceState)
+
+//        initializeAdsHelpers()
+//        loadAds()
+    }
+
+    private fun initializeAdsHelpers() {
+        interstitialHelper = InterstitialHelper(this)
+        rewardAdsHelper = RewardAdsHelper(this)
+        bannerAdsHelper = BannerAdsHelper(this)
+        nativeAdsHelper = NativeAdsHelper(this)
+    }
+
+    private fun loadAds() {
+        interstitialHelper.loadAd()
+        rewardAdsHelper.loadAd()
     }
 
     private fun observeTheme() {

@@ -124,24 +124,26 @@ class InterstitialHelper (private val activity: Activity) {
 
         val adRequest = AdRequest.Builder().build()
 
-        InterstitialAd.load(
-            activity,
-            "",
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d(TAG, "Admob interstitial loaded")
-                    admobInterstitial = interstitialAd
-                    isAdmobLoading = false
-                }
+        AdsConfig.ADMOB_INTERSTITIAL_ID?.let {
+            InterstitialAd.load(
+                activity,
+                it,
+                adRequest,
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                        Log.d(TAG, "Admob interstitial loaded")
+                        admobInterstitial = interstitialAd
+                        isAdmobLoading = false
+                    }
 
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    Log.e(TAG, "Admob interstitial failed: ${loadAdError.message}")
-                    admobInterstitial = null
-                    isAdmobLoading = false
+                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        Log.e(TAG, "Admob interstitial failed: ${loadAdError.message}")
+                        admobInterstitial = null
+                        isAdmobLoading = false
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     private fun showAdmobInterstitial(
@@ -184,29 +186,30 @@ class InterstitialHelper (private val activity: Activity) {
 
     private fun loadUnityInterstitial() {
         if (isUnityLoading) return
+        AdsConfig.UNITY_INTERSTITIAL_ID?.let {
+            isUnityLoading = true
 
-        isUnityLoading = true
+            UnityAds.load(
+                AdsConfig.UNITY_INTERSTITIAL_ID,
+                object : IUnityAdsLoadListener {
+                    override fun onUnityAdsAdLoaded(placementId: String) {
+                        Log.d(TAG, "Unity interstitial loaded")
+                        isUnityLoaded = true
+                        isUnityLoading = false
+                    }
 
-        UnityAds.load(
-            "",
-            object : IUnityAdsLoadListener {
-                override fun onUnityAdsAdLoaded(placementId: String) {
-                    Log.d(TAG, "Unity interstitial loaded")
-                    isUnityLoaded = true
-                    isUnityLoading = false
+                    override fun onUnityAdsFailedToLoad(
+                        placementId: String,
+                        error: UnityAds.UnityAdsLoadError,
+                        message: String
+                    ) {
+                        Log.e(TAG, "Unity interstitial failed: $message")
+                        isUnityLoaded = false
+                        isUnityLoading = false
+                    }
                 }
-
-                override fun onUnityAdsFailedToLoad(
-                    placementId: String,
-                    error: UnityAds.UnityAdsLoadError,
-                    message: String
-                ) {
-                    Log.e(TAG, "Unity interstitial failed: $message")
-                    isUnityLoaded = false
-                    isUnityLoading = false
-                }
-            }
-        )
+            )
+        }
     }
 
     private fun showUnityInterstitial(
@@ -216,7 +219,7 @@ class InterstitialHelper (private val activity: Activity) {
     ) {
         UnityAds.show(
             activity,
-            "",
+            AdsConfig.UNITY_INTERSTITIAL_ID,
             object : IUnityAdsShowListener {
                 override fun onUnityAdsShowStart(placementId: String) {
                     Log.d(TAG, "Unity interstitial started")

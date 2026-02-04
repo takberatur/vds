@@ -3,7 +3,6 @@ package com.agcforge.videodownloader
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import com.agcforge.videodownloader.helper.AdsConfig
 import com.agcforge.videodownloader.utils.DownloadManagerCleaner
 import com.onesignal.OneSignal
 import kotlinx.coroutines.CoroutineScope
@@ -33,22 +32,11 @@ class App : Application() {
     }
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    val oneSignalId: String? = AdsConfig.ONESIGNAL_ID
-    val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
 
     override fun onCreate() {
         super.onCreate()
         instance = this
         DownloadManagerCleaner.clearFailedDownloads(this)
 
-        AdsConfig.initialize(this)
-
-        if (enableOneSignal) OneSignal.initWithContext(this, oneSignalId!!)
-
-        applicationScope.launch {
-            if (enableOneSignal) {
-                OneSignal.Notifications.requestPermission(true)
-            }
-        }
     }
 }

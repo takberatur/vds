@@ -102,7 +102,7 @@ object FormatMerger {
         return DownloadFormat(
             url = filePath,
             filesize = task.fileSize,
-            formatId = task.format ?: "best",
+			formatId = "best",
             acodec = guessAudioCodec(fileExtension),
             vcodec = guessVideoCodec(fileExtension),
             ext = fileExtension,

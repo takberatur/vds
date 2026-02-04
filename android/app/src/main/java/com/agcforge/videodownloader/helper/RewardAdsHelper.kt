@@ -106,24 +106,26 @@ class RewardAdsHelper(private val activity: Activity) {
 
         val adRequest = AdRequest.Builder().build()
 
-        RewardedAd.load(
-            activity,
-            "",
-            adRequest,
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(rewardedAd: RewardedAd) {
-                    Log.d(TAG, "Admob reward loaded")
-                    admobRewardedAd = rewardedAd
-                    isAdmobLoading = false
-                }
+        AdsConfig.ADMOB_REWARDED_ID?.let {
+            RewardedAd.load(
+                activity,
+                it,
+                adRequest,
+                object : RewardedAdLoadCallback() {
+                    override fun onAdLoaded(rewardedAd: RewardedAd) {
+                        Log.d(TAG, "Admob reward loaded")
+                        admobRewardedAd = rewardedAd
+                        isAdmobLoading = false
+                    }
 
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    Log.e(TAG, "Admob reward failed: ${loadAdError.message}")
-                    admobRewardedAd = null
-                    isAdmobLoading = false
+                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        Log.e(TAG, "Admob reward failed: ${loadAdError.message}")
+                        admobRewardedAd = null
+                        isAdmobLoading = false
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     private fun showAdmobReward(
@@ -172,26 +174,28 @@ class RewardAdsHelper(private val activity: Activity) {
 
         isUnityLoading = true
 
-        UnityAds.load(
-            "",
-            object : IUnityAdsLoadListener {
-                override fun onUnityAdsAdLoaded(placementId: String) {
-                    Log.d(TAG, "Unity reward loaded")
-                    isUnityLoaded = true
-                    isUnityLoading = false
-                }
+        AdsConfig.UNITY_REWARDED_ID?.let {
+            UnityAds.load(
+                it,
+                object : IUnityAdsLoadListener {
+                    override fun onUnityAdsAdLoaded(placementId: String) {
+                        Log.d(TAG, "Unity reward loaded")
+                        isUnityLoaded = true
+                        isUnityLoading = false
+                    }
 
-                override fun onUnityAdsFailedToLoad(
-                    placementId: String,
-                    error: UnityAds.UnityAdsLoadError,
-                    message: String
-                ) {
-                    Log.e(TAG, "Unity reward failed: $message")
-                    isUnityLoaded = false
-                    isUnityLoading = false
+                    override fun onUnityAdsFailedToLoad(
+                        placementId: String,
+                        error: UnityAds.UnityAdsLoadError,
+                        message: String
+                    ) {
+                        Log.e(TAG, "Unity reward failed: $message")
+                        isUnityLoaded = false
+                        isUnityLoading = false
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     private fun showUnityReward(
@@ -200,49 +204,58 @@ class RewardAdsHelper(private val activity: Activity) {
         onAdClosed: ((AdsProvider) -> Unit)?,
         onAdFailed: ((AdsProvider) -> Unit)?
     ) {
-        UnityAds.show(
-            activity,
-            "",
-            object : IUnityAdsShowListener {
-                override fun onUnityAdsShowStart(placementId: String) {
-                    Log.d(TAG, "Unity reward started")
-                    onAdShown?.invoke(AdsProvider.UNITY)
-                }
-
-                override fun onUnityAdsShowComplete(
-                    placementId: String,
-                    state: UnityAds.UnityAdsShowCompletionState
-                ) {
-                    Log.d(TAG, "Unity reward completed: $state")
-
-                    if (state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
-                        // User watched the full video
-                        onRewarded?.invoke(AdsProvider.UNITY, 1)
+        AdsConfig.UNITY_REWARDED_ID?.let {
+            UnityAds.show(
+                activity,
+                it,
+                object : IUnityAdsShowListener {
+                    override fun onUnityAdsShowStart(placementId: String) {
+                        Log.d(TAG, "Unity reward started")
+                        onAdShown?.invoke(AdsProvider.UNITY)
                     }
 
-                    isUnityLoaded = false
-                    loadUnityReward() // Reload
-                    onAdClosed?.invoke(AdsProvider.UNITY)
-                }
 
-                override fun onUnityAdsShowFailure(
-                    placementId: String,
-                    error: UnityAds.UnityAdsShowError,
-                    message: String
-                ) {
-                    Log.e(TAG, "Unity reward show failed: $message")
-                    isUnityLoaded = false
-                    loadUnityReward()
+                    override fun onUnityAdsShowComplete(
+                        placementId: String,
+                        state: UnityAds.UnityAdsShowCompletionState
+                    ) {
+                        Log.d(TAG, "Unity reward completed: $state")
 
-                    // Try next provider
-                    tryNextProvider(AdsProvider.UNITY, onAdShown, onRewarded, onAdClosed, onAdFailed)
-                }
+                        if (state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
+                            // User watched the full video
+                            onRewarded?.invoke(AdsProvider.UNITY, 1)
+                        }
 
-                override fun onUnityAdsShowClick(placementId: String) {
-                    Log.d(TAG, "Unity reward clicked")
+                        isUnityLoaded = false
+                        loadUnityReward() // Reload
+                        onAdClosed?.invoke(AdsProvider.UNITY)
+                    }
+
+                    override fun onUnityAdsShowFailure(
+                        placementId: String,
+                        error: UnityAds.UnityAdsShowError,
+                        message: String
+                    ) {
+                        Log.e(TAG, "Unity reward show failed: $message")
+                        isUnityLoaded = false
+                        loadUnityReward()
+
+                        // Try next provider
+                        tryNextProvider(
+                            AdsProvider.UNITY,
+                            onAdShown,
+                            onRewarded,
+                            onAdClosed,
+                            onAdFailed
+                        )
+                    }
+
+                    override fun onUnityAdsShowClick(placementId: String) {
+                        Log.d(TAG, "Unity reward clicked")
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     // ========== START.IO REWARD ==========
