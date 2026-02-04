@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Machtiging om externe opslag te beheren is geweigerd</string>
     <string name="access_folder_canceled">Folder toegang is geannuleerd</string>
     <string name="audio_not_ready_to_download">Audio is niet klaar voor download</string>
-    <string name="audio_being_processeed_to_download">Audio is momenteel verwerkt, wacht aub.</string>
+    <string name="audio_being_processed_to_download">Audio is momenteel verwerkt, wacht aub.</string>
     <string name="cannot_open_file_location">Kon bestandslocatie niet openen</string>
     <string name="permission_required">Permissie is vereist</string>
+    <string name="in_the_queue">In de wachtrij</string>
+    <string name="please_wait">Wacht aub.</string>
+    <string name="processing">Verwerken</string>
+    <string name="being_processed">Verwerkt</string>
+    <string name="done_preparing_download">Download is klaar voor gebruik</string>
+    <string name="failed_to_process_audio">Kon audio niet verwerken</string>
 </resources>

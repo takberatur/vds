@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Truy cập bộ nhớ ngoại tuyến bị từ chối</string>
     <string name="access_folder_canceled">Truy cập vào thư mục bị hủy</string>
     <string name="audio_not_ready_to_download">Âm thanh không sẵn sàng để tải xuống</string>
-    <string name="audio_being_processeed_to_download">Âm thanh đang được xử lý, vui lòng đợi.</string>
+    <string name="audio_being_processed_to_download">Âm thanh đang được xử lý, vui lòng đợi.</string>
     <string name="cannot_open_file_location">Không thể mở vị trí tệp</string>
     <string name="permission_required">Yêu cầu quyền truy cập</string>
+    <string name="in_the_queue">Trong hàng đợi</string>
+    <string name="please_wait">Vui lòng đợi</string>
+    <string name="processing">Xử lý</string>
+    <string name="being_processed">Xử lý</string>
+    <string name="done_preparing_download">Tải xuống đã sẵn sàng</string>
+    <string name="failed_to_process_audio">Không thể xử lý âm thanh</string>
 </resources>

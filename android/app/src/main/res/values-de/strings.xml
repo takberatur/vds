@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Die Berechtigung zum Verwalten des externen Speichers wurde verweigert</string>
     <string name="access_folder_canceled">Zugriffsordner abgebrochen</string>
     <string name="audio_not_ready_to_download">Audio ist noch nicht bereit zum Download</string>
-    <string name="audio_being_processeed_to_download">Audio wird gerade verarbeitet, bitte warten Sie.</string>
+    <string name="audio_being_processed_to_download">Audio wird gerade verarbeitet, bitte warten Sie.</string>
     <string name="cannot_open_file_location">Kann den Dateipfad nicht öffnen</string>
     <string name="permission_required">Berechtigung erforderlich</string>
+    <string name="in_the_queue">In der Warteschlange</string>
+    <string name="please_wait">Bitte warten Sie</string>
+    <string name="processing">Wird verarbeitet</string>
+    <string name="being_processed">Wird gerade verarbeitet</string>
+    <string name="done_preparing_download">Download wurde eingerichtet</string>
+    <string name="failed_to_process_audio">Fehler beim Verarbeiten des Audios</string>
 </resources>

@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">외부 저장소 관리 권한이 거부되었습니다</string>
     <string name="access_folder_canceled">폴더 액세스가 취소되었습니다</string>
     <string name="audio_not_ready_to_download">오디오가 준비되지 않았습니다</string>
-    <string name="audio_being_processeed_to_download">오디오가 처리 중입니다. 잠시만 기다려주세요.</string>
+    <string name="audio_being_processed_to_download">오디오가 처리 중입니다. 잠시만 기다려주세요.</string>
     <string name="cannot_open_file_location">파일 위치를 열 수 없습니다</string>
     <string name="permission_required">권한이 필요합니다</string>
+    <string name="in_the_queue">대기 중</string>
+    <string name="please_wait">잠시만 기다려주세요</string>
+    <string name="processing">처리 중</string>
+    <string name="being_processed">처리 중</string>
+    <string name="done_preparing_download">다운로드 준비 완료</string>
+    <string name="failed_to_process_audio">오디오 처리에 실패했습니다</string>
 </resources>

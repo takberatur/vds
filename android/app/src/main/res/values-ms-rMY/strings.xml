@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Izin manajemen penyimpanan eksternal ditolak</string>
     <string name="access_folder_canceled">Folder akses dibatalkan</string>
     <string name="audio_not_ready_to_download">Audio belum siap untuk diunduh</string>
-    <string name="audio_being_processeed_to_download">Audio sedang diproses, harap tunggu.</string>
+    <string name="audio_being_processed_to_download">Audio sedang diproses, harap tunggu.</string>
     <string name="cannot_open_file_location">Tidak dapat membuka lokasi file</string>
     <string name="permission_required">Izin diperlukan</string>
+    <string name="in_the_queue">Dalam antrian</string>
+    <string name="please_wait">Mohon tunggu</string>
+    <string name="processing">Proses</string>
+    <string name="being_processed">Proses</string>
+    <string name="done_preparing_download">Unduhan siap</string>
+    <string name="failed_to_process_audio">Gagal memproses audio</string>
 </resources>

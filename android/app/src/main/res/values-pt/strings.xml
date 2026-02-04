@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Permissão de gerenciamento de armazenamento externo negada</string>
     <string name="access_folder_canceled">Acesso à pasta cancelado</string>
     <string name="audio_not_ready_to_download">O áudio não está pronto para download</string>
-    <string name="audio_being_processeed_to_download">O áudio está sendo processado, por favor, aguarde.</string>
+    <string name="audio_being_processed_to_download">O áudio está sendo processado, por favor, aguarde.</string>
     <string name="cannot_open_file_location">Não foi possível abrir a localização do arquivo</string>
     <string name="permission_required">Permissão necessária</string>
+    <string name="in_the_queue">Na fila de download</string>
+    <string name="please_wait">Por favor, aguarde</string>
+    <string name="processing">Processando</string>
+    <string name="being_processed">Processando</string>
+    <string name="done_preparing_download">Download pronto para uso</string>
+    <string name="failed_to_process_audio">Falha ao processar o áudio</string>
 </resources>

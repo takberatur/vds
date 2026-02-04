@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">تم رفض إذن إدارة وحدة التخزين الخارجية</string>
     <string name="access_folder_canceled">تم إلغاء مجلد الوصول</string>
     <string name="audio_not_ready_to_download">الصوت غير جاهز للتنزيل، يرجى المحاولة مرة أخرى.</string>
-    <string name="audio_being_processeed_to_download">تتم معالجة الصوت للتنزيل، يرجى الانتظار.</string>
+    <string name="audio_being_processed_to_download">تتم معالجة الصوت للتنزيل، يرجى الانتظار.</string>
     <string name="cannot_open_file_location">لا يمكن فتح موقع الملف</string>
     <string name="permission_required">الإذن مطلوب</string>
+    <string name="in_the_queue">في قائمة الانتظار</string>
+    <string name="please_wait">الرجاء الانتظار</string>
+    <string name="processing">جاري المعالجة</string>
+    <string name="being_processed">تتم معالجة</string>
+    <string name="done_preparing_download">تم إعداد التنزيل</string>
+    <string name="failed_to_process_audio">فشل في معالجة الصوت</string>
 </resources>

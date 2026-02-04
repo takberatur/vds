@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Δεν επιτρέπεται η διαχείριση εξωτερικού χώρου αποθήκευσης</string>
     <string name="access_folder_canceled">Ο φάκελος πρόσβασης ακυρώθηκε</string>
     <string name="audio_not_ready_to_download">Αυτός ο ήχος δεν είναι έτοιμος για λήψη</string>
-    <string name="audio_being_processeed_to_download">Αυτός ο ήχος είναι σε εξέλιξη, παρακαλώ περιμένετε.</string>
+    <string name="audio_being_processed_to_download">Αυτός ο ήχος είναι σε εξέλιξη, παρακαλώ περιμένετε.</string>
     <string name="cannot_open_file_location">Δεν μπορεί να ανοίξει το τοποθεσία του αρχείου</string>
     <string name="permission_required">Απαιτείται άδεια</string>
+    <string name="in_the_queue">Σε ουρά</string>
+    <string name="please_wait">Παρακαλώ περιμένετε</string>
+    <string name="processing">Επεξεργασία</string>
+    <string name="being_processed">Επεξεργασία</string>
+    <string name="done_preparing_download">Οδηγός λήψης έτοιμος</string>
+    <string name="failed_to_process_audio">Αποτυχία επεξεργασίας ήχου</string>
 </resources>

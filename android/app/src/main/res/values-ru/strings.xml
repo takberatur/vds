@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Отказано в разрешении на управление внешним хранилищем</string>
     <string name="access_folder_canceled">Доступ к папке отменен</string>
     <string name="audio_not_ready_to_download">Аудио не готово к загрузке</string>
-    <string name="audio_being_processeed_to_download">Аудио сейчас обрабатывается, пожалуйста, подождите.</string>
+    <string name="audio_being_processed_to_download">Аудио сейчас обрабатывается, пожалуйста, подождите.</string>
     <string name="cannot_open_file_location">Не удалось открыть расположение файла</string>
     <string name="permission_required">Требуется разрешение</string>
+    <string name="in_the_queue">В очереди</string>
+    <string name="please_wait">Пожалуйста, подождите</string>
+    <string name="processing">Обработка</string>
+    <string name="being_processed">Обработка</string>
+    <string name="done_preparing_download">Загрузка готова к использованию</string>
+    <string name="failed_to_process_audio">Не удалось обработать аудио</string>
 </resources>

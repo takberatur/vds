@@ -350,11 +350,11 @@ class HomeFragment : Fragment() {
 		if (!isAdded) return
 		if (mp3ProcessingDialog?.isShowing == true) return
 		mp3ProcessingDialog = DownloadingDialog.create(requireContext())
-			.setTitle(getString(R.string.audio_being_processeed_to_download))
-			.setMessage("Mohon tunggu...")
+			.setTitle(getString(R.string.audio_being_processed_to_download))
+			.setMessage(getString(R.string.please_wait))
 			.setAnimation(R.raw.cloud_data_backup, autoPlay = true, loop = true)
 			.setCancelable(false)
-			.setNegativeButton("Batal") {
+			.setNegativeButton(requireContext().getString(R.string.cancel)) {
 				pendingMp3Tasks.remove(taskId)
 				mp3PollJobs.remove(taskId)?.cancel()
 			}
@@ -364,11 +364,11 @@ class HomeFragment : Fragment() {
 	private fun updateMp3DialogStatus(status: String) {
 		if (mp3ProcessingDialog?.isShowing != true) return
 		val msg = when (status.lowercase()) {
-			"queued" -> "Masuk antrean..."
-			"processing" -> "Sedang diproses..."
-			"completed" -> "Selesai. Menyiapkan unduhan..."
-			"failed" -> "Gagal memproses audio"
-			else -> "Sedang diproses..."
+			"queued" -> getString(R.string.in_the_queue)
+			"processing" -> getString(R.string.processing)
+			"completed" -> getString(R.string.done_preparing_download)
+			"failed" -> getString(R.string.failed_to_process_audio)
+			else -> getString(R.string.being_processed)
 		}
 		mp3ProcessingDialog?.updateMessage(msg)
 	}

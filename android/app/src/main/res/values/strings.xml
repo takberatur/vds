@@ -162,7 +162,13 @@
     <string name="manage_external_storage_permission_denied">Manage external storage permission denied</string>
     <string name="access_folder_canceled">Access folder canceled</string>
     <string name="audio_not_ready_to_download">Audio is not ready to download, please try again.</string>
-    <string name="audio_being_processeed_to_download">Audio is being processed to download, please wait.</string>
+    <string name="audio_being_processed_to_download">Audio is being processed to download, please wait.</string>
     <string name="cannot_open_file_location">Cannot open file location</string>
     <string name="permission_required">Permission required</string>
+    <string name="in_the_queue">In the queue</string>
+    <string name="please_wait">Please wait</string>
+    <string name="processing">Processing</string>
+    <string name="being_processed">Being processed</string>
+    <string name="done_preparing_download">Done preparing download</string>
+    <string name="failed_to_process_audio">Failed to process audio</string>
 </resources>

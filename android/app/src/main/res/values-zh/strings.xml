@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">拒绝管理外部存储权限</string>
     <string name="access_folder_canceled">访问文件夹已取消</string>
     <string name="audio_not_ready_to_download">音频文件未准备好下载</string>
-    <string name="audio_being_processeed_to_download">音频文件正在处理中，请稍后。</string>
+    <string name="audio_being_processed_to_download">音频文件正在处理中，请稍后。</string>
     <string name="cannot_open_file_location">无法打开文件位置</string>
     <string name="permission_required">需要权限</string>
+    <string name="in_the_queue">已加入队列</string>
+    <string name="please_wait">请稍后</string>
+    <string name="processing">处理中</string>
+    <string name="being_processed">正在处理中</string>
+    <string name="done_preparing_download">下载已准备就绪</string>
+    <string name="failed_to_process_audio">处理音频失败</string>
 </resources>

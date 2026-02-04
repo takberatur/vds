@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Pamahalaan ang panlabas na pahintulot ng storage ay tinanggihan</string>
     <string name="access_folder_canceled">Kinansela ang folder ng access</string>
     <string name="audio_not_ready_to_download">Hindi pa handang i-download ang audio, pakisubukang muli.</string>
-    <string name="audio_being_processeed_to_download">Pinoproseso ang audio upang ma-download, mangyaring maghintay.</string>
+    <string name="audio_being_processed_to_download">Pinoproseso ang audio upang ma-download, mangyaring maghintay.</string>
     <string name="cannot_open_file_location">Hindi mabuksan ang lokasyon ng file</string>
     <string name="permission_required">Kinakailangan ang pahintulot</string>
+    <string name="in_the_queue">Nagpahintulot sa queue</string>
+    <string name="please_wait">Mangyaring maghintay</string>
+    <string name="processing">Pinoproseso</string>
+    <string name="being_processed">Pinoproseso</string>
+    <string name="done_preparing_download">Nabigo na i-download ang file</string>
+    <string name="failed_to_process_audio">Nabigo na pinoproseso ang audio</string>
 </resources>

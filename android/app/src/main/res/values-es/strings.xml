@@ -158,7 +158,13 @@
     <string name="manage_external_storage_permission_denied">Administrar permiso de almacenamiento externo denegado</string>
     <string name="access_folder_canceled">Carpeta de acceso cancelada</string>
     <string name="audio_not_ready_to_download">El audio no está listo para la descarga</string>
-    <string name="audio_being_processeed_to_download">El audio está siendo procesado, por favor espere.</string>
+    <string name="audio_being_processed_to_download">El audio está siendo procesado, por favor espere.</string>
     <string name="cannot_open_file_location">No se puede abrir la ubicación del archivo</string>
     <string name="permission_required">Se requiere permiso</string>
+    <string name="in_the_queue">En la cola</string>
+    <string name="please_wait">Por favor, espere</string>
+    <string name="processing">Procesando</string>
+    <string name="being_processed">Procesando</string>
+    <string name="done_preparing_download">Descarga lista</string>
+    <string name="failed_to_process_audio">Error al procesar el audio</string>
 </resources>
