@@ -155,4 +155,10 @@
     <string name="no_media_files_found">没有找到媒体文件</string>
     <string name="failed_to_load_downloads">加载下载失败: %s</string>
     <string name="history_cleared">下载历史已清除</string>
+    <string name="manage_external_storage_permission_denied">拒绝管理外部存储权限</string>
+    <string name="access_folder_canceled">访问文件夹已取消</string>
+    <string name="audio_not_ready_to_download">音频文件未准备好下载</string>
+    <string name="audio_being_processeed_to_download">音频文件正在处理中，请稍后。</string>
+    <string name="cannot_open_file_location">无法打开文件位置</string>
+    <string name="permission_required">需要权限</string>
 </resources>

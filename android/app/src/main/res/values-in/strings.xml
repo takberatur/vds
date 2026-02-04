@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Tidak ada file media yang ditemukan</string>
     <string name="failed_to_load_downloads">Gagal memuat unduhan: %s</string>
     <string name="history_cleared">Riwayat dihapus dengan sukses</string>
+    <string name="manage_external_storage_permission_denied">Izin manajemen penyimpanan eksternal ditolak</string>
+    <string name="access_folder_canceled">Folder akses dibatalkan</string>
+    <string name="audio_not_ready_to_download">Audio tidak siap untuk diunduh</string>
+    <string name="audio_being_processeed_to_download">Audio sedang diproses, silakan tunggu.</string>
+    <string name="cannot_open_file_location">Tidak dapat membuka lokasi file</string>
+    <string name="permission_required">Izin dibutuhkan</string>
 </resources>

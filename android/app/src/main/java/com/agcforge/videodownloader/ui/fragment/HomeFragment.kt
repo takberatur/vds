@@ -215,10 +215,10 @@ class HomeFragment : Fragment() {
 										if (pendingMp3Tasks.containsKey(task.id)) {
 											pendingMp3Tasks.remove(task.id)
 											pendingMp3TimeoutJobs.remove(task.id)
-											requireContext().showToast("Audio belum siap, coba lagi")
+											requireContext().showToast(getString(R.string.audio_not_ready_to_download))
 										}
 									}
-									requireContext().showToast("Audio sedang diproses...")
+									requireContext().showToast(getString(R.string.audio_being_processeed_to_download))
 									binding.etUrl.text?.clear()
 									updateDownloadButtonState()
 									return@let

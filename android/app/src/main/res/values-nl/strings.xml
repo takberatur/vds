@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Geen media bestanden gevonden</string>
     <string name="failed_to_load_downloads">Kon downloads niet laden: %s</string>
     <string name="history_cleared">Downloadgeschiedenis is verwijderd</string>
+    <string name="manage_external_storage_permission_denied">Machtiging om externe opslag te beheren is geweigerd</string>
+    <string name="access_folder_canceled">Folder toegang is geannuleerd</string>
+    <string name="audio_not_ready_to_download">Audio is niet klaar voor download</string>
+    <string name="audio_being_processeed_to_download">Audio is momenteel verwerkt, wacht aub.</string>
+    <string name="cannot_open_file_location">Kon bestandslocatie niet openen</string>
+    <string name="permission_required">Permissie is vereist</string>
 </resources>

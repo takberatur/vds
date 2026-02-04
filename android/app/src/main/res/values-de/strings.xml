@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Keine Mediendateien gefunden</string>
     <string name="failed_to_load_downloads">Fehler beim Laden der Downloads: %s</string>
     <string name="history_cleared">Verlauf gelöscht</string>
+    <string name="manage_external_storage_permission_denied">Die Berechtigung zum Verwalten des externen Speichers wurde verweigert</string>
+    <string name="access_folder_canceled">Zugriffsordner abgebrochen</string>
+    <string name="audio_not_ready_to_download">Audio ist noch nicht bereit zum Download</string>
+    <string name="audio_being_processeed_to_download">Audio wird gerade verarbeitet, bitte warten Sie.</string>
+    <string name="cannot_open_file_location">Kann den Dateipfad nicht öffnen</string>
+    <string name="permission_required">Berechtigung erforderlich</string>
 </resources>

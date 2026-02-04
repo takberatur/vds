@@ -155,4 +155,10 @@
     <string name="no_media_files_found">ไม่มีไฟล์ 미디า</string>
     <string name="failed_to_load_downloads">ไม่สามารถโหลดการดาวน์โหลดได้: %s</string>
     <string name="history_cleared">ประวัติการดาวน์โหลดถูกล้างแล้ว</string>
+    <string name="manage_external_storage_permission_denied">ไม่ได้รับอนุญาตให้управлятьการจัดเก็บภายนอก</string>
+    <string name="access_folder_canceled">การเข้าถึงโฟลเดอร์ถูกยกเลิก</string>
+    <string name="audio_not_ready_to_download">ไม่พร้อมสำหรับการดาวน์โหลด</string>
+    <string name="audio_being_processeed_to_download">กำลังประมวลผลการดาวน์โหลด</string>
+    <string name="cannot_open_file_location">ไม่สามารถเปิดตำแหน่งไฟล์</string>
+    <string name="permission_required">ต้องมีการอนุญาต</string>
 </resources>

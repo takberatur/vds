@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Không có tệp multimeda nào được tìm thấy</string>
     <string name="failed_to_load_downloads">Không thể tải xuống tải xuống: %s</string>
     <string name="history_cleared">Lịch sử tải xuống đã được xóa</string>
+    <string name="manage_external_storage_permission_denied">Truy cập bộ nhớ ngoại tuyến bị từ chối</string>
+    <string name="access_folder_canceled">Truy cập vào thư mục bị hủy</string>
+    <string name="audio_not_ready_to_download">Âm thanh không sẵn sàng để tải xuống</string>
+    <string name="audio_being_processeed_to_download">Âm thanh đang được xử lý, vui lòng đợi.</string>
+    <string name="cannot_open_file_location">Không thể mở vị trí tệp</string>
+    <string name="permission_required">Yêu cầu quyền truy cập</string>
 </resources>

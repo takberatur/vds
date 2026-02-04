@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Δεν βρέθηκαν αρχεία πολυμέσων</string>
     <string name="failed_to_load_downloads">Αποτυχία φόρτωσης λήψεων: %s</string>
     <string name="history_cleared">Ιστορικό διαγραφεί με επιτυχία</string>
+    <string name="manage_external_storage_permission_denied">Δεν επιτρέπεται η διαχείριση εξωτερικού χώρου αποθήκευσης</string>
+    <string name="access_folder_canceled">Ο φάκελος πρόσβασης ακυρώθηκε</string>
+    <string name="audio_not_ready_to_download">Αυτός ο ήχος δεν είναι έτοιμος για λήψη</string>
+    <string name="audio_being_processeed_to_download">Αυτός ο ήχος είναι σε εξέλιξη, παρακαλώ περιμένετε.</string>
+    <string name="cannot_open_file_location">Δεν μπορεί να ανοίξει το τοποθεσία του αρχείου</string>
+    <string name="permission_required">Απαιτείται άδεια</string>
 </resources>

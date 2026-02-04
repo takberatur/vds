@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Walang nakitang media file</string>
     <string name="failed_to_load_downloads">Nabigong i-load ang mga download: %s</string>
     <string name="history_cleared">Nabura ang kasaysayan</string>
+    <string name="manage_external_storage_permission_denied">Pamahalaan ang panlabas na pahintulot ng storage ay tinanggihan</string>
+    <string name="access_folder_canceled">Kinansela ang folder ng access</string>
+    <string name="audio_not_ready_to_download">Hindi pa handang i-download ang audio, pakisubukang muli.</string>
+    <string name="audio_being_processeed_to_download">Pinoproseso ang audio upang ma-download, mangyaring maghintay.</string>
+    <string name="cannot_open_file_location">Hindi mabuksan ang lokasyon ng file</string>
+    <string name="permission_required">Kinakailangan ang pahintulot</string>
 </resources>

@@ -155,4 +155,10 @@
     <string name="no_media_files_found">कोई मीडिया फ़ाइल नहीं मिली</string>
     <string name="failed_to_load_downloads">डाउनलोड लोड करने में विफल: %s</string>
     <string name="history_cleared">इतिहास साफ़ किया गया</string>
+    <string name="manage_external_storage_permission_denied">बाह्य भंडारण प्रबंधित करने की अनुमति अस्वीकृत</string>
+    <string name="access_folder_canceled">एक्सेस फ़ोल्डर रद्द कर दिया गया</string>
+    <string name="audio_not_ready_to_download">ऑडियो अभी तक नहीं तैयार है</string>
+    <string name="audio_being_processeed_to_download">ऑडियो अभी तक नहीं तैयार है</string>
+    <string name="cannot_open_file_location">फ़ाइल स्थान नहीं खोला जा सका</string>
+    <string name="permission_required">पermisison आवश्यक है</string>
 </resources>

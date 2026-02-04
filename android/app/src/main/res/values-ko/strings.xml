@@ -155,4 +155,10 @@
     <string name="no_media_files_found">미디어 파일이 없습니다</string>
     <string name="failed_to_load_downloads">다운로드 불러오기 실패: %s</string>
     <string name="history_cleared">다운로드 이력이 성공적으로 삭제되었습니다</string>
+    <string name="manage_external_storage_permission_denied">외부 저장소 관리 권한이 거부되었습니다</string>
+    <string name="access_folder_canceled">폴더 액세스가 취소되었습니다</string>
+    <string name="audio_not_ready_to_download">오디오가 준비되지 않았습니다</string>
+    <string name="audio_being_processeed_to_download">오디오가 처리 중입니다. 잠시만 기다려주세요.</string>
+    <string name="cannot_open_file_location">파일 위치를 열 수 없습니다</string>
+    <string name="permission_required">권한이 필요합니다</string>
 </resources>

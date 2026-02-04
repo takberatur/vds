@@ -45,8 +45,6 @@ class AppAlertDialog(
 
         initViews(view)
 
-
-
         setupDialog()
     }
 

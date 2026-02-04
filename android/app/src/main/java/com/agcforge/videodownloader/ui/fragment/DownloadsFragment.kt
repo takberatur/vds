@@ -2,9 +2,11 @@ package com.agcforge.videodownloader.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -15,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -39,6 +42,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import com.agcforge.videodownloader.ui.component.AppAlertDialog
 
 class DownloadsFragment : Fragment() {
@@ -302,6 +306,7 @@ class DownloadsFragment : Fragment() {
             .show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun deleteFile(item: LocalDownloadItem) {
         viewLifecycleOwner.lifecycleScope.launch {
             binding.progressBar.visibility = View.VISIBLE
@@ -309,31 +314,27 @@ class DownloadsFragment : Fragment() {
             try {
                 println("DEBUG [Delete]: Starting delete process for: ${item.displayName}")
 
-                val deleted = deleteFileFromStorage(item)
+                if (checkDeletePermission(item)) {
+                    val deleted = deleteFileFromStorage(item)
 
-                if (deleted) {
-                    // Remove from adapter
-                    adapter.removeItem(item.id)
+                    if (deleted) {
+                        adapter.removeItem(item.id)
 
-                    // Update UI
-                    requireContext().showToast(getString(R.string.delete_file_success))
+                        requireContext().showToast(getString(R.string.delete_file_success))
 
-                    if (adapter.itemCount == 0) {
-                        binding.tvEmpty.visibility = View.VISIBLE
-                        binding.rvDownloads.visibility = View.GONE
+                        if (adapter.itemCount == 0) {
+                            binding.tvEmpty.visibility = View.VISIBLE
+                            binding.rvDownloads.visibility = View.GONE
+                        }
+
+                        // Refresh MediaStore
+                        refreshMediaStore(item.filePath)
+
+                    } else {
+                        showDeleteHelpDialog(item)
                     }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        MediaScannerConnection.scanFile(
-                            requireContext(),
-                            arrayOf(item.filePath),
-                            null,
-                            null
-                        )
-                    }
-
                 } else {
-                    showDeleteHelpDialog(item)
+                    requireContext().showToast(getString(R.string.manage_external_storage_permission_denied))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -343,6 +344,7 @@ class DownloadsFragment : Fragment() {
             }
         }
     }
+
 
     private suspend fun deleteFileFromStorage(item: LocalDownloadItem): Boolean {
         return withContext(Dispatchers.IO) {
@@ -415,27 +417,55 @@ class DownloadsFragment : Fragment() {
                     if (isAppPrivateStorage) {
                         val deleted = file.delete()
                         println("DEBUG [Delete]: App storage delete result: $deleted")
-
-                        if (deleted) {
-                            try {
-                                requireContext().contentResolver.delete(
-                                    item.uri,
-                                    null,
-                                    null
-                                )
-                            } catch (e: Exception) {
-                                println("DEBUG [Delete]: Error deleting from MediaStore: ${e.message}")
-                            }
-                        }
                         deleted
                     } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            println("DEBUG [Delete]: Android 11+ needs MANAGE_EXTERNAL_STORAGE for external storage")
-                            false
-                        } else {
-                            val deleted = file.delete()
-                            println("DEBUG [Delete]: External storage delete result: $deleted")
-                            deleted
+                        when {
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                                if (Environment.isExternalStorageManager()) {
+                                    val deleted = file.delete()
+                                    println("DEBUG [Delete]: Android 11+ external storage delete result: $deleted")
+                                    deleted
+                                } else {
+                                    println("DEBUG [Delete]: Need MANAGE_EXTERNAL_STORAGE permission")
+                                    false
+                                }
+                            }
+
+                            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                                if (ContextCompat.checkSelfPermission(
+                                        requireContext(),
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    val deleted = file.delete()
+                                    println("DEBUG [Delete]: Android 10 external storage delete result: $deleted")
+                                    deleted
+                                } else {
+                                    println("DEBUG [Delete]: Need WRITE_EXTERNAL_STORAGE permission")
+                                    false
+                                }
+                            }
+
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                                if (ContextCompat.checkSelfPermission(
+                                        requireContext(),
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    val deleted = file.delete()
+                                    println("DEBUG [Delete]: Android 6-9 external storage delete result: $deleted")
+                                    deleted
+                                } else {
+                                    println("DEBUG [Delete]: Need WRITE_EXTERNAL_STORAGE permission")
+                                    false
+                                }
+                            }
+
+                            else -> {
+                                val deleted = file.delete()
+                                println("DEBUG [Delete]: Legacy external storage delete result: $deleted")
+                                deleted
+                            }
                         }
                     }
                 } else {
@@ -553,45 +583,85 @@ class DownloadsFragment : Fragment() {
             pendingDeleteItem = null
         }
 
+    private val manageExternalStorageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                pendingDeleteItem?.let { item ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val deleted = deleteFileFromStorage(item)
+                        if (deleted) {
+                            adapter.removeItem(item.id)
+                            requireContext().showToast(requireContext().getString(R.string.delete_file_success))
+
+                            if (adapter.itemCount == 0) {
+                                binding.tvEmpty.visibility = View.VISIBLE
+                                binding.rvDownloads.visibility = View.GONE
+                            }
+                        } else {
+                            requireContext().showToast(requireContext().getString(R.string.delete_file_failed))
+                        }
+                    }
+                }
+            } else {
+                requireContext().showToast(requireContext().getString(R.string.manage_external_storage_permission_denied))
+            }
+        }
+        pendingDeleteItem = null
+    }
+
     private var pendingDeleteItem: LocalDownloadItem? = null
 
     private fun checkDeletePermission(item: LocalDownloadItem): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+ need MANAGE_EXTERNAL_STORAGE
-            if (Environment.isExternalStorageManager()) {
-                true
-            } else {
-                // Request permission
-                pendingDeleteItem = item
-                try {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.data = "package:${requireContext().packageName}".toUri()
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                    startActivity(intent)
+        return when {
+            // Android 11+ (API 30+) - Scoped Storage
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                if (Environment.isExternalStorageManager()) {
+                    true
+                } else {
+                    pendingDeleteItem = item
+                    showManageExternalStoragePermissionDialog(item)
+                    false
                 }
-                false
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Android 6-10 need WRITE_EXTERNAL_STORAGE
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                true
-            } else {
-                pendingDeleteItem = item
-                requestDeletePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                false
+
+            // Android 10 (API 29) - Request WRITE_EXTERNAL_STORAGE
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                if (ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    true
+                } else {
+                    pendingDeleteItem = item
+                    requestDeletePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    false
+                }
             }
-        } else {
-            // Android < 6 auto granted
-            true
+
+            // Android 6-9 (API 23-28) - Request WRITE_EXTERNAL_STORAGE
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                if (ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    true
+                } else {
+                    pendingDeleteItem = item
+                    requestDeletePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    false
+                }
+            }
+
+            // Android < 6 - Permission auto granted
+            else -> true
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun showDeleteHelpDialog(item: LocalDownloadItem) {
 
         AppAlertDialog.Builder(requireContext())
@@ -613,7 +683,31 @@ class DownloadsFragment : Fragment() {
             )
             .setPositiveButtonText("Open File Location")
             .setNegativeButtonText("OK")
-            .setOnPositiveClick { openFileLocation(item) }
+            .setOnPositiveClick { openManageExternalStorageSettings() }
+            .setOnNegativeClick { deleteUsingSAF(item) }
+            .show()
+    }
+
+    private fun showManageExternalStoragePermissionDialog(item: LocalDownloadItem) {
+        AppAlertDialog.Builder(requireContext())
+            .setType(AppAlertDialog.AlertDialogType.WARNING)
+            .setTitle(getString(R.string.permission_required))
+            .setMessage(
+                """
+            To delete files from the Download folder on Android 11 and above, 
+            app requires 'Manage All Files' permission'.
+            
+            Please grant this permission in system settings.
+            """.trimIndent()
+            )
+            .setPositiveButtonText("Open Settings")
+            .setNegativeButtonText("Cancel")
+            .setOnPositiveClick {
+                openManageExternalStorageSettings()
+            }
+            .setOnNegativeClick {
+                pendingDeleteItem = null
+            }
             .show()
     }
 
@@ -633,7 +727,103 @@ class DownloadsFragment : Fragment() {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 startActivity(intent)
             } catch (e: Exception) {
-                requireContext().showToast("Cannot open file location")
+                requireContext().showToast(getString(R.string.cannot_open_file_location))
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun openManageExternalStorageSettings() {
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            intent.data = "package:${requireContext().packageName}".toUri()
+            manageExternalStorageLauncher.launch(intent)
+        } catch (e: Exception) {
+            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            manageExternalStorageLauncher.launch(intent)
+        }
+    }
+
+    private fun refreshMediaStore(filePath: String?) {
+        filePath?.let { path ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaScannerConnection.scanFile(
+                    requireContext(),
+                    arrayOf(path),
+                    null,
+                    null
+                )
+            } else {
+                try {
+                    requireContext().sendBroadcast(
+                        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(path)))
+                    )
+                } catch (e: Exception) {
+                    println("DEBUG [Delete]: Error refreshing MediaStore: ${e.message}")
+                }
+            }
+        }
+    }
+
+    private fun deleteUsingSAF(item: LocalDownloadItem) {
+        pendingDeleteItem = item
+
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        intent.putExtra("android.content.extra.SHOW_ADVANCED", true)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+
+        safDeleteLauncher.launch(intent)
+    }
+
+    private val safDeleteLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { treeUri ->
+                val documentFile = DocumentFile.fromTreeUri(requireContext(), treeUri)
+                pendingDeleteItem?.let { item ->
+                    deleteWithDocumentFile(documentFile, item)
+                }
+            }
+        } else {
+            requireContext().showToast(requireContext().getString(R.string.access_folder_canceled))
+        }
+        pendingDeleteItem = null
+    }
+
+    private fun deleteWithDocumentFile(documentFile: DocumentFile?, item: LocalDownloadItem) {
+        if (documentFile == null) {
+            requireContext().showToast(getString(R.string.access_folder_canceled))
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val targetFile = documentFile.findFile(item.displayName)
+                if (targetFile != null && targetFile.exists()) {
+                    val deleted = targetFile.delete()
+                    withContext(Dispatchers.Main) {
+                        if (deleted) {
+                            adapter.removeItem(item.id)
+                            requireContext().showToast(getString(R.string.delete_file_success))
+
+                            if (adapter.itemCount == 0) {
+                                binding.tvEmpty.visibility = View.VISIBLE
+                                binding.rvDownloads.visibility = View.GONE
+                            }
+
+                            refreshMediaStore(item.filePath)
+                        } else {
+                            requireContext().showToast(getString(R.string.delete_file_failed))
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    requireContext().showToast("Error: ${e.message}")
+                }
             }
         }
     }

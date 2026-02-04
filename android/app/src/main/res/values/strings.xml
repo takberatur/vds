@@ -159,4 +159,10 @@
     <string name="no_media_files_found">No media files found</string>
     <string name="failed_to_load_downloads">Failed to load downloads: %s</string>
     <string name="history_cleared">History cleared</string>
+    <string name="manage_external_storage_permission_denied">Manage external storage permission denied</string>
+    <string name="access_folder_canceled">Access folder canceled</string>
+    <string name="audio_not_ready_to_download">Audio is not ready to download, please try again.</string>
+    <string name="audio_being_processeed_to_download">Audio is being processed to download, please wait.</string>
+    <string name="cannot_open_file_location">Cannot open file location</string>
+    <string name="permission_required">Permission required</string>
 </resources>

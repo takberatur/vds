@@ -155,4 +155,10 @@
     <string name="no_media_files_found">メディアファイルが見つかりませんでした</string>
     <string name="failed_to_load_downloads">ダウンロードの読み込みに失敗しました: %s</string>
     <string name="history_cleared">ダウンロード履歴が正常にクリアされました</string>
+    <string name="manage_external_storage_permission_denied">外部ストレージの管理権限が拒否されました</string>
+    <string name="access_folder_canceled">フォルダーアクセスがキャンセルされました</string>
+    <string name="audio_not_ready_to_download">オーディオがまだ準備ができていません</string>
+    <string name="audio_being_processeed_to_download">オーディオが処理中です。しばらくお待ちください。</string>
+    <string name="cannot_open_file_location">ファイルの場所を開くことができません</string>
+    <string name="permission_required">権限が必要です</string>
 </resources>

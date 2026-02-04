@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Nessun file multimediato trovato</string>
     <string name="failed_to_load_downloads">Impossibile caricare i download: %s</string>
     <string name="history_cleared">Storia cancellata con successo</string>
+    <string name="manage_external_storage_permission_denied">Permesso di gestione dello storage esterno negato</string>
+    <string name="access_folder_canceled">Cartella di accesso annullata</string>
+    <string name="audio_not_ready_to_download">Audio non pronto per il download</string>
+    <string name="audio_being_processeed_to_download">Audio in elaborazione, attendere.</string>
+    <string name="cannot_open_file_location">Impossibile aprire la posizione del file</string>
+    <string name="permission_required">Permesso richiesto</string>
 </resources>

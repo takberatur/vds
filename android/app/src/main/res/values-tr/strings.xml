@@ -155,4 +155,10 @@
     <string name="no_media_files_found">Medya dosyası bulunamadı</string>
     <string name="failed_to_load_downloads">Indirme yüklemesi başarısız: %s</string>
     <string name="history_cleared">İndirme geçmişi başarıyla temizlendi</string>
+    <string name="manage_external_storage_permission_denied">Dışarıdan depolama izni reddedildi</string>
+    <string name="access_folder_canceled">Klasör erişimi iptal edildi</string>
+    <string name="audio_not_ready_to_download">Ses dosyası henüz hazır değil</string>
+    <string name="audio_being_processeed_to_download">Ses dosyası şu an işleniyor, lütfen bekleyin.</string>
+    <string name="cannot_open_file_location">Dosya konumu açılamadı</string>
+    <string name="permission_required">Bu işlemi yapmak için izin gereklidir</string>
 </resources>

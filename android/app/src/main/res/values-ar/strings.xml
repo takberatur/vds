@@ -155,4 +155,10 @@
     <string name="no_media_files_found">لم يتم العثور على ملفات الوسائط</string>
     <string name="failed_to_load_downloads">فشل تحميل التنزيلات: %s</string>
     <string name="history_cleared">تم مسح التاريخ</string>
+    <string name="manage_external_storage_permission_denied">تم رفض إذن إدارة وحدة التخزين الخارجية</string>
+    <string name="access_folder_canceled">تم إلغاء مجلد الوصول</string>
+    <string name="audio_not_ready_to_download">الصوت غير جاهز للتنزيل، يرجى المحاولة مرة أخرى.</string>
+    <string name="audio_being_processeed_to_download">تتم معالجة الصوت للتنزيل، يرجى الانتظار.</string>
+    <string name="cannot_open_file_location">لا يمكن فتح موقع الملف</string>
+    <string name="permission_required">الإذن مطلوب</string>
 </resources>
