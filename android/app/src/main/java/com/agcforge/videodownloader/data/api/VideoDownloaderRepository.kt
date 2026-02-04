@@ -9,6 +9,7 @@ import com.agcforge.videodownloader.data.model.Application
 import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.model.Platform
 import com.agcforge.videodownloader.data.model.User
+import kotlinx.coroutines.flow.first
 
 class VideoDownloaderRepository {
 
@@ -48,6 +49,7 @@ class VideoDownloaderRepository {
             if (response.isSuccessful && response.body()?.success == true) {
                 val app = response.body()?.data
                 if (app != null) {
+                    println("AppConfig: ${app}")
                     Result.success(app)
                 } else {
                     Result.failure(Exception("No data returned"))

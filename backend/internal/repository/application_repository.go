@@ -86,22 +86,10 @@ func (r *applicationRepository) FindByPackageName(ctx context.Context, packageNa
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
-		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
-		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
-		one_signal_id,
-		is_active, created_at, updated_at FROM applications WHERE package_name = $1`
+	query := `SELECT * FROM applications WHERE package_name = $1`
 
 	var app model.Application
-	err := r.db.QueryRow(subCtx, query, packageName).Scan(
-		&app.ID, &app.Name, &app.PackageName, &app.APIKey, &app.SecretKey,
-		&app.Version, &app.Platform, &app.EnableMonetization, &app.EnableAdmob, &app.EnableUnityAd, &app.EnableStartApp, &app.EnableInAppPurchase,
-		&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
-		&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
-		&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
-		&app.OneSignalID,
-		&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
-	)
+	err := pgxscan.Get(subCtx, r.db, &app, query, packageName)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -117,22 +105,10 @@ func (r *applicationRepository) FindByAPIKey(ctx context.Context, apiKey string)
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
-		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
-		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
-		one_signal_id,
-		is_active, created_at, updated_at FROM applications WHERE api_key = $1`
+	query := `SELECT * FROM applications WHERE api_key = $1`
 
 	var app model.Application
-	err := r.db.QueryRow(subCtx, query, apiKey).Scan(
-		&app.ID, &app.Name, &app.PackageName, &app.APIKey, &app.SecretKey,
-		&app.Version, &app.Platform, &app.EnableMonetization, &app.EnableAdmob, &app.EnableUnityAd, &app.EnableStartApp, &app.EnableInAppPurchase,
-		&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
-		&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
-		&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
-		&app.OneSignalID,
-		&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
-	)
+	err := pgxscan.Get(subCtx, r.db, &app, query, apiKey)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -148,21 +124,10 @@ func (r *applicationRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
-		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
-		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id, one_signal_id,
-		is_active, created_at, updated_at FROM applications WHERE id = $1`
+	query := `SELECT * FROM applications WHERE id = $1`
 
 	var app model.Application
-	err := r.db.QueryRow(subCtx, query, id).Scan(
-		&app.ID, &app.Name, &app.PackageName, &app.APIKey, &app.SecretKey,
-		&app.Version, &app.Platform, &app.EnableMonetization, &app.EnableAdmob, &app.EnableUnityAd, &app.EnableStartApp, &app.EnableInAppPurchase,
-		&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
-		&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
-		&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
-		&app.OneSignalID,
-		&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
-	)
+	err := pgxscan.Get(subCtx, r.db, &app, query, id)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {

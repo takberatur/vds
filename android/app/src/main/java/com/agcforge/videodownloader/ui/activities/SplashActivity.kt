@@ -71,8 +71,6 @@ class SplashActivity : AppCompatActivity() {
 
                 initializeAuthToken()
 
-                println("AppConfig: ${preferenceManager.applicationConfig.first()}")
-
 //                AdsConfig.initialize(this@SplashActivity)
 //                val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
 //                if (enableOneSignal) OneSignal.initWithContext(this@SplashActivity, AdsConfig.ONESIGNAL_ID!!)
