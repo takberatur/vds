@@ -229,6 +229,7 @@ func (h *ApplicationHandler) GetCurrent(c *fiber.Ctx) error {
 		UnityNativeAdUnitID:       app.UnityNativeAdUnitID,
 		UnityRewardedAdUnitID:     app.UnityRewardedAdUnitID,
 		IsActive:                  app.IsActive,
+		OneSignalID:               app.OneSignalID,
 		CreatedAt:                 app.CreatedAt,
 		UpdatedAt:                 app.UpdatedAt,
 		InAppProducts:             app.InAppProducts,
