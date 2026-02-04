@@ -7,7 +7,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.agcforge.videodownloader.data.model.Application
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -58,7 +61,25 @@ class PreferenceManager(private val context: Context) {
     val theme: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
     val language: Flow<String?> = context.dataStore.data.map { it[LANGUAGE_KEY] }
 	val storageLocation: Flow<String?> = context.dataStore.data.map { it[STORAGE_LOCATION_KEY] }
-	val applicationConfig: Flow<String?> = context.dataStore.data.map { it[APPLICATION_KEY] }
+    val applicationConfig: Flow<Application?> = context.dataStore.data
+        .map { preferences ->
+            val json = preferences[APPLICATION_KEY]
+            try {
+                if (!json.isNullOrEmpty()) {
+                    Gson().fromJson(json, Application::class.java)
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e("DataStoreManager", "Error parsing application config", e)
+                null
+            }
+        }
+        .catch { e ->
+            Log.e("DataStoreManager", "Error in application config flow", e)
+            emit(null)
+        }
+
     val history: Flow<List<DownloadTask>> = context.dataStore.data
         .map { preferences ->
             val historyString = preferences[HISTORY_KEY] ?: ""
@@ -80,6 +101,41 @@ class PreferenceManager(private val context: Context) {
         }
 
     // --- Suspend functions to modify preferences ---
+    suspend fun saveBoolean(key: String, value: Boolean) {
+        val prefKey = booleanPreferencesKey(key)
+        context.dataStore.edit { preferences ->
+            preferences[prefKey] = value
+        }
+    }
+    suspend fun saveInt(key: String, value: Int) {
+        val prefKey = intPreferencesKey(key)
+        context.dataStore.edit { preferences ->
+            preferences[prefKey] = value
+        }
+    }
+
+    suspend fun saveString(key: String, value: String) {
+        val prefKey = stringPreferencesKey(key)
+        context.dataStore.edit { preferences ->
+            preferences[prefKey] = value
+        }
+    }
+
+    suspend fun getBoolean(key: String): Boolean? {
+        val prefKey = booleanPreferencesKey(key)
+        return context.dataStore.data.map { it[prefKey] }.first()
+    }
+
+    suspend fun getInt(key: String): Int? {
+        val prefKey = intPreferencesKey(key)
+        return context.dataStore.data.map { it[prefKey] }.first()
+    }
+
+    suspend fun getString(key: String): String? {
+        val prefKey = stringPreferencesKey(key)
+        return context.dataStore.data.map { it[prefKey] }.first()
+    }
+
     suspend fun saveAuthToken(token: String) {
         context.dataStore.edit { it[TOKEN_KEY] = token }
     }
@@ -111,10 +167,36 @@ class PreferenceManager(private val context: Context) {
 		context.dataStore.edit { it[STORAGE_LOCATION_KEY] = location }
 	}
 
-	suspend fun saveApplication(app: Application) {
-		val json = Gson().toJson(app)
-		context.dataStore.edit { it[APPLICATION_KEY] = json }
-	}
+    suspend fun saveApplication(app: Application) {
+        try {
+            val json = gson.toJson(app)
+            context.dataStore.edit { preferences ->
+                preferences[APPLICATION_KEY] = json
+            }
+        } catch (e: Exception) {
+            Log.e("DataStoreManager", "Error saving application config", e)
+            throw e
+        }
+    }
+
+    suspend fun getApplication(): Application? {
+        return try {
+            val json = context.dataStore.data.first()[APPLICATION_KEY]
+            if (!json.isNullOrEmpty()) {
+                gson.fromJson(json, Application::class.java)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("DataStoreManager", "Error getting application config", e)
+            null
+        }
+    }
+
+    suspend fun clearApplication() {
+        context.dataStore.edit { it.remove(APPLICATION_KEY) }
+    }
+
 
     suspend fun clearUserData() {
         context.dataStore.edit { it.clear() }
@@ -135,6 +217,7 @@ class PreferenceManager(private val context: Context) {
                 mutableListOf()
             }
 
+				currentHistory.removeIf { it.id == task.id }
             currentHistory.add(0, task)
 
             if (currentHistory.size > 100) {
@@ -232,6 +315,11 @@ class PreferenceManager(private val context: Context) {
         }
     }
 
+
+    fun getApplicationSync(): Application? = runBlocking { getApplication() }
+    fun getBooleanSync(key: String): Boolean? = runBlocking { getBoolean(key) }
+    fun getIntSync(key: String): Int? = runBlocking { getInt(key) }
+    fun getStringSync(key: String): String? = runBlocking { getString(key) }
 }
 
 // --- General-purpose Utility Functions ---

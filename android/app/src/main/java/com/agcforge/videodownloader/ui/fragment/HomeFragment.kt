@@ -23,13 +23,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.data.model.DownloadFormat
 import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.model.Platform
 import com.agcforge.videodownloader.databinding.FragmentHomeBinding
-import com.agcforge.videodownloader.ui.adapter.PlatformAdapter
 import com.agcforge.videodownloader.ui.component.FormatSelectionDialog
 import com.agcforge.videodownloader.ui.component.DownloadingDialog
 import com.agcforge.videodownloader.ui.viewmodel.HomeViewModel
@@ -44,7 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.agcforge.videodownloader.ui.adapter.PlatformAdapter
 import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
 import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.ui.component.AppAlertDialog
@@ -56,7 +55,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var platformAdapter: PlatformAdapter
     private lateinit var historyAdapter: HistoryAdapter
     private var selectedPlatform: Platform? = null
 	private var isSubmitting = false
@@ -65,6 +63,7 @@ class HomeFragment : Fragment() {
 	private val pendingMp3Tasks = linkedMapOf<String, String>()
 	private val mp3PollJobs = linkedMapOf<String, Job>()
 	private var mp3ProcessingDialog: DownloadingDialog? = null
+	private var lastSubmitType: String? = null
 
     private var allPlatforms: List<Platform> = emptyList()
 	private val storagePermissionLauncher = registerForActivityResult(
@@ -93,7 +92,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 		preferenceManager = PreferenceManager(requireContext())
 
-        setupRecyclerView()
+		setupRecyclerView()
         setupListeners()
         observeViewModel()
         observeHistoryNavigation()
@@ -224,6 +223,7 @@ class HomeFragment : Fragment() {
             else -> platform.type
         }
 
+        lastSubmitType = type
         viewModel.createDownload(url, platformType)
     }
 
@@ -251,6 +251,12 @@ class HomeFragment : Fragment() {
             }
         }
 
+		viewLifecycleOwner.lifecycleScope.launch {
+			preferenceManager.history.collect { items ->
+				historyAdapter.submitList(items)
+			}
+		}
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.downloadResult.collect { resource ->
                 when (resource) {
@@ -265,13 +271,17 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
 
                         resource.data?.let { task ->
-                            preferenceManager.updateStatusHistory(task)
+							viewLifecycleOwner.lifecycleScope.launch {
+								preferenceManager.addToHistory(task)
+							}
                             // Show format selection dialog if formats available
                             if (!task.formats.isNullOrEmpty()) {
                                 showFormatSelectionDialog(task)
+								lastSubmitType = null
 								viewModel.clearDownloadResult()
                             } else {
-								val isMp3Task = task.format?.equals("mp3", ignoreCase = true) == true || task.platformType.lowercase().contains("mp3")
+								val isMp3Task = lastSubmitType == "audio" || task.platformType.trim().lowercase().endsWith("-to-mp3") || task.format?.equals("mp3", ignoreCase = true) == true
+								lastSubmitType = null
 								if (isMp3Task) {
 									val name = task.title?.takeIf { it.isNotBlank() } ?: "audio"
 									val safeName = sanitizeFilenameBase(name)
@@ -304,6 +314,7 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
                         requireContext().showToast(resource.message ?: getString(R.string.download_failed))
 						updateDownloadButtonState()
+						lastSubmitType = null
 						viewModel.clearDownloadResult()
                     }
 					is Resource.Idle -> {
@@ -386,6 +397,9 @@ class HomeFragment : Fragment() {
 				val result = runCatching { viewModel.getDownloadTask(taskId) }.getOrElse { Result.failure(it) }
 				result
 					.onSuccess { task ->
+						viewLifecycleOwner.lifecycleScope.launch {
+							preferenceManager.updateStatusHistory(task)
+						}
 						val st = task.status.lowercase()
 						updateMp3DialogStatus(st)
 						when (st) {

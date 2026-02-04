@@ -84,6 +84,7 @@ declare global {
 		unity_interstitial_ad_unit_id?: string | null;
 		unity_native_ad_unit_id?: string | null;
 		unity_rewarded_ad_unit_id?: string | null;
+		one_signal_id?: string | null;
 		is_active: boolean;
 		created_at: string;
 		updated_at: string;

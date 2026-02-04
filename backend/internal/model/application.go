@@ -30,6 +30,7 @@ type Application struct {
 	UnityInterstitialAdUnitID *string   `json:"unity_interstitial_ad_unit_id" db:"unity_interstitial_ad_unit_id"`
 	UnityNativeAdUnitID       *string   `json:"unity_native_ad_unit_id" db:"unity_native_ad_unit_id"`
 	UnityRewardedAdUnitID     *string   `json:"unity_rewarded_ad_unit_id" db:"unity_rewarded_ad_unit_id"`
+	OneSignalID               *string   `json:"one_signal_id" db:"one_signal_id"`
 	IsActive                  bool      `json:"is_active" db:"is_active"`
 	CreatedAt                 time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
@@ -125,6 +126,7 @@ type RegisterAppRequest struct {
 	UnityInterstitialAdUnitID *string `json:"unity_interstitial_ad_unit_id"`
 	UnityNativeAdUnitID       *string `json:"unity_native_ad_unit_id"`
 	UnityRewardedAdUnitID     *string `json:"unity_rewarded_ad_unit_id"`
+	OneSignalID               *string `json:"one_signal_id"`
 	IsActive                  bool    `json:"is_active"`
 }
 

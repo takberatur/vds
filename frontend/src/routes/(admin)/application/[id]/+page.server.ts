@@ -58,6 +58,7 @@ export const load = async ({ locals, url, params }) => {
 		unity_interstitial_ad_unit_id: application.unity_interstitial_ad_unit_id,
 		unity_native_ad_unit_id: application.unity_native_ad_unit_id,
 		unity_rewarded_ad_unit_id: application.unity_rewarded_ad_unit_id,
+		one_signal_id: application.one_signal_id,
 	} as UpdateApplicationSchema, zod4(updateApplicationSchema))
 
 	return {

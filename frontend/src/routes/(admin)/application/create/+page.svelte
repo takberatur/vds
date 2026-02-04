@@ -561,6 +561,41 @@
 							</Card.Content>
 						</Card.Root>
 
+						<Card.Root class="w-full">
+							<Card.Header>
+								<Card.Title>One Signal Configuration</Card.Title>
+								<Card.Description>Enter your One Signal configuration below.</Card.Description>
+							</Card.Header>
+							<Card.Content>
+								<Field.Group>
+									<Field.Set>
+										<Field.Field>
+											<Field.Label for="one_signal_id">One Signal ID</Field.Label>
+											<div class="relative">
+												<Icon
+													icon="icon-park-outline:signal-one"
+													class="absolute top-1/2 left-3 -translate-y-1/2"
+												/>
+												<Input
+													bind:value={$form.one_signal_id}
+													id="one_signal_id"
+													name="one_signal_id"
+													type="text"
+													class="ps-10"
+													placeholder="Enter One Signal ID"
+													autocomplete="on"
+													disabled={$submitting}
+												/>
+											</div>
+											{#if $errors.one_signal_id}
+												<Field.Error>{$errors.one_signal_id}</Field.Error>
+											{/if}
+										</Field.Field>
+									</Field.Set>
+								</Field.Group>
+							</Card.Content>
+						</Card.Root>
+
 						<Field.Field orientation="horizontal">
 							<Field.Content>
 								<Field.Label for="enable_in_app_purchase">

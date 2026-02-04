@@ -61,6 +61,7 @@ CREATE TABLE applications (
     unity_interstitial_ad_unit_id TEXT,
     unity_native_ad_unit_id TEXT,
     unity_rewarded_ad_unit_id TEXT,
+		one_signal_id TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

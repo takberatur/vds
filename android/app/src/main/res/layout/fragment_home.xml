@@ -26,7 +26,7 @@
 
                 <include
                     android:id="@+id/regular_banner_ad"
-                    layout="@layout/ads_layout_banner"
+                    layout="@layout/item_banner_ad"
                     android:visibility="visible" />
 
             </RelativeLayout>
@@ -112,7 +112,7 @@
 
             <include
                 android:id="@+id/regular_native_ad"
-                layout="@layout/ads_google_small_native"
+                layout="@layout/item_native_ad_small"
                 android:visibility="visible" />
 
         </RelativeLayout>

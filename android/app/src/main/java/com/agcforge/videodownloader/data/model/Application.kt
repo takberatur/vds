@@ -31,4 +31,60 @@ data class Application(
     @SerializedName("created_at") val createdAt: String,
     @SerializedName("updated_at") val updatedAt: String,
     @SerializedName("in_app_products") val inAppProducts: List<InAppProduct>? = null
-) : Parcelable
+) : Parcelable {
+
+    fun isAdmobEnabled(): Boolean = enableMonetization && enableAdmob
+
+    fun isUnityAdEnabled(): Boolean = enableMonetization && enableUnityAd
+
+    fun isStartAppEnabled(): Boolean = enableMonetization && enableStartApp
+
+    fun isInAppPurchaseEnabled(): Boolean = enableMonetization && enableInAppPurchase
+
+    fun getAdmobBannerId(): String? = if (isAdmobEnabled()) admobBannerAdUnitId else null
+
+    fun getAdmobInterstitialId(): String? = if (isAdmobEnabled()) admobInterstitialAdUnitId else null
+
+    fun getAdmobRewardedId(): String? = if (isAdmobEnabled()) admobRewardedAdUnitId else null
+
+    fun getUnityBannerId(): String? = if (isUnityAdEnabled()) unityBannerAdUnitId else null
+
+    fun getUnityInterstitialId(): String? = if (isUnityAdEnabled()) unityInterstitialAdUnitId else null
+
+    fun getUnityRewardedId(): String? = if (isUnityAdEnabled()) unityRewardedAdUnitId else null
+
+    fun isValid(): Boolean = id.isNotEmpty() && name.isNotEmpty() && packageName.isNotEmpty()
+}
+
+@Parcelize
+data class InAppProduct(
+    @SerializedName("id") val id: String,
+    @SerializedName("app_id") val appId: String,
+    @SerializedName("product_id") val productId: String? = null,
+    @SerializedName("product_type") val productType: String? = null,
+    @SerializedName("sku_code") val skuCode: String? = null,
+    @SerializedName("title") val title: String? = null,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("price") val price: Double? = null,
+    @SerializedName("currency") val currency: String? = null,
+    @SerializedName("billing_period") val billingPeriod: String? = null,
+    @SerializedName("trial_period_days") val trialPeriodDays: Int? = null,
+    @SerializedName("is_active") val isActive: Boolean,
+    @SerializedName("is_featured") val isFeatured: Boolean,
+    @SerializedName("sort_order") val sortOrder: Int,
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String
+) : Parcelable {
+
+    fun isValid(): Boolean =
+        id.isNotEmpty() &&
+                appId.isNotEmpty() &&
+                productId?.isNotEmpty() == true &&
+                productType?.isNotEmpty() == true &&
+                skuCode?.isNotEmpty() == true &&
+                title?.isNotEmpty() == true &&
+                description?.isNotEmpty() == true &&
+                price != null &&
+                currency?.isNotEmpty() == true &&
+                billingPeriod?.isNotEmpty() == true
+}

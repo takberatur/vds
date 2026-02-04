@@ -191,6 +191,7 @@ export const registerAppSchema = z.object({
 	unity_interstitial_ad_unit_id: z.string().optional(),
 	unity_native_ad_unit_id: z.string().optional(),
 	unity_rewarded_ad_unit_id: z.string().optional(),
+	one_signal_id: z.string().optional(),
 	is_active: z.boolean().default(true),
 }).superRefine((data, ctx) => {
 	if (data.enable_monetization) {

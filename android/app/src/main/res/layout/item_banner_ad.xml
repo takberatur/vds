@@ -1,43 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bannerContainer"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
-    android:gravity="center">
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent">
 
-    <RelativeLayout
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="50dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/tondo_bold"
-            android:gravity="center"
-            android:text="Advertisement"
-            android:textColor="@color/gray_ads" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/Admob_Banner_Frame"
-        android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="wrap_content" />
-
-    <LinearLayout
-        android:id="@+id/banner_container"
+    <!-- Admob Banner View -->
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/admobBannerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/admob_id" />
+
+    <!-- Unity Banner Container -->
+    <FrameLayout
+        android:id="@+id/unityBannerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
         android:visibility="gone" />
 
+    <!-- Start.io Banner Container -->
     <FrameLayout
-        android:id="@+id/qureka"
-        android:visibility="gone"
-        android:layout_gravity="center"
+        android:id="@+id/startIoBannerContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
-</RelativeLayout>
+</FrameLayout>

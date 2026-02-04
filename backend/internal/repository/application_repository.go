@@ -43,9 +43,10 @@ func (r *applicationRepository) Create(ctx context.Context, app *model.Applicati
 	query := `
 		INSERT INTO applications (name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
 		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
-		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
+		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id, 
+		one_signal_id,
 		is_active, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
 		RETURNING id, created_at, updated_at
 	`
 	now := time.Now()
@@ -72,6 +73,7 @@ func (r *applicationRepository) Create(ctx context.Context, app *model.Applicati
 		app.UnityInterstitialAdUnitID,
 		app.UnityNativeAdUnitID,
 		app.UnityRewardedAdUnitID,
+		app.OneSignalID,
 		true, // is_active default
 		now,
 		now,
@@ -87,6 +89,7 @@ func (r *applicationRepository) FindByPackageName(ctx context.Context, packageNa
 	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
 		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
 		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
+		one_signal_id,
 		is_active, created_at, updated_at FROM applications WHERE package_name = $1`
 
 	var app model.Application
@@ -96,6 +99,7 @@ func (r *applicationRepository) FindByPackageName(ctx context.Context, packageNa
 		&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
 		&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
 		&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
+		&app.OneSignalID,
 		&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
 	)
 
@@ -116,6 +120,7 @@ func (r *applicationRepository) FindByAPIKey(ctx context.Context, apiKey string)
 	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
 		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
 		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
+		one_signal_id,
 		is_active, created_at, updated_at FROM applications WHERE api_key = $1`
 
 	var app model.Application
@@ -125,6 +130,7 @@ func (r *applicationRepository) FindByAPIKey(ctx context.Context, apiKey string)
 		&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
 		&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
 		&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
+		&app.OneSignalID,
 		&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
 	)
 
@@ -145,6 +151,7 @@ func (r *applicationRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
 		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
 		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
+		one_signal_id,
 		is_active, created_at, updated_at FROM applications WHERE id = $1`
 
 	var app model.Application
@@ -154,6 +161,7 @@ func (r *applicationRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 		&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
 		&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
 		&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
+		&app.OneSignalID,
 		&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
 	)
 
@@ -178,8 +186,9 @@ func (r *applicationRepository) Update(ctx context.Context, app *model.Applicati
 			admob_ad_unit_id = $10, unity_ad_unit_id = $11, start_app_ad_unit_id = $12,
 			admob_banner_ad_unit_id = $13, admob_interstitial_ad_unit_id = $14, admob_native_ad_unit_id = $15, admob_rewarded_ad_unit_id = $16,
 			unity_banner_ad_unit_id = $17, unity_interstitial_ad_unit_id = $18, unity_native_ad_unit_id = $19, unity_rewarded_ad_unit_id = $20,
-			is_active = $21, updated_at = $22
-		WHERE id = $23
+			one_signal_id = $21,
+			is_active = $22, updated_at = $23
+		WHERE id = $24
 	`
 
 	_, err := r.db.Exec(subCtx, query,
@@ -188,6 +197,7 @@ func (r *applicationRepository) Update(ctx context.Context, app *model.Applicati
 		app.AdmobAdUnitID, app.UnityAdUnitID, app.StartAppAdUnitID,
 		app.AdmobBannerAdUnitID, app.AdmobInterstitialAdUnitID, app.AdmobNativeAdUnitID, app.AdmobRewardedAdUnitID,
 		app.UnityBannerAdUnitID, app.UnityInterstitialAdUnitID, app.UnityNativeAdUnitID, app.UnityRewardedAdUnitID,
+		app.OneSignalID,
 		app.IsActive, time.Now(), app.ID,
 	)
 
@@ -219,6 +229,7 @@ func (r *applicationRepository) FindAll(ctx context.Context, params model.QueryP
 	qb := NewQueryBuilder(`SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
 		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
 		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
+		one_signal_id,
 		is_active, created_at, updated_at FROM applications`)
 
 	if params.Search != "" {
@@ -274,6 +285,7 @@ func (r *applicationRepository) FindAll(ctx context.Context, params model.QueryP
 			&app.AdmobAdUnitID, &app.UnityAdUnitID, &app.StartAppAdUnitID,
 			&app.AdmobBannerAdUnitID, &app.AdmobInterstitialAdUnitID, &app.AdmobNativeAdUnitID, &app.AdmobRewardedAdUnitID,
 			&app.UnityBannerAdUnitID, &app.UnityInterstitialAdUnitID, &app.UnityNativeAdUnitID, &app.UnityRewardedAdUnitID,
+			&app.OneSignalID,
 			&app.IsActive, &app.CreatedAt, &app.UpdatedAt,
 		); err != nil {
 			return nil, model.Pagination{}, err

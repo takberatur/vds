@@ -85,6 +85,7 @@ func (s *applicationService) RegisterApp(ctx context.Context, req model.Register
 		UnityInterstitialAdUnitID: req.UnityInterstitialAdUnitID,
 		UnityNativeAdUnitID:       req.UnityNativeAdUnitID,
 		UnityRewardedAdUnitID:     req.UnityRewardedAdUnitID,
+		OneSignalID:               req.OneSignalID,
 		IsActive:                  req.IsActive,
 	}
 
@@ -151,6 +152,7 @@ func (s *applicationService) UpdateApp(ctx context.Context, id uuid.UUID, req mo
 	app.UnityInterstitialAdUnitID = req.UnityInterstitialAdUnitID
 	app.UnityNativeAdUnitID = req.UnityNativeAdUnitID
 	app.UnityRewardedAdUnitID = req.UnityRewardedAdUnitID
+	app.OneSignalID = req.OneSignalID
 	app.IsActive = req.IsActive
 
 	if err := s.repo.Update(subCtx, app); err != nil {
