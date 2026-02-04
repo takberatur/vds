@@ -180,4 +180,9 @@
     <string name="copy">Copy</string>
     <string name="share">Share</string>
     <string name="choose_action">Choose Action</string>
+    <string-array name="choose_action_menu">
+        <item>Copy</item>
+        <item>Share</item>
+        <item>Delete</item>
+    </string-array>
 </resources>

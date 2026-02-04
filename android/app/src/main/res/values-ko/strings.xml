@@ -176,4 +176,9 @@
     <string name="copy">복사</string>
     <string name="share">공유</string>
     <string name="choose_action">행동 선택</string>
+    <string-array name="choose_action_menu">
+        <item>복사</item>
+        <item>공유</item>
+        <item>삭제</item>
+    </string-array>
 </resources>

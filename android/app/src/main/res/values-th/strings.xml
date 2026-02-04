@@ -176,4 +176,9 @@
     <string name="copy">คัดลอก</string>
     <string name="share">แชร์</string>
     <string name="choose_action">เลือกการทำงาน</string>
+    <string-array name="choose_action_menu">
+        <item>คัดลอก</item>
+        <item>แชร์</item>
+        <item>ลบ</item>
+    </string-array>
 </resources>

@@ -176,4 +176,9 @@
     <string name="copy">प्रतिलिपि</string>
     <string name="share">साझा करें</string>
     <string name="choose_action">एक्शन चुनें</string>
+    <string-array name="choose_action_menu">
+        <item>प्रतिलिपि</item>
+        <item>साझा करें</item>
+        <item>हटाएं</item>
+    </string-array>
 </resources>

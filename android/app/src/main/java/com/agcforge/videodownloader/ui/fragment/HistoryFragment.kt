@@ -1,5 +1,9 @@
 package com.agcforge.videodownloader.ui.fragment
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.agcforge.videodownloader.databinding.FragmentHistoryBinding
 import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.utils.PreferenceManager
+import com.agcforge.videodownloader.utils.showToast
 import kotlinx.coroutines.launch
 
 class HistoryFragment : Fragment() {
@@ -45,11 +50,34 @@ class HistoryFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        historyAdapter = HistoryAdapter { url ->
-            // Pass the selected URL back to HomeFragment
-            findNavController().previousBackStackEntry?.savedStateHandle?.set("history_url", url)
-            findNavController().popBackStack()
-        }
+        historyAdapter = HistoryAdapter(
+            onCopyClick = {
+                val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Video URL", it.originalUrl)
+                clipboard.setPrimaryClip(clip)
+                requireContext().showToast("URL copied!")
+
+            },
+            onShareClick = {
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_SUBJECT, it.title)
+                    putExtra(Intent.EXTRA_TEXT, it.originalUrl)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                startActivity(shareIntent)
+
+            },
+            onDeleteClick = { task ->
+                lifecycleScope.launch {
+                    preferenceManager.deleteHistoryItem(task)
+                }
+            }
+        )
+
+//        findNavController().previousBackStackEntry?.savedStateHandle?.set("history_task", task)
+//        findNavController().popBackStack()
 
         binding.rvHistory.apply {
             adapter = historyAdapter

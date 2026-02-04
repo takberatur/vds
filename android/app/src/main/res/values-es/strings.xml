@@ -176,4 +176,9 @@
     <string name="copy">Copiar</string>
     <string name="share">Compartir</string>
     <string name="choose_action">Elegir acción</string>
+    <string-array name="choose_action_menu">
+        <item>Copiar</item>
+        <item>Compartir</item>
+        <item>Eliminar</item>
+    </string-array>
 </resources>

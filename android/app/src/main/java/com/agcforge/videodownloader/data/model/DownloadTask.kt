@@ -34,4 +34,20 @@ data class DownloadTask(
         val seconds = dur % 60
         return String.format("%02d:%02d", minutes, seconds)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DownloadTask
+        return originalUrl == other.originalUrl
+    }
+
+    override fun hashCode(): Int {
+        return originalUrl.hashCode()
+    }
+
+    override fun toString(): String {
+        return super.toString()
+    }
 }

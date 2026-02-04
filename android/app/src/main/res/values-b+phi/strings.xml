@@ -176,4 +176,9 @@
     <string name="copy">Kopyahin</string>
     <string name="share">Bagikan</string>
     <string name="choose_action">Piliin ang aksi</string>
+    <string-array name="choose_action_menu">
+        <item>Kopyahin</item>
+        <item>Bagikan</item>
+        <item>Tanggalin</item>
+    </string-array>
 </resources>

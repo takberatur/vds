@@ -1,6 +1,7 @@
 package com.agcforge.videodownloader.utils
 
 import android.content.Context
+import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -10,11 +11,14 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.agcforge.videodownloader.data.model.Application
+import com.agcforge.videodownloader.data.model.DownloadTask
 import com.agcforge.videodownloader.data.model.Platform
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
@@ -45,7 +49,7 @@ class PreferenceManager(private val context: Context) {
     }
 
     // --- Flows to observe preference changes ---
-
+    private val gson = Gson()
     val authToken: Flow<String?> = context.dataStore.data.map { it[TOKEN_KEY] }
     val userId: Flow<String?> = context.dataStore.data.map { it[USER_ID_KEY] }
     val userEmail: Flow<String?> = context.dataStore.data.map { it[USER_EMAIL_KEY] }
@@ -55,10 +59,26 @@ class PreferenceManager(private val context: Context) {
     val language: Flow<String?> = context.dataStore.data.map { it[LANGUAGE_KEY] }
 	val storageLocation: Flow<String?> = context.dataStore.data.map { it[STORAGE_LOCATION_KEY] }
 	val applicationConfig: Flow<String?> = context.dataStore.data.map { it[APPLICATION_KEY] }
-    val history: Flow<List<String>> = context.dataStore.data.map {
-        it[HISTORY_KEY]?.split(",")?.mapNotNull { item ->
-            item.trim().ifEmpty { null } } ?: emptyList()
-    }
+    val history: Flow<List<DownloadTask>> = context.dataStore.data
+        .map { preferences ->
+            val historyString = preferences[HISTORY_KEY] ?: ""
+            try {
+                if (historyString.isNotEmpty()) {
+                    val type = object : TypeToken<List<DownloadTask>>() {}.type
+                    gson.fromJson<List<DownloadTask>>(historyString, type) ?: emptyList()
+                } else {
+                    emptyList()
+                }
+            } catch (e: Exception) {
+                Log.e("DataStoreManager", "Error parsing history JSON", e)
+                emptyList()
+            }
+        }
+        .catch { e ->
+            Log.e("DataStoreManager", "Error reading history", e)
+            emit(emptyList())
+        }
+
     // --- Suspend functions to modify preferences ---
     suspend fun saveAuthToken(token: String) {
         context.dataStore.edit { it[TOKEN_KEY] = token }
@@ -100,28 +120,116 @@ class PreferenceManager(private val context: Context) {
         context.dataStore.edit { it.clear() }
     }
 
-    suspend fun addToHistory(url: String) {
-        val currentHistory = history.first().toMutableList()
-
-        // Remove the URL if it already exists to move it to the end (most recent)
-        currentHistory.remove(url)
-
-        // Add the new URL to the end of the list
-        currentHistory.add(url)
-
-        // Ensure the history list doesn't exceed the max size (e.g., 10)
-        while (currentHistory.size > 10) {
-            currentHistory.removeAt(0)
-        }
-
-        // Save the updated list back to DataStore
+    suspend fun addToHistory(task: DownloadTask) {
         context.dataStore.edit { preferences ->
-            preferences[HISTORY_KEY] = currentHistory.joinToString(",")
+            val currentHistoryString = preferences[HISTORY_KEY] ?: ""
+            val currentHistory = try {
+                if (currentHistoryString.isNotEmpty()) {
+                    val type = object : TypeToken<MutableList<DownloadTask>>() {}.type
+                    gson.fromJson<MutableList<DownloadTask>>(currentHistoryString, type)
+                        ?: mutableListOf()
+                } else {
+                    mutableListOf()
+                }
+            } catch (e: Exception) {
+                mutableListOf()
+            }
+
+            currentHistory.add(0, task)
+
+            if (currentHistory.size > 100) {
+                currentHistory.subList(0, 100)
+            }
+
+            val updatedJson = gson.toJson(currentHistory)
+            preferences[HISTORY_KEY] = updatedJson
         }
     }
 
     suspend fun clearHistory() {
-        context.dataStore.edit { it[HISTORY_KEY] = "" }
+        context.dataStore.edit { it.remove(HISTORY_KEY) }
+    }
+
+    suspend fun deleteHistoryItem(task: DownloadTask) {
+        context.dataStore.edit { preferences ->
+            val currentHistoryString = preferences[HISTORY_KEY] ?: ""
+            if (currentHistoryString.isEmpty()) return@edit
+
+            try {
+                val type = object : TypeToken<MutableList<DownloadTask>>() {}.type
+                val currentHistory = gson.fromJson<MutableList<DownloadTask>>(
+                    currentHistoryString,
+                    type
+                ) ?: mutableListOf()
+
+                currentHistory.removeIf { existingTask ->
+                    existingTask.id == task.id
+                }
+
+                val updatedJson = gson.toJson(currentHistory)
+                preferences[HISTORY_KEY] = updatedJson
+            } catch (e: Exception) {
+                Log.e("DataStoreManager", "Error deleting history item", e)
+            }
+        }
+    }
+
+    suspend fun getHistory(limit: Int = -1): List<DownloadTask> {
+        return history.first().let { list ->
+            if (limit > 0 && list.size > limit) {
+                list.take(limit)
+            } else {
+                list
+            }
+        }
+    }
+
+    suspend fun deleteHistoryItemByUrl(url: String) {
+        context.dataStore.edit { preferences ->
+            val currentHistoryString = preferences[HISTORY_KEY] ?: ""
+            if (currentHistoryString.isEmpty()) return@edit
+
+            try {
+                val type = object : TypeToken<MutableList<DownloadTask>>() {}.type
+                val currentHistory = gson.fromJson<MutableList<DownloadTask>>(
+                    currentHistoryString,
+                    type
+                ) ?: mutableListOf()
+
+                currentHistory.removeIf { it.originalUrl == url }
+
+                val updatedJson = gson.toJson(currentHistory)
+                preferences[HISTORY_KEY] = updatedJson
+            } catch (e: Exception) {
+                Log.e("DataStoreManager", "Error deleting history item", e)
+            }
+        }
+    }
+
+    suspend fun updateStatusHistory(task: DownloadTask) {
+        context.dataStore.edit { preferences ->
+            val currentHistoryString = preferences[HISTORY_KEY] ?: ""
+            if (currentHistoryString.isEmpty()) return@edit
+
+            try {
+                val type = object : TypeToken<MutableList<DownloadTask>>() {}.type
+                val currentHistory = gson.fromJson<MutableList<DownloadTask>>(
+                    currentHistoryString,
+                    type
+                ) ?: mutableListOf()
+
+                currentHistory.set(
+                    currentHistory.indexOfFirst { it.id == task.id },
+                    currentHistory.first { it.id == task.id }.copy(
+                        status = task.status
+                    )
+                )
+                val updatedJson = gson.toJson(currentHistory)
+                preferences[HISTORY_KEY] = updatedJson
+            } catch (e: Exception) {
+                Log.e("DataStoreManager", "Error updating history item", e)
+            }
+        }
     }
 
 }

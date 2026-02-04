@@ -176,4 +176,9 @@
     <string name="copy">Kopyala</string>
     <string name="share">Paylaş</string>
     <string name="choose_action">Eylem seçin</string>
+    <string-array name="choose_action_menu">
+        <item>Kopyala</item>
+        <item>Paylaş</item>
+        <item>Sil</item>
+    </string-array>
 </resources>

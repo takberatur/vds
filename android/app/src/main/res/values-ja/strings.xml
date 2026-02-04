@@ -176,4 +176,9 @@
     <string name="copy">コピー</string>
     <string name="share">共有</string>
     <string name="choose_action">行動を選択</string>
+    <string-array name="choose_action_menu">
+        <item>コピー</item>
+        <item>共有</item>
+        <item>削除</item>
+    </string-array>
 </resources>

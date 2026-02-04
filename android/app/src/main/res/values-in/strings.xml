@@ -176,4 +176,9 @@
     <string name="copy">Salin</string>
     <string name="share">Bagikan</string>
     <string name="choose_action">Pilih Aksi</string>
+    <string-array name="choose_action_menu">
+        <item>Salin</item>
+        <item>Bagikan</item>
+        <item>Hapus</item>
+    </string-array>
 </resources>

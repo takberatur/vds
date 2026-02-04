@@ -5,7 +5,9 @@ import android.app.DownloadManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.annotation.SuppressLint
+import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -42,7 +44,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
+import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.ui.component.AppAlertDialog
 import com.agcforge.videodownloader.ui.component.DownloadSettingsDialog
 
@@ -53,6 +57,7 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var platformAdapter: PlatformAdapter
+    private lateinit var historyAdapter: HistoryAdapter
     private var selectedPlatform: Platform? = null
 	private var isSubmitting = false
 	private lateinit var preferenceManager: PreferenceManager
@@ -107,18 +112,38 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setupRecyclerView() {
-        platformAdapter = PlatformAdapter { platform ->
-            // Handle platform click - auto-fill platform info
-            selectedPlatform = platform
-            platformAdapter.setSelection(platform)
-            binding.tvPlatformName.text = "${getString(R.string.download_video)} - ${platform.name}"
-            requireContext().showToast("Selected: ${platform.name}")
-			updateDownloadButtonState()
-        }
+        historyAdapter = HistoryAdapter(
+            onCopyClick = {
+                val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Video URL", it.originalUrl)
+                clipboard.setPrimaryClip(clip)
+                requireContext().showToast("URL copied!")
 
-        binding.rvPlatforms.apply {
-            adapter = platformAdapter
-            layoutManager = GridLayoutManager(requireContext(), 2)
+            },
+            onShareClick = {
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_SUBJECT, it.title)
+                    putExtra(Intent.EXTRA_TEXT, it.originalUrl)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                startActivity(shareIntent)
+
+            },
+            onDeleteClick = { task ->
+                lifecycleScope.launch {
+                    preferenceManager.deleteHistoryItem(task)
+                }
+            }
+        )
+
+//        findNavController().previousBackStackEntry?.savedStateHandle?.set("history_task", task)
+//        findNavController().popBackStack()
+
+        binding.rvHistory.apply {
+            adapter = historyAdapter
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
@@ -199,9 +224,7 @@ class HomeFragment : Fragment() {
             else -> platform.type
         }
 
-        // Create download with selected platform
         viewModel.createDownload(url, platformType)
-        addToHistory(url)
     }
 
     private fun observeViewModel() {
@@ -215,7 +238,7 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
                         resource.data?.let {
                             allPlatforms = it
-                            platformAdapter.submitList(it)
+//                            platformAdapter.submitList(it)
                         }
                     }
                     is Resource.Error -> {
@@ -242,6 +265,7 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
 
                         resource.data?.let { task ->
+                            preferenceManager.updateStatusHistory(task)
                             // Show format selection dialog if formats available
                             if (!task.formats.isNullOrEmpty()) {
                                 showFormatSelectionDialog(task)
@@ -624,11 +648,6 @@ class HomeFragment : Fragment() {
             .show()
     }
 
-    private fun addToHistory(url: String) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            preferenceManager.addToHistory(url)
-        }
-    }
 
     private fun showDialogStatusDownload(type: AppAlertDialog.AlertDialogType, title: String?, message: String?) {
         val dialog = AppAlertDialog

@@ -93,8 +93,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 			result
                 .onSuccess { task ->
                     _downloadResult.value = Resource.Success(task)
-
-                    // Subscribe to download channel untuk real-time updates
+                    preferenceManager.addToHistory(task)
+                    // Subscribe to download channel for real-time updates
                     centrifugoManager.subscribeToDownloadChannel(task.id)
                 }
                 .onFailure { error ->

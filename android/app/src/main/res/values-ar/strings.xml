@@ -176,4 +176,9 @@
     <string name="copy">نسخ</string>
     <string name="share">مشاركة</string>
     <string name="choose_action">اختر إجراء</string>
+    <string-array name="choose_action_menu">
+        <item>نسخ</item>
+        <item>مشاركة</item>
+        <item>حذف</item>
+    </string-array>
 </resources>

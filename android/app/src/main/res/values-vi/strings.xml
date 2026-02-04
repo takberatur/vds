@@ -176,4 +176,9 @@
     <string name="copy">Sao chép</string>
     <string name="share">Chia sẻ</string>
     <string name="choose_action">Chọn hành động</string>
+    <string-array name="choose_action_menu">
+        <item>Sao chép</item>
+        <item>Chia sẻ</item>
+        <item>Xóa</item>
+    </string-array>
 </resources>
