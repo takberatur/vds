@@ -54,8 +54,6 @@ data class Application(
 
     fun getUnityRewardedId(): String? = if (isUnityAdEnabled()) unityRewardedAdUnitId else null
 
-    fun getOneSignalId(): String? = oneSignalId
-
     fun isValid(): Boolean = id.isNotEmpty() && name.isNotEmpty() && packageName.isNotEmpty()
 }
 

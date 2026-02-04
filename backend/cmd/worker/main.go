@@ -288,7 +288,11 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	defer os.Remove(basePath)
 
 	lowerPlatform := strings.ToLower(strings.TrimSpace(task.PlatformType))
-	preferYtDlp := strings.Contains(lowerPlatform, "youtube") || strings.Contains(lowerPlatform, "facebook")
+	preferYtDlp := strings.Contains(lowerPlatform, "youtube") ||
+		strings.Contains(lowerPlatform, "facebook") ||
+		strings.Contains(lowerPlatform, "instagram") ||
+		strings.Contains(lowerPlatform, "tiktok") ||
+		strings.Contains(lowerPlatform, "twitter")
 	downloadedByYtDlp := false
 	tryDownloadWithYtDlp := func(format string) error {
 		if err := downloader.DownloadToPath(ctx, task.OriginalURL, format, inputPath, nil); err != nil {
@@ -305,10 +309,7 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	}
 
 	if preferYtDlp {
-		format := ""
-		if strings.Contains(lowerPlatform, "youtube") {
-			format = "bestaudio/best"
-		}
+		format := "bestaudio/best"
 		if err := tryDownloadWithYtDlp(format); err == nil {
 			downloadedByYtDlp = true
 		} else {

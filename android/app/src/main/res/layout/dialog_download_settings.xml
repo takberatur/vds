@@ -87,7 +87,7 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:text="@string/audio_mp3"
-            android:drawableTop="@drawable/ic_music_note"
+            android:drawableTop="@drawable/ic_audiotrack"
             android:drawablePadding="8dp"
             android:gravity="center"
             android:padding="16dp"

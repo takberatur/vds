@@ -2,39 +2,53 @@ package com.agcforge.videodownloader
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import com.agcforge.videodownloader.helper.AdsConfig
 import com.agcforge.videodownloader.utils.DownloadManagerCleaner
 import com.onesignal.OneSignal
-import com.onesignal.debug.LogLevel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+
 import kotlinx.coroutines.launch
+
+
 
 class App : Application() {
 
-    companion object {
-        private const val TAG = "App_Root_Main"
+    private val TAG = "App_Root_Main"
 
+    companion object {
         @SuppressLint("StaticFieldLeak")
         @Volatile
-        private var mInstance: App? = null
+        private var instance: App? = null
 
         fun getInstance(): App {
-            return mInstance ?: throw IllegalStateException("App not initialized")
+            return instance ?: throw IllegalStateException("App not initialized")
+        }
+
+        fun getContext(): Context {
+            return getInstance().applicationContext
         }
     }
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    val oneSignalId: String? = AdsConfig.ONESIGNAL_ID
+    val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
+
     override fun onCreate() {
         super.onCreate()
-        mInstance = this
-		DownloadManagerCleaner.clearFailedDownloads(this)
+        instance = this
+        DownloadManagerCleaner.clearFailedDownloads(this)
 
         AdsConfig.initialize(this)
 
-        OneSignal.Debug.logLevel = if (BuildConfig.DEBUG) LogLevel.VERBOSE else LogLevel.NONE
-        AdsConfig.ONESIGNAL_ID?.let { OneSignal.initWithContext(this, it) }
+        if (enableOneSignal) OneSignal.initWithContext(this, oneSignalId!!)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            OneSignal.Notifications.requestPermission(true)
+        applicationScope.launch {
+            if (enableOneSignal) {
+                OneSignal.Notifications.requestPermission(true)
+            }
         }
     }
 }

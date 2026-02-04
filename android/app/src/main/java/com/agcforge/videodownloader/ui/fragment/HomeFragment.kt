@@ -550,9 +550,10 @@ class HomeFragment : Fragment() {
 		} else {
 			"$base/public-proxy/downloads/file/mp3"
 		}
+		val finalName = if (filename.lowercase().endsWith(".mp3")) filename else "$filename.mp3"
 		return endpoint.toUri().buildUpon()
 			.appendQueryParameter("task_id", taskId)
-			.appendQueryParameter("filename", filename)
+			.appendQueryParameter("filename", finalName)
 			.build()
 			.toString()
 	}
@@ -614,7 +615,7 @@ class HomeFragment : Fragment() {
 
 		val extFromBase = baseNameRaw.substringAfterLast('.', missingDelimiterValue = "").lowercase()
 		val expectedExt = when {
-			uri.path?.endsWith("/mp3", ignoreCase = true) == true -> "mp3"
+			uri.path?.contains("/mp3", ignoreCase = true) == true -> "mp3"
 			extFromBase == "mp3" || extFromBase == "mp4" -> extFromBase
 			else -> "mp4"
 		}
