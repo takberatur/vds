@@ -287,6 +287,35 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	defer os.Remove(outputPath)
 	defer os.Remove(basePath)
 
+	lowerPlatform := strings.ToLower(strings.TrimSpace(task.PlatformType))
+	preferYtDlp := strings.Contains(lowerPlatform, "youtube") || strings.Contains(lowerPlatform, "facebook")
+	downloadedByYtDlp := false
+	tryDownloadWithYtDlp := func(format string) error {
+		if err := downloader.DownloadToPath(ctx, task.OriginalURL, format, inputPath, nil); err != nil {
+			return err
+		}
+		fi, err := os.Stat(inputPath)
+		if err != nil {
+			return err
+		}
+		if fi.Size() == 0 {
+			return fmt.Errorf("downloaded source file is empty")
+		}
+		return nil
+	}
+
+	if preferYtDlp {
+		format := ""
+		if strings.Contains(lowerPlatform, "youtube") {
+			format = "bestaudio/best"
+		}
+		if err := tryDownloadWithYtDlp(format); err == nil {
+			downloadedByYtDlp = true
+		} else {
+			log.Warn().Err(err).Str("task_id", task.ID.String()).Msg("yt-dlp source download failed, falling back to direct url")
+		}
+	}
+
 	resolvedSourceURL := sourceURL
 	if isYTContentStatusURL(sourceURL) {
 		if resolved, err := resolveYTContentStatusURL(ctx, sourceURL); err == nil && resolved != "" {
@@ -301,15 +330,15 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 		referer = "https://ytdown.to/"
 	}
 
-	if resolvedSourceURL != task.OriginalURL {
+	if !downloadedByYtDlp && resolvedSourceURL != task.OriginalURL {
 		if err := downloadURLToPath(ctx, resolvedSourceURL, referer, inputPath); err != nil {
 			log.Warn().Err(err).Str("url", sourceURL).Msg("Direct source download failed, falling back to downloader")
-			if err2 := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err2 != nil {
+			if err2 := tryDownloadWithYtDlp(""); err2 != nil {
 				return err2
 			}
 		}
-	} else {
-		if err := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err != nil {
+	} else if !downloadedByYtDlp {
+		if err := tryDownloadWithYtDlp(""); err != nil {
 			return err
 		}
 	}
@@ -321,12 +350,22 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	if fiIn.Size() == 0 {
 		return fmt.Errorf("downloaded source file is empty")
 	}
+	if ok := hasAudioStream(ctx, inputPath); !ok {
+		if err := tryDownloadWithYtDlp(""); err == nil {
+			if ok2 := hasAudioStream(ctx, inputPath); !ok2 {
+				return fmt.Errorf("source has no audio stream")
+			}
+		} else {
+			return fmt.Errorf("source has no audio stream")
+		}
+	}
 
 	ffmpegArgs := []string{
 		"-y",
 		"-loglevel", "error",
 		"-i", inputPath,
 		"-vn",
+		"-map", "0:a:0",
 		"-acodec", "libmp3lame",
 		"-q:a", "0",
 		outputPath,
@@ -399,11 +438,11 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 }
 
 type ytcontentStatusResponse struct {
-	Status  string          `json:"status"`
-	FileURL string          `json:"fileUrl"`
-	ViewURL string          `json:"viewUrl"`
-	Message string          `json:"message"`
-	Error   string          `json:"error"`
+	Status   string          `json:"status"`
+	FileURL  string          `json:"fileUrl"`
+	ViewURL  string          `json:"viewUrl"`
+	Message  string          `json:"message"`
+	Error    string          `json:"error"`
 	Progress json.RawMessage `json:"progress"`
 }
 
@@ -608,6 +647,23 @@ func downloadURLToPath(ctx context.Context, fileURL string, refererURL string, o
 	}
 
 	return nil
+}
+
+func hasAudioStream(ctx context.Context, inputPath string) bool {
+	cmd := exec.CommandContext(ctx, "ffprobe",
+		"-v", "error",
+		"-select_streams", "a",
+		"-show_entries", "stream=index",
+		"-of", "csv=p=0",
+		inputPath,
+	)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = io.Discard
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+	return strings.TrimSpace(out.String()) != ""
 }
 
 func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRepository, redisClient infrastructure.RedisClient, centrifugoClient infrastructure.CentrifugoClient, downloader infrastructure.DownloaderClient, storageClient infrastructure.StorageClient, bucketName string, encryptionKey string, task *model.DownloadTask) error {

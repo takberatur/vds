@@ -23,8 +23,8 @@ class CentrifugoManager private constructor(
     private val _connectionState = MutableStateFlow<CentrifugoEvent>(CentrifugoEvent.Disconnected)
     val connectionState: StateFlow<CentrifugoEvent> = _connectionState.asStateFlow()
 
-    private val _downloadEvents = MutableStateFlow<DownloadTaskEvent?>(null)
-    val downloadEvents: StateFlow<DownloadTaskEvent?> = _downloadEvents.asStateFlow()
+	private val _downloadEvents = MutableSharedFlow<DownloadTaskEvent>(extraBufferCapacity = 64)
+	val downloadEvents: SharedFlow<DownloadTaskEvent> = _downloadEvents.asSharedFlow()
 
     private var currentUserId: String? = null
     private var authToken: String? = null
@@ -92,7 +92,7 @@ class CentrifugoManager private constructor(
             // Collect download events
             scope.launch {
                 downloadTaskEvents.collect { event ->
-                    event?.let { _downloadEvents.value = it }
+					event?.let { _downloadEvents.tryEmit(it) }
                 }
             }
         }

@@ -31,9 +31,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _wsConnectionState = MutableStateFlow<CentrifugoEvent>(CentrifugoEvent.Disconnected)
     val wsConnectionState: StateFlow<CentrifugoEvent> = _wsConnectionState.asStateFlow()
 
-    // Real-time download events
-    private val _realtimeDownloadEvent = MutableStateFlow<DownloadTaskEvent?>(null)
-    val realtimeDownloadEvent: StateFlow<DownloadTaskEvent?> = _realtimeDownloadEvent.asStateFlow()
+	val realtimeDownloadEvent: SharedFlow<DownloadTaskEvent> = centrifugoManager.downloadEvents
 
     init {
         observeWebSocketEvents()
@@ -64,11 +62,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        viewModelScope.launch {
-            centrifugoManager.downloadEvents.collect { event ->
-                event?.let { _realtimeDownloadEvent.value = it }
-            }
-        }
+		// Events are exposed directly from CentrifugoManager.downloadEvents
     }
 
     fun loadPlatforms() {
