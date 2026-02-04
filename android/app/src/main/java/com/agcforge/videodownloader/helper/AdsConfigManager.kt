@@ -66,6 +66,7 @@ class AdsConfigManager(
                     rewarded = if (app.enableUnityAd) app.unityRewardedAdUnitId else null
                 ),
                 startIoId = if (app.enableStartApp) app.startAppAdUnitId else null,
+                oneSignalId = app.oneSignalId,
                 lastUpdated = System.currentTimeMillis()
             )
 
@@ -120,6 +121,7 @@ data class AdsRuntimeConfig(
     val admobIds: AdMobIds,
     val unityIds: UnityIds,
     val startIoId: String?,
+    val oneSignalId: String?,
     val lastUpdated: Long
 ) {
     companion object {
@@ -134,6 +136,7 @@ data class AdsRuntimeConfig(
                 admobIds = AdMobIds(null, null, null, null),
                 unityIds = UnityIds(null, null, null, null),
                 startIoId = null,
+                oneSignalId = null,
                 lastUpdated = 0
             )
         }

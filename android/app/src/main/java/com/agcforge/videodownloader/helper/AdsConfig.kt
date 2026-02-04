@@ -34,6 +34,8 @@ object AdsConfig {
 
     var STARTIO_APP_ID: String? = null
 
+    var ONESIGNAL_ID: String? = null
+
     private var preferenceManager: PreferenceManager? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 

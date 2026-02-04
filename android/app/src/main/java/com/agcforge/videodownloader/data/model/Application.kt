@@ -27,6 +27,7 @@ data class Application(
     @SerializedName("unity_interstitial_ad_unit_id") val unityInterstitialAdUnitId: String? = null,
     @SerializedName("unity_native_ad_unit_id") val unityNativeAdUnitId: String? = null,
     @SerializedName("unity_rewarded_ad_unit_id") val unityRewardedAdUnitId: String? = null,
+    @SerializedName("one_signal_id") val oneSignalId: String? = null,
     @SerializedName("is_active") val isActive: Boolean,
     @SerializedName("created_at") val createdAt: String,
     @SerializedName("updated_at") val updatedAt: String,
@@ -52,6 +53,8 @@ data class Application(
     fun getUnityInterstitialId(): String? = if (isUnityAdEnabled()) unityInterstitialAdUnitId else null
 
     fun getUnityRewardedId(): String? = if (isUnityAdEnabled()) unityRewardedAdUnitId else null
+
+    fun getOneSignalId(): String? = oneSignalId
 
     fun isValid(): Boolean = id.isNotEmpty() && name.isNotEmpty() && packageName.isNotEmpty()
 }

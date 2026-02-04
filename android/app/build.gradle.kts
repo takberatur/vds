@@ -133,6 +133,7 @@ dependencies {
 	implementation(libs.androidx.credentials.play.services.auth)
 	implementation(libs.googleid)
     implementation(libs.unity.ads)
+    implementation(libs.one.signal)
     implementation(libs.inapp.sdk)
     implementation(libs.billing)
     implementation(libs.okhttp)
