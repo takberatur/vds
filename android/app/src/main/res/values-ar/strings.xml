@@ -181,4 +181,5 @@
         <item>مشاركة</item>
         <item>حذف</item>
     </string-array>
+    <string name="view_all">عرض الكل</string>
 </resources>

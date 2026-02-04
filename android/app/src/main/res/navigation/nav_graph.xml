@@ -18,14 +18,15 @@
         tools:layout="@layout/fragment_downloads" />
 
     <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.agcforge.videodownloader.ui.fragment.SettingsFragment"
-        android:label="@string/settings"
-        tools:layout="@layout/fragment_settings" />
-    <fragment
         android:id="@+id/historyFragment"
         android:name="com.agcforge.videodownloader.ui.fragment.HistoryFragment"
         android:label="@string/history"
         tools:layout="@layout/fragment_history" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.agcforge.videodownloader.ui.fragment.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings" />
 
 </navigation>

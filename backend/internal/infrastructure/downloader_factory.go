@@ -285,7 +285,6 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 
 	// Filter and prioritize strategies
 	if isYoutube {
-		// Requested order: ytdown -> yt-dlp -> youtube-custom -> chromedp
 		var ytDownStrat, ytDlpStrat, ytCustomStrat, chromedpStrat DownloaderStrategy
 		for _, strategy := range f.strategies {
 			if strategy.Name() == "ytdown" {
@@ -298,15 +297,14 @@ func (f *FallbackDownloader) GetVideoInfoWithType(ctx context.Context, url strin
 				chromedpStrat = strategy
 			}
 		}
-
-		if ytDownStrat != nil {
-			strategies = append(strategies, ytDownStrat)
-		}
 		if ytDlpStrat != nil {
 			strategies = append(strategies, ytDlpStrat)
 		}
 		if ytCustomStrat != nil {
 			strategies = append(strategies, ytCustomStrat)
+		}
+		if ytDownStrat != nil {
+			strategies = append(strategies, ytDownStrat)
 		}
 		if chromedpStrat != nil {
 			strategies = append(strategies, chromedpStrat)
@@ -439,16 +437,16 @@ func (f *FallbackDownloader) DownloadVideo(ctx context.Context, url string) (*Vi
 func (f *FallbackDownloader) DownloadToPath(ctx context.Context, url string, formatID string, outputPath string, cookies map[string]string) error {
 	isYoutube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
 	if isYoutube {
+		client := &ytDlpClient{executablePath: "python3"}
+		if err := client.DownloadToPath(ctx, url, formatID, outputPath, cookies); err == nil {
+			return nil
+		}
+
 		if !strings.EqualFold(strings.TrimSpace(os.Getenv("YTDOWN_DISABLED")), "true") {
 			yt := scrapper.NewYTDownService()
 			if err := yt.DownloadToPath(ctx, url, outputPath, ""); err == nil {
 				return nil
 			}
-		}
-
-		client := &ytDlpClient{executablePath: "python3"}
-		if err := client.DownloadToPath(ctx, url, formatID, outputPath, cookies); err == nil {
-			return nil
 		}
 
 		if !strings.EqualFold(strings.TrimSpace(os.Getenv("YOUTUBE_CUSTOM_DISABLED")), "true") {

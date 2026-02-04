@@ -114,7 +114,13 @@ func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepos
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
-	log.Info().Msg("Cleanup cron job initialized (interval: 5m, retention: 10m)")
+	retention := 24 * time.Hour
+	if v := strings.TrimSpace(os.Getenv("CLEANUP_RETENTION_MINUTES")); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			retention = time.Duration(n) * time.Minute
+		}
+	}
+	log.Info().Dur("retention", retention).Msg("Cleanup cron job initialized (interval: 5m)")
 
 	for {
 		select {
@@ -122,8 +128,7 @@ func startCleanupCron(ctx context.Context, downloadRepo repository.DownloadRepos
 			return
 		case <-ticker.C:
 			log.Info().Msg("Starting cleanup cron job execution")
-			// Cleanup tasks older than 5 minutes
-			cutoff := time.Now().Add(-5 * time.Minute)
+			cutoff := time.Now().Add(-retention)
 
 			// Fetch in batches
 			for {

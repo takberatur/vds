@@ -181,4 +181,5 @@
         <item>แชร์</item>
         <item>ลบ</item>
     </string-array>
+    <string name="view_all">ดูทั้งหมด</string>
 </resources>

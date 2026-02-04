@@ -181,4 +181,5 @@
         <item>Kongsi</item>
         <item>Hapus</item>
     </string-array>
+    <string name="view_all">Lihat Semua</string>
 </resources>

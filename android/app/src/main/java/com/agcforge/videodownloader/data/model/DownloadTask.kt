@@ -51,3 +51,116 @@ data class DownloadTask(
         return super.toString()
     }
 }
+
+object FormatMerger {
+    fun mergeTaskFormatsWithFilePath(tasks: List<DownloadTask>): List<DownloadFormat> {
+        return tasks.flatMap { task ->
+            val formats = task.formats ?: emptyList()
+
+            task.filePath?.let { path ->
+                val filePathFormat = createFormatFromTask(task, path)
+
+                formats + filePathFormat
+            } ?: formats
+        }
+            .map { format ->
+
+                if (format.height == null) {
+                    format.copy(height = format.extractHeight())
+                } else {
+                    format
+                }
+            }
+            .distinctBy { format ->
+                format.url.hashCode()
+            }
+    }
+
+    fun getBestFormatFromTask(task: DownloadTask): DownloadFormat? {
+        val allFormats = mutableListOf<DownloadFormat>()
+
+        task.formats?.let { allFormats.addAll(it) }
+
+        task.filePath?.let { path ->
+            allFormats.add(createFormatFromTask(task, path))
+        }
+
+        return allFormats.maxByOrNull { format ->
+            val height = format.extractHeight() ?: 0
+            val filesize = format.filesize ?: 0L
+
+            height * 1000000L + filesize
+        }
+    }
+
+    fun createFormatFromTask(task: DownloadTask, filePath: String): DownloadFormat {
+        val resolution = extractResolutionFromUrl(filePath)
+        val fileExtension = filePath.substringAfterLast(".", "").takeIf { it.isNotEmpty() }
+            ?: task.format
+            ?: "mp4"
+
+        return DownloadFormat(
+            url = filePath,
+            filesize = task.fileSize,
+            formatId = task.format ?: "best",
+            acodec = guessAudioCodec(fileExtension),
+            vcodec = guessVideoCodec(fileExtension),
+            ext = fileExtension,
+            height = resolution,
+            width = calculateWidth(resolution),
+            tbr = calculateBitrate(task.fileSize, task.duration)
+        )
+    }
+
+    private fun extractResolutionFromUrl(url: String): Int? {
+        val patterns = listOf(
+            ".*/(\\d{3,4})p.*".toRegex(),
+            ".*[_-](\\d{3,4})p.*".toRegex(),
+            ".*[_-](\\d{3,4})[_-].*".toRegex(),
+            ".*best.*".toRegex()
+        )
+
+        for (pattern in patterns) {
+            val match = pattern.find(url)
+            if (match != null) {
+                if (url.contains("best", ignoreCase = true)) {
+                    return 1080
+                }
+                return match.groupValues.getOrNull(1)?.toIntOrNull()
+            }
+        }
+        return null
+    }
+
+    private fun guessAudioCodec(extension: String): String? {
+        return when (extension.lowercase()) {
+            "mp4", "m4a", "m4v" -> "aac"
+            "webm" -> "opus"
+            "mp3", "m4b" -> "mp3"
+            "aac" -> "aac"
+            "flac" -> "flac"
+            else -> null
+        }
+    }
+
+    private fun guessVideoCodec(extension: String): String? {
+        return when (extension.lowercase()) {
+            "mp4", "m4v" -> "h264"
+            "webm" -> "vp9"
+            "mkv", "avi" -> "h265"
+            "mov" -> "prores"
+            else -> null
+        }
+    }
+
+    private fun calculateWidth(height: Int?): Int? {
+        return height?.let {
+            (it * 16) / 9
+        }
+    }
+
+    private fun calculateBitrate(fileSize: Long?, duration: Int?): Double? {
+        if (fileSize == null || duration == null || duration == 0) return null
+        return (fileSize * 8.0) / (duration * 1000.0)
+    }
+}

@@ -185,4 +185,5 @@
         <item>Share</item>
         <item>Delete</item>
     </string-array>
+    <string name="view_all">View All</string>
 </resources>

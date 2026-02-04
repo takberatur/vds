@@ -181,4 +181,5 @@
         <item>Teilen</item>
         <item>Löschen</item>
     </string-array>
+    <string name="view_all">Alle anzeigen</string>
 </resources>

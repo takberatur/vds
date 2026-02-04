@@ -181,4 +181,5 @@
         <item>分享</item>
         <item>删除</item>
     </string-array>
+    <string name="view_all">查看所有</string>
 </resources>

@@ -181,4 +181,5 @@
         <item>Delen</item>
         <item>Verwijderen</item>
     </string-array>
+    <string name="view_all">Alle weergeven</string>
 </resources>

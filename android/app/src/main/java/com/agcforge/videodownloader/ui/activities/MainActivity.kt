@@ -95,13 +95,46 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Setup bottom navigation
         binding.bottomNavigation.setupWithNavController(navController)
 
+        val topLevelDestinations = setOf(
+            R.id.homeFragment,
+            R.id.downloadsFragment,
+            R.id.settingsFragment,
+            R.id.historyFragment
+        )
+
+        appBarConfiguration = AppBarConfiguration(
+            topLevelDestinations,
+            binding.drawerLayout
+        )
+
+        binding.toolbar.setupWithNavController(navController, appBarConfiguration)
+
+//        navController.addOnDestinationChangedListener { _, destination, _ ->
+//            when (destination.id) {
+//                R.id.homeFragment, R.id.downloadsFragment, R.id.settingsFragment, R.id.historyFragment -> {
+//                    binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_menu)
+//                }
+//                else -> {
+//                    binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+//                    binding.toolbar.setNavigationOnClickListener {
+//                        navController.navigateUp()
+//                    }
+//                }
+//            }
+//        }
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.homeFragment, R.id.downloadsFragment, R.id.settingsFragment, R.id.historyFragment -> {
+                in topLevelDestinations -> {
                     binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_menu)
+                    binding.toolbar.setNavigationOnClickListener {
+                        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                            binding.drawerLayout.closeDrawer(GravityCompat.START)
+                        } else {
+                            binding.drawerLayout.openDrawer(GravityCompat.START)
+                        }
+                    }
                 }
                 else -> {
                     binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, androidx.appcompat.R.drawable.abc_ic_ab_back_material)

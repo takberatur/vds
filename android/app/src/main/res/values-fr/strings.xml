@@ -181,4 +181,5 @@
         <item>Partager</item>
         <item>Supprimer</item>
     </string-array>
+    <string name="view_all">Voir tout</string>
 </resources>

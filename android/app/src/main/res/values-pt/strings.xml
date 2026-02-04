@@ -181,4 +181,5 @@
         <item>Compartilhar</item>
         <item>Excluir</item>
     </string-array>
+    <string name="view_all">Ver tudo</string>
 </resources>

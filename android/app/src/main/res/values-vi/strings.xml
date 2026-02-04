@@ -181,4 +181,5 @@
         <item>Chia sẻ</item>
         <item>Xóa</item>
     </string-array>
+    <string name="view_all">Xem tất cả</string>
 </resources>

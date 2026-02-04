@@ -60,6 +60,31 @@ data class DownloadFormat(
             else -> "Unknown TBR"
         }
     }
+
+    fun extractHeight(): Int? {
+        if (height != null) return height
+
+        formatId?.let {
+            val pattern = "(\\d+)p".toRegex()
+            return pattern.find(it)?.groupValues?.get(1)?.toIntOrNull()
+        }
+
+        val urlPattern = ".*?(\\d{3,4})p.*".toRegex()
+        return urlPattern.find(url)?.groupValues?.get(1)?.toIntOrNull()
+    }
+
+    fun getFileSizeFormatted(): String {
+        return if (filesize != null) {
+            when {
+                filesize >= 1_000_000_000 -> "${filesize / 1_000_000_000} GB"
+                filesize >= 1_000_000 -> "${filesize / 1_000_000} MB"
+                filesize >= 1_000 -> "${filesize / 1_000} KB"
+                else -> "$filesize B"
+            }
+        } else {
+            "Unknown size"
+        }
+    }
 }
 
 data class AudioMetadata(

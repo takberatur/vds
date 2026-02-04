@@ -181,4 +181,5 @@
         <item>Сhare</item>
         <item>Удалить</item>
     </string-array>
+    <string name="view_all">Посмотреть все</string>
 </resources>

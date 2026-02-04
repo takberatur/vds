@@ -181,4 +181,5 @@
         <item>Paylaş</item>
         <item>Sil</item>
     </string-array>
+    <string name="view_all">Tümünü görüntüle</string>
 </resources>

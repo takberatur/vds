@@ -474,6 +474,7 @@ func (r *downloadRepository) FindOldAndCompleted(ctx context.Context, cutoff tim
 		SELECT id, platform_type, status, created_at
 		FROM downloads
 		WHERE created_at < $1
+		  AND status IN ('completed', 'failed')
 		LIMIT $2
 	`
 

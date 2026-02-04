@@ -181,4 +181,5 @@
         <item>Bagikan</item>
         <item>Tanggalin</item>
     </string-array>
+    <string name="view_all">Tingnan Lahat</string>
 </resources>

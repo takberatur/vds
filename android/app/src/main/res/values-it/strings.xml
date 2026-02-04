@@ -181,4 +181,5 @@
         <item>Condividi</item>
         <item>Elimina</item>
     </string-array>
+    <string name="view_all">Vedi tutto</string>
 </resources>

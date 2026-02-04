@@ -181,4 +181,5 @@
         <item>साझा करें</item>
         <item>हटाएं</item>
     </string-array>
+    <string name="view_all">सभी देखें</string>
 </resources>

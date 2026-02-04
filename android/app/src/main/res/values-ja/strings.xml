@@ -181,4 +181,5 @@
         <item>共有</item>
         <item>削除</item>
     </string-array>
+    <string name="view_all">すべて表示</string>
 </resources>
