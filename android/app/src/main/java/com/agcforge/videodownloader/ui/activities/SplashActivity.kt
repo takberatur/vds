@@ -71,12 +71,14 @@ class SplashActivity : AppCompatActivity() {
 
                 initializeAuthToken()
 
-                AdsConfig.initialize(this@SplashActivity)
-                val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
-                if (enableOneSignal) OneSignal.initWithContext(this@SplashActivity, AdsConfig.ONESIGNAL_ID!!)
-                if (enableOneSignal) {
-                    OneSignal.Notifications.requestPermission(true)
-                }
+                println("AppConfig: ${preferenceManager.applicationConfig.first()}")
+
+//                AdsConfig.initialize(this@SplashActivity)
+//                val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
+//                if (enableOneSignal) OneSignal.initWithContext(this@SplashActivity, AdsConfig.ONESIGNAL_ID!!)
+//                if (enableOneSignal) {
+//                    OneSignal.Notifications.requestPermission(true)
+//                }
 
                 navigateToMain()
             }

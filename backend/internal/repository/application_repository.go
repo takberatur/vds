@@ -150,8 +150,7 @@ func (r *applicationRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 
 	query := `SELECT id, name, package_name, api_key, secret_key, version, platform, enable_monetization, enable_admob, enable_unity_ad, enable_start_app, enable_in_app_purchase, admob_ad_unit_id, unity_ad_unit_id, start_app_ad_unit_id,
 		admob_banner_ad_unit_id, admob_interstitial_ad_unit_id, admob_native_ad_unit_id, admob_rewarded_ad_unit_id,
-		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id,
-		one_signal_id,
+		unity_banner_ad_unit_id, unity_interstitial_ad_unit_id, unity_native_ad_unit_id, unity_rewarded_ad_unit_id, one_signal_id,
 		is_active, created_at, updated_at FROM applications WHERE id = $1`
 
 	var app model.Application
