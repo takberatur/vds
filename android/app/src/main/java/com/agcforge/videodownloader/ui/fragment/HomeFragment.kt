@@ -38,7 +38,10 @@ import com.agcforge.videodownloader.utils.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import androidx.core.net.toUri
+import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
 
 class HomeFragment : Fragment() {
 
@@ -51,6 +54,8 @@ class HomeFragment : Fragment() {
 	private var isSubmitting = false
 	private lateinit var preferenceManager: PreferenceManager
 	private var pendingDownloadUrl: String? = null
+	private val pendingMp3Tasks = linkedMapOf<String, String>()
+	private val pendingMp3TimeoutJobs = linkedMapOf<String, Job>()
 
 	private val storagePermissionLauncher = registerForActivityResult(
 		ActivityResultContracts.RequestPermission()
@@ -199,16 +204,36 @@ class HomeFragment : Fragment() {
                             if (!task.formats.isNullOrEmpty()) {
                                 showFormatSelectionDialog(task)
                             } else {
-							val directUrl = task.filePath?.let { sanitizeApiUrl(it) }
-							if (!directUrl.isNullOrBlank() && isUrlValid(directUrl)) {
-								enqueueDownload(directUrl)
-								requireContext().showToast(getString(R.string.download_started))
-								binding.etUrl.text?.clear()
-								updateDownloadButtonState()
-							} else {
-								requireContext().showToast(getString(R.string.no_format_available_to_download))
-								updateDownloadButtonState()
-							}
+								val isMp3Task = task.format?.equals("mp3", ignoreCase = true) == true || task.platformType.lowercase().contains("mp3")
+								if (isMp3Task) {
+									val name = task.title?.takeIf { it.isNotBlank() } ?: "audio"
+									val safeName = sanitizeFilenameBase(name)
+									pendingMp3Tasks[task.id] = safeName
+									pendingMp3TimeoutJobs.remove(task.id)?.cancel()
+									pendingMp3TimeoutJobs[task.id] = viewLifecycleOwner.lifecycleScope.launch {
+										delay(90_000)
+										if (pendingMp3Tasks.containsKey(task.id)) {
+											pendingMp3Tasks.remove(task.id)
+											pendingMp3TimeoutJobs.remove(task.id)
+											requireContext().showToast("Audio belum siap, coba lagi")
+										}
+									}
+									requireContext().showToast("Audio sedang diproses...")
+									binding.etUrl.text?.clear()
+									updateDownloadButtonState()
+									return@let
+								}
+
+								val directUrl = task.filePath?.let { sanitizeApiUrl(it) }
+								if (!directUrl.isNullOrBlank() && isUrlValid(directUrl)) {
+									enqueueDownload(directUrl)
+									requireContext().showToast(getString(R.string.download_started))
+									binding.etUrl.text?.clear()
+									updateDownloadButtonState()
+								} else {
+									requireContext().showToast(getString(R.string.no_format_available_to_download))
+									updateDownloadButtonState()
+								}
                             }
                         }
                     }
@@ -243,6 +268,15 @@ class HomeFragment : Fragment() {
 			.trim()
 	}
 
+	private fun sanitizeFilenameBase(raw: String): String {
+		return raw
+			.replace(Regex("[\\\\/:*?\"<>|]"), "_")
+			.replace(Regex("\n|\r|\t"), " ")
+			.trim()
+			.ifBlank { "download" }
+			.take(80)
+	}
+
 	private fun updateDownloadButtonState() {
 		if (isSubmitting) {
 			binding.btnDownload.isEnabled = false
@@ -264,8 +298,13 @@ class HomeFragment : Fragment() {
         FormatSelectionDialog.Builder(requireContext())
             .setTask(task)
             .setOnFormatSelected { selectedFormat ->
-                // Handle format selected
-                enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
+                val isMp3Task = task.format?.equals("mp3", ignoreCase = true) == true || task.platformType.lowercase().contains("mp3")
+				if (isMp3Task) {
+					val name = task.title?.takeIf { it.isNotBlank() } ?: "audio"
+					enqueueDownload(buildProxyMp3Url(task.id, sanitizeFilenameBase(name)))
+				} else {
+					enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
+				}
                 requireContext().showToast(getString(R.string.download_started))
                 binding.etUrl.text?.clear()
                 updateDownloadButtonState()
@@ -296,6 +335,20 @@ class HomeFragment : Fragment() {
 			uriBuilder.appendQueryParameter("format_id", effectiveFormat)
 		}
 		return uriBuilder.build().toString()
+	}
+
+	private fun buildProxyMp3Url(taskId: String, filename: String): String {
+		val base = AppManager.baseUrl
+		val endpoint = if (base.endsWith("/")) {
+			"${base}public-proxy/downloads/file/mp3"
+		} else {
+			"$base/public-proxy/downloads/file/mp3"
+		}
+		return endpoint.toUri().buildUpon()
+			.appendQueryParameter("task_id", taskId)
+			.appendQueryParameter("filename", filename)
+			.build()
+			.toString()
 	}
 
 	private fun enqueueDownload(url: String) {
@@ -336,6 +389,35 @@ class HomeFragment : Fragment() {
 				requireContext().showToast(getString(R.string.download_started))
 			} catch (e: Exception) {
 				requireContext().showToast(e.message ?: getString(R.string.download_failed))
+			}
+		}
+
+		viewLifecycleOwner.lifecycleScope.launch {
+			viewModel.realtimeDownloadEvent.collect { event ->
+				when (event) {
+					is DownloadTaskEvent.StatusChanged -> {
+						val taskId = event.taskId
+						val pendingName = pendingMp3Tasks[taskId]
+						if (pendingName != null && event.status.equals("completed", ignoreCase = true)) {
+							pendingMp3Tasks.remove(taskId)
+							pendingMp3TimeoutJobs.remove(taskId)?.cancel()
+							enqueueDownload(buildProxyMp3Url(taskId, pendingName))
+						}
+						if (pendingName != null && event.status.equals("failed", ignoreCase = true)) {
+							pendingMp3Tasks.remove(taskId)
+							pendingMp3TimeoutJobs.remove(taskId)?.cancel()
+							requireContext().showToast(event.errorMessage ?: getString(R.string.download_failed))
+						}
+					}
+					is DownloadTaskEvent.Failed -> {
+						if (pendingMp3Tasks.containsKey(event.taskId)) {
+							pendingMp3Tasks.remove(event.taskId)
+							pendingMp3TimeoutJobs.remove(event.taskId)?.cancel()
+							requireContext().showToast(event.error)
+						}
+					}
+					else -> {}
+				}
 			}
 		}
 	}

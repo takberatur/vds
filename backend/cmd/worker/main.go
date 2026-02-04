@@ -253,6 +253,16 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	}
 
 	sourceURL := task.OriginalURL
+	if task.FilePath != nil {
+		fp := strings.TrimSpace(*task.FilePath)
+		fp = strings.Trim(fp, "`")
+		fp = strings.Trim(fp, "\"")
+		fp = strings.Trim(fp, "'")
+		fp = strings.TrimSpace(fp)
+		if strings.HasPrefix(strings.ToLower(fp), "http") {
+			sourceURL = fp
+		}
+	}
 	if info != nil {
 		direct := strings.TrimSpace(info.DownloadURL)
 		if direct != "" && strings.HasPrefix(strings.ToLower(direct), "http") && !strings.HasPrefix(strings.ToLower(direct), "blob:") {
@@ -277,8 +287,22 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	defer os.Remove(outputPath)
 	defer os.Remove(basePath)
 
-	if sourceURL != task.OriginalURL {
-		if err := downloadURLToPath(ctx, sourceURL, task.OriginalURL, inputPath); err != nil {
+	resolvedSourceURL := sourceURL
+	if isYTContentStatusURL(sourceURL) {
+		if resolved, err := resolveYTContentStatusURL(ctx, sourceURL); err == nil && resolved != "" {
+			resolvedSourceURL = resolved
+		} else if err != nil {
+			return err
+		}
+	}
+
+	referer := task.OriginalURL
+	if isYTContentDownloadURL(resolvedSourceURL) {
+		referer = "https://ytdown.to/"
+	}
+
+	if resolvedSourceURL != task.OriginalURL {
+		if err := downloadURLToPath(ctx, resolvedSourceURL, referer, inputPath); err != nil {
 			log.Warn().Err(err).Str("url", sourceURL).Msg("Direct source download failed, falling back to downloader")
 			if err2 := downloader.DownloadToPath(ctx, task.OriginalURL, "", inputPath, nil); err2 != nil {
 				return err2
@@ -372,6 +396,151 @@ func processMp3DownloadTask(ctx context.Context, downloadRepo repository.Downloa
 	}
 
 	return nil
+}
+
+type ytcontentStatusResponse struct {
+	Status  string          `json:"status"`
+	FileURL string          `json:"fileUrl"`
+	ViewURL string          `json:"viewUrl"`
+	Message string          `json:"message"`
+	Error   string          `json:"error"`
+	Progress json.RawMessage `json:"progress"`
+}
+
+func isYTContentStatusURL(rawURL string) bool {
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil {
+		return false
+	}
+	h := strings.ToLower(u.Host)
+	if !strings.Contains(h, "ytcontent.com") {
+		return false
+	}
+	return strings.Contains(u.Path, "/v5/video/")
+}
+
+func isYTContentDownloadURL(rawURL string) bool {
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil {
+		return false
+	}
+	h := strings.ToLower(u.Host)
+	if !strings.Contains(h, "ytcontent.com") {
+		return false
+	}
+	return strings.Contains(u.Path, "/v5/download/") || strings.Contains(u.Path, "/v5/views/")
+}
+
+func resolveYTContentStatusURL(ctx context.Context, statusURL string) (string, error) {
+	statusURL = strings.TrimSpace(statusURL)
+	statusURL = strings.Trim(statusURL, "`")
+	statusURL = strings.Trim(statusURL, "\"")
+	statusURL = strings.Trim(statusURL, "'")
+	statusURL = strings.TrimSpace(statusURL)
+	if statusURL == "" {
+		return "", fmt.Errorf("empty ytcontent status url")
+	}
+
+	outboundProxy := sanitizeProxyURL(os.Getenv("OUTBOUND_PROXY_URL"))
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	if outboundProxy != "" {
+		if p, err := url.Parse(outboundProxy); err == nil && p.Host != "" {
+			transport.Proxy = http.ProxyURL(p)
+		}
+	}
+	client := &http.Client{Timeout: 25 * time.Second, Transport: transport}
+
+	deadline := time.Now().Add(60 * time.Second)
+	intervals := []time.Duration{2 * time.Second, 4 * time.Second, 6 * time.Second}
+	attempt := 0
+	for {
+		body, parsed, err := fetchYTContentStatus(ctx, client, statusURL)
+		if err != nil {
+			preview := strings.TrimSpace(string(body))
+			if len(preview) > 300 {
+				preview = preview[:300]
+			}
+			if preview != "" {
+				return "", fmt.Errorf("ytcontent status fetch failed: %w; body=%q", err, preview)
+			}
+			return "", fmt.Errorf("ytcontent status fetch failed: %w", err)
+		}
+
+		st := strings.ToLower(strings.TrimSpace(parsed.Status))
+		switch st {
+		case "completed":
+			fileURL := strings.TrimSpace(parsed.FileURL)
+			fileURL = strings.Trim(fileURL, "`")
+			fileURL = strings.Trim(fileURL, "\"")
+			fileURL = strings.Trim(fileURL, "'")
+			fileURL = strings.TrimSpace(fileURL)
+			if fileURL != "" {
+				return fileURL, nil
+			}
+			viewURL := strings.TrimSpace(parsed.ViewURL)
+			viewURL = strings.Trim(viewURL, "`")
+			viewURL = strings.Trim(viewURL, "\"")
+			viewURL = strings.Trim(viewURL, "'")
+			viewURL = strings.TrimSpace(viewURL)
+			if viewURL != "" {
+				return viewURL, nil
+			}
+			return "", fmt.Errorf("ytcontent completed but missing fileUrl")
+		case "error", "failed", "canceled":
+			msg := strings.TrimSpace(parsed.Message)
+			if msg == "" {
+				msg = strings.TrimSpace(parsed.Error)
+			}
+			if msg == "" {
+				msg = "ytcontent returned error"
+			}
+			return "", fmt.Errorf("ytcontent error: %s", msg)
+		case "queued", "processing":
+			if time.Now().After(deadline) {
+				return "", fmt.Errorf("ytcontent still %s", st)
+			}
+			time.Sleep(intervals[attempt%len(intervals)])
+			attempt++
+			continue
+		default:
+			if time.Now().After(deadline) {
+				return "", fmt.Errorf("ytcontent unknown status: %s", st)
+			}
+			time.Sleep(intervals[attempt%len(intervals)])
+			attempt++
+		}
+	}
+}
+
+func fetchYTContentStatus(ctx context.Context, client *http.Client, statusURL string) ([]byte, *ytcontentStatusResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, statusURL, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("Accept", "application/json, text/plain, */*")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+	req.Header.Set("Referer", "https://ytdown.to/")
+	req.Header.Set("Origin", "https://ytdown.to")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1_048_576))
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return body, nil, fmt.Errorf("http %d", resp.StatusCode)
+	}
+
+	var parsed ytcontentStatusResponse
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return body, nil, err
+	}
+	return body, &parsed, nil
 }
 
 func downloadURLToPath(ctx context.Context, fileURL string, refererURL string, outputPath string) error {
