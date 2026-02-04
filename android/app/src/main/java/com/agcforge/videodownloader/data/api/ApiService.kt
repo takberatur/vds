@@ -30,8 +30,9 @@ interface ApiService {
     @POST("mobile-client/download/process/mp3")
     suspend fun createDownloadMp3(@Body request: DownloadRequest): Response<ApiResponse<DownloadTask>>
 
-    @GET("mobile-client/protected-mobile/downloads/{id}")
+	@GET("mobile-client/downloads/{id}")
     suspend fun getDownloadTask(@Path("id") id: String): Response<ApiResponse<DownloadTask>>
+
 
     @GET("mobile-client/protected-mobile/downloads")
     suspend fun getDownloads(

@@ -120,6 +120,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun subscribeToPublicDownloads() {
         centrifugoManager.subscribeToPublicDownloads()
     }
+
+	suspend fun getDownloadTask(id: String): Result<DownloadTask> {
+		return repository.getDownloadTask(id)
+	}
 }
 
 

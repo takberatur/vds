@@ -200,6 +200,7 @@ func SetupRoutes(c *RouteConfig) {
 
 	publicMobile.Post("/download/process/video", rateLimitDownload, downloadHandler.DownloadVideo)
 	publicMobile.Post("/download/process/mp3", rateLimitDownload, downloadHandler.DownloadVideoToMp3)
+	publicMobile.Get("/downloads/:id", downloadHandler.FindByID)
 
 	protectedUserMobile := publicMobile.Group("/protected-mobile", middleware.JWTMiddleware(tokenService))
 	protectedUserMobile.Get("/users/current", userHandler.GetCurrentUser)

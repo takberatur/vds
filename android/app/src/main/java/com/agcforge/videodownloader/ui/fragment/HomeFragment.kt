@@ -29,6 +29,7 @@ import com.agcforge.videodownloader.data.model.Platform
 import com.agcforge.videodownloader.databinding.FragmentHomeBinding
 import com.agcforge.videodownloader.ui.adapter.PlatformAdapter
 import com.agcforge.videodownloader.ui.component.FormatSelectionDialog
+import com.agcforge.videodownloader.ui.component.DownloadingDialog
 import com.agcforge.videodownloader.ui.viewmodel.HomeViewModel
 import com.agcforge.videodownloader.utils.AppManager
 import com.agcforge.videodownloader.utils.DownloadManagerCleaner
@@ -55,7 +56,8 @@ class HomeFragment : Fragment() {
 	private lateinit var preferenceManager: PreferenceManager
 	private var pendingDownloadUrl: String? = null
 	private val pendingMp3Tasks = linkedMapOf<String, String>()
-	private val pendingMp3TimeoutJobs = linkedMapOf<String, Job>()
+	private val mp3PollJobs = linkedMapOf<String, Job>()
+	private var mp3ProcessingDialog: DownloadingDialog? = null
 
 	private val storagePermissionLauncher = registerForActivityResult(
 		ActivityResultContracts.RequestPermission()
@@ -209,16 +211,7 @@ class HomeFragment : Fragment() {
 									val name = task.title?.takeIf { it.isNotBlank() } ?: "audio"
 									val safeName = sanitizeFilenameBase(name)
 									pendingMp3Tasks[task.id] = safeName
-									pendingMp3TimeoutJobs.remove(task.id)?.cancel()
-									pendingMp3TimeoutJobs[task.id] = viewLifecycleOwner.lifecycleScope.launch {
-										delay(90_000)
-										if (pendingMp3Tasks.containsKey(task.id)) {
-											pendingMp3Tasks.remove(task.id)
-											pendingMp3TimeoutJobs.remove(task.id)
-											requireContext().showToast(getString(R.string.audio_not_ready_to_download))
-										}
-									}
-									requireContext().showToast(getString(R.string.audio_being_processeed_to_download))
+								startMp3Processing(task.id, safeName)
 									binding.etUrl.text?.clear()
 									updateDownloadButtonState()
 									return@let
@@ -252,6 +245,38 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+		viewLifecycleOwner.lifecycleScope.launch {
+			viewModel.realtimeDownloadEvent.collect { event ->
+				when (event) {
+					is DownloadTaskEvent.StatusChanged -> {
+						val taskId = event.taskId
+						val pendingName = pendingMp3Tasks[taskId]
+						if (pendingName != null && event.status.equals("completed", ignoreCase = true)) {
+							pendingMp3Tasks.remove(taskId)
+							mp3PollJobs.remove(taskId)?.cancel()
+							ensureMp3DialogDismissed()
+							enqueueDownload(buildProxyMp3Url(taskId, pendingName))
+						}
+						if (pendingName != null && event.status.equals("failed", ignoreCase = true)) {
+							pendingMp3Tasks.remove(taskId)
+							mp3PollJobs.remove(taskId)?.cancel()
+							ensureMp3DialogDismissed()
+							requireContext().showToast(event.errorMessage ?: getString(R.string.download_failed))
+						}
+					}
+					is DownloadTaskEvent.Failed -> {
+						if (pendingMp3Tasks.containsKey(event.taskId)) {
+							pendingMp3Tasks.remove(event.taskId)
+							mp3PollJobs.remove(event.taskId)?.cancel()
+							ensureMp3DialogDismissed()
+							requireContext().showToast(event.error)
+						}
+					}
+					else -> {}
+				}
+			}
+		}
     }
 
 	private fun isUrlValid(url: String): Boolean {
@@ -275,6 +300,87 @@ class HomeFragment : Fragment() {
 			.trim()
 			.ifBlank { "download" }
 			.take(80)
+	}
+
+	private fun startMp3Processing(taskId: String, filename: String) {
+		showMp3ProcessingDialog(taskId)
+		mp3PollJobs.remove(taskId)?.cancel()
+		mp3PollJobs[taskId] = viewLifecycleOwner.lifecycleScope.launch {
+			val startedAt = System.currentTimeMillis()
+			while (true) {
+				val result = runCatching { viewModel.getDownloadTask(taskId) }.getOrElse { Result.failure(it) }
+				result
+					.onSuccess { task ->
+						val st = task.status.lowercase()
+						updateMp3DialogStatus(st)
+						when (st) {
+							"completed" -> {
+								pendingMp3Tasks.remove(taskId)
+								ensureMp3DialogDismissed()
+								enqueueDownload(buildProxyMp3Url(taskId, filename))
+								mp3PollJobs.remove(taskId)?.cancel()
+								return@launch
+							}
+							"failed" -> {
+								pendingMp3Tasks.remove(taskId)
+								ensureMp3DialogDismissed()
+								requireContext().showToast(task.errorMessage ?: getString(R.string.download_failed))
+								mp3PollJobs.remove(taskId)?.cancel()
+								return@launch
+							}
+						}
+					}
+					.onFailure {
+						updateMp3DialogStatus("processing")
+					}
+
+				if (System.currentTimeMillis() - startedAt > 30 * 60 * 1000) {
+					pendingMp3Tasks.remove(taskId)
+					ensureMp3DialogDismissed()
+					requireContext().showToast(getString(R.string.audio_not_ready_to_download))
+					mp3PollJobs.remove(taskId)?.cancel()
+					return@launch
+				}
+				delay(4_000)
+			}
+		}
+	}
+
+	private fun showMp3ProcessingDialog(taskId: String) {
+		if (!isAdded) return
+		if (mp3ProcessingDialog?.isShowing == true) return
+		mp3ProcessingDialog = DownloadingDialog.create(requireContext())
+			.setTitle(getString(R.string.audio_being_processeed_to_download))
+			.setMessage("Mohon tunggu...")
+			.setAnimation(R.raw.cloud_data_backup, autoPlay = true, loop = true)
+			.setCancelable(false)
+			.setNegativeButton("Batal") {
+				pendingMp3Tasks.remove(taskId)
+				mp3PollJobs.remove(taskId)?.cancel()
+			}
+			.show()
+	}
+
+	private fun updateMp3DialogStatus(status: String) {
+		if (mp3ProcessingDialog?.isShowing != true) return
+		val msg = when (status.lowercase()) {
+			"queued" -> "Masuk antrean..."
+			"processing" -> "Sedang diproses..."
+			"completed" -> "Selesai. Menyiapkan unduhan..."
+			"failed" -> "Gagal memproses audio"
+			else -> "Sedang diproses..."
+		}
+		mp3ProcessingDialog?.updateMessage(msg)
+	}
+
+	private fun ensureMp3DialogDismissed() {
+		runCatching {
+			val dialog = mp3ProcessingDialog
+			if (dialog != null && dialog.isShowing) {
+				dialog.dismiss()
+			}
+		}
+		mp3ProcessingDialog = null
 	}
 
 	private fun updateDownloadButtonState() {
@@ -301,11 +407,13 @@ class HomeFragment : Fragment() {
                 val isMp3Task = task.format?.equals("mp3", ignoreCase = true) == true || task.platformType.lowercase().contains("mp3")
 				if (isMp3Task) {
 					val name = task.title?.takeIf { it.isNotBlank() } ?: "audio"
-					enqueueDownload(buildProxyMp3Url(task.id, sanitizeFilenameBase(name)))
+					val safeName = sanitizeFilenameBase(name)
+					pendingMp3Tasks[task.id] = safeName
+					startMp3Processing(task.id, safeName)
 				} else {
 					enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
+					requireContext().showToast(getString(R.string.download_started))
 				}
-                requireContext().showToast(getString(R.string.download_started))
                 binding.etUrl.text?.clear()
                 updateDownloadButtonState()
             }
@@ -391,35 +499,6 @@ class HomeFragment : Fragment() {
 				requireContext().showToast(e.message ?: getString(R.string.download_failed))
 			}
 		}
-
-		viewLifecycleOwner.lifecycleScope.launch {
-			viewModel.realtimeDownloadEvent.collect { event ->
-				when (event) {
-					is DownloadTaskEvent.StatusChanged -> {
-						val taskId = event.taskId
-						val pendingName = pendingMp3Tasks[taskId]
-						if (pendingName != null && event.status.equals("completed", ignoreCase = true)) {
-							pendingMp3Tasks.remove(taskId)
-							pendingMp3TimeoutJobs.remove(taskId)?.cancel()
-							enqueueDownload(buildProxyMp3Url(taskId, pendingName))
-						}
-						if (pendingName != null && event.status.equals("failed", ignoreCase = true)) {
-							pendingMp3Tasks.remove(taskId)
-							pendingMp3TimeoutJobs.remove(taskId)?.cancel()
-							requireContext().showToast(event.errorMessage ?: getString(R.string.download_failed))
-						}
-					}
-					is DownloadTaskEvent.Failed -> {
-						if (pendingMp3Tasks.containsKey(event.taskId)) {
-							pendingMp3Tasks.remove(event.taskId)
-							pendingMp3TimeoutJobs.remove(event.taskId)?.cancel()
-							requireContext().showToast(event.error)
-						}
-					}
-					else -> {}
-				}
-			}
-		}
 	}
 
 	private fun deriveDownloadFileName(uri: android.net.Uri): String {
@@ -455,6 +534,10 @@ class HomeFragment : Fragment() {
 	}
 
     override fun onDestroyView() {
+		mp3PollJobs.values.forEach { it.cancel() }
+		mp3PollJobs.clear()
+		pendingMp3Tasks.clear()
+		ensureMp3DialogDismissed()
         super.onDestroyView()
         _binding = null
     }
