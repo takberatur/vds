@@ -146,4 +146,13 @@
     <string name="password_is_required">पासवर्ड आवश्यक है</string>
     <string name="password_must_be_at_least_6_characters">पासवर्ड कम से कम 6 अक्षर होना चाहिए</string>
     <string name="no_history_yet">कोई इतिहास उपलब्ध नहीं है</string>
+    <string name="clear_history">इतिहास साफ़ करें</string>
+    <string name="delete_file">फ़ाइल हटाएं</string>
+    <string name="title_dialog_delete_file">क्या आप वाकई \'%1$s\' हटाना चाहते हैं?</string>
+    <string name="delete_file_success">फ़ाइल सफलतापूर्वक हटाई गई</string>
+    <string name="delete_file_failed">फ़ाइल हटाने में विफल</string>
+    <string name="error">त्रुटि: %s</string>
+    <string name="no_media_files_found">कोई मीडिया फ़ाइल नहीं मिली</string>
+    <string name="failed_to_load_downloads">डाउनलोड लोड करने में विफल: %s</string>
+    <string name="history_cleared">इतिहास साफ़ किया गया</string>
 </resources>

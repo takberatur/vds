@@ -39,7 +39,7 @@
     <string name="create_account">Crear una cuenta</string>
     <string name="create_your_account_to_get_started">Crea tu cuenta para comenzar</string>
     <string name="full_name">Nombre completo</string>
-    <string name="confirm_password">confirmar Contraseña</string>
+    <string name="confirm_password">confirmar contraseña</string>
     <string name="i_agree_to_terms_amp_conditions">Acepto los Términos y condiciones</string>
     <string name="already_have_an_account">¿Ya tienes una cuenta?</string>
     <string name="reset_password">Restablecer contraseña</string>
@@ -49,7 +49,7 @@
     <string name="password_must_contain">La contraseña debe contener:</string>
     <string name="at_least_8_characters">Al menos 8 caracteres</string>
     <string name="one_uppercase_letter">Una letra mayúscula</string>
-    <string name="one_number">un numero</string>
+    <string name="one_number">un número</string>
     <string name="no_downloads_yet">Aún no hay descargas</string>
     <string name="download_video">Descargar Vídeo</string>
     <string name="paste_video_url_here">Pegue la URL del vídeo aquí</string>
@@ -84,8 +84,8 @@
     <string name="open_storage_folder">Abrir carpeta de almacenamiento</string>
     <string name="cache_cleared_success">Caché borrado exitosamente</string>
     <string name="cache_cleared_fail">No se pudo borrar el caché</string>
-    <string name="about_dialog_message">This app was created by %1$s as a fun project. It uses the %2$s to download videos from supported platforms.</string>
-    <string name="ok">DE ACUERDO</string>
+    <string name="about_dialog_message">Esta aplicación fue creada por %1$s como un proyecto divertido. Utiliza %2$s para descargar vídeos de las plataformas compatibles.</string>
+    <string name="ok">Aceptar</string>
     <string name="email_is_required">Se requiere correo electrónico</string>
     <string name="invalid_format_email">Formato de correo electrónico no válido</string>
     <string name="reset_link_sent_to_email">Restablecer enlace enviado a %s</string>
@@ -146,4 +146,13 @@
     <string name="password_is_required">Se requiere contraseña</string>
     <string name="password_must_be_at_least_6_characters">La contraseña debe tener al menos 6 caracteres</string>
     <string name="no_history_yet">No hay historial disponible</string>
+    <string name="clear_history">Limpiar historial</string>
+    <string name="delete_file">Eliminar archivo</string>
+    <string name="title_dialog_delete_file">"¿Estás seguro de que deseas eliminar \'%1$s\'?"</string>
+    <string name="delete_file_success">Archivo eliminado con éxito</string>
+    <string name="delete_file_failed">Error al eliminar el archivo</string>
+    <string name="error">Error: %s</string>
+    <string name="no_media_files_found">No se encontraron archivos multimedia</string>
+    <string name="failed_to_load_downloads">Error al cargar los descargas: %s</string>
+    <string name="history_cleared">Historial eliminado con éxito</string>
 </resources>
