@@ -167,4 +167,10 @@
     <string name="being_processed">تتم معالجة</string>
     <string name="done_preparing_download">تم إعداد التنزيل</string>
     <string name="failed_to_process_audio">فشل في معالجة الصوت</string>
+    <string name="download_settings">إعدادات التنزيل</string>
+    <string name="select_download_type">اختر نوع التنزيل</string>
+    <string name="audio_mp3">صوت (MP3)</string>
+    <string name="video_mp4">فيديو (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">بدأ التنزيل، يرجى مراجعة شريط الحالة في الخلفية لمزيد من المعلومات حول مراقبة تقدم التنزيل.</string>
+    <string name="no_platforms_available">لا توجد منصات متاحة</string>
 </resources>

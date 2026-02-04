@@ -10,6 +10,7 @@
 
     <color name="primary">#FF6200EE</color>
     <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#E3F2FD</color>
     <color name="accent">#FF4081</color>
     <color name="background">#F5F5F5</color>
     <color name="surface">#FFFFFF</color>
@@ -30,4 +31,5 @@
 
     <color name="bg_menu_primary">#FF018786</color>
     <color name="bg_menu_secondary">#FF03DAC5</color>
+
 </resources>

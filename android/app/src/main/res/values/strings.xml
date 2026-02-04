@@ -171,4 +171,10 @@
     <string name="being_processed">Being processed</string>
     <string name="done_preparing_download">Done preparing download</string>
     <string name="failed_to_process_audio">Failed to process audio</string>
+    <string name="download_settings">Download Settings</string>
+    <string name="select_download_type">Select Download Type</string>
+    <string name="audio_mp3">Audio (MP3)</string>
+    <string name="video_mp4">Video (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">Download started, please check background status bar for more information for monitoring download progress.</string>
+    <string name="no_platforms_available">No platforms available</string>
 </resources>

@@ -43,6 +43,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import androidx.core.net.toUri
 import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
+import com.agcforge.videodownloader.ui.component.AppAlertDialog
+import com.agcforge.videodownloader.ui.component.DownloadSettingsDialog
 
 class HomeFragment : Fragment() {
 
@@ -59,6 +61,7 @@ class HomeFragment : Fragment() {
 	private val mp3PollJobs = linkedMapOf<String, Job>()
 	private var mp3ProcessingDialog: DownloadingDialog? = null
 
+    private var allPlatforms: List<Platform> = emptyList()
 	private val storagePermissionLauncher = registerForActivityResult(
 		ActivityResultContracts.RequestPermission()
 	) { granted ->
@@ -67,7 +70,7 @@ class HomeFragment : Fragment() {
 		if (granted && url != null) {
 			enqueueDownload(url)
 		} else if (!granted) {
-			requireContext().showToast(getString(R.string.storage_permission_denied))
+			showDialogStatusDownload(AppAlertDialog.AlertDialogType.ERROR, getString(R.string.storage_permission_denied), null)
 		}
 	}
 
@@ -80,6 +83,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 		preferenceManager = PreferenceManager(requireContext())
@@ -127,15 +131,10 @@ class HomeFragment : Fragment() {
 				return@setOnClickListener
 			}
 
-            val platform = selectedPlatform
-            if (platform == null) {
-                requireContext().showToast(getString(R.string.please_select_a_platform))
-                return@setOnClickListener
-            }
 
-			binding.tilUrl.error = null
-            viewModel.createDownload(url, platform.type)
-            addToHistory(url)
+            binding.tilUrl.error = null
+
+            showDownloadSettingsDialog(url)
         }
 
 		binding.etUrl.addTextChangedListener(object : TextWatcher {
@@ -167,6 +166,44 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun showDownloadSettingsDialog(url: String) {
+        if (allPlatforms.isEmpty()) {
+            showDialogStatusDownload(AppAlertDialog.AlertDialogType.INFO, "Please wait, loading platforms...", null)
+            return
+        }
+
+        DownloadSettingsDialog.create(
+            context = requireContext(),
+            url = url,
+            platforms = allPlatforms,
+            onSubmit = { selectedType, selectedPlatform ->
+                // Store selected platform
+                this.selectedPlatform = selectedPlatform
+                // Submit download request
+                submitDownloadRequest(url, selectedPlatform, selectedType)
+            }
+        ).show()
+    }
+
+    private fun submitDownloadRequest(url: String, platform: Platform, type: String) {
+        // Determine platform type based on selection
+        val platformType = when {
+            type == "audio" -> {
+                // Use type that ends with "to-mp3" if available, otherwise use platform.type
+                if (platform.type.endsWith("to-mp3", ignoreCase = true)) {
+                    platform.type
+                } else {
+                    "${platform.type}-to-mp3"
+                }
+            }
+            else -> platform.type
+        }
+
+        // Create download with selected platform
+        viewModel.createDownload(url, platformType)
+        addToHistory(url)
+    }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.platforms.collect { resource ->
@@ -176,7 +213,10 @@ class HomeFragment : Fragment() {
                     }
                     is Resource.Success -> {
                         binding.progressBar.visibility = View.GONE
-                        resource.data?.let { platformAdapter.submitList(it) }
+                        resource.data?.let {
+                            allPlatforms = it
+                            platformAdapter.submitList(it)
+                        }
                     }
                     is Resource.Error -> {
                         binding.progressBar.visibility = View.GONE
@@ -205,15 +245,17 @@ class HomeFragment : Fragment() {
                             // Show format selection dialog if formats available
                             if (!task.formats.isNullOrEmpty()) {
                                 showFormatSelectionDialog(task)
+								viewModel.clearDownloadResult()
                             } else {
 								val isMp3Task = task.format?.equals("mp3", ignoreCase = true) == true || task.platformType.lowercase().contains("mp3")
 								if (isMp3Task) {
 									val name = task.title?.takeIf { it.isNotBlank() } ?: "audio"
 									val safeName = sanitizeFilenameBase(name)
 									pendingMp3Tasks[task.id] = safeName
-								startMp3Processing(task.id, safeName)
+                                    startMp3Processing(task.id, safeName)
 									binding.etUrl.text?.clear()
 									updateDownloadButtonState()
+									viewModel.clearDownloadResult()
 									return@let
 								}
 
@@ -223,9 +265,11 @@ class HomeFragment : Fragment() {
 									requireContext().showToast(getString(R.string.download_started))
 									binding.etUrl.text?.clear()
 									updateDownloadButtonState()
+									viewModel.clearDownloadResult()
 								} else {
 									requireContext().showToast(getString(R.string.no_format_available_to_download))
 									updateDownloadButtonState()
+									viewModel.clearDownloadResult()
 								}
                             }
                         }
@@ -236,6 +280,7 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
                         requireContext().showToast(resource.message ?: getString(R.string.download_failed))
 						updateDownloadButtonState()
+						viewModel.clearDownloadResult()
                     }
 					is Resource.Idle -> {
 						isSubmitting = false
@@ -262,7 +307,10 @@ class HomeFragment : Fragment() {
 							pendingMp3Tasks.remove(taskId)
 							mp3PollJobs.remove(taskId)?.cancel()
 							ensureMp3DialogDismissed()
-							requireContext().showToast(event.errorMessage ?: getString(R.string.download_failed))
+							showDialogStatusDownload(
+                                AppAlertDialog.AlertDialogType.ERROR,
+                                getString(R.string.download_failed),
+                                event.errorMessage)
 						}
 					}
 					is DownloadTaskEvent.Failed -> {
@@ -270,7 +318,10 @@ class HomeFragment : Fragment() {
 							pendingMp3Tasks.remove(event.taskId)
 							mp3PollJobs.remove(event.taskId)?.cancel()
 							ensureMp3DialogDismissed()
-							requireContext().showToast(event.error)
+							showDialogStatusDownload(
+                                AppAlertDialog.AlertDialogType.ERROR,
+                                requireContext().getString(R.string.download_failed),
+                                event.error)
 						}
 					}
 					else -> {}
@@ -324,7 +375,10 @@ class HomeFragment : Fragment() {
 							"failed" -> {
 								pendingMp3Tasks.remove(taskId)
 								ensureMp3DialogDismissed()
-								requireContext().showToast(task.errorMessage ?: getString(R.string.download_failed))
+								showDialogStatusDownload(
+                                    AppAlertDialog.AlertDialogType.ERROR,
+                                    getString(R.string.download_failed),
+                                    task.errorMessage)
 								mp3PollJobs.remove(taskId)?.cancel()
 								return@launch
 							}
@@ -337,7 +391,10 @@ class HomeFragment : Fragment() {
 				if (System.currentTimeMillis() - startedAt > 30 * 60 * 1000) {
 					pendingMp3Tasks.remove(taskId)
 					ensureMp3DialogDismissed()
-					requireContext().showToast(getString(R.string.audio_not_ready_to_download))
+					showDialogStatusDownload(
+                        AppAlertDialog.AlertDialogType.ERROR,
+                        getString(R.string.audio_not_ready_to_download),
+                        null)
 					mp3PollJobs.remove(taskId)?.cancel()
 					return@launch
 				}
@@ -397,7 +454,7 @@ class HomeFragment : Fragment() {
     private fun showFormatSelectionDialog(task: DownloadTask) {
         val formats = task.formats
         if (formats.isNullOrEmpty()) {
-            requireContext().showToast(getString(R.string.no_format_available_to_download))
+            showDialogStatusDownload(AppAlertDialog.AlertDialogType.ERROR, getString(R.string.no_format_available_to_download), null)
             return
         }
 
@@ -412,7 +469,10 @@ class HomeFragment : Fragment() {
 					startMp3Processing(task.id, safeName)
 				} else {
 					enqueueDownload(buildProxyVideoUrl(task, selectedFormat))
-					requireContext().showToast(getString(R.string.download_started))
+					showDialogStatusDownload(
+                        AppAlertDialog.AlertDialogType.SUCCESS,
+                        getString(R.string.download_started),
+                        getString(R.string.download_started_please_check_background_status_bar))
 				}
                 binding.etUrl.text?.clear()
                 updateDownloadButtonState()
@@ -494,9 +554,15 @@ class HomeFragment : Fragment() {
 
 			try {
 				dm.enqueue(request)
-				requireContext().showToast(getString(R.string.download_started))
+                showDialogStatusDownload(
+                    AppAlertDialog.AlertDialogType.SUCCESS,
+                    getString(R.string.download_started),
+                    getString(R.string.download_started_please_check_background_status_bar))
 			} catch (e: Exception) {
-				requireContext().showToast(e.message ?: getString(R.string.download_failed))
+				showDialogStatusDownload(
+                    AppAlertDialog.AlertDialogType.ERROR,
+                    getString(R.string.download_failed),
+                    e.message)
 			}
 		}
 	}
@@ -562,5 +628,20 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             preferenceManager.addToHistory(url)
         }
+    }
+
+    private fun showDialogStatusDownload(type: AppAlertDialog.AlertDialogType, title: String?, message: String?) {
+        val dialog = AppAlertDialog
+            .Builder(requireContext())
+            .setNegativeButtonText(getString(R.string.ok))
+            .setType(type)
+
+        if (title != null) {
+            dialog.setTitle(title)
+        }
+        if (message != null) {
+            dialog.setMessage(message)
+        }
+        dialog.show()
     }
 }

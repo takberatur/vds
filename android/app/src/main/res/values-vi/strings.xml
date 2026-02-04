@@ -167,4 +167,10 @@
     <string name="being_processed">Xử lý</string>
     <string name="done_preparing_download">Tải xuống đã sẵn sàng</string>
     <string name="failed_to_process_audio">Không thể xử lý âm thanh</string>
+    <string name="download_settings">Cài đặt tải xuống</string>
+    <string name="select_download_type">Chọn loại tải xuống</string>
+    <string name="audio_mp3">Âm thanh (MP3)</string>
+    <string name="video_mp4">Video (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">Tải xuống đã bắt đầu, vui lòng kiểm tra thanh trạng thái trong nền để biết thêm thông tin.</string>
+    <string name="no_platforms_available">Không có nền tảng nào có sẵn</string>
 </resources>

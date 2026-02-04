@@ -4,17 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.agcforge.videodownloader.R
 import com.agcforge.videodownloader.databinding.FragmentHistoryBinding
 import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.utils.PreferenceManager
-import com.agcforge.videodownloader.utils.showToast
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class HistoryFragment : Fragment() {
@@ -38,15 +34,20 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         preferenceManager = PreferenceManager(requireContext())
 
-        setupActionButtonVisibility()
         setupRecyclerView()
         observeHistory()
+
+        binding.btnClearHistory.setOnClickListener {
+            lifecycleScope.launch {
+                preferenceManager.clearHistory()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
-        historyAdapter = HistoryAdapter {
+        historyAdapter = HistoryAdapter { url ->
             // Pass the selected URL back to HomeFragment
-            findNavController().previousBackStackEntry?.savedStateHandle?.set("history_url", it)
+            findNavController().previousBackStackEntry?.savedStateHandle?.set("history_url", url)
             findNavController().popBackStack()
         }
 
@@ -58,15 +59,13 @@ class HistoryFragment : Fragment() {
 
     private fun observeHistory() {
         lifecycleScope.launch {
-            preferenceManager.history.collect {
-                if (it.isEmpty()) {
-                    binding.tvEmpty.visibility = View.VISIBLE
-                    binding.rvHistory.visibility = View.GONE
-                } else {
-                    binding.tvEmpty.visibility = View.GONE
-                    binding.rvHistory.visibility = View.VISIBLE
-                    historyAdapter.submitList(it.reversed()) // Show the most recent items at the top
-                }
+            preferenceManager.history.collect { historyList ->
+                val isHistoryEmpty = historyList.isEmpty()
+                binding.tvEmpty.visibility = if (isHistoryEmpty) View.VISIBLE else View.GONE
+                binding.rvHistory.visibility = if (isHistoryEmpty) View.GONE else View.VISIBLE
+                binding.btnClearHistory.visibility = if (isHistoryEmpty) View.GONE else View.VISIBLE
+
+                historyAdapter.submitList(historyList.reversed()) // Show the most recent items at the top
             }
         }
     }
@@ -75,16 +74,4 @@ class HistoryFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-    private fun setupActionButtonVisibility() {
-        lifecycleScope.launch {
-            val isEmptyHistory = preferenceManager.history.first()
-            if (isEmptyHistory.isEmpty()) {
-                binding.btnClearHistory.visibility = View.GONE
-            } else {
-                binding.btnClearHistory.visibility = View.VISIBLE
-            }
-        }
-    }
-
 }

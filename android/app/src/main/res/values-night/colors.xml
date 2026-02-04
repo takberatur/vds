@@ -3,6 +3,7 @@
     <!-- Custom colors for dark theme -->
     <color name="primary">#64B5F6</color> <!-- Lighter Blue -->
     <color name="primary_dark">#2196F3</color> <!-- Original Primary -->
+    <color name="primary_light">#000000</color> <!-- Lighter Blue -->
     <color name="accent">#E91E63</color> <!-- A slightly different pink/magenta -->
     <color name="background">#121212</color>
     <color name="surface">#1E1E1E</color>

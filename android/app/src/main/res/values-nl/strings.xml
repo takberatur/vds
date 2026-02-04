@@ -167,4 +167,10 @@
     <string name="being_processed">Verwerkt</string>
     <string name="done_preparing_download">Download is klaar voor gebruik</string>
     <string name="failed_to_process_audio">Kon audio niet verwerken</string>
+    <string name="download_settings">Downloadinstellingen</string>
+    <string name="select_download_type">Selecteer downloadtype</string>
+    <string name="audio_mp3">Audio (MP3)</string>
+    <string name="video_mp4">Video (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">Download gestart, controleer de statusbar in de achtergrond voor meer informatie.</string>
+    <string name="no_platforms_available">Geen beschikbare platformen</string>
 </resources>

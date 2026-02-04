@@ -167,4 +167,10 @@
     <string name="being_processed">Traitement en cours</string>
     <string name="done_preparing_download">Téléchargement prêt</string>
     <string name="failed_to_process_audio">Échec du traitement de l\'audio</string>
+    <string name="download_settings">Paramètres de téléchargement</string>
+    <string name="select_download_type">Sélectionner le type de téléchargement</string>
+    <string name="audio_mp3">Audio (MP3)</string>
+    <string name="video_mp4">Vidéo (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">Téléchargement commencé, veuillez vérifier la barre d\'état en arrière-plan pour plus d\'informations sur le progrès du téléchargement.</string>
+    <string name="no_platforms_available">Aucune plateforme disponible</string>
 </resources>

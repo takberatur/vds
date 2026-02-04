@@ -167,4 +167,10 @@
     <string name="being_processed">Επεξεργασία</string>
     <string name="done_preparing_download">Οδηγός λήψης έτοιμος</string>
     <string name="failed_to_process_audio">Αποτυχία επεξεργασίας ήχου</string>
+    <string name="download_settings">Ρυθμίσεις Λήψης</string>
+    <string name="select_download_type">Επιλογή Τύπου Λήψης</string>
+    <string name="audio_mp3">Ήχος (MP3)</string>
+    <string name="video_mp4">Βίντεο (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">Η λήψη ξεκίνησε, παρακαλώ ελέγξτε την κατάσταση του παραθύρου στο υπόβαθρο για περισσότερες πληροφορίες για την πρόοδο της λήψης.</string>
+    <string name="no_platforms_available">Δεν υπάρχουν διαθέσιμες πλατφόρμες</string>
 </resources>

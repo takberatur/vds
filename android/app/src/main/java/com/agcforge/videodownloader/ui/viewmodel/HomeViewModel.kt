@@ -103,6 +103,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+	fun clearDownloadResult() {
+		_downloadResult.value = Resource.Idle()
+	}
+
     fun connectWebSocket() {
         centrifugoManager.connect()
     }

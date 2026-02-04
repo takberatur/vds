@@ -167,4 +167,10 @@
     <string name="being_processed">処理中</string>
     <string name="done_preparing_download">ダウンロードが準備完了しました</string>
     <string name="failed_to_process_audio">オーディオの処理中にエラーが発生しました</string>
+    <string name="download_settings">ダウンロード設定</string>
+    <string name="select_download_type">ダウンロード形式を選択</string>
+    <string name="audio_mp3">オーディオ (MP3)</string>
+    <string name="video_mp4">ビデオ (MP4)</string>
+    <string name="download_started_please_check_background_status_bar">ダウンロードが開始されました。バックグラウンドのステータスバーを確認してください。</string>
+    <string name="no_platforms_available">利用可能なプラットフォームがありません</string>
 </resources>
