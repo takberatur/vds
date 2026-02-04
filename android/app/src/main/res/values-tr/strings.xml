@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Video İndirici</string>
+    <string name="app_name">Simontok - İndirici</string>
     <string name="action_settings">Ayarlar</string>
     <string name="first_fragment_label">İlk Parça</string>
     <string name="second_fragment_label">İkinci Parça</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">Video (MP4)</string>
     <string name="download_started_please_check_background_status_bar">İndirme başladı, lütfen arka planda bulunan indirme durumu çubuğunu kontrol edin.</string>
     <string name="no_platforms_available">Kullanılabilir platform bulunamadı</string>
+    <string name="copy">Kopyala</string>
+    <string name="share">Paylaş</string>
+    <string name="choose_action">Eylem seçin</string>
 </resources>

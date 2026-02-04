@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Video Downloader</string>
+    <string name="app_name">Simontok - Downloader</string>
     <string name="action_settings">Mga setting</string>
     <string name="first_fragment_label">Unang Fragment</string>
     <string name="second_fragment_label">Pangalawang Fragment</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">Video (MP4)</string>
     <string name="download_started_please_check_background_status_bar">Nagsimula ang pag-download, maghantay ang status bar ng bagong layunin upang magtatawag ang pag-download.</string>
     <string name="no_platforms_available">Walang nakitang platform</string>
+    <string name="copy">Kopyahin</string>
+    <string name="share">Bagikan</string>
+    <string name="choose_action">Piliin ang aksi</string>
 </resources>

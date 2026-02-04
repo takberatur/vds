@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">비디오 다운로더</string>
+    <string name="app_name">Simontok - 다운로더</string>
     <string name="action_settings">설정</string>
     <string name="first_fragment_label">첫 번째 조각</string>
     <string name="second_fragment_label">두 번째 조각</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">비디오 (MP4)</string>
     <string name="download_started_please_check_background_status_bar">다운로드가 시작되었습니다. 백그라운드 상태 바를 확인하세요.</string>
     <string name="no_platforms_available">사용 가능한 플랫폼이 없습니다</string>
+    <string name="copy">복사</string>
+    <string name="share">공유</string>
+    <string name="choose_action">행동 선택</string>
 </resources>

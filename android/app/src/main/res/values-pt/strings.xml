@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Baixador de vídeo</string>
+    <string name="app_name">Simontok - Downloader</string>
     <string name="action_settings">Configurações</string>
     <string name="first_fragment_label">Primeiro Fragmento</string>
     <string name="second_fragment_label">Segundo Fragmento</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">Vídeo (MP4)</string>
     <string name="download_started_please_check_background_status_bar">Download iniciado, por favor, verifique a barra de status em segundo plano para obter mais informações.</string>
     <string name="no_platforms_available">Nenhum plataforma disponível</string>
+    <string name="copy">Copiar</string>
+    <string name="share">Compartilhar</string>
+    <string name="choose_action">Escolha uma ação</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Загрузчик видео</string>
+    <string name="app_name">Simontok - Загрузчик</string>
     <string name="action_settings">Настройки</string>
     <string name="first_fragment_label">Первый фрагмент</string>
     <string name="second_fragment_label">Второй фрагмент</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">Видео (MP4)</string>
     <string name="download_started_please_check_background_status_bar">Загрузка начата, пожалуйста, проверьте статус-бар в фоновом режиме для получения дополнительной информации.</string>
     <string name="no_platforms_available">Нет доступных платформ</string>
+    <string name="copy">Копировать</string>
+    <string name="share">Сhare</string>
+    <string name="choose_action">Выберите действие</string>
 </resources>

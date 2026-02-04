@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">เครื่องมือดาวน์โหลดวิดีโอ</string>
+    <string name="app_name">Simontok - ดาวน์โหลด</string>
     <string name="action_settings">การตั้งค่า</string>
     <string name="first_fragment_label">ชิ้นส่วนแรก</string>
     <string name="second_fragment_label">ส่วนที่สอง</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">วิดีโอ (MP4)</string>
     <string name="download_started_please_check_background_status_bar">การดาวน์โหลดเริ่มต้นแล้ว โปรดตรวจสอบสถานะแถบดาวน์โหลดในพื้นหลังเพื่อข้อมูลเพิ่มเติม</string>
     <string name="no_platforms_available">ไม่มีแพลตฟอร์มที่พร้อมใช้งาน</string>
+    <string name="copy">คัดลอก</string>
+    <string name="share">แชร์</string>
+    <string name="choose_action">เลือกการทำงาน</string>
 </resources>

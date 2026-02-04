@@ -47,7 +47,7 @@
             android:layout_height="match_parent"
             android:padding="8dp"
             android:clipToPadding="false"
-            tools:listitem="@layout/item_download_url" />
+            tools:listitem="@layout/item_download_history" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

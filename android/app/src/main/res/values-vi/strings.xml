@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Trình tải xuống video</string>
+    <string name="app_name">Simontok - Tải xuống</string>
     <string name="action_settings">Cài đặt</string>
     <string name="first_fragment_label">Đoạn đầu tiên</string>
     <string name="second_fragment_label">Mảnh thứ hai</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">Video (MP4)</string>
     <string name="download_started_please_check_background_status_bar">Tải xuống đã bắt đầu, vui lòng kiểm tra thanh trạng thái trong nền để biết thêm thông tin.</string>
     <string name="no_platforms_available">Không có nền tảng nào có sẵn</string>
+    <string name="copy">Sao chép</string>
+    <string name="share">Chia sẻ</string>
+    <string name="choose_action">Chọn hành động</string>
 </resources>

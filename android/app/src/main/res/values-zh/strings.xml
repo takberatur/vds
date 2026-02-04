@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">视频下载器</string>
+    <string name="app_name">Simontok - 下载器</string>
     <string name="action_settings">设置</string>
     <string name="first_fragment_label">第一个片段</string>
     <string name="second_fragment_label">第二个片段</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">视频 (MP4)</string>
     <string name="download_started_please_check_background_status_bar">下载已开始，请检查后台状态栏以获取更多信息。</string>
     <string name="no_platforms_available">没有可用的平台</string>
+    <string name="copy">复制</string>
+    <string name="share">分享</string>
+    <string name="choose_action">选择操作</string>
 </resources>

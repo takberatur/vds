@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">वीडियो डाउनलोडर</string>
+    <string name="app_name">Simontok - डाउनलोडर</string>
     <string name="action_settings">सेटिंग्स</string>
     <string name="first_fragment_label">पहला टुकड़ा</string>
     <string name="second_fragment_label">दूसरा टुकड़ा</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">वीडियो (MP4)</string>
     <string name="download_started_please_check_background_status_bar">डाउनलोड शुरू हुआ, कृपया पृष्ठभूमि स्थिति बार की जांच करें।</string>
     <string name="no_platforms_available">कोई प्लेटफॉर्म उपलब्ध नहीं है</string>
+    <string name="copy">प्रतिलिपि</string>
+    <string name="share">साझा करें</string>
+    <string name="choose_action">एक्शन चुनें</string>
 </resources>

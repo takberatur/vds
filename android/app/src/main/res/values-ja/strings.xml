@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ビデオダウンローダー</string>
+    <string name="app_name">Simontok - ダウンローダー</string>
     <string name="action_settings">設定</string>
     <string name="first_fragment_label">最初のフラグメント</string>
     <string name="second_fragment_label">2 番目のフラグメント</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">ビデオ (MP4)</string>
     <string name="download_started_please_check_background_status_bar">ダウンロードが開始されました。バックグラウンドのステータスバーを確認してください。</string>
     <string name="no_platforms_available">利用可能なプラットフォームがありません</string>
+    <string name="copy">コピー</string>
+    <string name="share">共有</string>
+    <string name="choose_action">行動を選択</string>
 </resources>

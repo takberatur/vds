@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Video-downloader</string>
+    <string name="app_name">Simontok - Downloader</string>
     <string name="action_settings">Instellingen</string>
     <string name="first_fragment_label">Eerste Fragment</string>
     <string name="second_fragment_label">Tweede Fragment</string>
@@ -173,4 +173,7 @@
     <string name="video_mp4">Video (MP4)</string>
     <string name="download_started_please_check_background_status_bar">Download gestart, controleer de statusbar in de achtergrond voor meer informatie.</string>
     <string name="no_platforms_available">Geen beschikbare platformen</string>
+    <string name="copy">Kopiëren</string>
+    <string name="share">Delen</string>
+    <string name="choose_action">Kies actie</string>
 </resources>
