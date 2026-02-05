@@ -17,10 +17,8 @@ frontend/build
 frontend/.env.local
 frontend/.env.production
 frontend/ecosystem.config.cjs
-android/app/build
-android/.gradle
-android/.idea
-android/logs.json
+android
+SimontokzDownloader
 example-link.txt
 backend/build
 backend/bin
