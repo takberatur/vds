@@ -62,6 +62,25 @@ func shouldUseCookiesFile(path string) bool {
 	return IsValidNetscapeCookiesFile(path)
 }
 
+func shouldUseCookiesForURL(targetURL string, cookiePath string) bool {
+	if !shouldUseCookiesFile(cookiePath) {
+		return false
+	}
+	isYouTube := strings.Contains(targetURL, "youtube.com") || strings.Contains(targetURL, "youtu.be")
+	if !isYouTube {
+		return true
+	}
+
+	mode := strings.ToLower(sanitizeEnvString(os.Getenv("YOUTUBE_USE_COOKIES")))
+	if mode == "" || mode == "auto" || mode == "1" || mode == "true" || mode == "yes" {
+		return true
+	}
+	if mode == "0" || mode == "false" || mode == "no" {
+		return false
+	}
+	return true
+}
+
 func NewDownloaderClient() DownloaderClient {
 	ytDownService := scrapper.NewYTDownService()
 	return &ytDlpClient{
@@ -128,10 +147,10 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 	if cookiePath == "" {
 		cookiePath = "/app/cookies.txt"
 	}
-	if shouldUseCookiesFile(cookiePath) && !isYouTube {
+	if shouldUseCookiesForURL(url, cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if shouldUseCookiesFile("cookies.txt") && !isYouTube {
+		if shouldUseCookiesForURL(url, "cookies.txt") {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
@@ -194,6 +213,9 @@ func (c *ytDlpClient) GetVideoInfo(ctx context.Context, url string) (*VideoInfo,
 					"--no-playlist",
 					"--no-check-certificate",
 					"-f", "18",
+				}
+				if shouldUseCookiesForURL(url, cookiePath) {
+					legacyArgs = append(legacyArgs, "--cookies", cookiePath)
 				}
 				if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
 					legacyArgs = append(legacyArgs, "--proxy", proxyURL)
@@ -434,12 +456,15 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	// Check if cookies.txt exists and use it
-	cookiePath := "/app/cookies.txt"
 	isYouTube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
-	if shouldUseCookiesFile(cookiePath) && !isYouTube {
+	cookiePath := sanitizeEnvString(os.Getenv("COOKIES_FILE_PATH"))
+	if cookiePath == "" {
+		cookiePath = "/app/cookies.txt"
+	}
+	if shouldUseCookiesForURL(url, cookiePath) {
 		args = append(args, "--cookies", cookiePath)
 	} else if _, err := os.Stat("cookies.txt"); err == nil {
-		if shouldUseCookiesFile("cookies.txt") && !isYouTube {
+		if shouldUseCookiesForURL(url, "cookies.txt") {
 			args = append(args, "--cookies", "cookies.txt")
 		}
 	}
