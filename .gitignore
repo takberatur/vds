@@ -35,3 +35,4 @@ backend/server_bin
 /tsconfig.json
 testing
 data.txt
+ktor-backend

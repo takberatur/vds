@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"os"
 	"os/exec"
 	"strings"
@@ -429,6 +430,8 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		imp = "chrome"
 	}
 
+	isYouTube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
+
 	args := []string{
 		"-m", "yt_dlp", // Run as python module
 		"--js-runtimes", defaultJSRuntime(),
@@ -437,6 +440,19 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 		"--force-overwrites",
 		"--no-part",
 		"-o", outputPath,
+	}
+
+	if isYouTube {
+		outputExt := strings.ToLower(strings.TrimPrefix(filepath.Ext(outputPath), "."))
+		if outputExt == "mp4" {
+			args = append(args, "--merge-output-format", "mp4")
+			if strings.TrimSpace(formatID) == "" {
+				formatID = "bv*[ext=mp4][vcodec^=avc1]+ba[ext=m4a]/b[ext=mp4]/18/best"
+			}
+		}
+		if strings.Contains(strings.ToLower(formatID), "bestaudio") {
+			formatID = "bestaudio[ext=m4a]/bestaudio/best"
+		}
 	}
 
 	if proxyURL := sanitizeEnvString(os.Getenv("OUTBOUND_PROXY_URL")); proxyURL != "" && shouldUseProxyForURL(url) {
@@ -456,7 +472,6 @@ func (c *ytDlpClient) DownloadToPath(ctx context.Context, url string, formatID s
 	}
 
 	// Check if cookies.txt exists and use it
-	isYouTube := strings.Contains(url, "youtube.com") || strings.Contains(url, "youtu.be")
 	cookiePath := sanitizeEnvString(os.Getenv("COOKIES_FILE_PATH"))
 	if cookiePath == "" {
 		cookiePath = "/app/cookies.txt"
