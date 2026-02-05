@@ -1,27 +1,21 @@
 package com.agcforge.videodownloader
 
-import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.agcforge.videodownloader.helper.AppOpenAdManager
-import com.agcforge.videodownloader.ui.activities.BaseActivity
+import com.agcforge.videodownloader.helper.CurrentActivityTracker
 import com.agcforge.videodownloader.utils.DownloadManagerCleaner
-import com.onesignal.OneSignal
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-
-import kotlinx.coroutines.launch
 
 
 
 class App : Application(), DefaultLifecycleObserver {
 
     companion object {
-        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: App? = null
 
@@ -36,23 +30,39 @@ class App : Application(), DefaultLifecycleObserver {
         }
     }
 
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         instance = this
     }
 
-    override fun onCreate(owner: LifecycleOwner) {
-        super.onStart(owner)
-        instance = this
+	override fun onCreate() {
+		super.onCreate()
+		instance = this
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+		ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+		registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+			override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+			override fun onActivityStarted(activity: Activity) = Unit
+			override fun onActivityResumed(activity: Activity) {
+				CurrentActivityTracker.set(activity)
+			}
+			override fun onActivityPaused(activity: Activity) {
+				if (CurrentActivityTracker.get() === activity) {
+					CurrentActivityTracker.set(null)
+				}
+			}
+			override fun onActivityStopped(activity: Activity) = Unit
+			override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+			override fun onActivityDestroyed(activity: Activity) {
+				if (CurrentActivityTracker.get() === activity) {
+					CurrentActivityTracker.set(null)
+				}
+			}
+		})
 
-        DownloadManagerCleaner.clearFailedDownloads(this)
-        AppOpenAdManager.loadAd(this)
-
-    }
+		DownloadManagerCleaner.clearFailedDownloads(this)
+		AppOpenAdManager.loadAd(this)
+	}
 
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
@@ -61,7 +71,7 @@ class App : Application(), DefaultLifecycleObserver {
 
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
-        BaseActivity.CurrentActivityHolder.activity?.let {
+		CurrentActivityTracker.get()?.let {
             AppOpenAdManager.showAdIfAvailable(it)
         }
     }

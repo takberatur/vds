@@ -43,9 +43,15 @@ class RewardAdsHelper(private val activity: Activity) {
             return
         }
 
-        loadAdmobReward()
-        loadUnityReward()
-        loadStartIoReward()
+		if (AdsConfig.admobConfig.isRewardedEnabled()) {
+			loadAdmobReward()
+		}
+		if (AdsConfig.unityConfig.isRewardedEnabled()) {
+			loadUnityReward()
+		}
+		if (AdsConfig.startIoConfig.isStartIoEnabled()) {
+			loadStartIoReward()
+		}
     }
 
     fun showAd(
@@ -60,36 +66,75 @@ class RewardAdsHelper(private val activity: Activity) {
             return
         }
 
-        // Try providers in priority order
-        for (provider in AdsConfig.Rotation.REWARD_PRIORITY) {
-            when (provider) {
-                AdsConfig.AdsProvider.ADMOB -> {
-                    if (admobRewardedAd != null) {
-                        showAdmobReward(onAdShown, onRewarded, onAdClosed, onAdFailed)
-                        return
-                    }
-                }
-                AdsConfig.AdsProvider.UNITY -> {
-                    if (isUnityLoaded) {
-                        showUnityReward(onAdShown, onRewarded, onAdClosed, onAdFailed)
-                        return
-                    }
-                }
-                AdsConfig.AdsProvider.STARTIO -> {
-                    if (isStartIoLoaded) {
-                        showStartIoReward(onAdShown, onRewarded, onAdClosed, onAdFailed)
-                        return
-                    }
-                }
-            }
-        }
-
-        Log.d(TAG, "No reward ads available")
-        onAdFailed?.invoke(AdsConfig.AdsProvider.ADMOB)
+		val enabled = enabledProviders()
+		val order = AdsConfig.Rotation.nextRewardOrder(enabled)
+		showFromOrder(order, 0, onAdShown, onRewarded, onAdClosed, onAdFailed)
     }
 
+	private fun enabledProviders(): List<AdsConfig.AdsProvider> {
+		val enabled = AdsConfig.Rotation.REWARD_PRIORITY.filter {
+			when (it) {
+				AdsConfig.AdsProvider.ADMOB -> AdsConfig.admobConfig.isRewardedEnabled()
+				AdsConfig.AdsProvider.UNITY -> AdsConfig.unityConfig.isRewardedEnabled()
+				AdsConfig.AdsProvider.STARTIO -> AdsConfig.startIoConfig.isStartIoEnabled()
+			}
+		}
+		return AdsCooldownManager.filterEligible(AdsCooldownManager.AdType.REWARD, enabled)
+	}
+
+	private fun showFromOrder(
+		order: List<AdsConfig.AdsProvider>,
+		index: Int,
+		onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
+		onRewarded: ((AdsConfig.AdsProvider, Int) -> Unit)?,
+		onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
+		onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
+	) {
+		if (index >= order.size) {
+			Log.d(TAG, "No reward ads available")
+			onAdFailed?.invoke(order.lastOrNull() ?: AdsConfig.AdsProvider.ADMOB)
+			return
+		}
+		when (order[index]) {
+			AdsConfig.AdsProvider.ADMOB -> {
+				if (admobRewardedAd != null) {
+					showAdmobReward(
+						onAdShown,
+						onRewarded,
+						onAdClosed,
+						{ showFromOrder(order, index + 1, onAdShown, onRewarded, onAdClosed, onAdFailed) }
+					)
+					return
+				}
+			}
+			AdsConfig.AdsProvider.UNITY -> {
+				if (isUnityLoaded) {
+					showUnityReward(
+						onAdShown,
+						onRewarded,
+						onAdClosed,
+						{ showFromOrder(order, index + 1, onAdShown, onRewarded, onAdClosed, onAdFailed) }
+					)
+					return
+				}
+			}
+			AdsConfig.AdsProvider.STARTIO -> {
+				if (isStartIoLoaded) {
+					showStartIoReward(
+						onAdShown,
+						onRewarded,
+						onAdClosed,
+						{ showFromOrder(order, index + 1, onAdShown, onRewarded, onAdClosed, onAdFailed) }
+					)
+					return
+				}
+			}
+		}
+		showFromOrder(order, index + 1, onAdShown, onRewarded, onAdClosed, onAdFailed)
+	}
+
     private fun loadAdmobReward() {
-        if (isAdmobLoading) return
+		if (!AdsConfig.admobConfig.isRewardedEnabled() || isAdmobLoading) return
 
         isAdmobLoading = true
 
@@ -117,16 +162,17 @@ class RewardAdsHelper(private val activity: Activity) {
         }
     }
 
-    private fun showAdmobReward(
+	private fun showAdmobReward(
         onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
         onRewarded: ((AdsConfig.AdsProvider, Int) -> Unit)?,
         onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
+		onShowFailedContinue: () -> Unit
     ) {
         admobRewardedAd?.apply {
             fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdShowedFullScreenContent() {
                     Log.d(TAG, "Admob reward shown")
+					AdsCooldownManager.recordSuccess(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.ADMOB)
                     onAdShown?.invoke(AdsConfig.AdsProvider.ADMOB)
                 }
 
@@ -139,11 +185,10 @@ class RewardAdsHelper(private val activity: Activity) {
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     Log.e(TAG, "Admob reward show failed: ${adError.message}")
+					AdsCooldownManager.recordFailure(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.ADMOB)
                     admobRewardedAd = null
                     loadAdmobReward()
-
-                    // Try next provider
-                    tryNextProvider(AdsConfig.AdsProvider.ADMOB, onAdShown, onRewarded, onAdClosed, onAdFailed)
+					onShowFailedContinue()
                 }
             }
 
@@ -152,12 +197,13 @@ class RewardAdsHelper(private val activity: Activity) {
                 onRewarded?.invoke(AdsConfig.AdsProvider.ADMOB, rewardItem.amount)
             }
         } ?: run {
-            tryNextProvider(AdsConfig.AdsProvider.ADMOB, onAdShown, onRewarded, onAdClosed, onAdFailed)
+			AdsCooldownManager.recordFailure(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.ADMOB)
+			onShowFailedContinue()
         }
     }
 
     private fun loadUnityReward() {
-        if (isUnityLoading) return
+		if (!AdsConfig.unityConfig.isRewardedEnabled() || isUnityLoading) return
 
         isUnityLoading = true
 
@@ -189,15 +235,22 @@ class RewardAdsHelper(private val activity: Activity) {
         onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
         onRewarded: ((AdsConfig.AdsProvider, Int) -> Unit)?,
         onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
+		onShowFailedContinue: () -> Unit
     ) {
-        AdsConfig.unityConfig.rewardPlacement?.let { placementId ->
+		val placementId = AdsConfig.unityConfig.rewardPlacement
+		if (placementId.isNullOrBlank()) {
+			AdsCooldownManager.recordFailure(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.UNITY)
+			onShowFailedContinue()
+			return
+		}
+		placementId.let { id ->
             UnityAds.show(
                 activity,
-                placementId,
+				id,
                 object : IUnityAdsShowListener {
                     override fun onUnityAdsShowStart(placementId: String) {
                         Log.d(TAG, "Unity reward started")
+						AdsCooldownManager.recordSuccess(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.UNITY)
                         onAdShown?.invoke(AdsConfig.AdsProvider.UNITY)
                     }
 
@@ -224,17 +277,10 @@ class RewardAdsHelper(private val activity: Activity) {
                         message: String
                     ) {
                         Log.e(TAG, "Unity reward show failed: $message")
+						AdsCooldownManager.recordFailure(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.UNITY)
                         isUnityLoaded = false
                         loadUnityReward()
-
-                        // Try next provider
-                        tryNextProvider(
-                            AdsConfig.AdsProvider.UNITY,
-                            onAdShown,
-                            onRewarded,
-                            onAdClosed,
-                            onAdFailed
-                        )
+						onShowFailedContinue()
                     }
 
                     override fun onUnityAdsShowClick(placementId: String) {
@@ -246,7 +292,7 @@ class RewardAdsHelper(private val activity: Activity) {
     }
 
     private fun loadStartIoReward() {
-        if (isStartIoLoading) return
+		if (!AdsConfig.startIoConfig.isStartIoEnabled() || isStartIoLoading) return
 
         isStartIoLoading = true
 
@@ -275,18 +321,23 @@ class RewardAdsHelper(private val activity: Activity) {
         onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
         onRewarded: ((AdsConfig.AdsProvider, Int) -> Unit)?,
         onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
+		onShowFailedContinue: () -> Unit
     ) {
+		val ad = startAppAd
+		if (ad == null) {
+			AdsCooldownManager.recordFailure(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.STARTIO)
+			onShowFailedContinue()
+			return
+		}
 
-
-        startAppAd?.setVideoListener(object : VideoListener {
+		ad.setVideoListener(object : VideoListener {
             override fun onVideoCompleted() {
                 Log.d(TAG, "Start.io video completed - user rewarded")
                 onRewarded?.invoke(AdsConfig.AdsProvider.STARTIO, 1)
             }
         })
 
-        startAppAd?.showAd(object : AdDisplayListener {
+		ad.showAd(object : AdDisplayListener {
             override fun adHidden(ad: Ad) {
                 Log.d(TAG, "Start.io reward hidden")
                 isStartIoLoaded = false
@@ -296,6 +347,7 @@ class RewardAdsHelper(private val activity: Activity) {
 
             override fun adDisplayed(ad: Ad) {
                 Log.d(TAG, "Start.io reward displayed")
+				AdsCooldownManager.recordSuccess(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.STARTIO)
                 onAdShown?.invoke(AdsConfig.AdsProvider.STARTIO)
             }
 
@@ -305,57 +357,12 @@ class RewardAdsHelper(private val activity: Activity) {
 
             override fun adNotDisplayed(ad: Ad) {
                 Log.e(TAG, "Start.io reward not displayed")
+				AdsCooldownManager.recordFailure(AdsCooldownManager.AdType.REWARD, AdsConfig.AdsProvider.STARTIO)
                 isStartIoLoaded = false
                 loadStartIoReward()
-
-                // Try next provider
-                tryNextProvider(
-                    AdsConfig.AdsProvider.STARTIO,
-                    onAdShown,
-                    onRewarded,
-                    onAdClosed,
-                    onAdFailed
-                )
+				onShowFailedContinue()
             }
         })
-    }
-
-    private fun tryNextProvider(
-        failedProvider: AdsConfig.AdsProvider,
-        onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
-        onRewarded: ((AdsConfig.AdsProvider, Int) -> Unit)?,
-        onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
-    ) {
-        val currentIndex = AdsConfig.Rotation.REWARD_PRIORITY.indexOf(failedProvider)
-        val nextProviders = AdsConfig.Rotation.REWARD_PRIORITY.drop(currentIndex + 1)
-
-        for (provider in nextProviders) {
-            when (provider) {
-                AdsConfig.AdsProvider.ADMOB -> {
-                    if (admobRewardedAd != null) {
-                        showAdmobReward(onAdShown, onRewarded, onAdClosed, onAdFailed)
-                        return
-                    }
-                }
-                AdsConfig.AdsProvider.UNITY -> {
-                    if (isUnityLoaded) {
-                        showUnityReward(onAdShown, onRewarded, onAdClosed, onAdFailed)
-                        return
-                    }
-                }
-                AdsConfig.AdsProvider.STARTIO -> {
-                    if (isStartIoLoaded) {
-                        showStartIoReward(onAdShown, onRewarded, onAdClosed, onAdFailed)
-                        return
-                    }
-                }
-            }
-        }
-
-        // All providers failed
-        Log.e(TAG, "All reward providers failed")
-        onAdFailed?.invoke(failedProvider)
     }
 
 

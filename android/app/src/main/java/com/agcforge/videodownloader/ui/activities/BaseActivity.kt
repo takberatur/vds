@@ -1,14 +1,13 @@
 package com.agcforge.videodownloader.ui.activities
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.agcforge.videodownloader.helper.AdsConfig
 import com.agcforge.videodownloader.helper.BannerAdsHelper
+import com.agcforge.videodownloader.helper.CurrentActivityTracker
 import com.agcforge.videodownloader.helper.InterstitialHelper
 import com.agcforge.videodownloader.helper.NativeAdsHelper
 import com.agcforge.videodownloader.helper.RewardAdsHelper
@@ -115,19 +114,24 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     fun showRewardAd(onRewardEarned: (Boolean) -> Unit) {
-        rewardAdsHelper.showAd(
-            onAdShown = { provider ->
-                Log.d("BaseActivity", "Ad Shown from $provider")
-            },
-            onAdClosed = { provider ->
-                onRewardEarned.invoke(true)
-                Log.d("BaseActivity", "Ad Closed from $provider")
-            },
-            onAdFailed = { provider ->
-                onRewardEarned.invoke(false)
-                Log.d("BaseActivity", "Ad Failed from $provider")
-            }
-        )
+		var rewarded = false
+		rewardAdsHelper.showAd(
+			onAdShown = { provider ->
+				Log.d("BaseActivity", "Ad Shown from $provider")
+			},
+			onRewarded = { provider, _ ->
+				rewarded = true
+				Log.d("BaseActivity", "Reward earned from $provider")
+			},
+			onAdClosed = { provider ->
+				onRewardEarned.invoke(rewarded)
+				Log.d("BaseActivity", "Ad Closed from $provider")
+			},
+			onAdFailed = { provider ->
+				onRewardEarned.invoke(false)
+				Log.d("BaseActivity", "Ad Failed from $provider")
+			}
+		)
     }
 
     override fun onDestroy() {
@@ -140,10 +144,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        CurrentActivityHolder.activity = this
+		CurrentActivityTracker.set(this)
     }
 
-    object CurrentActivityHolder {
-        var activity: Activity? = null
-    }
+	override fun onPause() {
+		if (CurrentActivityTracker.get() === this) {
+			CurrentActivityTracker.set(null)
+		}
+		super.onPause()
+	}
 }

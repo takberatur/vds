@@ -10,6 +10,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 object AdsConfig {
 
@@ -25,6 +26,9 @@ object AdsConfig {
     var ONE_SIGNAL_ID: String? = null
 
     var INTERSTITIAL_INTERVAL_SECONDS: Int = 60
+
+	const val COOLDOWN_FAILURE_THRESHOLD: Int = 2
+	const val COOLDOWN_DURATION_MS: Long = 5 * 60 * 1000L
 
     private var preferenceManager: PreferenceManager? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -96,6 +100,29 @@ object AdsConfig {
         val NATIVE_PRIORITY = listOf(
             AdsProvider.ADMOB
         )
+
+		private val interstitialCursor = AtomicInteger(0)
+		private val rewardCursor = AtomicInteger(0)
+		private val bannerCursor = AtomicInteger(0)
+
+		fun nextInterstitialOrder(enabledProviders: List<AdsProvider>): List<AdsProvider> {
+			return rotate(enabledProviders, interstitialCursor)
+		}
+
+		fun nextRewardOrder(enabledProviders: List<AdsProvider>): List<AdsProvider> {
+			return rotate(enabledProviders, rewardCursor)
+		}
+
+		fun nextBannerOrder(enabledProviders: List<AdsProvider>): List<AdsProvider> {
+			return rotate(enabledProviders, bannerCursor)
+		}
+
+		private fun rotate(list: List<AdsProvider>, cursor: AtomicInteger): List<AdsProvider> {
+			if (list.isEmpty()) return emptyList()
+			val start = cursor.getAndIncrement().let { if (it < 0) 0 else it } % list.size
+			if (start == 0) return list
+			return list.drop(start) + list.take(start)
+		}
     }
 
 

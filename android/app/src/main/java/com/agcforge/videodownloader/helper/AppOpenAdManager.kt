@@ -28,12 +28,13 @@ object AppOpenAdManager {
     }
 
     fun loadAd(context: Context) {
-        if (isLoadingAd || isAdAvailable()) return
+		if (!AdsConfig.ENABLE_ADS || !AdsConfig.admobConfig.isAdmobEnabled()) return
+		if (isLoadingAd || isAdAvailable()) return
 
         isLoadingAd = true
         val adRequest = AdRequest.Builder().build()
 
-        val adUnitId = AdsConfig.admobConfig.adUnitId ?: return
+		val adUnitId = AdsConfig.admobConfig.adUnitId ?: return
 
         AppOpenAd.load(
             context,

@@ -47,6 +47,8 @@ import com.agcforge.videodownloader.ui.activities.BaseActivity
 import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.ui.component.AppAlertDialog
 import com.agcforge.videodownloader.ui.component.DownloadSettingsDialog
+import com.agcforge.videodownloader.helper.BannerAdsHelper
+import com.agcforge.videodownloader.helper.NativeAdsHelper
 
 class HomeFragment : Fragment() {
 
@@ -63,6 +65,9 @@ class HomeFragment : Fragment() {
     private val mp3PollJobs = linkedMapOf<String, Job>()
     private var mp3ProcessingDialog: DownloadingDialog? = null
     private var lastSubmitType: String? = null
+
+	private var bannerAdsHelper: BannerAdsHelper? = null
+	private var nativeAdsHelper: NativeAdsHelper? = null
 
     private var allPlatforms: List<Platform> = emptyList()
     private val storagePermissionLauncher = registerForActivityResult(
@@ -98,7 +103,27 @@ class HomeFragment : Fragment() {
 
         viewModel.loadPlatforms()
         updateDownloadButtonState()
+		setupAds()
     }
+
+	private fun setupAds() {
+		val act = activity ?: return
+		bannerAdsHelper = BannerAdsHelper(act)
+		nativeAdsHelper = NativeAdsHelper(act)
+
+		bannerAdsHelper?.loadAndAttachBanner(binding.adsBanner)
+		nativeAdsHelper?.loadAndAttachNativeAd(binding.adsNative, NativeAdsHelper.NativeAdSize.SMALL)
+	}
+
+	override fun onResume() {
+		super.onResume()
+		bannerAdsHelper?.resume()
+	}
+
+	override fun onPause() {
+		bannerAdsHelper?.pause()
+		super.onPause()
+	}
 
     private fun observeHistoryNavigation() {
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("history_url")
@@ -690,6 +715,12 @@ class HomeFragment : Fragment() {
         mp3PollJobs.clear()
         pendingMp3Tasks.clear()
         ensureMp3DialogDismissed()
+
+		bannerAdsHelper?.destroy()
+		nativeAdsHelper?.destroy()
+		bannerAdsHelper = null
+		nativeAdsHelper = null
+
         super.onDestroyView()
         _binding = null
     }

@@ -21,9 +21,9 @@ object AdsInitializer {
         val unity = AdsConfig.unityConfig
         val startIo = AdsConfig.startIoConfig
 
-        if (admob.enable) initializeAdmob(application)
-        if (unity.enable) initializeUnityAds(application, unity.gameId)
-        if (startIo.enable) initializeStartIo(application, startIo.appId)
+		if (admob.isAdmobEnabled()) initializeAdmob(application)
+		if (unity.isUnityEnabled()) initializeUnityAds(application, unity.gameId)
+		if (startIo.isStartIoEnabled()) initializeStartIo(application, startIo.appId)
 
         isInitialized = true
     }
@@ -48,6 +48,7 @@ object AdsInitializer {
                 .build()
 
             MobileAds.setRequestConfiguration(requestConfiguration)
+			AppOpenAdManager.loadAd(application)
 
         } catch (e: Exception) {
             Log.e(TAG, "Admob initialization failed: ${e.message}")

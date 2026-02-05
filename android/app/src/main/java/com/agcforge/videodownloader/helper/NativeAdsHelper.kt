@@ -70,10 +70,17 @@ class NativeAdsHelper(private val activity: Activity) {
             return
         }
 
-        isLoading = true
+		val nativeId = AdsConfig.admobConfig.nativeId
+		if (!AdsConfig.admobConfig.isNativeEnabled() || nativeId.isNullOrBlank()) {
+			isLoading = false
+			onFailure?.invoke()
+			return
+		}
 
-        val adLoader = AdsConfig.admobConfig.nativeId?.let { AdLoader.Builder(activity, it) }
-            ?.forNativeAd { ad ->
+		isLoading = true
+
+		val adLoader = AdLoader.Builder(activity, nativeId)
+			.forNativeAd { ad ->
                 Log.d(TAG, "Native ad loaded")
 
                 // If current ad exists, destroy it
@@ -83,7 +90,7 @@ class NativeAdsHelper(private val activity: Activity) {
                 isLoading = false
                 onSuccess?.invoke(ad)
             }
-            ?.withAdListener(object : AdListener() {
+			.withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     Log.e(TAG, "Native ad failed: ${error.message}")
                     isLoading = false
@@ -98,9 +105,9 @@ class NativeAdsHelper(private val activity: Activity) {
                     Log.d(TAG, "Native ad impression")
                 }
             })
-                ?.build()
+				.build()
 
-        adLoader?.loadAd(AdRequest.Builder().build())
+		adLoader.loadAd(AdRequest.Builder().build())
     }
 
     private fun populateNativeAdView(nativeAd: NativeAd, adSize: NativeAdSize): NativeAdView {
