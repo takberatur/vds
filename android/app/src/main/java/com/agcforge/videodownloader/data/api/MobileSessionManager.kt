@@ -25,24 +25,26 @@ object MobileSessionManager {
 
 	private val gson = Gson()
 
-	private val client: OkHttpClient = OkHttpClient.Builder()
-		.dns(
-			FallbackDns(
-				fallbackIpByHost = mapOf(
-					"api-simontok.agcforge.com" to "174.138.75.37",
-					"websocket.infrastructures.help" to "174.138.75.37"
-				)
-			)
-		)
-		.apply {
-			if (BuildConfig.DEBUG) {
-				addInterceptor(ChuckerInterceptor(App.getInstance()))
-			}
-		}
-		.connectTimeout(15, TimeUnit.SECONDS)
-		.readTimeout(15, TimeUnit.SECONDS)
-		.writeTimeout(15, TimeUnit.SECONDS)
-		.build()
+	private val client: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .dns(
+                FallbackDns(
+                    fallbackIpByHost = mapOf(
+                        "api-simontok.agcforge.com" to "174.138.75.37",
+                        "websocket.infrastructures.help" to "174.138.75.37"
+                    )
+                )
+            )
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    addInterceptor(ChuckerInterceptor(App.getInstance()))
+                }
+            }
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .build()
+    }
 
 	fun clear() {
 		session = null

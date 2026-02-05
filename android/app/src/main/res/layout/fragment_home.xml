@@ -105,10 +105,10 @@
             </com.google.android.material.card.MaterialCardView>
 
             <RelativeLayout
-            android:id="@+id/adsNative"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center">
+                android:id="@+id/adsNative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
 
             <include
                 android:id="@+id/regular_native_ad"
@@ -116,7 +116,7 @@
                 android:visibility="visible" />
 
             </RelativeLayout>
-            <!-- Supported Platforms Section -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -13,40 +13,21 @@ object AdsInitializer {
     private const val TAG = "AdsInitializer"
     private var isInitialized = false
 
-    /**
-     * Initialize all ads SDKs
-     */
-    fun initialize(application: Application, onComplete: ((Boolean) -> Unit)? = null) {
-        if (isInitialized) {
-            Log.d(TAG, "Ads already initialized")
-            onComplete?.invoke(true)
-            return
-        }
 
-        if (!AdsConfig.ENABLE_ADS) {
-            Log.d(TAG, "Ads disabled in config")
-            onComplete?.invoke(false)
-            return
-        }
+    fun initialize(application: Application) {
+        if (isInitialized) return
 
-        Log.d(TAG, "Initializing ads SDKs...")
+        val admob = AdsConfig.admobConfig
+        val unity = AdsConfig.unityConfig
+        val startIo = AdsConfig.startIoConfig
 
-        // Initialize Admob
-        initializeAdmob(application)
-
-        // Initialize Unity Ads
-        initializeUnityAds(application)
-
-        // Initialize Start.io
-        initializeStartIo(application)
+        if (admob.enable) initializeAdmob(application)
+        if (unity.enable) initializeUnityAds(application, unity.gameId)
+        if (startIo.enable) initializeStartIo(application, startIo.appId)
 
         isInitialized = true
-        onComplete?.invoke(true)
     }
 
-    /**
-     * Initialize Admob
-     */
     private fun initializeAdmob(application: Application) {
         try {
             Log.d(TAG, "Initializing Admob...")
@@ -73,16 +54,15 @@ object AdsInitializer {
         }
     }
 
-    /**
-     * Initialize Unity Ads
-     */
-    private fun initializeUnityAds(application: Application) {
+    private fun initializeUnityAds(application: Application, gameId: String?) {
+        if (gameId == null) return
+
         try {
             Log.d(TAG, "Initializing Unity Ads...")
 
             UnityAds.initialize(
                 application,
-                AdsConfig.UNITY_GAME_ID,
+                AdsConfig.unityConfig.gameId,
                 AdsConfig.TEST_MODE,
                 object : IUnityAdsInitializationListener {
                     override fun onInitializationComplete() {
@@ -103,26 +83,26 @@ object AdsInitializer {
         }
     }
 
-    /**
-     * Initialize Start.io
-     */
-    private fun initializeStartIo(application: Application) {
+    private fun initializeStartIo(application: Application, startIoAppId: String?) {
+        if (startIoAppId == null) return
+
         try {
             Log.d(TAG, "Initializing Start.io...")
 
-            AdsConfig.STARTIO_APP_ID?.let {
+            AdsConfig.startIoConfig.appId?.let {
                 StartAppSDK.init(
                     application,
                     it,
-                    false // Set true for testing
+                    false
                 )
             }
 
-            // Optional: Disable splash ads
-//            StartAppSDK.setDisableSplash(true)
-
-            // Optional: Set user consent for GDPR
-            // StartAppSDK.setUserConsent(application, "pas", System.currentTimeMillis(), true)
+            // Set user consent for GDPR
+             StartAppSDK.setUserConsent(
+                 application,
+                 "pas",
+                 System.currentTimeMillis(),
+                 true)
 
             Log.d(TAG, "Start.io initialized successfully")
 
@@ -131,9 +111,7 @@ object AdsInitializer {
         }
     }
 
-    /**
-     * Check if ads are initialized
-     */
+
     fun isInitialized(): Boolean {
         return isInitialized
     }

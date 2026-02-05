@@ -14,10 +14,11 @@ import com.agcforge.videodownloader.data.api.ApiClient
 import com.agcforge.videodownloader.data.api.VideoDownloaderRepository
 import com.agcforge.videodownloader.databinding.ActivitySplashBinding
 import com.agcforge.videodownloader.helper.AdsConfig
-import com.agcforge.videodownloader.helper.AdsConfigManager
+import com.agcforge.videodownloader.helper.AdsInitializer
 import com.agcforge.videodownloader.utils.PreferenceManager
-import com.airbnb.lottie.LottieAnimationView
 import com.onesignal.OneSignal
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
     private lateinit var preferenceManager: PreferenceManager
-    private val repository = VideoDownloaderRepository()
+    private val repository by lazy { VideoDownloaderRepository() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install splash screen
@@ -40,6 +41,9 @@ class SplashActivity : AppCompatActivity() {
         preferenceManager = PreferenceManager(this)
 
         setupAnimations()
+
+        AdsConfig.init(this)
+
         startSplashSequence()
     }
 
@@ -59,27 +63,31 @@ class SplashActivity : AppCompatActivity() {
         })
     }
     private fun startSplashSequence() {
+
         lifecycleScope.launch {
-            // Wait for Lottie animation to complete (or set duration)
-            delay(2500)
-
-            lifecycleScope.launch {
-                // Simulate initialization
-                delay(2000)
-
+            val animationDelay = launch { delay(2500) }
+            val fetchData = launch {
                 fetchAndStoreApplication()
-
                 initializeAuthToken()
-
-//                AdsConfig.initialize(this@SplashActivity)
-//                val enableOneSignal: Boolean = AdsConfig.ONESIGNAL_ID != null
-//                if (enableOneSignal) OneSignal.initWithContext(this@SplashActivity, AdsConfig.ONESIGNAL_ID!!)
-//                if (enableOneSignal) {
-//                    OneSignal.Notifications.requestPermission(true)
-//                }
-
-                navigateToMain()
             }
+
+            fetchData.join()
+
+            AdsConfig.isInitialized.first { it }
+
+            AdsInitializer.initialize(application)
+            initOneSignal()
+
+            animationDelay.join()
+
+            navigateToMain()
+        }
+    }
+
+    private suspend fun initOneSignal() {
+        AdsConfig.ONE_SIGNAL_ID?.let {
+            OneSignal.initWithContext(this, it)
+            OneSignal.Notifications.requestPermission(true)
         }
     }
 

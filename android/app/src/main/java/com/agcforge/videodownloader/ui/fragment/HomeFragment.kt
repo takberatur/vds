@@ -8,7 +8,6 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.text.Editable
@@ -43,8 +42,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import androidx.core.net.toUri
-import com.agcforge.videodownloader.ui.adapter.PlatformAdapter
 import com.agcforge.videodownloader.data.websocket.DownloadTaskEvent
+import com.agcforge.videodownloader.ui.activities.BaseActivity
 import com.agcforge.videodownloader.ui.adapter.HistoryAdapter
 import com.agcforge.videodownloader.ui.component.AppAlertDialog
 import com.agcforge.videodownloader.ui.component.DownloadSettingsDialog
@@ -200,17 +199,19 @@ class HomeFragment : Fragment() {
             return
         }
 
-        DownloadSettingsDialog.create(
-            context = requireContext(),
-            url = url,
-            platforms = allPlatforms,
-            onSubmit = { selectedType, selectedPlatform ->
-                // Store selected platform
-                this.selectedPlatform = selectedPlatform
-                // Submit download request
-                submitDownloadRequest(url, selectedPlatform, selectedType)
-            }
-        ).show()
+        handlePremiumDownload {
+            DownloadSettingsDialog.create(
+                context = requireContext(),
+                url = url,
+                platforms = allPlatforms,
+                onSubmit = { selectedType, selectedPlatform ->
+                    // Store selected platform
+                    this.selectedPlatform = selectedPlatform
+                    // Submit download request
+                    submitDownloadRequest(url, selectedPlatform, selectedType)
+                }
+            ).show()
+        }
     }
 
     private fun submitDownloadRequest(url: String, platform: Platform, type: String) {
@@ -275,9 +276,6 @@ class HomeFragment : Fragment() {
                         binding.progressBar.visibility = View.GONE
 
                         resource.data?.let { task ->
-//                            viewLifecycleOwner.lifecycleScope.launch {
-//                                preferenceManager.addToHistory(task)
-//                            }
                             // Show format selection dialog if formats available
                             if (!task.formats.isNullOrEmpty()) {
                                 showFormatSelectionDialog(task)
@@ -556,7 +554,7 @@ class HomeFragment : Fragment() {
                 }
 
                 viewLifecycleOwner.lifecycleScope.launch {
-                    preferenceManager.updateStatusHistory(task)
+                    preferenceManager.updateStatusHistoryById(task.id, "completed")
                 }
 
                 binding.etUrl.text?.clear()
@@ -640,10 +638,12 @@ class HomeFragment : Fragment() {
 
             try {
                 dm.enqueue(request)
-                showDialogStatusDownload(
-                    AppAlertDialog.AlertDialogType.SUCCESS,
-                    getString(R.string.download_started),
-                    getString(R.string.download_started_please_check_background_status_bar))
+                showInterstitialFromBase{
+                    showDialogStatusDownload(
+                        AppAlertDialog.AlertDialogType.SUCCESS,
+                        getString(R.string.download_started),
+                        getString(R.string.download_started_please_check_background_status_bar))
+                }
             } catch (e: Exception) {
                 showDialogStatusDownload(
                     AppAlertDialog.AlertDialogType.ERROR,
@@ -724,5 +724,35 @@ class HomeFragment : Fragment() {
             dialog.setMessage(message)
         }
         dialog.show()
+    }
+
+    fun Fragment.getBaseActivity(): BaseActivity? {
+        return activity as? BaseActivity
+    }
+
+    fun Fragment.showInterstitialFromBase(onClosed: () -> Unit) {
+        getBaseActivity()?.showInterstitial(onClosed)
+    }
+
+    private fun handlePremiumDownload(onComplete: () -> Unit) {
+        val base = activity as? BaseActivity
+        if (base == null) {
+            // if base activity null,
+            onComplete()
+            return
+        }
+
+//        if (isUserPremium) {
+//            onComplete()
+//            return
+//        }
+
+        base.showRewardAd { onRewarded ->
+            if (onRewarded) {
+                onComplete()
+            } else {
+                Toast.makeText(context, "Please watch the ad to download!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

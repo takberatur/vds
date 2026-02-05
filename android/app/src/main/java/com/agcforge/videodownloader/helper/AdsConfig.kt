@@ -7,193 +7,172 @@ import com.agcforge.videodownloader.utils.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 object AdsConfig {
 
-    // Static config properties (backward compatibility)
+    private val _isInitialized = MutableStateFlow(false)
+    val isInitialized = _isInitialized.asStateFlow()
+
+    var admobConfig = AdmobConfig.getDefault()
+    var unityConfig = UnityConfig.getDefault()
+    var startIoConfig = StartIoConfig.getDefault()
+
     var TEST_MODE: Boolean = true
-    var INTERSTITIAL_INTERVAL_SECONDS: Int = 60
     var ENABLE_ADS: Boolean = true
+    var ONE_SIGNAL_ID: String? = null
 
-    var ENABLE_ADMOB: Boolean = false
-    var ENABLE_UNITY: Boolean = false
-    var ENABLE_STARTIO: Boolean = false
-
-    // Ad Unit IDs
-    var ADMOB_BANNER_ID: String? = null
-    var ADMOB_INTERSTITIAL_ID: String? = null
-    var ADMOB_REWARDED_ID: String? = null
-    var ADMOB_NATIVE_ID: String? = null
-
-    var UNITY_GAME_ID: String? = null
-    var UNITY_BANNER_ID: String? = null
-    var UNITY_INTERSTITIAL_ID: String? = null
-    var UNITY_REWARDED_ID: String? = null
-    var UNITY_NATIVE_ID: String? = null
-
-    var STARTIO_APP_ID: String? = null
-
-    var ONESIGNAL_ID: String? = null
+    var INTERSTITIAL_INTERVAL_SECONDS: Int = 60
 
     private var preferenceManager: PreferenceManager? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    fun initialize(context: Context) {
-        preferenceManager = PreferenceManager(context)
-        loadConfigFromPreferences()
-    }
+    private var isJobStarted = false
 
-    private fun loadConfigFromPreferences() {
-        preferenceManager?.let { manager ->
-            TEST_MODE = manager.getBooleanSync("ads_test_mode") ?: true
-            INTERSTITIAL_INTERVAL_SECONDS = manager.getIntSync("ads_interstitial_interval") ?: 60
-            ENABLE_ADS = manager.getBooleanSync("ads_enable") ?: true
+    fun init(context: Context) {
+        if (isJobStarted) return
+        isJobStarted = true
 
-            // Load application config
-            val appConfig = manager.getApplicationSync()
-            updateFromApplicationConfig(appConfig)
-        }
-    }
+        Log.d("AdsConfig", "Initializing AdsConfig")
+        preferenceManager = PreferenceManager(context.applicationContext)
 
-    fun updateFromApplicationConfig(appConfig: Application?) {
-        appConfig?.let { app ->
-            // Update monetization flag
-            ENABLE_ADS = app.enableMonetization
-
-            // Update each provider flags
-            ENABLE_ADMOB = app.enableMonetization && app.enableAdmob
-            ENABLE_UNITY = app.enableMonetization && app.enableUnityAd
-            ENABLE_STARTIO = app.enableMonetization && app.enableStartApp
-
-            // Update Admob IDs
-            ADMOB_BANNER_ID = if (ENABLE_ADMOB) app.admobBannerAdUnitId else null
-            ADMOB_INTERSTITIAL_ID = if (ENABLE_ADMOB) app.admobInterstitialAdUnitId else null
-            ADMOB_REWARDED_ID = if (ENABLE_ADMOB) app.admobRewardedAdUnitId else null
-            ADMOB_NATIVE_ID = if (ENABLE_ADMOB) app.admobNativeAdUnitId else null
-
-            // Update Unity IDs
-            UNITY_GAME_ID = if (ENABLE_UNITY) app.unityAdUnitId else null
-            UNITY_BANNER_ID = if (ENABLE_UNITY) app.unityBannerAdUnitId else null
-            UNITY_INTERSTITIAL_ID = if (ENABLE_UNITY) app.unityInterstitialAdUnitId else null
-            UNITY_REWARDED_ID = if (ENABLE_UNITY) app.unityRewardedAdUnitId else null
-            UNITY_NATIVE_ID = if (ENABLE_UNITY) app.unityNativeAdUnitId else null
-
-            // Update Start.io ID
-            STARTIO_APP_ID = if (ENABLE_STARTIO) app.startAppAdUnitId else null
-
-            // Save to preferences for persistence
-            scope.launch {
-                preferenceManager?.saveBoolean("ads_enable", ENABLE_ADS)
+        scope.launch {
+            preferenceManager?.applicationConfig?.collect { app ->
+                app?.let {
+                    updateConfigs(it)
+                    _isInitialized.value = true
+                    Log.d("AdsConfig", "Config Updated: Admob Enabled = ${admobConfig.enable}")
+                }
             }
-
-            Log.d("AdsConfig", "Updated config: Admob=$ENABLE_ADMOB, Unity=$ENABLE_UNITY, Start.io=$ENABLE_STARTIO")
         }
     }
 
-    // Helper functions
-    fun isAdmobEnabled(): Boolean = ENABLE_ADS && ENABLE_ADMOB
-    fun isUnityEnabled(): Boolean = ENABLE_ADS && ENABLE_UNITY
-    fun isStartIoEnabled(): Boolean = ENABLE_ADS && ENABLE_STARTIO
+    private fun updateConfigs(app: Application) {
+        ENABLE_ADS = app.enableMonetization
+        ONE_SIGNAL_ID = app.oneSignalId
 
-    fun getEnabledProviders(): List<AdsProvider> {
-        val providers = mutableListOf<AdsProvider>()
-        if (isAdmobEnabled()) providers.add(AdsProvider.ADMOB)
-        if (isUnityEnabled()) providers.add(AdsProvider.UNITY)
-        if (isStartIoEnabled()) providers.add(AdsProvider.STARTIO)
-        return providers
+        admobConfig = AdmobConfig(
+            enable = app.enableMonetization && app.enableAdmob,
+            adUnitId = app.admobAdUnitId,
+            bannerId = app.admobBannerAdUnitId,
+            interstitialId = app.admobInterstitialAdUnitId,
+            nativeId = app.admobNativeAdUnitId,
+            rewardedId = app.admobRewardedAdUnitId
+        )
+       unityConfig = UnityConfig(
+            enable = app.enableMonetization && app.enableUnityAd,
+            gameId = app.unityAdUnitId,
+            interstitialPlacement = app.unityInterstitialAdUnitId,
+            rewardPlacement = app.unityRewardedAdUnitId,
+            bannerPlacement = app.unityBannerAdUnitId
+        )
+        startIoConfig = StartIoConfig(
+            enable = app.enableMonetization && app.enableStartApp,
+            appId = app.startAppAdUnitId
+        )
     }
 
-    // Setter functions
-    fun setTestMode(testMode: Boolean) {
-        TEST_MODE = testMode
-        scope.launch {
-            preferenceManager?.saveBoolean("ads_test_mode", testMode)
-        }
-    }
-
-    fun setInterstitialIntervalSeconds(seconds: Int) {
-        INTERSTITIAL_INTERVAL_SECONDS = seconds
-        scope.launch {
-            preferenceManager?.saveInt("ads_interstitial_interval", seconds)
-        }
-    }
-
-    fun setEnableAds(enable: Boolean) {
-        ENABLE_ADS = enable
-        scope.launch {
-            preferenceManager?.saveBoolean("ads_enable", enable)
-        }
-    }
-
-    // Rotation logic
     object Rotation {
-        fun getInterstitialPriority(): List<AdsProvider> {
-            return getPriorityList(AdType.INTERSTITIAL)
-        }
+        val INTERSTITIAL_PRIORITY = listOf(
+            AdsProvider.ADMOB,
+            AdsProvider.UNITY,
+            AdsProvider.STARTIO
+        )
 
-        fun getRewardPriority(): List<AdsProvider> {
-            return getPriorityList(AdType.REWARDED)
-        }
+        val REWARD_PRIORITY = listOf(
+            AdsProvider.ADMOB,
+            AdsProvider.UNITY,
+            AdsProvider.STARTIO
+        )
 
-        fun getBannerPriority(): List<AdsProvider> {
-            return getPriorityList(AdType.BANNER)
-        }
+        val BANNER_PRIORITY = listOf(
+            AdsProvider.ADMOB,
+            AdsProvider.UNITY,
+            AdsProvider.STARTIO
+        )
 
-        fun getNativePriority(): List<AdsProvider> {
-            return getPriorityList(AdType.NATIVE)
-        }
-
-        private fun getPriorityList(adType: AdType): List<AdsProvider> {
-            val providers = mutableListOf<AdsProvider>()
-
-            if (isAdmobEnabled() && hasAdUnit(AdsProvider.ADMOB, adType)) {
-                providers.add(AdsProvider.ADMOB)
-            }
-
-            if (isUnityEnabled() && hasAdUnit(AdsProvider.UNITY, adType)) {
-                providers.add(AdsProvider.UNITY)
-            }
-
-            if (isStartIoEnabled() && hasAdUnit(AdsProvider.STARTIO, adType)) {
-                providers.add(AdsProvider.STARTIO)
-            }
-
-            return if (providers.isEmpty()) {
-                // Fallback
-                when (adType) {
-                    AdType.NATIVE -> listOf(AdsProvider.ADMOB)
-                    else -> listOf(AdsProvider.ADMOB, AdsProvider.UNITY, AdsProvider.STARTIO)
-                }
-            } else {
-                providers
-            }
-        }
-
-        private fun hasAdUnit(provider: AdsProvider, adType: AdType): Boolean {
-            return when (provider) {
-                AdsProvider.ADMOB -> when (adType) {
-                    AdType.BANNER -> !ADMOB_BANNER_ID.isNullOrEmpty()
-                    AdType.INTERSTITIAL -> !ADMOB_INTERSTITIAL_ID.isNullOrEmpty()
-                    AdType.NATIVE -> !ADMOB_NATIVE_ID.isNullOrEmpty()
-                    AdType.REWARDED -> !ADMOB_REWARDED_ID.isNullOrEmpty()
-                }
-                AdsProvider.UNITY -> when (adType) {
-                    AdType.BANNER -> !UNITY_BANNER_ID.isNullOrEmpty()
-                    AdType.INTERSTITIAL -> !UNITY_INTERSTITIAL_ID.isNullOrEmpty()
-                    AdType.NATIVE -> !UNITY_NATIVE_ID.isNullOrEmpty()
-                    AdType.REWARDED -> !UNITY_REWARDED_ID.isNullOrEmpty()
-                }
-                AdsProvider.STARTIO -> !STARTIO_APP_ID.isNullOrEmpty()
-            }
-        }
+        val NATIVE_PRIORITY = listOf(
+            AdsProvider.ADMOB
+        )
     }
 
 
-    enum class AdType {
-        BANNER,
-        INTERSTITIAL,
-        NATIVE,
-        REWARDED
+    enum class AdsProvider {
+        ADMOB,
+        UNITY,
+        STARTIO
     }
+}
+
+data class AdmobConfig(
+    val enable: Boolean,
+    val adUnitId: String?,
+    val bannerId: String?,
+    val interstitialId: String?,
+    val nativeId: String?,
+    val rewardedId: String?
+) {
+    companion object {
+        fun getDefault(): AdmobConfig = AdmobConfig(
+            enable = false,
+            adUnitId = null,
+            bannerId = null,
+            interstitialId = null,
+            nativeId = null,
+            rewardedId = null
+        )
+    }
+
+
+    fun isAdmobEnabled(): Boolean = enable && adUnitId != null
+
+    fun isBannerEnabled(): Boolean = isAdmobEnabled() && bannerId != null
+
+    fun isInterstitialEnabled(): Boolean = isAdmobEnabled() && interstitialId != null
+
+    fun isNativeEnabled(): Boolean = isAdmobEnabled() && nativeId != null
+
+    fun isRewardedEnabled(): Boolean = isAdmobEnabled() && rewardedId != null
+}
+
+data class UnityConfig(
+    val enable: Boolean,
+    val gameId: String?,
+    val bannerPlacement: String?,
+    val interstitialPlacement: String?,
+    val rewardPlacement: String?
+){
+    companion object {
+        fun getDefault(): UnityConfig = UnityConfig(
+            enable = false,
+            gameId = null,
+            bannerPlacement = null,
+            interstitialPlacement = null,
+            rewardPlacement = null
+        )
+    }
+
+    fun isUnityEnabled(): Boolean = enable && gameId != null
+
+    fun isBannerEnabled(): Boolean = isUnityEnabled() && bannerPlacement != null
+
+    fun isInterstitialEnabled(): Boolean = isUnityEnabled() && interstitialPlacement != null
+
+    fun isRewardedEnabled(): Boolean = isUnityEnabled() && rewardPlacement != null
+}
+
+data class StartIoConfig(
+    val enable: Boolean,
+    val appId: String?
+) {
+    companion object {
+        fun getDefault(): StartIoConfig = StartIoConfig(
+            enable = false,
+            appId = null
+        )
+    }
+
+    fun isStartIoEnabled(): Boolean = enable && appId != null
 }

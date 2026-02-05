@@ -21,12 +21,10 @@ class BannerAdsHelper(private val activity: Activity) {
 
     private val TAG = "BannerAdsHelper"
 
-    // Banner views
     private var admobBannerView: AdView? = null
     private var unityBannerView: BannerView? = null
     private var startIoBanner: Banner? = null
 
-    // Containers
     private var admobContainer: View? = null
     private var unityContainer: FrameLayout? = null
     private var startIoContainer: FrameLayout? = null
@@ -37,23 +35,17 @@ class BannerAdsHelper(private val activity: Activity) {
     private var isStartIoLoading = false
 
     // Current provider
-    private var currentProvider: AdsProvider? = null
+    private var currentProvider: AdsConfig.AdsProvider? = null
 
-    /**
-     * Inflate banner view from layout
-     */
     fun inflateBannerView(parent: ViewGroup): View {
         return LayoutInflater.from(activity)
             .inflate(R.layout.item_banner_ad, parent, false)
     }
 
-    /**
-     * Load and attach banner to container
-     */
     fun loadAndAttachBanner(
         container: ViewGroup,
-        onBannerLoaded: ((AdsProvider) -> Unit)? = null,
-        onBannerFailed: ((AdsProvider) -> Unit)? = null
+        onBannerLoaded: ((AdsConfig.AdsProvider) -> Unit)? = null,
+        onBannerFailed: ((AdsConfig.AdsProvider) -> Unit)? = null
     ) {
         if (!AdsConfig.ENABLE_ADS) {
             Log.d(TAG, "Ads disabled")
@@ -76,12 +68,9 @@ class BannerAdsHelper(private val activity: Activity) {
         loadBanner(onBannerLoaded, onBannerFailed)
     }
 
-    /**
-     * Load banner with auto rotation
-     */
     fun loadBanner(
-        onBannerLoaded: ((AdsProvider) -> Unit)? = null,
-        onBannerFailed: ((AdsProvider) -> Unit)? = null
+        onBannerLoaded: ((AdsConfig.AdsProvider) -> Unit)? = null,
+        onBannerFailed: ((AdsConfig.AdsProvider) -> Unit)? = null
     ) {
         if (!AdsConfig.ENABLE_ADS) {
             Log.d(TAG, "Ads disabled")
@@ -89,21 +78,21 @@ class BannerAdsHelper(private val activity: Activity) {
         }
 
         // Try providers in priority order
-        for (provider in AdsConfig.Rotation.getBannerPriority()) {
+        for (provider in AdsConfig.Rotation.BANNER_PRIORITY) {
             when (provider) {
-                AdsProvider.ADMOB -> {
+                AdsConfig.AdsProvider.ADMOB -> {
                     if (admobBannerView != null && !isAdmobLoading) {
                         loadAdmobBanner(onBannerLoaded, onBannerFailed)
                         return
                     }
                 }
-                AdsProvider.UNITY -> {
+                AdsConfig.AdsProvider.UNITY -> {
                     if (unityContainer != null && !isUnityLoading) {
                         loadUnityBanner(onBannerLoaded, onBannerFailed)
                         return
                     }
                 }
-                AdsProvider.STARTIO -> {
+                AdsConfig.AdsProvider.STARTIO -> {
                     if (startIoContainer != null && !isStartIoLoading) {
                         loadStartIoBanner(onBannerLoaded, onBannerFailed)
                         return
@@ -113,11 +102,10 @@ class BannerAdsHelper(private val activity: Activity) {
         }
     }
 
-    // ========== ADMOB BANNER ==========
 
     private fun loadAdmobBanner(
-        onBannerLoaded: ((AdsProvider) -> Unit)?,
-        onBannerFailed: ((AdsProvider) -> Unit)?
+        onBannerLoaded: ((AdsConfig.AdsProvider) -> Unit)?,
+        onBannerFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
         admobBannerView?.apply {
             isAdmobLoading = true
@@ -126,15 +114,15 @@ class BannerAdsHelper(private val activity: Activity) {
                 override fun onAdLoaded() {
                     Log.d(TAG, "Admob banner loaded")
                     isAdmobLoading = false
-                    currentProvider = AdsProvider.ADMOB
-                    showBanner(AdsProvider.ADMOB)
-                    onBannerLoaded?.invoke(AdsProvider.ADMOB)
+                    currentProvider = AdsConfig.AdsProvider.ADMOB
+                    showBanner(AdsConfig.AdsProvider.ADMOB)
+                    onBannerLoaded?.invoke(AdsConfig.AdsProvider.ADMOB)
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     Log.e(TAG, "Admob banner failed: ${error.message}")
                     isAdmobLoading = false
-                    tryNextProvider(AdsProvider.ADMOB, onBannerLoaded, onBannerFailed)
+                    tryNextProvider(AdsConfig.AdsProvider.ADMOB, onBannerLoaded, onBannerFailed)
                 }
 
                 override fun onAdClicked() {
@@ -146,11 +134,9 @@ class BannerAdsHelper(private val activity: Activity) {
         }
     }
 
-    // ========== UNITY BANNER ==========
-
     private fun loadUnityBanner(
-        onBannerLoaded: ((AdsProvider) -> Unit)?,
-        onBannerFailed: ((AdsProvider) -> Unit)?
+        onBannerLoaded: ((AdsConfig.AdsProvider) -> Unit)?,
+        onBannerFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
         unityContainer?.apply {
             isUnityLoading = true
@@ -158,16 +144,16 @@ class BannerAdsHelper(private val activity: Activity) {
 
             unityBannerView = BannerView(
                 activity,
-                AdsConfig.UNITY_BANNER_ID,
+                AdsConfig.unityConfig.bannerPlacement,
                 UnityBannerSize(320, 50)
             ).apply {
                 listener = object : BannerView.IListener {
                     override fun onBannerLoaded(bannerView: BannerView?) {
                         Log.d(TAG, "Unity banner loaded")
                         isUnityLoading = false
-                        currentProvider = AdsProvider.UNITY
-                        showBanner(AdsProvider.UNITY)
-                        onBannerLoaded?.invoke(AdsProvider.UNITY)
+                        currentProvider = AdsConfig.AdsProvider.UNITY
+                        showBanner(AdsConfig.AdsProvider.UNITY)
+                        onBannerLoaded?.invoke(AdsConfig.AdsProvider.UNITY)
                     }
 
                     override fun onBannerShown(bannerAdView: BannerView?) {}
@@ -178,7 +164,7 @@ class BannerAdsHelper(private val activity: Activity) {
                     ) {
                         Log.e(TAG, "Unity banner failed: ${errorInfo?.errorMessage}")
                         isUnityLoading = false
-                        tryNextProvider(AdsProvider.UNITY, onBannerLoaded, onBannerFailed)
+                        tryNextProvider(AdsConfig.AdsProvider.UNITY, onBannerLoaded, onBannerFailed)
                     }
 
                     override fun onBannerClick(bannerView: BannerView?) {
@@ -196,11 +182,9 @@ class BannerAdsHelper(private val activity: Activity) {
         }
     }
 
-    // ========== START.IO BANNER ==========
-
     private fun loadStartIoBanner(
-        onBannerLoaded: ((AdsProvider) -> Unit)?,
-        onBannerFailed: ((AdsProvider) -> Unit)?
+        onBannerLoaded: ((AdsConfig.AdsProvider) -> Unit)?,
+        onBannerFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
         startIoContainer?.apply {
             isStartIoLoading = true
@@ -210,15 +194,15 @@ class BannerAdsHelper(private val activity: Activity) {
                 override fun onReceiveAd(view: View) {
                     Log.d(TAG, "Start.io banner loaded")
                     isStartIoLoading = false
-                    currentProvider = AdsProvider.STARTIO
-                    showBanner(AdsProvider.STARTIO)
-                    onBannerLoaded?.invoke(AdsProvider.STARTIO)
+                    currentProvider = AdsConfig.AdsProvider.STARTIO
+                    showBanner(AdsConfig.AdsProvider.STARTIO)
+                    onBannerLoaded?.invoke(AdsConfig.AdsProvider.STARTIO)
                 }
 
                 override fun onFailedToReceiveAd(view: View?) {
                     Log.e(TAG, "Start.io banner failed to load.")
                     isStartIoLoading = false
-                    tryNextProvider(AdsProvider.STARTIO, onBannerLoaded, onBannerFailed)
+                    tryNextProvider(AdsConfig.AdsProvider.STARTIO, onBannerLoaded, onBannerFailed)
                 }
 
                 override fun onImpression(view: View) {}
@@ -229,43 +213,41 @@ class BannerAdsHelper(private val activity: Activity) {
         }
     }
 
-    // ========== HELPER METHODS ==========
-
-    private fun showBanner(provider: AdsProvider) {
+    private fun showBanner(provider: AdsConfig.AdsProvider) {
         admobContainer?.visibility = View.GONE
         unityContainer?.visibility = View.GONE
         startIoContainer?.visibility = View.GONE
 
         when (provider) {
-            AdsProvider.ADMOB -> admobContainer?.visibility = View.VISIBLE
-            AdsProvider.UNITY -> unityContainer?.visibility = View.VISIBLE
-            AdsProvider.STARTIO -> startIoContainer?.visibility = View.VISIBLE
+            AdsConfig.AdsProvider.ADMOB -> admobContainer?.visibility = View.VISIBLE
+            AdsConfig.AdsProvider.UNITY -> unityContainer?.visibility = View.VISIBLE
+            AdsConfig.AdsProvider.STARTIO -> startIoContainer?.visibility = View.VISIBLE
         }
     }
 
     private fun tryNextProvider(
-        failedProvider: AdsProvider,
-        onBannerLoaded: ((AdsProvider) -> Unit)?,
-        onBannerFailed: ((AdsProvider) -> Unit)?
+        failedProvider: AdsConfig.AdsProvider,
+        onBannerLoaded: ((AdsConfig.AdsProvider) -> Unit)?,
+        onBannerFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
-        val currentIndex = AdsConfig.Rotation.getBannerPriority().indexOf(failedProvider)
-        val nextProviders = AdsConfig.Rotation.getBannerPriority().drop(currentIndex + 1)
+        val currentIndex = AdsConfig.Rotation.BANNER_PRIORITY.indexOf(failedProvider)
+        val nextProviders = AdsConfig.Rotation.BANNER_PRIORITY.drop(currentIndex + 1)
 
         for (provider in nextProviders) {
             when (provider) {
-                AdsProvider.ADMOB -> {
+                AdsConfig.AdsProvider.ADMOB -> {
                     if (admobBannerView != null && !isAdmobLoading) {
                         loadAdmobBanner(onBannerLoaded, onBannerFailed)
                         return
                     }
                 }
-                AdsProvider.UNITY -> {
+                AdsConfig.AdsProvider.UNITY -> {
                     if (unityContainer != null && !isUnityLoading) {
                         loadUnityBanner(onBannerLoaded, onBannerFailed)
                         return
                     }
                 }
-                AdsProvider.STARTIO -> {
+                AdsConfig.AdsProvider.STARTIO -> {
                     if (startIoContainer != null && !isStartIoLoading) {
                         loadStartIoBanner(onBannerLoaded, onBannerFailed)
                         return

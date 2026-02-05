@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = VideoDownloaderRepository()
+    private val repository by lazy { VideoDownloaderRepository() }
     private val centrifugoManager = CentrifugoManager.getInstance(application)
     private val preferenceManager = PreferenceManager(application)
 

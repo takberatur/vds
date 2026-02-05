@@ -87,27 +87,29 @@ object ApiClient {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val okHttpClient = OkHttpClient.Builder()
-		.dns(
-			FallbackDns(
-				fallbackIpByHost = mapOf(
-					"api-simontok.agcforge.com" to "174.138.75.37",
-					"websocket.infrastructures.help" to "174.138.75.37"
-				)
-			)
-		)
-		.apply {
-			if (BuildConfig.DEBUG) {
-				addInterceptor(ChuckerInterceptor(App.getInstance()))
-			}
-		}
-        .addInterceptor(authInterceptor)
-        .addInterceptor(signatureInterceptor)
-        .addInterceptor(loggingInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .build()
+    private val okHttpClient by lazy {
+        OkHttpClient.Builder()
+            .dns(
+                FallbackDns(
+                    fallbackIpByHost = mapOf(
+                        "api-simontok.agcforge.com" to "174.138.75.37",
+                        "websocket.infrastructures.help" to "174.138.75.37"
+                    )
+                )
+            )
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    addInterceptor(ChuckerInterceptor(App.getInstance()))
+                }
+            }
+            .addInterceptor(authInterceptor)
+            .addInterceptor(signatureInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)

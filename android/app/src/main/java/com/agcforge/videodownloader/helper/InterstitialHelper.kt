@@ -20,15 +20,11 @@ import kotlinx.coroutines.flow.first
 class InterstitialHelper (private val activity: Activity) {
     private val TAG = "InterstitialHelper"
 
-    // Admob
+
     private var admobInterstitial: InterstitialAd? = null
     private var isAdmobLoading = false
-
-    // Unity Ads
     private var isUnityLoading = false
     private var isUnityLoaded = false
-
-    // Start.io
     private var startAppAd: StartAppAd? = null
     private var isStartIoLoading = false
     private var isStartIoLoaded = false
@@ -39,9 +35,6 @@ class InterstitialHelper (private val activity: Activity) {
         startAppAd = StartAppAd(activity)
     }
 
-    /**
-     * Load all ads providers
-     */
     fun loadAd() {
         if (!AdsConfig.ENABLE_ADS) {
             Log.d(TAG, "Ads disabled in config")
@@ -53,43 +46,40 @@ class InterstitialHelper (private val activity: Activity) {
         loadStartIoInterstitial()
     }
 
-    /**
-     * Show interstitial with auto rotation
-     */
     fun showAd(
-        onAdShown: ((AdsProvider) -> Unit)? = null,
-        onAdClosed: ((AdsProvider) -> Unit)? = null,
-        onAdFailed: ((AdsProvider) -> Unit)? = null
+        onAdShown: ((AdsConfig.AdsProvider) -> Unit)? = null,
+        onAdClosed: ((AdsConfig.AdsProvider) -> Unit)? = null,
+        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)? = null
     ) {
         if (!AdsConfig.ENABLE_ADS) {
             Log.d(TAG, "Ads disabled")
-            onAdFailed?.invoke(AdsProvider.ADMOB)
+            onAdFailed?.invoke(AdsConfig.AdsProvider.ADMOB)
             return
         }
 
         // Check interval
         if (!canShowAd()) {
             Log.d(TAG, "Interval not reached yet")
-            onAdFailed?.invoke(AdsProvider.ADMOB)
+            onAdFailed?.invoke(AdsConfig.AdsProvider.ADMOB)
             return
         }
 
         // Try providers in priority order
-        for (provider in AdsConfig.Rotation.getInterstitialPriority()) {
+        for (provider in AdsConfig.Rotation.INTERSTITIAL_PRIORITY) {
             when (provider) {
-                AdsProvider.ADMOB -> {
+                AdsConfig.AdsProvider.ADMOB -> {
                     if (admobInterstitial != null) {
                         showAdmobInterstitial(onAdShown, onAdClosed, onAdFailed)
                         return
                     }
                 }
-                AdsProvider.UNITY -> {
+                AdsConfig.AdsProvider.UNITY -> {
                     if (isUnityLoaded) {
                         showUnityInterstitial(onAdShown, onAdClosed, onAdFailed)
                         return
                     }
                 }
-                AdsProvider.STARTIO -> {
+                AdsConfig.AdsProvider.STARTIO -> {
                     if (isStartIoLoaded) {
                         showStartIoInterstitial(onAdShown, onAdClosed, onAdFailed)
                         return
@@ -99,12 +89,9 @@ class InterstitialHelper (private val activity: Activity) {
         }
 
         Log.d(TAG, "No ads available to show")
-        onAdFailed?.invoke(AdsProvider.ADMOB)
+        onAdFailed?.invoke(AdsConfig.AdsProvider.ADMOB)
     }
 
-    /**
-     * Check if ad can be shown based on interval
-     */
     private fun canShowAd(): Boolean {
         val currentTime = System.currentTimeMillis()
         val intervalMillis = AdsConfig.INTERSTITIAL_INTERVAL_SECONDS * 1000L
@@ -114,17 +101,15 @@ class InterstitialHelper (private val activity: Activity) {
         return (currentTime - lastShownTime) >= intervalMillis
     }
 
-    // ========== ADMOB INTERSTITIAL ==========
-
     private fun loadAdmobInterstitial() {
-        val isAdmobEnabled = AdsConfig.isAdmobEnabled()
+        val isAdmobEnabled = AdsConfig.admobConfig.enable
         if (!isAdmobEnabled || isAdmobLoading) return
 
         isAdmobLoading = true
 
         val adRequest = AdRequest.Builder().build()
 
-        AdsConfig.ADMOB_INTERSTITIAL_ID?.let {
+        AdsConfig.admobConfig.interstitialId?.let {
             InterstitialAd.load(
                 activity,
                 it,
@@ -147,23 +132,23 @@ class InterstitialHelper (private val activity: Activity) {
     }
 
     private fun showAdmobInterstitial(
-        onAdShown: ((AdsProvider) -> Unit)?,
-        onAdClosed: ((AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsProvider) -> Unit)?
+        onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
         admobInterstitial?.apply {
             fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdShowedFullScreenContent() {
                     Log.d(TAG, "Admob interstitial shown")
                     lastShownTime = System.currentTimeMillis()
-                    onAdShown?.invoke(AdsProvider.ADMOB)
+                    onAdShown?.invoke(AdsConfig.AdsProvider.ADMOB)
                 }
 
                 override fun onAdDismissedFullScreenContent() {
                     Log.d(TAG, "Admob interstitial dismissed")
                     admobInterstitial = null
                     loadAdmobInterstitial() // Reload
-                    onAdClosed?.invoke(AdsProvider.ADMOB)
+                    onAdClosed?.invoke(AdsConfig.AdsProvider.ADMOB)
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
@@ -172,25 +157,23 @@ class InterstitialHelper (private val activity: Activity) {
                     loadAdmobInterstitial()
 
                     // Try next provider
-                    tryNextProvider(AdsProvider.ADMOB, onAdShown, onAdClosed, onAdFailed)
+                    tryNextProvider(AdsConfig.AdsProvider.ADMOB, onAdShown, onAdClosed, onAdFailed)
                 }
             }
 
             show(activity)
         } ?: run {
-            tryNextProvider(AdsProvider.ADMOB, onAdShown, onAdClosed, onAdFailed)
+            tryNextProvider(AdsConfig.AdsProvider.ADMOB, onAdShown, onAdClosed, onAdFailed)
         }
     }
 
-    // ========== UNITY INTERSTITIAL ==========
-
     private fun loadUnityInterstitial() {
         if (isUnityLoading) return
-        AdsConfig.UNITY_INTERSTITIAL_ID?.let {
+        AdsConfig.unityConfig.interstitialPlacement?.let {
             isUnityLoading = true
 
             UnityAds.load(
-                AdsConfig.UNITY_INTERSTITIAL_ID,
+                AdsConfig.unityConfig.interstitialPlacement,
                 object : IUnityAdsLoadListener {
                     override fun onUnityAdsAdLoaded(placementId: String) {
                         Log.d(TAG, "Unity interstitial loaded")
@@ -213,18 +196,18 @@ class InterstitialHelper (private val activity: Activity) {
     }
 
     private fun showUnityInterstitial(
-        onAdShown: ((AdsProvider) -> Unit)?,
-        onAdClosed: ((AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsProvider) -> Unit)?
+        onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
         UnityAds.show(
             activity,
-            AdsConfig.UNITY_INTERSTITIAL_ID,
+            AdsConfig.unityConfig.interstitialPlacement,
             object : IUnityAdsShowListener {
                 override fun onUnityAdsShowStart(placementId: String) {
                     Log.d(TAG, "Unity interstitial started")
                     lastShownTime = System.currentTimeMillis()
-                    onAdShown?.invoke(AdsProvider.UNITY)
+                    onAdShown?.invoke(AdsConfig.AdsProvider.UNITY)
                 }
 
                 override fun onUnityAdsShowComplete(
@@ -234,7 +217,7 @@ class InterstitialHelper (private val activity: Activity) {
                     Log.d(TAG, "Unity interstitial completed")
                     isUnityLoaded = false
                     loadUnityInterstitial() // Reload
-                    onAdClosed?.invoke(AdsProvider.UNITY)
+                    onAdClosed?.invoke(AdsConfig.AdsProvider.UNITY)
                 }
 
                 override fun onUnityAdsShowFailure(
@@ -247,7 +230,7 @@ class InterstitialHelper (private val activity: Activity) {
                     loadUnityInterstitial()
 
                     // Try next provider
-                    tryNextProvider(AdsProvider.UNITY, onAdShown, onAdClosed, onAdFailed)
+                    tryNextProvider(AdsConfig.AdsProvider.UNITY, onAdShown, onAdClosed, onAdFailed)
                 }
 
                 override fun onUnityAdsShowClick(placementId: String) {
@@ -256,9 +239,6 @@ class InterstitialHelper (private val activity: Activity) {
             }
         )
     }
-
-    // ========== START.IO INTERSTITIAL ==========
-
     private fun loadStartIoInterstitial() {
         if (isStartIoLoading) return
 
@@ -280,22 +260,22 @@ class InterstitialHelper (private val activity: Activity) {
     }
 
     private fun showStartIoInterstitial(
-        onAdShown: ((AdsProvider) -> Unit)?,
-        onAdClosed: ((AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsProvider) -> Unit)?
+        onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
         startAppAd?.showAd(object : AdDisplayListener {
             override fun adHidden(ad: Ad) {
                 Log.d(TAG, "Start.io interstitial hidden")
                 isStartIoLoaded = false
                 loadStartIoInterstitial() // Reload
-                onAdClosed?.invoke(AdsProvider.STARTIO)
+                onAdClosed?.invoke(AdsConfig.AdsProvider.STARTIO)
             }
 
             override fun adDisplayed(ad: Ad) {
                 Log.d(TAG, "Start.io interstitial displayed")
                 lastShownTime = System.currentTimeMillis()
-                onAdShown?.invoke(AdsProvider.STARTIO)
+                onAdShown?.invoke(AdsConfig.AdsProvider.STARTIO)
             }
 
             override fun adClicked(ad: Ad) {
@@ -308,37 +288,35 @@ class InterstitialHelper (private val activity: Activity) {
                 loadStartIoInterstitial()
 
                 // Try next provider
-                tryNextProvider(AdsProvider.STARTIO, onAdShown, onAdClosed, onAdFailed)
+                tryNextProvider(AdsConfig.AdsProvider.STARTIO, onAdShown, onAdClosed, onAdFailed)
             }
         })
     }
 
-    // ========== HELPER METHODS ==========
-
     private fun tryNextProvider(
-        failedProvider: AdsProvider,
-        onAdShown: ((AdsProvider) -> Unit)?,
-        onAdClosed: ((AdsProvider) -> Unit)?,
-        onAdFailed: ((AdsProvider) -> Unit)?
+        failedProvider: AdsConfig.AdsProvider,
+        onAdShown: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdClosed: ((AdsConfig.AdsProvider) -> Unit)?,
+        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)?
     ) {
-        val currentIndex = AdsConfig.Rotation.getInterstitialPriority().indexOf(failedProvider)
-        val nextProviders = AdsConfig.Rotation.getInterstitialPriority().drop(currentIndex + 1)
+        val currentIndex = AdsConfig.Rotation.INTERSTITIAL_PRIORITY.indexOf(failedProvider)
+        val nextProviders = AdsConfig.Rotation.INTERSTITIAL_PRIORITY.drop(currentIndex + 1)
 
         for (provider in nextProviders) {
             when (provider) {
-                AdsProvider.ADMOB -> {
+                AdsConfig.AdsProvider.ADMOB -> {
                     if (admobInterstitial != null) {
                         showAdmobInterstitial(onAdShown, onAdClosed, onAdFailed)
                         return
                     }
                 }
-                AdsProvider.UNITY -> {
+                AdsConfig.AdsProvider.UNITY -> {
                     if (isUnityLoaded) {
                         showUnityInterstitial(onAdShown, onAdClosed, onAdFailed)
                         return
                     }
                 }
-                AdsProvider.STARTIO -> {
+                AdsConfig.AdsProvider.STARTIO -> {
                     if (isStartIoLoaded) {
                         showStartIoInterstitial(onAdShown, onAdClosed, onAdFailed)
                         return
@@ -352,16 +330,12 @@ class InterstitialHelper (private val activity: Activity) {
         onAdFailed?.invoke(failedProvider)
     }
 
-    /**
-     * Check if any ad is ready
-     */
+
     fun isAdReady(): Boolean {
         return admobInterstitial != null || isUnityLoaded || isStartIoLoaded
     }
 
-    /**
-     * Destroy ads
-     */
+
     fun destroy() {
         admobInterstitial = null
         startAppAd = null

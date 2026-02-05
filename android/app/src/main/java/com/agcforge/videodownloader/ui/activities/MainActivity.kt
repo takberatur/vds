@@ -5,7 +5,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
@@ -37,6 +40,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var preferenceManager: PreferenceManager
 
     private var isDarkMode: Boolean = false
+
+    private var isFirstLaunch = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,19 +116,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         binding.toolbar.setupWithNavController(navController, appBarConfiguration)
 
-//        navController.addOnDestinationChangedListener { _, destination, _ ->
-//            when (destination.id) {
-//                R.id.homeFragment, R.id.downloadsFragment, R.id.settingsFragment, R.id.historyFragment -> {
-//                    binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, R.drawable.ic_menu)
-//                }
-//                else -> {
-//                    binding.toolbar.navigationIcon = ContextCompat.getDrawable(this, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
-//                    binding.toolbar.setNavigationOnClickListener {
-//                        navController.navigateUp()
-//                    }
-//                }
-//            }
-//        }
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 in topLevelDestinations -> {
@@ -152,9 +144,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun updateNavigationHeader() {
         val headerView = binding.navigationView.getHeaderView(0)
-        val ivAvatar = headerView.findViewById<android.widget.ImageView>(R.id.ivAvatar)
-        val tvUserName = headerView.findViewById<android.widget.TextView>(R.id.tvUserName)
-        val tvUserEmail = headerView.findViewById<android.widget.TextView>(R.id.tvUserEmail)
+        val ivAvatar = headerView.findViewById<ImageView>(R.id.ivAvatar)
+        val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
+        val tvUserEmail = headerView.findViewById<TextView>(R.id.tvUserEmail)
 
         lifecycleScope.launch {
             val userName = preferenceManager.userName.first()
@@ -282,4 +274,5 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         onBackPressedDispatcher.addCallback(this, callback)
     }
+
 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class ResetPasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResetPasswordBinding
-    private val repository = VideoDownloaderRepository()
+    private val repository by lazy { VideoDownloaderRepository() }
 
     private var resetToken: String? = null
     private var hasMinLength = false

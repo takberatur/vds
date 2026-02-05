@@ -29,7 +29,7 @@ class WebSocketService : Service() {
 
     private lateinit var centrifugoManager: CentrifugoManager
     private lateinit var notificationManager: NotificationManager
-    private val repository = VideoDownloaderRepository()
+    private val repository by lazy { VideoDownloaderRepository() }
 
     companion object {
         private const val NOTIFICATION_ID = 1001
@@ -164,7 +164,7 @@ class WebSocketService : Service() {
     }
 
     private fun createNotification(message: String) = NotificationCompat.Builder(this, CHANNEL_ID)
-        .setContentTitle("Video Downloader")
+        .setContentTitle(this.getString(R.string.app_name))
         .setContentText(message)
         .setSmallIcon(R.drawable.ic_download)
         .setPriority(NotificationCompat.PRIORITY_LOW)

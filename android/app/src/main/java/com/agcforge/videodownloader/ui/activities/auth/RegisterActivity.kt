@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
-    private val repository = VideoDownloaderRepository()
+    private val repository by lazy { VideoDownloaderRepository() }
     private lateinit var preferenceManager: PreferenceManager
     private val viewModel: AuthViewModel by viewModels()
 	private val credentialManager by lazy { CredentialManager.create(this) }

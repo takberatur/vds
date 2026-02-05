@@ -23,22 +23,16 @@ class NativeAdsHelper(private val activity: Activity) {
     private var nativeAd: NativeAd? = null
     private var isLoading = false
 
-    /**
-     * Native ad size enum
-     */
     enum class NativeAdSize {
-        SMALL,   // Small card with icon only
-        MEDIUM   // Medium card with media view
+        SMALL,
+        MEDIUM
     }
 
-    /**
-     * Load and attach native ad to container
-     */
     fun loadAndAttachNativeAd(
         container: ViewGroup,
         adSize: NativeAdSize = NativeAdSize.SMALL,
-        onAdLoaded: ((AdsProvider) -> Unit)? = null,
-        onAdFailed: ((AdsProvider) -> Unit)? = null
+        onAdLoaded: ((AdsConfig.AdsProvider) -> Unit)? = null,
+        onAdFailed: ((AdsConfig.AdsProvider) -> Unit)? = null
     ) {
         if (!AdsConfig.ENABLE_ADS) {
             Log.d(TAG, "Ads disabled")
@@ -52,18 +46,15 @@ class NativeAdsHelper(private val activity: Activity) {
                 container.removeAllViews()
                 container.addView(adView)
                 container.visibility = View.VISIBLE
-                onAdLoaded?.invoke(AdsProvider.ADMOB)
+                onAdLoaded?.invoke(AdsConfig.AdsProvider.ADMOB)
             },
             onFailure = {
                 container.visibility = View.GONE
-                onAdFailed?.invoke(AdsProvider.ADMOB)
+                onAdFailed?.invoke(AdsConfig.AdsProvider.ADMOB)
             }
         )
     }
 
-    /**
-     * Load native ad without attaching to view
-     */
     fun loadNativeAd(
         onSuccess: ((NativeAd) -> Unit)? = null,
         onFailure: (() -> Unit)? = null
@@ -81,7 +72,7 @@ class NativeAdsHelper(private val activity: Activity) {
 
         isLoading = true
 
-        val adLoader = AdsConfig.ADMOB_NATIVE_ID?.let { AdLoader.Builder(activity, it) }
+        val adLoader = AdsConfig.admobConfig.nativeId?.let { AdLoader.Builder(activity, it) }
             ?.forNativeAd { ad ->
                 Log.d(TAG, "Native ad loaded")
 
@@ -112,9 +103,6 @@ class NativeAdsHelper(private val activity: Activity) {
         adLoader?.loadAd(AdRequest.Builder().build())
     }
 
-    /**
-     * Populate native ad view based on size
-     */
     private fun populateNativeAdView(nativeAd: NativeAd, adSize: NativeAdSize): NativeAdView {
         val layoutId = when (adSize) {
             NativeAdSize.SMALL -> R.layout.item_native_ad_small
@@ -132,9 +120,6 @@ class NativeAdsHelper(private val activity: Activity) {
         return adView
     }
 
-    /**
-     * Populate small native ad layout
-     */
     private fun populateSmallNativeAd(adView: NativeAdView, nativeAd: NativeAd) {
         // Set the media view (icon)
         adView.iconView = adView.findViewById(R.id.ad_app_icon)
@@ -168,9 +153,6 @@ class NativeAdsHelper(private val activity: Activity) {
         adView.setNativeAd(nativeAd)
     }
 
-    /**
-     * Populate medium native ad layout
-     */
     private fun populateMediumNativeAd(adView: NativeAdView, nativeAd: NativeAd) {
         // Set the media view
         adView.mediaView = adView.findViewById(R.id.ad_media)
@@ -227,9 +209,6 @@ class NativeAdsHelper(private val activity: Activity) {
         adView.setNativeAd(nativeAd)
     }
 
-    /**
-     * Preload native ad for later use
-     */
     fun preloadNativeAd(onComplete: ((Boolean) -> Unit)? = null) {
         loadNativeAd(
             onSuccess = {
@@ -243,23 +222,14 @@ class NativeAdsHelper(private val activity: Activity) {
         )
     }
 
-    /**
-     * Get preloaded native ad view
-     */
     fun getPreloadedNativeAdView(adSize: NativeAdSize = NativeAdSize.SMALL): NativeAdView? {
         return nativeAd?.let { populateNativeAdView(it, adSize) }
     }
 
-    /**
-     * Check if native ad is ready
-     */
     fun isAdReady(): Boolean {
         return nativeAd != null
     }
 
-    /**
-     * Destroy native ad
-     */
     fun destroy() {
         nativeAd?.destroy()
         nativeAd = null

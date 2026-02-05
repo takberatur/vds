@@ -315,6 +315,32 @@ class PreferenceManager(private val context: Context) {
         }
     }
 
+    suspend fun updateStatusHistoryById(id: String, status: String) {
+        context.dataStore.edit { preferences ->
+            val currentHistoryString = preferences[HISTORY_KEY] ?: ""
+            if (currentHistoryString.isEmpty()) return@edit
+
+            try {
+                val type = object : TypeToken<MutableList<DownloadTask>>() {}.type
+                val currentHistory = gson.fromJson<MutableList<DownloadTask>>(
+                    currentHistoryString,
+                    type
+                ) ?: mutableListOf()
+
+                currentHistory.set(
+                    currentHistory.indexOfFirst { it.id == id },
+                    currentHistory.first { it.id == id }.copy(
+                        status = status
+                    )
+                )
+                val updatedJson = gson.toJson(currentHistory)
+                preferences[HISTORY_KEY] = updatedJson
+            } catch (e: Exception) {
+                Log.e("DataStoreManager", "Error updating history item", e)
+            }
+        }
+    }
+
 
     fun getApplicationSync(): Application? = runBlocking { getApplication() }
     fun getBooleanSync(key: String): Boolean? = runBlocking { getBoolean(key) }

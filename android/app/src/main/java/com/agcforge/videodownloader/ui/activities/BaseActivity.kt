@@ -1,10 +1,13 @@
 package com.agcforge.videodownloader.ui.activities
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.agcforge.videodownloader.helper.AdsConfig
 import com.agcforge.videodownloader.helper.BannerAdsHelper
 import com.agcforge.videodownloader.helper.InterstitialHelper
 import com.agcforge.videodownloader.helper.NativeAdsHelper
@@ -33,8 +36,8 @@ abstract class BaseActivity : AppCompatActivity() {
         observeLanguage()
         super.onCreate(savedInstanceState)
 
-//        initializeAdsHelpers()
-//        loadAds()
+        initializeAdsHelpers()
+        loadAds()
     }
 
     private fun initializeAdsHelpers() {
@@ -96,5 +99,51 @@ abstract class BaseActivity : AppCompatActivity() {
 
     fun restartActivity() {
 		recreate()
+    }
+    fun showInterstitial(onDismiss: () -> Unit) {
+        interstitialHelper.showAd(
+            onAdShown = { provider ->
+                Log.d("BaseActivity", "Ad Shown from $provider")
+            },
+            onAdClosed = { provider ->
+                onDismiss.invoke()
+            },
+            onAdFailed = { provider ->
+                onDismiss.invoke()
+            }
+        )
+    }
+
+    fun showRewardAd(onRewardEarned: (Boolean) -> Unit) {
+        rewardAdsHelper.showAd(
+            onAdShown = { provider ->
+                Log.d("BaseActivity", "Ad Shown from $provider")
+            },
+            onAdClosed = { provider ->
+                onRewardEarned.invoke(true)
+                Log.d("BaseActivity", "Ad Closed from $provider")
+            },
+            onAdFailed = { provider ->
+                onRewardEarned.invoke(false)
+                Log.d("BaseActivity", "Ad Failed from $provider")
+            }
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        interstitialHelper.destroy()
+        rewardAdsHelper.destroy()
+        bannerAdsHelper.destroy()
+        nativeAdsHelper.destroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        CurrentActivityHolder.activity = this
+    }
+
+    object CurrentActivityHolder {
+        var activity: Activity? = null
     }
 }
