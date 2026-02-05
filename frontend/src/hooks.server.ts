@@ -95,18 +95,6 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 			event.request = localizedRequest;
 
 			return resolve(event, {
-				// transformPageChunk: ({ html, done }) => {
-				// 	if (done) {
-				// 		return html
-				// 			.replace(/%lang%/g, event.locals.lang)
-				// 			.replace(/%canonical%/g, canonicalUrl)
-				// 			.replace(/%hreflang%/g, event.request.headers.get('accept-language')?.split(',')[0] || 'en-US')
-				// 			.replace(/<link rel="alternate"[^>]*%[^%]*%[^>]*>/g, '')
-				// 			.replace(/<link rel="canonical"[^>]*%canonical%[^>]*>/g,
-				// 				`<link rel="canonical" href="${canonicalUrl}" />`);
-				// 	}
-				// 	return html;
-				// }
 				transformPageChunk: ({ html, done }) => {
 					return html.replace('%lang%', event.locals.lang)
 				}

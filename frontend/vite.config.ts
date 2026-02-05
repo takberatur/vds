@@ -48,7 +48,7 @@ export default defineConfig({
 				{
 					pattern: "/",
 					localized: [
-						["en", "/en"],
+						["en", "/"],
 						["es", "/es"],
 						["id", "/id"],
 						["ru", "/ru"],
@@ -69,7 +69,7 @@ export default defineConfig({
 				{
 					pattern: "/:path(.*)?",
 					localized: [
-						["en", "/en/:path(.*)?"],
+						["en", "/:path(.*)?"],
 						["es", "/es/:path(.*)?"],
 						["id", "/id/:path(.*)?"],
 						["ru", "/ru/:path(.*)?"],
