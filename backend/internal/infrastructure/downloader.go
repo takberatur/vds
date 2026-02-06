@@ -11,12 +11,33 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/user/video-downloader-backend/internal/infrastructure/contextpool"
 	"github.com/user/video-downloader-backend/internal/infrastructure/scrapper"
 )
+
+var cookiesInvalidLast sync.Map
+
+func logInvalidCookiesOnce(path string, reason string) {
+	now := time.Now()
+	if v, ok := cookiesInvalidLast.Load(path); ok {
+		if t, ok2 := v.(time.Time); ok2 {
+			if now.Sub(t) < 5*time.Minute {
+				return
+			}
+		}
+	}
+	cookiesInvalidLast.Store(path, now)
+	info, err := os.Stat(path)
+	if err != nil {
+		log.Error().Str("path", path).Str("reason", reason).Err(err).Msg("Cookies file invalid")
+		return
+	}
+	log.Error().Str("path", path).Str("reason", reason).Int64("size", info.Size()).Msg("Cookies file invalid")
+}
 
 type VideoInfo struct {
 	ID          string            `json:"id"`
@@ -60,7 +81,14 @@ func shouldUseCookiesFile(path string) bool {
 	if strings.EqualFold(sanitizeEnvString(os.Getenv("DISABLE_COOKIES_FILE")), "true") {
 		return false
 	}
-	return IsValidNetscapeCookiesFile(path)
+	if _, err := os.Stat(path); err != nil {
+		return false
+	}
+	if !IsValidNetscapeCookiesFile(path) {
+		logInvalidCookiesOnce(path, "invalid_netscape")
+		return false
+	}
+	return true
 }
 
 func shouldUseCookiesForURL(targetURL string, cookiePath string) bool {

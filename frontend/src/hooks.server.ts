@@ -83,7 +83,7 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 		event.locals.lang = detectedLocale;
 
 		setCookie(event, event.locals.lang as Locale);
-		throw redirect(302, `/${event.locals.lang}`);
+		throw redirect(302, `/`);
 	}
 
 	if (pathLocale) {

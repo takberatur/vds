@@ -47,6 +47,11 @@ type Config struct {
 	YoutubeUseCookies     string
 	YoutubePlayerClient   string
 	YoutubeCustomDisabled bool
+
+	// Telegram bot
+	TelegramBotToken      string
+	TelegramChatID        string
+	TelegramNotifications bool
 }
 
 func LoadConfig() *Config {
@@ -89,6 +94,10 @@ func LoadConfig() *Config {
 		YoutubeUseCookies:     getEnv("YOUTUBE_USE_COOKIES", ""),
 		YoutubePlayerClient:   getEnv("YOUTUBE_PLAYER_CLIENT", ""),
 		YoutubeCustomDisabled: getEnvBool("YOUTUBE_CUSTOM_DISABLED", false),
+		// Telegram bot
+		TelegramBotToken:      getEnv("TELEGRAM_BOT_TOKEN", ""),
+		TelegramChatID:        getEnv("TELEGRAM_CHAT_ID", ""),
+		TelegramNotifications: getEnvBool("TELEGRAM_NOTIFICATIONS", false),
 	}
 }
 

@@ -60,6 +60,7 @@ func SetupRoutes(c *RouteConfig) {
 	healthHandler := handler.NewHealthHandler(c.DB.Pool, c.Redis)
 	authHandler := handler.NewAuthHandler(authService)
 	bootstrapHandler := handler.NewBootstrapHandler(c.Redis)
+	mobileErrorHandler := handler.NewMobileErrorHandler()
 	settingHandler := handler.NewSettingHandler(settingService)
 	userHandler := handler.NewUserHandler(userService)
 	platformHandler := handler.NewPlatformHandler(platformService) // Added Platform
@@ -181,6 +182,8 @@ func SetupRoutes(c *RouteConfig) {
 
 	// Mobile client
 	publicMobile.Post("/bootstrap", bootstrapHandler.Bootstrap)
+	publicMobile.Post("/send-notif-error", mobileErrorHandler.SendNotifError)
+	publicMobile.Post("/errors", mobileErrorHandler.SendNotifError)
 	publicMobile.Get("/application", applicationHandler.GetCurrent)
 
 	publicMobile.Post("/auth/google", credentialLimiter, authHandler.GoogleLogin)
