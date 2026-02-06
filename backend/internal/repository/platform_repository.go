@@ -62,13 +62,17 @@ func (r *platformRepository) FindAll(ctx context.Context, params model.QueryPara
 	defer cancel()
 
 	qb := NewQueryBuilder(`
-		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at
-		FROM platforms WHERE is_active = true
+		SELECT id, name, slug, type, thumbnail_url, category, url_pattern, is_active, is_premium, config, created_at FROM platforms
 	`)
 
 	// 1. Filtering
 	if params.Search != "" {
-		qb.Where("(name ILIKE $? OR slug ILIKE $? OR type ILIKE $? OR category ILIKE $?)", "%"+params.Search+"%", "%"+params.Search+"%", "%"+params.Search+"%", "%"+params.Search+"%")
+		qb.Where("(name ILIKE $? OR slug ILIKE $? OR type ILIKE $? OR category ILIKE $?)",
+			"%"+params.Search+"%",
+			"%"+params.Search+"%",
+			"%"+params.Search+"%",
+			"%"+params.Search+"%",
+		)
 	}
 
 	if params.Type != "" {

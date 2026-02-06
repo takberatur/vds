@@ -58,32 +58,42 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 	const isBot = !!ua && /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
 	const pathLocale = getLocaleFromPath(pathname);
 	const detectedLocale = detectLocale(event);
-	const isProtected = protectedPaths.some(path => pathname.startsWith(path));
-	const isAuth = authPath.some(path => pathname.startsWith(path));
 
-	if (request.method !== 'GET') {
-		event.locals.lang = detectedLocale;
-		return resolve(event);
-	}
-
-	if (isBot) {
-		event.locals.lang = pathLocale ?? 'en'; { }
-
-		return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
+	const resolveWithParaglide = (locale: Locale) => {
+		return paraglideMiddleware(event.request, ({ request: localizedRequest }) => {
 			event.request = localizedRequest;
 			return resolve(event, {
-				transformPageChunk: ({ html, done }) => {
-					return html.replace('%lang%', event.locals.lang)
+				transformPageChunk: ({ html }) => {
+					return html.replace('%lang%', event.locals.lang);
 				}
 			});
 		});
+	};
+
+	if (request.method !== 'GET' && request.method !== 'HEAD') {
+		event.locals.lang = (pathLocale ?? detectedLocale) as Locale;
+		setCookie(event, event.locals.lang as Locale);
+		return resolveWithParaglide(event.locals.lang as Locale);
+	}
+
+	if (isBot) {
+		event.locals.lang = (pathLocale ?? 'en') as Locale;
+		setCookie(event, event.locals.lang as Locale);
+		return resolveWithParaglide(event.locals.lang as Locale);
+	}
+
+	if (pathname === '/en' || pathname.startsWith('/en/')) {
+		const stripped = pathname === '/en' ? '/' : pathname.slice(3);
+		throw redirect(302, `${stripped}${event.url.search}`);
 	}
 
 	if (!pathLocale) {
 		event.locals.lang = detectedLocale;
-
 		setCookie(event, event.locals.lang as Locale);
-		throw redirect(302, `/`);
+		if (event.locals.lang !== 'en') {
+			throw redirect(302, `/${event.locals.lang}${pathname === '/' ? '' : pathname}${event.url.search}`);
+		}
+		return resolveWithParaglide(event.locals.lang as Locale);
 	}
 
 	if (pathLocale) {
@@ -91,24 +101,17 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 
 		setCookie(event, pathLocale);
 
-		return paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-			event.request = localizedRequest;
-
-			return resolve(event, {
-				transformPageChunk: ({ html, done }) => {
-					return html.replace('%lang%', event.locals.lang)
-				}
-			});
-		});
+		return resolveWithParaglide(event.locals.lang as Locale);
 	}
 
-	if (pathname === '/' || pathname === '') {
-		const detected = detectedLocale;
+	// if (pathname === '/' || pathname === '') {
+	// 	return resolve(event);
+	// const detected = detectedLocale;
 
-		setCookie(event, detected);
+	// setCookie(event, detected);
 
-		throw redirect(302, `/${detected}`);
-	}
+	// throw redirect(302, `/${detected}`);
+	// }
 
 	return resolve(event);
 
@@ -370,13 +373,13 @@ function hasLocalePrefix(path: string): boolean {
 }
 
 function getLocaleFromPath(pathname: string): Locale | null {
-	const match = pathname.match(/^\/(en|id|es|ru|pt|fr|de|zh|hi|ar|ja|tr|vi|th|el|it)(\/|$)/);
+	const match = pathname.match(/^\/(id|es|ru|pt|fr|de|zh|hi|ar|ja|tr|vi|th|el|it)(\/|$)/);
 	return match ? (match[1] as Locale) : null;
 }
 
 function detectLocale(event: RequestEvent): Locale {
-	// const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
-	// if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
+	const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
+	if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
 
 	const accept = event.request.headers.get('accept-language');
 	const l = accept?.split(',')[0].split('-')[0] as Locale;
