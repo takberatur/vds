@@ -62,6 +62,7 @@
 			src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${monetizeSetting?.publisher_id}"
 			crossorigin="anonymous"
 		></script>
+		<meta name="google-adsense-account" content={monetizeSetting?.publisher_id} />
 	{/if}
 </svelte:head>
 
