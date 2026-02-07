@@ -21,6 +21,9 @@ import ClientMp3SupportFormatSection from './ClientMp3SupportFormatSection.svelt
 import ClientMp3CTASection from './ClientMp3CTASection.svelte';
 import ClientMp3DialogDownloadResults from './platform/ClientMp3DialogDownloadResults.svelte';
 
+// Native Ad
+import ClientNativeAdSection from './ClientNativeAdSection.svelte';
+
 
 
 // User
@@ -58,4 +61,6 @@ export {
 	ClientUserHeader,
 	ClientUserUploadAvatar,
 	ClientUserContent,
+	// Native Ad
+	ClientNativeAdSection,
 };

@@ -3,6 +3,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as Empty from '$lib/components/ui/empty/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
+	import { AdsenseBanner } from '@/components/client/monetization';
 	import type { DownloadTaskView, DownloadFormat } from '@/stores';
 	import Icon from '@iconify/svelte';
 	import * as i18n from '@/paraglide/messages.js';
@@ -11,7 +12,8 @@
 	let {
 		task,
 		downloadVideo,
-		deleteTask
+		deleteTask,
+		monetize
 	}: {
 		task?: DownloadTaskView | null;
 		onclose?: () => void;
@@ -21,6 +23,7 @@
 			directUrl?: string | null
 		) => Promise<void>;
 		deleteTask?: (taskId?: string) => void;
+		monetize?: SettingMonetize | null;
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -127,6 +130,14 @@
 			</Dialog.Description>
 
 			<ScrollArea class="max-h-[calc(100vh-160px)] space-y-4 px-2 py-5">
+				{#if monetize?.type_monetize === 'adsense' && monetize?.banner_horizontal_ad_code}
+					<div class="h-full w-full py-4">
+						<AdsenseBanner
+							publisher_id={monetize?.publisher_id}
+							ad_slot={monetize?.banner_horizontal_ad_code}
+						/>
+					</div>
+				{/if}
 				{#if task}
 					<div class="space-y-4">
 						<div class="flex items-start gap-3">
@@ -177,7 +188,7 @@
 												variant="ghost"
 												size="sm"
 												class={cn(
-													'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white hidden',
+													'hidden bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white'
 												)}
 												onclick={() => handleOpenFile(task.file_path, task.type)}
 											>
@@ -267,7 +278,7 @@
 																variant="ghost"
 																size="sm"
 																class={cn(
-																	'bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white hidden',
+																	'hidden bg-green-600 text-sm text-white hover:bg-green-700 hover:text-white dark:bg-green-500 dark:hover:bg-green-600 dark:hover:text-white'
 																)}
 																onclick={() => handleOpenFile(format.url, task.type)}
 															>

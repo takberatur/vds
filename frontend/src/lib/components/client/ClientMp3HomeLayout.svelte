@@ -5,7 +5,8 @@
 		ClientMp3FeatureSection,
 		ClientMp3HowToUseSection,
 		ClientMp3SupportFormatSection,
-		ClientMp3CTASection
+		ClientMp3CTASection,
+		ClientNativeAdSection
 	} from '@/components/client/index.js';
 
 	let {
@@ -31,4 +32,5 @@
 	<ClientMp3HowToUseSection {lang} />
 	<ClientMp3SupportFormatSection />
 	<ClientMp3CTASection />
+	<ClientNativeAdSection monetize={setting?.MONETIZE} />
 </ClientLayout>

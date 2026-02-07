@@ -26,11 +26,13 @@ function createAds() {
 		splitBannerValue,
 		splitNativeAdsValue,
 		waitForDOMReady,
+		getAutoAdCode,
 		getBannerHorizonatlCode,
 		getBannerRectangleCode,
 		getBannerVerticalCode,
 		getPopupCode,
-		getSocialbarCode
+		getSocialbarCode,
+		getNativeAdsCode
 	} = adsStore;
 
 	return {
@@ -53,13 +55,20 @@ function createAds() {
 		waitForDOMReady,
 
 		// Getters
+		getAutoAdCode,
 		getBannerHorizonatlCode,
 		getBannerRectangleCode,
 		getBannerVerticalCode,
 		getPopupCode,
 		getSocialbarCode,
+		getNativeAdsCode,
+
 
 		// Convenience
+		get autoAdData() {
+			const code = getAutoAdCode();
+			return splitBannerValue(code);
+		},
 		get bannerRectangleData() {
 			const code = getBannerRectangleCode();
 			return splitBannerValue(code);
@@ -82,6 +91,11 @@ function createAds() {
 
 		get socialbarData() {
 			const code = getSocialbarCode();
+			return splitNativeAdsValue(code);
+		},
+
+		get nativeAdsData() {
+			const code = getNativeAdsCode();
 			return splitNativeAdsValue(code);
 		}
 	};

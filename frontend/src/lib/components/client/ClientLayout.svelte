@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { onMount } from 'svelte';
 	import { ClientFooter, ClientHeader } from '@/components/client/index.js';
 	import { type Locale } from '@/paraglide/runtime';
 

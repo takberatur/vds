@@ -161,8 +161,8 @@ func SetupRoutes(c *RouteConfig) {
 
 	// Web Client Routes
 	publicWeb.Get("/centrifugo/token", centrifugoHandler.GetToken)
-	publicWeb.Post("/contact", webHandler.Contact)
-
+	publicWeb.Post("/contact", csrfMiddleware, webHandler.Contact)
+	publicWeb.Post("/report/errors", csrfMiddleware, webHandler.ReportError)
 	publicWeb.Get("/platforms", platformHandler.GetAll)
 	publicWeb.Get("/platforms/:id", platformHandler.GetPlatformByID)
 	publicWeb.Get("/platforms/type/:type", platformHandler.GetPlatformByType)

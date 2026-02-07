@@ -33,7 +33,7 @@ type mobileErrorPayload struct {
 	Locale      string            `json:"locale"`
 	UserId      string            `json:"user_id"`
 	Screen      string            `json:"screen"`
-	TimestampMs string            `json:"timestamp_ms"`
+	TimestampMs  string `json:"timestamp_ms"`
 	BuildType   string            `json:"build_type"`
 	Extras      map[string]string `json:"extras"`
 }

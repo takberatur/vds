@@ -7,11 +7,13 @@ import type {
 	UpdateApplicationSchema,
 	UpdatePlatformSchema,
 	DownloadVideoSchema,
+	WebErrorReportSchema,
 } from '@/utils/schema';
 
 declare global {
 	interface Window {
 		gc: NodeJS.GCFunction | undefined;
+		adsbygoogle: any[] | undefined;
 	}
 
 	// ==========================================
@@ -375,6 +377,7 @@ declare global {
 		Contact(data: ContactSchema): Promise<void | Error>;
 		DownloadVideo(data: DownloadVideoSchema): Promise<ApiResponse<Download>>
 		DownloadVideoToMp3(data: DownloadVideoSchema): Promise<ApiResponse<Download>>
+		ReportError(data: WebErrorReportSchema): Promise<void | Error>
 	}
 
 	// ==========================================

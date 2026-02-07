@@ -4,6 +4,7 @@ import { Dependencies } from '$lib/server';
 import { env } from '$env/dynamic/private';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { localizeHref, locales as SUPPORTED_LOCALES, type Locale } from '@/paraglide/runtime';
+import { ApiClientHandler } from '$lib/helpers/api_helpers';
 
 const NODE_ENV = env.NODE_ENV || 'development';
 
@@ -365,6 +366,67 @@ export const handle: Handle = sequence(
 	adminMiddleware,
 	errorHandling
 );
+
+let lastSsrReportAt = 0;
+let lastSsrKey = '';
+
+export const handleError = async ({ error, event, status, message }) => {
+	try {
+		if (!status || status < 500) {
+			return;
+		}
+		const now = Date.now();
+		const url = event.url?.toString?.() ? event.url.toString() : '';
+		const routeId = (event.route as any)?.id ? String((event.route as any).id) : '';
+		const pathname = event.url?.pathname ?? '';
+		const search = event.url?.search ?? '';
+		const errMsg = error instanceof Error ? error.message : String(message ?? error);
+		const stack = error instanceof Error ? error.stack ?? '' : '';
+		const key = `${status}|${routeId}|${pathname}|${errMsg}`.slice(0, 500);
+		if (key === lastSsrKey && now - lastSsrReportAt < 15_000) {
+			return;
+		}
+		lastSsrKey = key;
+		lastSsrReportAt = now;
+
+		const api = new ApiClientHandler(event);
+		const ip = (() => {
+			try {
+				return event.getClientAddress?.() ?? '';
+			} catch {
+				return '';
+			}
+		})();
+		const locale = (event.locals.lang as string | undefined) ?? '';
+		const userId = (event.locals as any)?.user?.id ? String((event.locals as any).user.id) : '';
+		const reqMeta = {
+			route_id: routeId,
+			pathname,
+			search,
+			params: (event.params ? JSON.stringify(event.params).slice(0, 500) : ''),
+			referer: event.request.headers.get('referer') ?? '',
+			x_request_id: event.request.headers.get('x-request-id') ?? '',
+			cf_ray: event.request.headers.get('cf-ray') ?? ''
+		};
+		await api.publicRequest('POST', '/web-client/report/errors', {
+			error: stack ? stack.slice(0, 1200) : String(error).slice(0, 1200),
+			message: errMsg.slice(0, 500),
+			platform_id: 'frontend-ssr',
+			user_id: userId,
+			ip_address: ip,
+			user_agent: event.request.headers.get('user-agent') ?? '',
+			url,
+			method: event.request.method,
+			request: JSON.stringify(reqMeta).slice(0, 800),
+			status,
+			level: 'error',
+			locale,
+			timestamp_ms: now
+		}, true);
+	} catch {
+		return;
+	}
+};
 
 function hasLocalePrefix(path: string): boolean {
 	return SUPPORTED_LOCALES.some(

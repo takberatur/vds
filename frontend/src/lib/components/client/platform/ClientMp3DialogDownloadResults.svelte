@@ -4,6 +4,7 @@
 	import * as Empty from '$lib/components/ui/empty/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import type { DownloadTaskView, DownloadFormat } from '@/stores';
+	import { AdsenseBanner } from '@/components/client/monetization';
 	import Icon from '@iconify/svelte';
 	import * as i18n from '@/paraglide/messages.js';
 	import { cn } from '@/utils';
@@ -12,7 +13,8 @@
 	let {
 		task,
 		downloadMp3,
-		deleteTask
+		deleteTask,
+		monetize
 	}: {
 		task?: DownloadTaskView | null;
 		onclose?: () => void;
@@ -22,6 +24,7 @@
 			directUrl?: string | null
 		) => Promise<void>;
 		deleteTask?: (taskId?: string) => void;
+		monetize?: SettingMonetize | null;
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -113,6 +116,14 @@
 			</Dialog.Description>
 
 			<ScrollArea class="max-h-[calc(100vh-160px)] space-y-4 px-2 py-5">
+				{#if monetize?.type_monetize === 'adsense' && monetize?.banner_horizontal_ad_code}
+					<div class="h-full w-full py-4">
+						<AdsenseBanner
+							publisher_id={monetize?.publisher_id}
+							ad_slot={monetize?.banner_horizontal_ad_code}
+						/>
+					</div>
+				{/if}
 				{#if task}
 					<div class="space-y-4">
 						<div class="flex items-start gap-3">

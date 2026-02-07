@@ -5,7 +5,8 @@
 		ClientFeatureSection,
 		ClientHowToUseSection,
 		ClientSupportFormatSection,
-		ClientCTASection
+		ClientCTASection,
+		ClientNativeAdSection
 	} from '@/components/client/index.js';
 
 	let {
@@ -31,4 +32,5 @@
 	<ClientHowToUseSection />
 	<ClientSupportFormatSection />
 	<ClientCTASection />
+	<ClientNativeAdSection monetize={setting?.MONETIZE} />
 </ClientLayout>

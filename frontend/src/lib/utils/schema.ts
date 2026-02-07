@@ -291,6 +291,22 @@ export const PostSchema = z.object({
 		.optional()
 });
 
+export const webErrorReportSchema = z.object({
+	error: z.string().optional(),
+	message: z.string().optional(),
+	platform_id: z.string().optional(),
+	user_id: z.string().optional(),
+	ip_address: z.string().optional(),
+	user_agent: z.string().optional(),
+	url: z.string().optional(),
+	method: z.string().optional(),
+	request: z.string().optional(),
+	status: z.number().optional(),
+	level: z.string().optional(),
+	locale: z.string().optional(),
+	timestamp_ms: z.string().optional(),
+});
+
 
 export type LoginSchema = z.infer<typeof loginSchema>;
 export type AuthGoogleSchema = z.infer<typeof authGoogleSchema>;
@@ -322,3 +338,4 @@ export type UpdateApplicationSchema = z.infer<typeof updateApplicationSchema>;
 
 // Blog Post
 export type PostSchema = z.infer<typeof PostSchema>;
+export type WebErrorReportSchema = z.infer<typeof webErrorReportSchema>;

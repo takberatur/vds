@@ -18,6 +18,7 @@
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 	import { ClientDialogDownloadResults } from '@/components/client';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
+	import { AdsenseBanner, AdsenseInArticleAd } from '@/components/client/monetization';
 	import { Download } from '@lucide/svelte';
 	import { localizeHref } from '@/paraglide/runtime';
 	import Icon from '@iconify/svelte';
@@ -45,6 +46,7 @@
 
 	const ws = getContext<WebsocketStore>('websocket');
 	const tasks = derived(ws.state, ($state) => $state.tasks);
+	let monetizeSetting = $derived<SettingMonetize | null>(setting?.MONETIZE ?? null);
 
 	let errorMessage = $state<string | null>(null);
 	let successMessage = $state<string | null>(null);
@@ -221,7 +223,6 @@
 		try {
 			// If we have a direct URL (e.g. MinIO), use it directly
 			if (directUrl) {
-
 				const link = document.createElement('a');
 				// Clean URL (remove spaces, backticks if any)
 				const cleanUrl = directUrl
@@ -365,6 +366,14 @@
 		class="relative container mx-auto px-4 py-16 md:max-w-6xl md:py-24"
 	>
 		<div class="mx-auto max-w-4xl text-center">
+			{#if monetizeSetting?.type_monetize === 'adsense' && monetizeSetting?.banner_rectangle_ad_code}
+				<div class="h-full w-full py-4">
+					<AdsenseBanner
+						publisher_id={monetizeSetting?.publisher_id}
+						ad_slot={monetizeSetting?.banner_rectangle_ad_code}
+					/>
+				</div>
+			{/if}
 			<div
 				class="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-200"
 			>
@@ -454,6 +463,15 @@
 				{/if}
 			</div>
 
+			{#if monetizeSetting?.type_monetize === 'adsense' && monetizeSetting?.banner_horizontal_ad_code}
+				<div class="h-full w-full py-4">
+					<AdsenseBanner
+						publisher_id={monetizeSetting?.publisher_id}
+						ad_slot={monetizeSetting?.banner_horizontal_ad_code}
+					/>
+				</div>
+			{/if}
+
 			{#if Object.keys($tasks).length > 0}
 				<div
 					class="mx-auto mt-6 max-w-3xl rounded-2xl bg-muted p-4 shadow-xl shadow-blue-100/50 md:p-6 dark:bg-neutral-900 dark:shadow-blue-900/50"
@@ -519,7 +537,12 @@
 
 										{#if task.status === 'completed' && task.file_path}
 											<div class="flex items-center gap-2">
-												<ClientDialogDownloadResults {task} {downloadVideo} {deleteTask} />
+												<ClientDialogDownloadResults
+													{task}
+													{downloadVideo}
+													{deleteTask}
+													monetize={monetizeSetting}
+												/>
 											</div>
 										{/if}
 									</div>
@@ -552,6 +575,15 @@
 					</a>
 				{/each}
 			</div>
+
+			{#if monetizeSetting?.type_monetize === 'adsense' && monetizeSetting?.native_ad_code}
+				<div class="h-full w-full py-4">
+					<AdsenseInArticleAd
+						publisher_id={monetizeSetting?.publisher_id}
+						ad_slot={monetizeSetting?.native_ad_code}
+					/>
+				</div>
+			{/if}
 		</div>
 	</section>
 </div>

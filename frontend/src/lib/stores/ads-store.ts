@@ -184,6 +184,10 @@ const createAdsStore = () => {
 		waitForDOMReady,
 
 		// Convenience getters
+		getAutoAdCode: () => {
+			const data = get(adsData);
+			return data?.auto_ad_code ?? null;
+		},
 		getBannerHorizonatlCode: () => {
 			const data = get(adsData);
 			return data?.banner_horizontal_ad_code ?? null;
@@ -203,6 +207,10 @@ const createAdsStore = () => {
 		getSocialbarCode: () => {
 			const data = get(adsData);
 			return data?.socialbar_ad_code ?? null;
+		},
+		getNativeAdsCode: () => {
+			const data = get(adsData);
+			return data?.native_ad_code ?? null;
 		}
 	};
 };
