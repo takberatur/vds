@@ -211,27 +211,26 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 		qb.OrderByField("u.created_at", "DESC")
 	}
 
-	countQuery := `SELECT COUNT(*) FROM users u`
+	countQuery := `SELECT COUNT(*) FROM users`
 	args := []interface{}{}
 	whereClauses := []string{}
 	argIdx := 1
 
 	if params.Search != "" {
-		whereClauses = append(whereClauses, fmt.Sprintf("(u.email ILIKE $%d OR u.full_name ILIKE $%d)", argIdx, argIdx+1))
+		whereClauses = append(whereClauses, fmt.Sprintf("(email ILIKE $%d OR full_name ILIKE $%d)", argIdx, argIdx+1))
 		args = append(args, "%"+params.Search+"%", "%"+params.Search+"%")
 		argIdx += 2
 	}
 
 	if r.boolToStr(params.IsActive) != "" {
-		whereClauses = append(whereClauses, fmt.Sprintf("u.is_active = $%d", argIdx))
+		whereClauses = append(whereClauses, fmt.Sprintf("is_active = $%d", argIdx))
 		args = append(args, params.IsActive)
 		argIdx++
 	}
 
 	if !params.DateFrom.IsZero() && !params.DateTo.IsZero() {
-		whereClauses = append(whereClauses, fmt.Sprintf("u.created_at BETWEEN $%d AND $%d", argIdx, argIdx+1))
+		whereClauses = append(whereClauses, fmt.Sprintf("created_at BETWEEN $%d AND $%d", argIdx, argIdx+1))
 		args = append(args, params.DateFrom, params.DateTo)
-		// argIdx += 2 // not needed here since args are appended inline
 	}
 
 	if len(whereClauses) > 0 {
