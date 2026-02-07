@@ -247,11 +247,16 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 
 	query := `
 		SELECT 
-			d.id, d.user_id, d.app_id, d.platform_id, d.original_url, d.file_path, d.thumbnail_url, 
-			d.title, d.duration, d.file_size, d.encrypted_data, d.format, d.status, d.error_message, d.ip_address, d.created_at,
+			d.id, d.user_id, d.app_id, d.platform_id, d.original_url, 
+			d.file_path, d.thumbnail_url,  -- Kolom 6 & 7
+			d.title, d.duration, d.file_size, d.encrypted_data, d.format, 
+			d.status, d.error_message, d.ip_address, d.created_at,  -- Kolom 13-16
 			u.email as user_email,
-			p.name as platform_name, p.slug as platform_slug, p.thumbnail_url as platform_thumbnail_url, p.type as platform_type, p.is_active as platform_is_active, p.is_premium as platform_is_premium,
-			f.id as file_id, f.download_id, f.url, f.format_id, f.resolution, f.extension, f.file_size, f.encrypted_data, f.created_at
+			p.name as platform_name, p.slug as platform_slug, 
+			p.thumbnail_url as platform_thumbnail_url, p.type as platform_type, 
+			p.is_active as platform_is_active, p.is_premium as platform_is_premium,
+			f.id as file_id, f.download_id, f.url, f.format_id, f.resolution, 
+			f.extension, f.file_size, f.encrypted_data, f.created_at
 		FROM downloads d
 		LEFT JOIN users u ON d.user_id = u.id
 		LEFT JOIN platforms p ON d.platform_id = p.id
@@ -349,11 +354,13 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 		var encryptedData *[]byte
 
 		err := rows.Scan(
-			&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL, &task.PlatformType, &task.FilePath, &task.ThumbnailURL,
-			&task.Title, &task.Duration, &task.FileSize, &task.EncryptedData, &task.Format, &task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
+			&task.ID, &task.UserID, &task.AppID, &task.PlatformID, &task.OriginalURL,
+			&task.FilePath, &task.ThumbnailURL,
+			&task.Title, &task.Duration, &task.FileSize, &task.EncryptedData, &task.Format,
+			&task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
 			&userEmail,
 			&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
-			&fileID, &downloadID, &url, &formatID, &resolution, &extension, &fileSize, &createdAt,
+			&fileID, &downloadID, &url, &formatID, &resolution, &extension, &fileSize, &encryptedData, &createdAt,
 		)
 		if err != nil {
 			return nil, model.Pagination{}, err
