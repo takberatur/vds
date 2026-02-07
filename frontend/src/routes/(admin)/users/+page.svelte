@@ -3,7 +3,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { MetaTags } from 'svelte-meta-tags';
 	import { handleSubmitLoading } from '@/stores';
-	import { AdminSidebarLayout, AdminUserTable } from '@/components/admin';
+	import { AdminSidebarLayout, AdminUserTable, AdminUserDetail } from '@/components/admin';
 	import { DateRangeInput, AppAlertDialog, CardSpotlight } from '@/components/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Icon from '@iconify/svelte';
@@ -177,6 +177,14 @@
 		onclose={() => {
 			dataEntityAction = null;
 			openSingleDeleteDialog = false;
+		}}
+	/>
+	<AdminUserDetail
+		bind:open={openDetail}
+		user={dataEntityAction}
+		onclose={() => {
+			dataEntityAction = null;
+			openDetail = false;
 		}}
 	/>
 </AdminSidebarLayout>

@@ -41,11 +41,12 @@ import AdminDownloadTableToolbar from './download/AdminDownloadTableToolbar.svel
 // subscriptions
 import AdminSubscriptionTable from './subscription/AdminSubscriptionTable.svelte';
 import AdminSubscriptionTableToolbar from './subscription/AdminSubscriptionTableToolbar.svelte';
+import AdminSubscriptionDetail from './subscription/AdminSubscriptionDetail.svelte';
 
 // users
 import AdminUserTable from './user/AdminUserTable.svelte';
 import AdminUserTableToolbar from './user/AdminUserTableToolbar.svelte';
-import AdminSubscriptionDetail from './subscription/AdminSubscriptionDetail.svelte';
+import AdminUserDetail from './user/AdminUserDetail.svelte';
 
 export {
 	AdminSidebar,
@@ -84,8 +85,9 @@ export {
 	// subscriptions
 	AdminSubscriptionTable,
 	AdminSubscriptionTableToolbar,
+	AdminSubscriptionDetail,
 	// users
 	AdminUserTable,
 	AdminUserTableToolbar,
-	AdminSubscriptionDetail,
+	AdminUserDetail,
 };

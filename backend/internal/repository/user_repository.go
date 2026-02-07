@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
-	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -196,27 +196,59 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 
 	if params.SortBy != "" {
 		sortBy := params.SortBy
-		if sortBy == "created_at" || sortBy == "email" || sortBy == "full_name" || sortBy == "is_active" || sortBy == "last_login_at" {
+		switch sortBy {
+		case "created_at", "email", "full_name", "is_active", "last_login_at":
 			sortBy = "u." + sortBy
+		case "role":
+			sortBy = "r.name"
+		case "updated_at":
+			sortBy = "u.updated_at"
+		default:
+			sortBy = "u.created_at"
 		}
 		qb.OrderByField(sortBy, params.OrderBy)
 	} else {
 		qb.OrderByField("u.created_at", "DESC")
 	}
 
-	countQuery, countArgs := qb.Clone().ChangeBase("SELECT COUNT(*) FROM users").WithoutPagination().Build()
+	countQuery := `SELECT COUNT(*) FROM users u`
+	args := []interface{}{}
+	whereClauses := []string{}
+	argIdx := 1
+
+	if params.Search != "" {
+		whereClauses = append(whereClauses, fmt.Sprintf("(u.email ILIKE $%d OR u.full_name ILIKE $%d)", argIdx, argIdx+1))
+		args = append(args, "%"+params.Search+"%", "%"+params.Search+"%")
+		argIdx += 2
+	}
+
+	if r.boolToStr(params.IsActive) != "" {
+		whereClauses = append(whereClauses, fmt.Sprintf("u.is_active = $%d", argIdx))
+		args = append(args, params.IsActive)
+		argIdx++
+	}
+
+	if !params.DateFrom.IsZero() && !params.DateTo.IsZero() {
+		whereClauses = append(whereClauses, fmt.Sprintf("u.created_at BETWEEN $%d AND $%d", argIdx, argIdx+1))
+		args = append(args, params.DateFrom, params.DateTo)
+		// argIdx += 2 // not needed here since args are appended inline
+	}
+
+	if len(whereClauses) > 0 {
+		countQuery += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
 
 	var totalItems int64
-	err := pgxscan.Get(subCtx, r.db, &totalItems, countQuery, countArgs...)
+	err := r.db.QueryRow(subCtx, countQuery, args...).Scan(&totalItems)
 	if err != nil {
-		return nil, model.Pagination{}, err
+		return nil, model.Pagination{}, fmt.Errorf("failed to count users: %w", err)
 	}
 
 	offset := (params.Page - 1) * params.Limit
 	qb.WithLimit(params.Limit).WithOffset(offset)
 
-	query, args := qb.Build()
-	rows, err := r.db.Query(subCtx, query, args...)
+	query, finalArgs := qb.Build()
+	rows, err := r.db.Query(subCtx, query, finalArgs...)
 	if err != nil {
 		return nil, model.Pagination{}, fmt.Errorf("failed to query users: %w", err)
 	}
@@ -227,7 +259,8 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 		var user model.User
 		var role model.Role
 		err := rows.Scan(
-			&user.ID, &user.Email, &user.FullName, &user.AvatarURL, &user.RoleID, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
+			&user.ID, &user.Email, &user.FullName, &user.AvatarURL, &user.RoleID, &user.IsActive,
+			&user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 			&role.ID, &role.Name, &role.Permissions,
 		)
 		if err != nil {

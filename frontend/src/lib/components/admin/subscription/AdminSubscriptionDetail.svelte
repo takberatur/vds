@@ -25,7 +25,7 @@
 		<Card.Root class="-my-4 w-full max-w-sm">
 			<Card.Header>
 				<Card.Title>Subscription detail</Card.Title>
-				<Card.Description>{data?.product_id}</Card.Description>
+				<Card.Description></Card.Description>
 			</Card.Header>
 			<div class="grid w-full grid-cols-2 gap-2 lg:gap-5">
 				<div
