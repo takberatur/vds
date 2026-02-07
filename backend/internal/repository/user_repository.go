@@ -222,12 +222,6 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 		argIdx += 2
 	}
 
-	if r.boolToStr(params.IsActive) != "" {
-		whereClauses = append(whereClauses, fmt.Sprintf("is_active = $%d", argIdx))
-		args = append(args, params.IsActive)
-		argIdx++
-	}
-
 	if !params.DateFrom.IsZero() && !params.DateTo.IsZero() {
 		whereClauses = append(whereClauses, fmt.Sprintf("created_at BETWEEN $%d AND $%d", argIdx, argIdx+1))
 		args = append(args, params.DateFrom, params.DateTo)

@@ -130,7 +130,7 @@
 		</div>
 		<div class="relative flex flex-col gap-4 overflow-auto">
 			<CardSpotlight
-				variant="success"
+				variant="info"
 				shadow="large"
 				spotlightIntensity="medium"
 				spotlight

@@ -28,7 +28,6 @@ export const load = async ({ locals, url, parent }) => {
 	}
 
 	const users = await deps.adminService.FindUserAll(queryParams) as PaginatedResult<User>;
-	console.log(users);
 
 	return {
 		pageMetaTags,
