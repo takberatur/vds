@@ -353,6 +353,10 @@ declare global {
 		getDashboardData(query: QueryParams): Promise<PaginatedResult<DashboardResponse>>
 		getCookies(): Promise<CookieItem>
 		updateCookies(content: string): Promise<CookieItem | null>
+		FindUserAll(query: QueryParams): Promise<PaginatedResult<User>>
+		FindUserByID(id: string): Promise<User | Error>;
+		BulkDeleteUser(ids: string[]): Promise<void | Error>;
+		DeleteUser(id: string): Promise<void | Error>;
 	}
 	interface ApplicationService {
 		GetApplications(query: QueryParams): Promise<PaginatedResult<Application>>
@@ -378,6 +382,12 @@ declare global {
 		DownloadVideo(data: DownloadVideoSchema): Promise<ApiResponse<Download>>
 		DownloadVideoToMp3(data: DownloadVideoSchema): Promise<ApiResponse<Download>>
 		ReportError(data: WebErrorReportSchema): Promise<void | Error>
+	}
+	interface SubscriptionService {
+		FindAll(query: QueryParams): Promise<PaginatedResult<Subscription>>
+		FindByID(id: string): Promise<Subscription | Error>;
+		BulkDelete(ids: string[]): Promise<void | Error>;
+		Delete(id: string): Promise<void | Error>;
 	}
 
 	// ==========================================

@@ -120,6 +120,10 @@ func SetupRoutes(c *RouteConfig) {
 	protectedAdmin.Put("/users/profile", csrfMiddleware, userHandler.UpdateProfile)
 	protectedAdmin.Put("/users/password", csrfMiddleware, userHandler.UpdatePassword)
 	protectedAdmin.Post("/users/avatar", csrfMiddleware, userHandler.UploadAvatar)
+	protectedAdmin.Get("/users/search", userHandler.FindAll)
+	protectedAdmin.Get("/users/find/:id", userHandler.FindByID)
+	protectedAdmin.Delete("/users/bulk", csrfMiddleware, userHandler.BulkDelete)
+	protectedAdmin.Delete("/users/:id", csrfMiddleware, userHandler.Delete)
 
 	// Dashboard
 	protectedAdmin.Get("/dashboard", adminHandler.GetDashboardData)
@@ -155,12 +159,6 @@ func SetupRoutes(c *RouteConfig) {
 	protectedAdmin.Get("/subscriptions/:id", subscriptionHandler.FindByID)
 	protectedAdmin.Delete("/subscriptions/bulk", csrfMiddleware, subscriptionHandler.BulkDelete)
 	protectedAdmin.Delete("/subscriptions/:id", csrfMiddleware, subscriptionHandler.Delete)
-
-	// users
-	protectedAdmin.Get("/users", userHandler.FindAll)
-	protectedAdmin.Get("/users/:id", userHandler.FindByID)
-	protectedAdmin.Delete("/users/bulk", csrfMiddleware, userHandler.BulkDelete)
-	protectedAdmin.Delete("/users/:id", csrfMiddleware, userHandler.Delete)
 
 	// Health Check
 	protectedAdmin.Get("/health/check", healthHandler.Check)

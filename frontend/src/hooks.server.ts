@@ -430,8 +430,8 @@ function getLocaleFromPath(pathname: string): Locale | null {
 }
 
 function detectLocale(event: RequestEvent): Locale {
-	const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
-	if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
+	// const cookie = event.cookies.get('PARAGLIDE_LOCALE') as Locale | null;
+	// if (cookie && SUPPORTED_LOCALES.includes(cookie)) return cookie;
 
 	const accept = event.request.headers.get('accept-language');
 	const l = accept?.split(',')[0].split('-')[0] as Locale;

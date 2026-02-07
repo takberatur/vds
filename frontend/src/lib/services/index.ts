@@ -7,3 +7,4 @@ export * from './application_service';
 export * from './download_service';
 export * from './server_status_service';
 export * from './web_service';
+export * from './subscription_service';

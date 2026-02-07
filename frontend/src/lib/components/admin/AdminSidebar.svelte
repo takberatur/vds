@@ -65,12 +65,6 @@
 				icon: 'mdi:payment-clock'
 			},
 			{
-				id: 6,
-				title: 'Transactions',
-				url: localizeHref('/transaction'),
-				icon: 'hugeicons:transaction-history'
-			},
-			{
 				id: 7,
 				title: 'Users',
 				url: localizeHref('/users'),

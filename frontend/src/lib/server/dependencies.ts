@@ -9,7 +9,8 @@ import {
 	ApplicationServiceImpl,
 	DownloadServiceImpl,
 	ServerStatusServiceImpl,
-	WebServiceImpl
+	WebServiceImpl,
+	SubscriptionServiceImpl,
 } from '@/services';
 
 export class Dependencies {
@@ -28,6 +29,7 @@ export class Dependencies {
 	public readonly downloadService: DownloadServiceImpl;
 	public readonly serverStatusService: ServerStatusServiceImpl;
 	public readonly webService: WebServiceImpl;
+	public readonly subscriptionService: SubscriptionServiceImpl;
 
 	constructor(event: RequestEvent) {
 		this.apiClient = new ApiClientHandler(event);
@@ -45,5 +47,6 @@ export class Dependencies {
 		this.downloadService = new DownloadServiceImpl(event, this.apiClient);
 		this.serverStatusService = new ServerStatusServiceImpl(event, this.apiClient);
 		this.webService = new WebServiceImpl(event, this.apiClient);
+		this.subscriptionService = new SubscriptionServiceImpl(event, this.apiClient);
 	}
 }
