@@ -180,24 +180,28 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 	`)
 
 	if params.Search != "" {
-		qb.Where("(email ILIKE $? OR full_name ILIKE $?)",
+		qb.Where("(u.email ILIKE $? OR u.full_name ILIKE $?)",
 			"%"+params.Search+"%",
 			"%"+params.Search+"%",
 		)
 	}
 
 	if r.boolToStr(params.IsActive) != "" {
-		qb.Where("is_active = $?", params.IsActive)
+		qb.Where("u.is_active = $?", params.IsActive)
 	}
 
 	if !params.DateFrom.IsZero() && !params.DateTo.IsZero() {
-		qb.Where("created_at BETWEEN $? AND $?", params.DateFrom, params.DateTo)
+		qb.Where("u.created_at BETWEEN $? AND $?", params.DateFrom, params.DateTo)
 	}
 
 	if params.SortBy != "" {
-		qb.OrderByField(params.SortBy, params.OrderBy)
+		sortBy := params.SortBy
+		if sortBy == "created_at" || sortBy == "email" || sortBy == "full_name" || sortBy == "is_active" || sortBy == "last_login_at" {
+			sortBy = "u." + sortBy
+		}
+		qb.OrderByField(sortBy, params.OrderBy)
 	} else {
-		qb.OrderByField("created_at", "DESC")
+		qb.OrderByField("u.created_at", "DESC")
 	}
 
 	countQuery, countArgs := qb.Clone().ChangeBase("SELECT COUNT(*) FROM users").WithoutPagination().Build()
@@ -214,7 +218,7 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 	query, args := qb.Build()
 	rows, err := r.db.Query(subCtx, query, args...)
 	if err != nil {
-		return nil, model.Pagination{}, fmt.Errorf("failed to query subscriptions: %w", err)
+		return nil, model.Pagination{}, fmt.Errorf("failed to query users: %w", err)
 	}
 	defer rows.Close()
 

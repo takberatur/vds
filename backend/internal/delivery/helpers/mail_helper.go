@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/smtp"
+	"os"
 	"strconv"
 	"strings"
 
@@ -227,7 +228,7 @@ func (m *mailHelper) SendContactEmail(ctx context.Context, payload *dto.ContactR
 
 	} else {
 		// Standard smtp.SendMail for port 587 (STARTTLS) or 25 (Plain)
-		err = smtp.SendMail(addr, auth, settingEmail.FromEmail, []string{setting.WEBSITE.SiteEmail}, []byte(message))
+		err = smtp.SendMail(addr, auth, settingEmail.FromEmail, []string{os.Getenv("ADMIN_EMAIL")}, []byte(message))
 		if err != nil {
 			return fmt.Errorf("failed to send email: %w", err)
 		}
