@@ -186,10 +186,6 @@ func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRe
 		)
 	}
 
-	if r.boolToStr(params.IsActive) != "" {
-		qb.Where("u.is_active = $?", params.IsActive)
-	}
-
 	if !params.DateFrom.IsZero() && !params.DateTo.IsZero() {
 		qb.Where("u.created_at BETWEEN $? AND $?", params.DateFrom, params.DateTo)
 	}

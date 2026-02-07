@@ -97,6 +97,7 @@ export class AdminServiceImpl extends BaseService implements AdminService {
 			const endpoint = `/protected-admin/users/search${queryString ? `?${queryString}` : ''}`;
 
 			const response = await this.api.authRequest('GET', endpoint);
+			// console.log(response);
 			if (!response.success) {
 				throw new Error(response.message || 'Failed to get users');
 			}
