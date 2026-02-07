@@ -41,6 +41,9 @@ const config = {
 			precompress: true,
 			dynamic_origin: true
 		}),
+		paths: {
+			relative: false
+		},
 		csrf: {
 			trustedOrigins:
 				process.env.NODE_ENV === 'production'

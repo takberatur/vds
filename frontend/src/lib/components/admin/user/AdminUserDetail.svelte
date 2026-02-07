@@ -46,13 +46,13 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="min-w-min">
-		<Card.Root class="-my-4 w-full max-w-sm">
+	<Dialog.Content class="w-full">
+		<Card.Root class="-my-4 mt-5 w-full min-w-md">
 			<Card.Header>
 				<Card.Title>User detail</Card.Title>
 				<Card.Description></Card.Description>
 			</Card.Header>
-			<div class="flex flex-col items-start gap-6 md:flex-row md:items-center">
+			<div class="flex flex-col items-start gap-6 px-3 md:flex-row md:items-center lg:px-6">
 				<div class="relative">
 					<Avatar.Root class="h-24 w-24">
 						<Avatar.Image src={user?.avatar_url || ''} alt={user?.full_name || 'User Avatar'} />

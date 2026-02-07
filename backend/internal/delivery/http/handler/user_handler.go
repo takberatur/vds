@@ -160,7 +160,12 @@ func (h *UserHandler) FindAll(c *fiber.Ctx) error {
 func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
 
-	userID, err := uuid.Parse(c.Params("id"))
+	idStr := c.Params("id")
+	if idStr == "" {
+		return response.Error(c, fiber.StatusBadRequest, "User ID is required", nil)
+	}
+
+	userID, err := uuid.Parse(idStr)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, "Invalid user ID", err.Error())
 	}
@@ -204,7 +209,12 @@ func (h *UserHandler) BulkDelete(c *fiber.Ctx) error {
 func (h *UserHandler) FindByID(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
 
-	userID, err := uuid.Parse(c.Params("id"))
+	idStr := c.Params("id")
+	if idStr == "" {
+		return response.Error(c, fiber.StatusBadRequest, "User ID is required", nil)
+	}
+
+	userID, err := uuid.Parse(idStr)
 	if err != nil {
 		return response.Error(c, fiber.StatusBadRequest, "Invalid user ID", err.Error())
 	}
