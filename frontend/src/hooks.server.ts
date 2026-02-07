@@ -3,7 +3,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { Dependencies } from '$lib/server';
 import { env } from '$env/dynamic/private';
 import { paraglideMiddleware } from '$lib/paraglide/server';
-import { localizeHref, locales as SUPPORTED_LOCALES, type Locale } from '@/paraglide/runtime';
+import { deLocalizeUrl, locales as SUPPORTED_LOCALES, type Locale } from '@/paraglide/runtime';
 import { ApiClientHandler } from '$lib/helpers/api_helpers';
 
 const NODE_ENV = env.NODE_ENV || 'development';
@@ -53,8 +53,6 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-
-
 	const ua = request.headers.get('user-agent');
 	const isBot = !!ua && /bot|crawl|spider|facebookexternalhit|twitterbot/i.test(ua);
 	const pathLocale = getLocaleFromPath(pathname);
@@ -63,6 +61,15 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 	const resolveWithParaglide = (locale: Locale) => {
 		return paraglideMiddleware(event.request, ({ request: localizedRequest }) => {
 			event.request = localizedRequest;
+			try {
+				(event as any).url = new URL(localizedRequest.url);
+			} catch {
+				try {
+					Object.defineProperty(event, 'url', { value: new URL(localizedRequest.url) });
+				} catch {
+					// ignore
+				}
+			}
 			return resolve(event, {
 				transformPageChunk: ({ html }) => {
 					return html.replace('%lang%', event.locals.lang);
@@ -97,25 +104,9 @@ const paraglideHandleWithAutoDetectedLocale: Handle = ({ event, resolve }) => {
 		return resolveWithParaglide(event.locals.lang as Locale);
 	}
 
-	if (pathLocale) {
-		event.locals.lang = pathLocale;
-
-		setCookie(event, pathLocale);
-
-		return resolveWithParaglide(event.locals.lang as Locale);
-	}
-
-	// if (pathname === '/' || pathname === '') {
-	// 	return resolve(event);
-	// const detected = detectedLocale;
-
-	// setCookie(event, detected);
-
-	// throw redirect(302, `/${detected}`);
-	// }
-
-	return resolve(event);
-
+	event.locals.lang = pathLocale;
+	setCookie(event, pathLocale);
+	return resolveWithParaglide(event.locals.lang as Locale);
 };
 
 const paraglideHandleWithCloudflareWorker: Handle = async ({ event, resolve }) => {
@@ -265,14 +256,14 @@ const adminMiddleware: Handle = async ({ event, resolve }) => {
 
 	if (isProtected) {
 		if (!locals.user) {
-			throw redirect(303, localizeHref(`/login?redirect=${encodeURIComponent(url.pathname)}`, { locale: event.locals.lang }));
+			throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
 		}
 
 		const user = locals.user;
 		const isAdmin = user.role?.name === 'admin' || user.role?.name === 'Admin';
 
 		if (!isAdmin) {
-			throw redirect(303, localizeHref('/user', { locale: event.locals.lang }));
+			throw redirect(303, '/user');
 		}
 	}
 
@@ -280,9 +271,9 @@ const adminMiddleware: Handle = async ({ event, resolve }) => {
 
 	if (isAuthRoute) {
 		if (locals.user && locals.user.role?.name === 'admin') {
-			throw redirect(303, localizeHref('/dashboard', { locale: event.locals.lang }));
+			throw redirect(303, '/dashboard');
 		} else if (locals.user && locals.user.role?.name === 'user') {
-			throw redirect(303, localizeHref('/user', { locale: event.locals.lang }));
+			throw redirect(303, '/user');
 		}
 	}
 
@@ -295,7 +286,6 @@ const errorHandling: Handle = async ({ event, resolve }) => {
 
 		if (response.status === 404) {
 			const locale = getLocaleFromPath(event.url.pathname);
-
 			let redirectPath = '/';
 			if (locale) {
 				redirectPath = `/${locale}`;
@@ -435,7 +425,7 @@ function hasLocalePrefix(path: string): boolean {
 }
 
 function getLocaleFromPath(pathname: string): Locale | null {
-	const match = pathname.match(/^\/(id|es|ru|pt|fr|de|zh|hi|ar|ja|tr|vi|th|el|it)(\/|$)/);
+	const match = pathname.match(/^\/(en|id|es|ru|pt|fr|de|zh|hi|ar|ja|tr|vi|th|el|it)(\/|$)/);
 	return match ? (match[1] as Locale) : null;
 }
 

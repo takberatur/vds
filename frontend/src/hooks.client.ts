@@ -72,4 +72,3 @@ window.addEventListener('unhandledrejection', (ev) => {
 		timestamp_ms: Date.now()
 	});
 });
-

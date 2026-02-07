@@ -24,6 +24,9 @@ type UserService interface {
 	UploadAvatar(ctx context.Context, userID uuid.UUID, file io.Reader, filename string, size int64, contentType string) (string, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, req model.UpdateProfileRequest) error
 	UpdatePassword(ctx context.Context, userID uuid.UUID, req model.UpdatePasswordRequest) error
+	FindAll(ctx context.Context, params model.QueryParamsRequest) ([]model.User, model.Pagination, error)
+	Delete(ctx context.Context, userID uuid.UUID) error
+	BulkDelete(ctx context.Context, userIDs []uuid.UUID) error
 }
 
 type userService struct {
@@ -141,4 +144,16 @@ func (s *userService) UpdatePassword(ctx context.Context, userID uuid.UUID, req 
 	}
 
 	return s.repo.UpdatePassword(subCtx, userID, hashedPassword)
+}
+
+func (s *userService) FindAll(ctx context.Context, params model.QueryParamsRequest) ([]model.User, model.Pagination, error) {
+	return s.repo.FindAll(ctx, params)
+}
+
+func (s *userService) Delete(ctx context.Context, userID uuid.UUID) error {
+	return s.repo.Delete(ctx, userID)
+}
+
+func (s *userService) BulkDelete(ctx context.Context, userIDs []uuid.UUID) error {
+	return s.repo.BulkDelete(ctx, userIDs)
 }

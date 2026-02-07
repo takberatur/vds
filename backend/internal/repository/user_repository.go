@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,6 +22,9 @@ type UserRepository interface {
 	UpdateAvatar(ctx context.Context, userID uuid.UUID, avatarURL string) error
 	UpdatePassword(ctx context.Context, userID uuid.UUID, passwordHash string) error
 	UpdateProfile(ctx context.Context, userID uuid.UUID, req model.UpdateProfileRequest) error
+	FindAll(ctx context.Context, params model.QueryParamsRequest) ([]model.User, model.Pagination, error)
+	Delete(ctx context.Context, userID uuid.UUID) error
+	BulkDelete(ctx context.Context, userIDs []uuid.UUID) error
 }
 
 type userRepository struct {
@@ -161,3 +166,117 @@ func (r *userRepository) UpdateProfile(ctx context.Context, userID uuid.UUID, re
 	_, err := r.db.Exec(subCtx, query, req.FullName, req.Email, time.Now(), userID)
 	return err
 }
+
+func (r *userRepository) FindAll(ctx context.Context, params model.QueryParamsRequest) ([]model.User, model.Pagination, error) {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	qb := NewQueryBuilder(`
+		SELECT 
+			u.id, u.email, u.full_name, u.avatar_url, u.role_id, u.is_active, u.last_login_at, u.created_at, u.updated_at,
+			r.id, r.name, r.permissions
+		FROM users u
+		LEFT JOIN roles r ON u.role_id = r.id
+	`)
+
+	if params.Search != "" {
+		qb.Where("(email ILIKE $? OR full_name ILIKE $?)",
+			"%"+params.Search+"%",
+			"%"+params.Search+"%",
+		)
+	}
+
+	if r.boolToStr(params.IsActive) != "" {
+		qb.Where("is_active = $?", params.IsActive)
+	}
+
+	if !params.DateFrom.IsZero() && !params.DateTo.IsZero() {
+		qb.Where("created_at BETWEEN $? AND $?", params.DateFrom, params.DateTo)
+	}
+
+	if params.SortBy != "" {
+		qb.OrderByField(params.SortBy, params.OrderBy)
+	} else {
+		qb.OrderByField("created_at", "DESC")
+	}
+
+	countQuery, countArgs := qb.Clone().ChangeBase("SELECT COUNT(*) FROM users").WithoutPagination().Build()
+
+	var totalItems int64
+	err := pgxscan.Get(subCtx, r.db, &totalItems, countQuery, countArgs...)
+	if err != nil {
+		return nil, model.Pagination{}, err
+	}
+
+	offset := (params.Page - 1) * params.Limit
+	qb.WithLimit(params.Limit).WithOffset(offset)
+
+	query, args := qb.Build()
+	rows, err := r.db.Query(subCtx, query, args...)
+	if err != nil {
+		return nil, model.Pagination{}, fmt.Errorf("failed to query subscriptions: %w", err)
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		var user model.User
+		var role model.Role
+		err := rows.Scan(
+			&user.ID, &user.Email, &user.FullName, &user.AvatarURL, &user.RoleID, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
+			&role.ID, &role.Name, &role.Permissions,
+		)
+		if err != nil {
+			return nil, model.Pagination{}, fmt.Errorf("failed to scan user: %w", err)
+		}
+		user.Role = &role
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, model.Pagination{}, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	totalPages := 0
+	if params.Limit > 0 {
+		totalPages = int((totalItems + int64(params.Limit) - 1) / int64(params.Limit))
+	}
+
+	return users, model.Pagination{
+		CurrentPage: params.Page,
+		Limit:       params.Limit,
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		HasNext:     params.Page < totalPages,
+		HasPrev:     params.Page > 1,
+	}, nil
+}
+
+func (r *userRepository) Delete(ctx context.Context, userID uuid.UUID) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	query := `DELETE FROM users WHERE id = $1`
+	_, err := r.db.Exec(subCtx, query, userID)
+	return err
+}
+
+func (r *userRepository) BulkDelete(ctx context.Context, userIDs []uuid.UUID) error {
+	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
+	defer cancel()
+
+	query := `DELETE FROM users WHERE id = ANY($1)`
+	_, err := r.db.Exec(subCtx, query, userIDs)
+	return err
+}
+
+func (r *userRepository) boolToStr(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
+
+// func (r *userRepository) strToBool(s string) bool {
+// 	return s == "true"
+// }

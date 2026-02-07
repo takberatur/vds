@@ -33,7 +33,6 @@ func (h *PlatformHandler) GetAll(c *fiber.Ctx) error {
 func (h *PlatformHandler) GetPlatforms(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
 
-	// Parse Query Params
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "10"))
 

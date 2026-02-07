@@ -69,7 +69,7 @@ func SetupRoutes(c *RouteConfig) {
 	downloadHandler := handler.NewDownloadHandler(downloadService, userService)
 	webHandler := handler.NewWebHandler(webService)
 	centrifugoHandler := handler.NewCentrifugoHandler(tokenService)
-	_ = handler.NewSubscriptionHandler(subscriptionService)
+	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService)
 
 	credentialLimiter := middleware.CredentialAttemptLimiter(c.Redis)
 	rateLimitDownload := middleware.RateLimitDownloadRedis(c.Redis)
@@ -150,6 +150,18 @@ func SetupRoutes(c *RouteConfig) {
 	protectedAdmin.Put("/downloads/:id", csrfMiddleware, downloadHandler.UpdateDownload)
 	protectedAdmin.Delete("/downloads/:id", csrfMiddleware, downloadHandler.DeleteDownload)
 
+	// subscription
+	protectedAdmin.Get("/subscriptions", subscriptionHandler.FindAll)
+	protectedAdmin.Get("/subscriptions/:id", subscriptionHandler.FindByID)
+	protectedAdmin.Delete("/subscriptions/bulk", csrfMiddleware, subscriptionHandler.BulkDelete)
+	protectedAdmin.Delete("/subscriptions/:id", csrfMiddleware, subscriptionHandler.Delete)
+
+	// users
+	protectedAdmin.Get("/users", userHandler.FindAll)
+	protectedAdmin.Get("/users/:id", userHandler.FindByID)
+	protectedAdmin.Delete("/users/bulk", csrfMiddleware, userHandler.BulkDelete)
+	protectedAdmin.Delete("/users/:id", csrfMiddleware, userHandler.Delete)
+
 	// Health Check
 	protectedAdmin.Get("/health/check", healthHandler.Check)
 	protectedAdmin.Get("/health/log", healthHandler.GetLogger)
@@ -210,6 +222,8 @@ func SetupRoutes(c *RouteConfig) {
 	protectedUserMobile.Get("/downloads", downloadHandler.GetHistory)
 	protectedUserMobile.Get("/downloads/:id", downloadHandler.FindByIDForCurrentUser)
 	protectedUserMobile.Post("/auth/logout", authHandler.Logout)
+	protectedUserMobile.Post("/subscriptions", subscriptionHandler.UpsertMobile)
+	protectedUserMobile.Get("/subscriptions/current", subscriptionHandler.GetCurrentMobile)
 	protectedUserMobile.Put("/users/profile", userHandler.UpdateProfile)
 	protectedUserMobile.Put("/users/password", userHandler.UpdatePassword)
 	protectedUserMobile.Post("/users/avatar", userHandler.UploadAvatar)
