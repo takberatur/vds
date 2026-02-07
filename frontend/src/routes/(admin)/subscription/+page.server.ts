@@ -2,7 +2,7 @@
 import { defaultMetaTags } from '@/utils/meta-tags.js';
 
 export const load = async ({ locals, url, parent }) => {
-	const { settings, deps } = locals;
+	const { settings, deps, user } = locals;
 
 	const defaultOrigin = new URL(url.pathname, url.origin).href;
 	const pageMetaTags = defaultMetaTags(
@@ -20,8 +20,19 @@ export const load = async ({ locals, url, parent }) => {
 		settings
 	);
 
+	let queryParams = deps.queryHelper.parseQueryParams(url);
+
+	const status = url.searchParams.get('status');
+	if (status && status !== 'ALL') {
+		queryParams.status = status
+	}
+
+	const subscription = await deps.subscriptionService.FindAll(queryParams) as PaginatedResult<Subscription>;
+
 	return {
 		pageMetaTags,
-		settings
+		settings,
+		subscription,
+		user
 	};
 };

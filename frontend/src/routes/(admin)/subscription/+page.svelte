@@ -3,8 +3,12 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { MetaTags } from 'svelte-meta-tags';
 	import { handleSubmitLoading } from '@/stores';
-	import { AdminSidebarLayout } from '@/components/admin';
-	import { DateRangeInput, AppAlertDialog } from '@/components/index.js';
+	import {
+		AdminSidebarLayout,
+		AdminSubscriptionTable,
+		AdminSubscriptionDetail
+	} from '@/components/admin';
+	import { DateRangeInput, AppAlertDialog, CardSpotlight } from '@/components/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Icon from '@iconify/svelte';
 	import { updateUrlParams, createQueryManager } from '@/stores/query.js';
@@ -14,6 +18,7 @@
 	let metaTags = $derived(data.pageMetaTags);
 	let openSingleDeleteDialog = $state(false);
 	let dataEntityAction = $state<Subscription | null | undefined>(null);
+	let openDetail = $state(false);
 
 	const queryManager = createQueryManager();
 	let query = $state(queryManager.parse(page.url));
@@ -128,7 +133,35 @@
 			</div>
 		</div>
 		<div class="relative flex flex-col gap-4 overflow-auto">
-			<div class="overflow-hidden rounded-lg border"></div>
+			<CardSpotlight
+				variant="success"
+				shadow="large"
+				spotlightIntensity="medium"
+				spotlight
+				class="p-2"
+			>
+				<div class="overflow-hidden rounded-lg border bg-white/60 px-1 py-4 dark:bg-black/60">
+					<AdminSubscriptionTable
+						data={data.subscription}
+						{updateQuery}
+						class="min-w-full"
+						onreset={() => resetFilters()}
+						onView={(val) => {
+							if (val) {
+								dataEntityAction = val;
+								openDetail = true;
+							}
+						}}
+						onDelete={(download) => {
+							if (download) {
+								dataEntityAction = download;
+								openSingleDeleteDialog = true;
+							}
+						}}
+						onbulkdelete={(ids) => handleBulkDelete(ids)}
+					/>
+				</div>
+			</CardSpotlight>
 		</div>
 	</div>
 	<AppAlertDialog
@@ -148,6 +181,14 @@
 		onclose={() => {
 			dataEntityAction = null;
 			openSingleDeleteDialog = false;
+		}}
+	/>
+	<AdminSubscriptionDetail
+		bind:open={openDetail}
+		data={dataEntityAction}
+		onclose={() => {
+			dataEntityAction = null;
+			openDetail = false;
 		}}
 	/>
 </AdminSidebarLayout>

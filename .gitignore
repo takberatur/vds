@@ -36,3 +36,6 @@ backend/server_bin
 testing
 data.txt
 ktor-backend
+frontend-01
+frontend-02
+frontend-03
