@@ -320,7 +320,7 @@ func (m *mailHelper) getContactHTML(siteName, siteURL string, payload *dto.Conta
 }
 
 func (s *mailHelper) GetPublicSettings(ctx context.Context) (*model.SettingsResponse, error) {
-	settings, err := s.settingService.GetAll(ctx)
+	settings, err := s.settingService.GetAll(ctx, "default")
 	if err != nil {
 		return nil, err
 	}

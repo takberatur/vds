@@ -18,13 +18,17 @@ func NewSettingHandler(svc service.SettingService) *SettingHandler {
 
 func (h *SettingHandler) UpdateSettingsBulk(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
+	scope := c.Query("scope")
+	if scope == "" {
+		scope = middleware.GetSettingsScope(c)
+	}
 
 	var settings []model.UpdateSettingsBulkRequest
 	if err := c.BodyParser(&settings); err != nil {
 		return response.Error(c, fiber.StatusBadRequest, "Invalid request body", err.Error())
 	}
 
-	if err := h.svc.UpdateSettingsBulk(ctx, settings); err != nil {
+	if err := h.svc.UpdateSettingsBulk(ctx, scope, settings); err != nil {
 		return response.Error(c, fiber.StatusInternalServerError, "Failed to update settings", err.Error())
 	}
 
@@ -33,6 +37,10 @@ func (h *SettingHandler) UpdateSettingsBulk(c *fiber.Ctx) error {
 
 func (h *SettingHandler) UploadFile(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
+	scope := c.Query("scope")
+	if scope == "" {
+		scope = middleware.GetSettingsScope(c)
+	}
 
 	req := new(model.UploadFileRequest)
 	if err := c.BodyParser(req); err != nil {
@@ -52,7 +60,7 @@ func (h *SettingHandler) UploadFile(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, "File is required", err.Error())
 	}
 
-	url, err := h.svc.UploadFile(ctx, file, req.Key)
+	url, err := h.svc.UploadFile(ctx, scope, file, req.Key)
 	if err != nil {
 		return response.Error(c, fiber.StatusInternalServerError, "Failed to upload file", err.Error())
 	}
@@ -62,8 +70,12 @@ func (h *SettingHandler) UploadFile(c *fiber.Ctx) error {
 
 func (h *SettingHandler) GetPublicSettings(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
+	scope := c.Query("scope")
+	if scope == "" {
+		scope = middleware.GetSettingsScope(c)
+	}
 
-	settings, err := h.svc.GetPublicSettings(ctx)
+	settings, err := h.svc.GetPublicSettings(ctx, scope)
 	if err != nil {
 		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch settings", err.Error())
 	}
@@ -72,8 +84,12 @@ func (h *SettingHandler) GetPublicSettings(c *fiber.Ctx) error {
 
 func (h *SettingHandler) GetAllSettings(c *fiber.Ctx) error {
 	ctx := middleware.HandlerContext(c)
+	scope := c.Query("scope")
+	if scope == "" {
+		scope = middleware.GetSettingsScope(c)
+	}
 
-	settings, err := h.svc.GetAllSettings(ctx)
+	settings, err := h.svc.GetAllSettings(ctx, scope)
 	if err != nil {
 		return response.Error(c, fiber.StatusInternalServerError, "Failed to fetch settings", err.Error())
 	}

@@ -13,12 +13,12 @@ import (
 
 type SettingRepository interface {
 	BaseRepository
-	GetAll(ctx context.Context) ([]model.Setting, error)
-	GetByGroup(ctx context.Context, groupName string) ([]model.Setting, error)
-	GetByKey(ctx context.Context, key string) (*model.Setting, error)
-	UpdateByKey(ctx context.Context, key string, value string) error
+	GetAll(ctx context.Context, scope string) ([]model.Setting, error)
+	GetByGroup(ctx context.Context, scope string, groupName string) ([]model.Setting, error)
+	GetByKey(ctx context.Context, scope string, key string) (*model.Setting, error)
+	UpdateByKey(ctx context.Context, scope string, key string, value string) error
 	// UpdateBulk updates multiple settings at once (useful for saving settings form)
-	UpdateBulk(ctx context.Context, settings []model.Setting) error
+	UpdateBulk(ctx context.Context, scope string, settings []model.Setting) error
 }
 
 type settingRepository struct {
@@ -31,13 +31,17 @@ func NewSettingRepository(db *pgxpool.Pool) SettingRepository {
 	}
 }
 
-func (r *settingRepository) GetAll(ctx context.Context) ([]model.Setting, error) {
+func (r *settingRepository) GetAll(ctx context.Context, scope string) ([]model.Setting, error) {
 
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT id, key, value, description, group_name, created_at, updated_at FROM settings ORDER BY group_name, key`
-	rows, err := r.db.Query(subCtx, query)
+	if scope == "" {
+		scope = "default"
+	}
+
+	query := `SELECT id, scope, key, value, description, group_name, created_at, updated_at FROM settings WHERE scope = $1 ORDER BY group_name, key`
+	rows, err := r.db.Query(subCtx, query, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +50,7 @@ func (r *settingRepository) GetAll(ctx context.Context) ([]model.Setting, error)
 	var settings []model.Setting
 	for rows.Next() {
 		var s model.Setting
-		if err := rows.Scan(&s.ID, &s.Key, &s.Value, &s.Description, &s.GroupName, &s.CreatedAt, &s.UpdatedAt); err != nil {
+		if err := rows.Scan(&s.ID, &s.Scope, &s.Key, &s.Value, &s.Description, &s.GroupName, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, err
 		}
 		settings = append(settings, s)
@@ -54,12 +58,16 @@ func (r *settingRepository) GetAll(ctx context.Context) ([]model.Setting, error)
 	return settings, nil
 }
 
-func (r *settingRepository) GetByGroup(ctx context.Context, groupName string) ([]model.Setting, error) {
+func (r *settingRepository) GetByGroup(ctx context.Context, scope string, groupName string) ([]model.Setting, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT id, key, value, description, group_name, created_at, updated_at FROM settings WHERE group_name = $1 ORDER BY key`
-	rows, err := r.db.Query(subCtx, query, groupName)
+	if scope == "" {
+		scope = "default"
+	}
+
+	query := `SELECT id, scope, key, value, description, group_name, created_at, updated_at FROM settings WHERE scope = $1 AND group_name = $2 ORDER BY key`
+	rows, err := r.db.Query(subCtx, query, scope, groupName)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +76,7 @@ func (r *settingRepository) GetByGroup(ctx context.Context, groupName string) ([
 	var settings []model.Setting
 	for rows.Next() {
 		var s model.Setting
-		if err := rows.Scan(&s.ID, &s.Key, &s.Value, &s.Description, &s.GroupName, &s.CreatedAt, &s.UpdatedAt); err != nil {
+		if err := rows.Scan(&s.ID, &s.Scope, &s.Key, &s.Value, &s.Description, &s.GroupName, &s.CreatedAt, &s.UpdatedAt); err != nil {
 			return nil, err
 		}
 		settings = append(settings, s)
@@ -76,13 +84,17 @@ func (r *settingRepository) GetByGroup(ctx context.Context, groupName string) ([
 	return settings, nil
 }
 
-func (r *settingRepository) GetByKey(ctx context.Context, key string) (*model.Setting, error) {
+func (r *settingRepository) GetByKey(ctx context.Context, scope string, key string) (*model.Setting, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `SELECT id, key, value, description, group_name, created_at, updated_at FROM settings WHERE key = $1`
+	if scope == "" {
+		scope = "default"
+	}
+
+	query := `SELECT id, scope, key, value, description, group_name, created_at, updated_at FROM settings WHERE scope = $1 AND key = $2`
 	var s model.Setting
-	err := r.db.QueryRow(subCtx, query, key).Scan(&s.ID, &s.Key, &s.Value, &s.Description, &s.GroupName, &s.CreatedAt, &s.UpdatedAt)
+	err := r.db.QueryRow(subCtx, query, scope, key).Scan(&s.ID, &s.Scope, &s.Key, &s.Value, &s.Description, &s.GroupName, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, nil
@@ -92,18 +104,26 @@ func (r *settingRepository) GetByKey(ctx context.Context, key string) (*model.Se
 	return &s, nil
 }
 
-func (r *settingRepository) UpdateByKey(ctx context.Context, key string, value string) error {
+func (r *settingRepository) UpdateByKey(ctx context.Context, scope string, key string, value string) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	query := `UPDATE settings SET value = $1, updated_at = NOW() WHERE key = $2`
-	_, err := r.db.Exec(subCtx, query, value, key)
+	if scope == "" {
+		scope = "default"
+	}
+
+	query := `UPDATE settings SET value = $1, updated_at = NOW() WHERE scope = $2 AND key = $3`
+	_, err := r.db.Exec(subCtx, query, value, scope, key)
 	return err
 }
 
-func (r *settingRepository) UpdateBulk(ctx context.Context, settings []model.Setting) error {
+func (r *settingRepository) UpdateBulk(ctx context.Context, scope string, settings []model.Setting) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
+
+	if scope == "" {
+		scope = "default"
+	}
 
 	tx, err := r.db.Begin(subCtx)
 	if err != nil {
@@ -111,9 +131,9 @@ func (r *settingRepository) UpdateBulk(ctx context.Context, settings []model.Set
 	}
 	defer tx.Rollback(subCtx)
 
-	query := `UPDATE settings SET value = $1, updated_at = NOW() WHERE key = $2`
+	query := `UPDATE settings SET value = $1, updated_at = NOW() WHERE scope = $2 AND key = $3`
 	for _, s := range settings {
-		if _, err := tx.Exec(subCtx, query, s.Value, s.Key); err != nil {
+		if _, err := tx.Exec(subCtx, query, s.Value, scope, s.Key); err != nil {
 			return fmt.Errorf("failed to update key %s: %w", s.Key, err)
 		}
 	}

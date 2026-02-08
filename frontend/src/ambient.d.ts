@@ -242,7 +242,8 @@ declare global {
 	// ==========================================
 
 	type Setting = {
-		id: number;
+		id: string;
+		scope?: string;
 		key: string;
 		value: string;
 		description: string;

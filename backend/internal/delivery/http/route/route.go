@@ -90,6 +90,7 @@ func SetupRoutes(c *RouteConfig) {
 	api.Get("/downloads/ws/:user_id", websocket.New(downloadHandler.DownloadEventsByUser))
 
 	api.Use(middleware.SetTimeoutContext(60 * time.Second))
+	api.Use(middleware.SettingsScopeMiddleware())
 
 	publicAdmin := api.Group("/public-admin")
 	publicWeb := api.Group("/web-client")
@@ -104,6 +105,7 @@ func SetupRoutes(c *RouteConfig) {
 	publicAdmin.Post("/auth/logout", authHandler.Logout)
 
 	publicAdmin.Get("/settings/public", settingHandler.GetPublicSettings)
+	publicWeb.Get("/settings/public", settingHandler.GetPublicSettings)
 
 	// Protected Admin Routes
 	protectedAdmin := api.Group("/protected-admin", middleware.JWTMiddleware(tokenService), middleware.AdminMiddleware())

@@ -11,7 +11,7 @@ export class SettingServiceImpl extends BaseService implements SettingService {
 
 	async getPublicSettings(): Promise<SettingsValue | Error> {
 		try {
-			const response = await this.api.publicRequest<SettingsValue>('GET', '/public-admin/settings/public');
+			const response = await this.api.publicRequest<SettingsValue>('GET', '/web-client/settings/public');
 			if (!response.success) {
 				throw new Error(response.error?.message || response.message || 'Failed to fetch public settings');
 			}

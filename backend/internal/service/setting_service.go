@@ -19,11 +19,11 @@ import (
 )
 
 type SettingService interface {
-	GetPublicSettings(ctx context.Context) (*model.SettingsResponse, error)
-	GetAllSettings(ctx context.Context) ([]model.Setting, error)
-	UpdateSetting(ctx context.Context, key, value string) error
-	UpdateSettingsBulk(ctx context.Context, settings []model.UpdateSettingsBulkRequest) error
-	UploadFile(ctx context.Context, file *multipart.FileHeader, key string) (string, error)
+	GetPublicSettings(ctx context.Context, scope string) (*model.SettingsResponse, error)
+	GetAllSettings(ctx context.Context, scope string) ([]model.Setting, error)
+	UpdateSetting(ctx context.Context, scope string, key string, value string) error
+	UpdateSettingsBulk(ctx context.Context, scope string, settings []model.UpdateSettingsBulkRequest) error
+	UploadFile(ctx context.Context, scope string, file *multipart.FileHeader, key string) (string, error)
 }
 
 type settingService struct {
@@ -40,7 +40,7 @@ func NewSettingService(repo repository.SettingRepository, storage infrastructure
 	}
 }
 
-func (s *settingService) UploadFile(ctx context.Context, file *multipart.FileHeader, key string) (string, error) {
+func (s *settingService) UploadFile(ctx context.Context, scope string, file *multipart.FileHeader, key string) (string, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
@@ -58,7 +58,7 @@ func (s *settingService) UploadFile(ctx context.Context, file *multipart.FileHea
 	bucketName := "video-downloader"
 	objectName := fmt.Sprintf("settings/%s-%s", key, file.Filename)
 
-	if oldSetting, err := s.repo.GetByKey(subCtx, key); err == nil && oldSetting.Value != "" {
+	if oldSetting, err := s.repo.GetByKey(subCtx, scope, key); err == nil && oldSetting.Value != "" {
 		oldObject := oldSetting.Value
 
 		parsedURL, err := url.Parse(oldObject)
@@ -81,18 +81,18 @@ func (s *settingService) UploadFile(ctx context.Context, file *multipart.FileHea
 		return "", err
 	}
 
-	if err := s.repo.UpdateByKey(subCtx, key, uploadedPath); err != nil {
+	if err := s.repo.UpdateByKey(subCtx, scope, key, uploadedPath); err != nil {
 		return "", err
 	}
 
 	return uploadedPath, nil
 }
 
-func (s *settingService) GetPublicSettings(ctx context.Context) (*model.SettingsResponse, error) {
+func (s *settingService) GetPublicSettings(ctx context.Context, scope string) (*model.SettingsResponse, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	settings, err := s.repo.GetAll(subCtx)
+	settings, err := s.repo.GetAll(subCtx, scope)
 	if err != nil {
 		return nil, err
 	}
@@ -115,20 +115,20 @@ func (s *settingService) GetPublicSettings(ctx context.Context) (*model.Settings
 	return response, nil
 }
 
-func (s *settingService) GetAllSettings(ctx context.Context) ([]model.Setting, error) {
+func (s *settingService) GetAllSettings(ctx context.Context, scope string) ([]model.Setting, error) {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
-	return s.repo.GetAll(subCtx)
+	return s.repo.GetAll(subCtx, scope)
 }
 
-func (s *settingService) UpdateSetting(ctx context.Context, key, value string) error {
+func (s *settingService) UpdateSetting(ctx context.Context, scope string, key string, value string) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
-	return s.repo.UpdateByKey(subCtx, key, value)
+	return s.repo.UpdateByKey(subCtx, scope, key, value)
 }
 
-func (s *settingService) UpdateSettingsBulk(ctx context.Context, settings []model.UpdateSettingsBulkRequest) error {
+func (s *settingService) UpdateSettingsBulk(ctx context.Context, scope string, settings []model.UpdateSettingsBulkRequest) error {
 	subCtx, cancel := contextpool.WithTimeoutIfNone(ctx, 15*time.Second)
 	defer cancel()
 
@@ -141,7 +141,7 @@ func (s *settingService) UpdateSettingsBulk(ctx context.Context, settings []mode
 			GroupName:   item.GroupName,
 		})
 	}
-	return s.repo.UpdateBulk(subCtx, payload)
+	return s.repo.UpdateBulk(subCtx, scope, payload)
 }
 
 // Helpers to map dynamic KV to struct fields
