@@ -59,6 +59,7 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - TELEGRAM_NOTIFICATIONS=${TELEGRAM_NOTIFICATIONS}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - SETTINGS_SCOPE_MAP=${SETTINGS_SCOPE_MAP}
     networks:
       - video_download_network
       - shared-network
