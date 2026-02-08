@@ -36,6 +36,7 @@ backend/server_bin
 testing
 data.txt
 certs
+scripts
 ktor-backend
 frontend-01
 frontend-02
