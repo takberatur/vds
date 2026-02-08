@@ -51,7 +51,7 @@ func ResolveSettingsScope(c *fiber.Ctx) string {
 		return "default"
 	}
 
-	if settingsScopeMap == nil || len(settingsScopeMap) == 0 {
+	if len(settingsScopeMap) == 0 {
 		return "default"
 	}
 
