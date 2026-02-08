@@ -346,11 +346,11 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 		var userEmail *string
 		var platformName, platformSlug, platformThumbnailURL, platformType *string
 		var platformIsActive, platformIsPremium *bool
-		var fileID uuid.UUID
-		var downloadID uuid.UUID
+		var fileID *uuid.UUID
+		var downloadID *uuid.UUID
 		var url, formatID, resolution, extension *string
 		var fileSize *int64
-		var createdAt time.Time
+		var fileCreatedAt *time.Time
 		var encryptedData *[]byte
 
 		err := rows.Scan(
@@ -360,7 +360,7 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 			&task.Status, &task.ErrorMessage, &task.IPAddress, &task.CreatedAt,
 			&userEmail,
 			&platformName, &platformSlug, &platformThumbnailURL, &platformType, &platformIsActive, &platformIsPremium,
-			&fileID, &downloadID, &url, &formatID, &resolution, &extension, &fileSize, &encryptedData, &createdAt,
+			&fileID, &downloadID, &url, &formatID, &resolution, &extension, &fileSize, &encryptedData, &fileCreatedAt,
 		)
 		if err != nil {
 			return nil, model.Pagination{}, err
@@ -385,11 +385,23 @@ func (r *downloadRepository) FindAll(ctx context.Context, params model.QueryPara
 			}
 		}
 
-		if fileID != uuid.Nil {
+		if fileID != nil && *fileID != uuid.Nil {
+			dlID := uuid.Nil
+			if downloadID != nil {
+				dlID = *downloadID
+			}
+			fileURL := ""
+			if url != nil {
+				fileURL = *url
+			}
+			createdAt := time.Time{}
+			if fileCreatedAt != nil {
+				createdAt = *fileCreatedAt
+			}
 			task.DownloadFiles = append(task.DownloadFiles, model.DownloadFile{
-				ID:            fileID,
-				DownloadID:    downloadID,
-				URL:           *url,
+				ID:            *fileID,
+				DownloadID:    dlID,
+				URL:           fileURL,
 				FormatID:      formatID,
 				Resolution:    resolution,
 				Extension:     extension,
