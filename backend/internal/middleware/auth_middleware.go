@@ -13,6 +13,9 @@ func APIKeyMiddleware(appCache service.AppCacheService) fiber.Handler {
 		ctx := FromContext(c)
 
 		path := c.Path()
+		if strings.HasPrefix(path, "/.well-known/") {
+			return c.Next()
+		}
 
 		if path == "/metrics" || strings.HasPrefix(path, "/api/v1/public-admin") || strings.HasPrefix(path, "/api/v1/protected-admin") || strings.HasPrefix(path, "/api/v1/token/csrf") || strings.HasPrefix(path, "/api/v1/web-client") || strings.HasPrefix(path, "/api/v1/public-proxy") || strings.HasPrefix(path, "/api/v1/downloads/ws") || strings.HasPrefix(path, "/api/v1/ws") {
 			return c.Next()

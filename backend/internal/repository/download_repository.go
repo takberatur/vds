@@ -424,10 +424,16 @@ func (r *downloadRepository) Update(ctx context.Context, task *model.DownloadTas
 			title = $5, file_size = $6, duration = $7, encrypted_data = $8, error_message = $9
 		WHERE id = $10
 	`
-	_, err := r.db.Exec(subCtx, query,
+	ct, err := r.db.Exec(subCtx, query,
 		task.Status, task.FilePath, task.Format, task.ThumbnailURL,
 		task.Title, task.FileSize, task.Duration, task.EncryptedData, task.ErrorMessage, task.ID)
-	return err
+	if err != nil {
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
 }
 
 func (r *downloadRepository) Delete(ctx context.Context, id uuid.UUID) error {
@@ -453,9 +459,13 @@ func (r *downloadRepository) AddFile(ctx context.Context, file *model.DownloadFi
 	defer cancel()
 
 	query := `
-		INSERT INTO download_files (download_id, url, format_id, resolution, extension, file_size, encrypted_data, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id
+		WITH inserted AS (
+			INSERT INTO download_files (download_id, url, format_id, resolution, extension, file_size, encrypted_data, created_at)
+			SELECT $1, $2, $3, $4, $5, $6, $7, $8
+			WHERE EXISTS (SELECT 1 FROM downloads WHERE id = $1)
+			RETURNING id
+		)
+		SELECT id FROM inserted
 	`
 	now := time.Now()
 	err := r.db.QueryRow(subCtx, query,
@@ -468,9 +478,11 @@ func (r *downloadRepository) AddFile(ctx context.Context, file *model.DownloadFi
 		file.EncryptedData,
 		now,
 	).Scan(&file.ID)
-
+	if err != nil {
+		return err
+	}
 	file.CreatedAt = now
-	return err
+	return nil
 }
 
 func (r *downloadRepository) FindOldAndCompleted(ctx context.Context, cutoff time.Time, limit int) ([]*model.DownloadTask, error) {

@@ -193,6 +193,7 @@ func handleVideoDownloadTask(ctx context.Context, downloadRepo repository.Downlo
 	task.Status = "processing"
 	if err := downloadRepo.Update(ctx, task); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update task to processing")
+		return err
 	}
 
 	if err := publishStartEvent(ctx, redisClient, centrifugoClient, task); err != nil {
@@ -214,6 +215,7 @@ func handleMp3DownloadTask(ctx context.Context, downloadRepo repository.Download
 	task.Status = "processing"
 	if err := downloadRepo.Update(ctx, task); err != nil {
 		log.Error().Err(err).Str("task_id", task.ID.String()).Msg("failed to update mp3 task to processing")
+		return err
 	}
 
 	if err := publishStartEvent(ctx, redisClient, centrifugoClient, task); err != nil {
@@ -937,7 +939,7 @@ func processDownloadTask(ctx context.Context, downloadRepo repository.DownloadRe
 					_ = markTaskFailed(ctx, downloadRepo, redisClient, centrifugoClient, task, err)
 					return err
 				}
-				downloaded = true
+				// downloaded = true // already set above
 			}
 		}
 
