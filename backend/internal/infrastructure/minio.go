@@ -41,9 +41,6 @@ func NewStorageClient(endpoint, accessKey, secretKey string, useSSL bool) (Stora
 		}
 		endpoint = parsedURL.Host
 	}
-
-	// Remove scheme prefix if present in endpoint variable (just in case url.Parse failed or left it)
-	// MinIO client expects "hostname:port" or "hostname" without scheme
 	if len(endpoint) > 0 {
 		// remove https:// or http:// prefix
 		if len(endpoint) >= 8 && endpoint[:8] == "https://" {

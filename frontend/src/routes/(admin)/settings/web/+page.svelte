@@ -3,14 +3,12 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import { superForm } from 'sveltekit-superforms';
 	import { handleSubmitLoading } from '@/stores';
-	import {
-		AppAlertDialog,
-	} from '@/components/index.js';
+	import { AppAlertDialog } from '@/components/index.js';
 	import {
 		AdminSidebarLayout,
 		AdminSettingLayout,
 		AdminSettingUploadFavicon,
-		AdminSettingUploadLogo,
+		AdminSettingUploadLogo
 	} from '@/components/admin';
 	import * as Field from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -39,6 +37,7 @@
 			handleSubmitLoading(true);
 			successMessage = null;
 			errorMessage = null;
+			$form.site_keywords = keywordsInput.join(', ');
 		},
 		async onUpdate(event) {
 			if (event.result.type === 'failure') {
@@ -90,13 +89,10 @@
 		}
 	];
 </script>
+
 <MetaTags {...metaTags} />
 <AdminSidebarLayout page="Web Setting" user={data.user} setting={data.settings}>
-	<AdminSettingLayout
-		fixed
-		title="Web Setting"
-		description="Update web setting"
-	>
+	<AdminSettingLayout fixed title="Web Setting" description="Update web setting">
 		{#snippet children()}
 			<Tabs.Root
 				bind:value={tabSelected}
@@ -199,6 +195,7 @@
 											aria-invalid={!!$errors.site_keywords}
 											autocomplete="on"
 											disabled={$submitting}
+											onValueChange={(val) => ($form.site_keywords = val.join(', '))}
 										/>
 									</div>
 									{#if $errors.site_keywords}
@@ -276,10 +273,10 @@
 					</form>
 				</Tabs.Content>
 				<Tabs.Content value="update-web-logo">
-					<AdminSettingUploadLogo web={data.settings?.WEBSITE}/>
+					<AdminSettingUploadLogo web={data.settings?.WEBSITE} />
 				</Tabs.Content>
 				<Tabs.Content value="update-web-favicon">
-					<AdminSettingUploadFavicon web={data.settings?.WEBSITE}/>
+					<AdminSettingUploadFavicon web={data.settings?.WEBSITE} />
 				</Tabs.Content>
 			</Tabs.Root>
 		{/snippet}

@@ -1,4 +1,3 @@
-
 import { defaultMetaTags } from '@/utils/meta-tags.js';
 
 export const load = async ({ locals, url, parent }) => {
